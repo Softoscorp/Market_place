@@ -1,0 +1,223 @@
+.hero {
+  position: relative;
+  width: 100%;
+  padding: 80px 24px 60px;
+  display: flex;
+  justify-content: center;
+  overflow: hidden;
+  background-color: var(--bg-deep);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+  max-width: 1200px;
+  width: 100%;
+  align-items: center;
+}
+
+.content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.title {
+  font-size: clamp(2.5rem, 4vw, 4rem);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  color: var(--text-primary);
+  margin-bottom: 24px;
+  line-height: 1.05;
+}
+
+.subtitle {
+  font-size: clamp(1.125rem, 1.5vw, 1.25rem);
+  color: var(--text-secondary);
+  margin-bottom: 40px;
+  max-width: 500px;
+  line-height: 1.5;
+  letter-spacing: -0.01em;
+  font-weight: 500;
+}
+
+.searchContainer {
+  width: 100%;
+  max-width: 600px;
+  position: relative;
+}
+
+.inputWrapper {
+  display: flex;
+  position: relative;
+  width: 100%;
+  background: var(--bg-surface);
+  border-radius: var(--radius-full);
+  padding: 8px;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border-subtle);
+  transition: box-shadow var(--duration-normal) var(--ease-out), transform var(--duration-normal) var(--ease-out);
+}
+
+.inputWrapper:focus-within {
+  box-shadow: var(--shadow-xl), var(--shadow-glow);
+  transform: translateY(-2px);
+  border-color: var(--border-hover);
+}
+
+.input {
+  width: 100%;
+  padding: 16px 20px 16px 80px;
+  font-size: 1.0625rem;
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  outline: none;
+  border-radius: inherit;
+  font-weight: 500;
+}
+
+.input::placeholder {
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  transition: color var(--duration-normal) var(--ease-out);
+}
+
+.inputWrapper:focus-within .searchIcon {
+  color: var(--text-primary);
+}
+
+.actionButton {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: var(--text-primary);
+  color: var(--text-inverse);
+  border: none;
+  border-radius: var(--radius-full);
+  padding: 14px 28px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: transform var(--duration-fast) var(--ease-out), opacity var(--duration-fast) var(--ease-out);
+  box-shadow: var(--shadow-sm);
+}
+
+.actionButton:hover {
+  transform: translateY(-50%) scale(1.02);
+  opacity: 0.9;
+}
+
+.actionButton:active {
+  transform: translateY(-50%) scale(0.98);
+}
+
+.suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 32px;
+}
+
+.suggestionBadge {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  padding: 8px 16px;
+  border-radius: var(--radius-full);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--duration-normal) var(--ease-out);
+  box-shadow: var(--shadow-sm);
+}
+
+.suggestionBadge:hover {
+  background-color: var(--bg-hover);
+  color: var(--text-primary);
+  border-color: var(--border-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.imageContainer {
+  position: relative;
+  width: 100%;
+  height: 500px;
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  box-shadow: var(--shadow-xl);
+  transform: perspective(1000px) rotateY(-5deg);
+  transition: transform var(--duration-slow) var(--ease-out);
+}
+
+.imageContainer:hover {
+  transform: perspective(1000px) rotateY(0deg) scale(1.02);
+}
+
+.heroImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.imageOverlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top right, rgba(0,0,0,0.2), transparent);
+}
+
+@media (max-width: 900px) {
+  .container {
+    grid-template-columns: 1fr;
+    gap: 32px;
+    text-align: center;
+  }
+  .subtitle {
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .suggestions {
+    justify-content: center;
+  }
+  .imageContainer {
+    height: 350px;
+    transform: none;
+  }
+  .imageContainer:hover {
+    transform: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .hero {
+    padding: 40px 16px 64px;
+  }
+  .title {
+    font-size: 2.5rem;
+  }
+  .input {
+    font-size: 1rem;
+    padding: 12px 16px 12px 64px;
+  }
+  .searchIcon {
+    left: 12px;
+  }
+  .actionButton {
+    padding: 10px 20px;
+    font-size: 0.9375rem;
+  }
+}

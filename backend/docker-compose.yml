@@ -1,0 +1,17 @@
+version: "3.8"
+
+services:
+  db:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: rental
+      POSTGRES_PASSWORD: rental
+      POSTGRES_DB: rental
+    ports:
+      - "5432:5432"
+    volumes:
+      - rental_pgdata:/var/lib/postgresql/data
+
+volumes:
+  rental_pgdata:

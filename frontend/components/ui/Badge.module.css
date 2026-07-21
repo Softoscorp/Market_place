@@ -1,0 +1,56 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-2);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+  font-family: var(--font-sans);
+}
+
+.icon {
+  flex-shrink: 0;
+}
+
+/* Variants */
+.variant-neutral {
+  background-color: var(--bg-hover);
+  color: var(--text-secondary);
+}
+
+.variant-accent {
+  background-color: var(--accent-muted);
+  color: var(--accent);
+}
+
+.variant-success {
+  background-color: var(--success-muted);
+  color: var(--success);
+}
+
+.variant-warning {
+  background-color: var(--warning-muted);
+  color: var(--warning);
+}
+
+.variant-danger {
+  background-color: var(--danger-muted);
+  color: var(--danger);
+}
+
+.variant-verified {
+  background-color: var(--success-muted);
+  color: var(--success);
+  padding-left: var(--space-1); /* slightly less padding on left to accommodate icon visually */
+}
+
+.variant-price {
+  background-color: var(--bg-surface);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+  font-size: var(--text-sm);
+  padding: var(--space-1) var(--space-3);
+  font-weight: 700;
+}

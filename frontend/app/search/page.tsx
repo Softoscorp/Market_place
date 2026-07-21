@@ -96,7 +96,7 @@ function SearchResults() {
                 {properties.map((prop) => (
                   <PropertyCard
                     key={prop.id}
-                    id={prop.id}
+                    id={String(prop.id)}
                     title={prop.title}
                     location={prop.location}
                     price={prop.price}

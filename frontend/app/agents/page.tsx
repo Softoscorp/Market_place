@@ -65,11 +65,11 @@ export default function AgentsPage() {
               <AgentCard
                 agentId={agent.id}
                 name={agent.name}
-                agency={agent.agency}
-                imageUrl={agent.avatarUrl}
-                rating={agent.average_rating}
-                reviews={agent.total_reviews}
-                activeListings={agent.active_listings}
+                agency={agent.agency ?? ''}
+                imageUrl={agent.avatarUrl ?? ''}
+                rating={agent.average_rating ?? 0}
+                reviews={agent.total_reviews ?? 0}
+                activeListings={agent.active_listings ?? 0}
                 isVerified={agent.is_verified}
               />
             </a>

@@ -19,7 +19,7 @@ def register(payload: schemas.RegisterRequest, db: Session = Depends(get_db)):
         email=payload.email,
         password_hash=hash_password(payload.password),
         name=payload.name,
-        phone=payload.phone,
+        phone=payload.phone or "",
         role=payload.role,
         language=payload.language,
     )

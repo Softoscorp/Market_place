@@ -74,7 +74,7 @@ class User(Base):
     email = Column(String, unique=True, index=True, nullable=False)
     password_hash = Column(String, nullable=False)
     name = Column(String, nullable=False)
-    phone = Column(String, nullable=False)  # never exposed publicly — see schemas.py
+    phone = Column(String, nullable=True)  # never exposed publicly — see schemas.py
     role = Column(Enum(UserRole), nullable=False)
     language = Column(String, nullable=False, default="en")  # ISO-ish code: en, tr, fr, ru...
     account_status = Column(Enum(AccountStatus), nullable=False, default=AccountStatus.active)

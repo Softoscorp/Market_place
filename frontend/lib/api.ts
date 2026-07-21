@@ -1,5 +1,5 @@
 export const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
+  process.env.NEXT_PUBLIC_API_BASE_URL || "https://marketplace-production-2905.up.railway.app";
 
 const TOKEN_KEY = "rental_platform_token";
 

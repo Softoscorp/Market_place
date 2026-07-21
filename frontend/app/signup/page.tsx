@@ -29,23 +29,28 @@ export default function SignupPage() {
       try {
         // Backend uses 'renter', frontend displays 'student' - map before sending
         const apiRole = role === 'student' ? 'renter' : role;
-        await register({
+        const data = await register({
           email: formData.email,
           password: formData.password,
           name: formData.name,
           role: apiRole,
         });
-        
+
+        // Store the token returned by the server
+        const { setToken } = await import('@/lib/api');
+        setToken(data.access_token);
+
         setAuthUser({
-          id: 'temp',
-          name: formData.name,
-          email: formData.email,
+          id: String(data.user.id),
+          name: data.user.name,
+          email: data.user.email,
           role: role!,
+          token: data.access_token,
         });
-        
+
         setIsSubmitting(false);
         setStep(3);
-        
+
         setTimeout(() => {
           if (role === 'agent') router.push('/kyc');
           else router.push('/search');

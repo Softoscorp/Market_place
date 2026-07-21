@@ -30,11 +30,17 @@ export default function LoginPage() {
       // Fetch user profile to get their role
       const user = await getUser();
       
+      // apiLogin stores the token in localStorage; re-read it for the auth store
+      const { getToken } = await import('@/lib/api');
+      const token = getToken() || '';
+
       setAuthUser({
         id: user.id.toString(),
         name: user.name,
         email: user.email,
-        role: user.role,
+        // Map backend 'renter' back to frontend 'student' for display
+        role: user.role === 'renter' ? 'student' : user.role,
+        token,
       });
       
       setSuccess(true);

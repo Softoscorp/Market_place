@@ -27,11 +27,13 @@ export default function SignupPage() {
       setIsSubmitting(true);
       setError('');
       try {
+        // Backend uses 'renter', frontend displays 'student' - map before sending
+        const apiRole = role === 'student' ? 'renter' : role;
         await register({
           email: formData.email,
           password: formData.password,
           name: formData.name,
-          role: role!,
+          role: apiRole,
         });
         
         setAuthUser({

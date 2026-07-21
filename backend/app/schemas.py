@@ -21,7 +21,7 @@ class RegisterRequest(BaseModel):
     email: EmailStr
     password: str = Field(min_length=6)
     name: str
-    phone: str
+    phone: Optional[str] = None
     role: UserRole
     language: str = "en"
 

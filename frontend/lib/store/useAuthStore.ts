@@ -8,6 +8,7 @@ export interface User {
   name: string;
   email: string;
   role: UserRole;
+  token: string;
   isVerifiedAgent?: boolean;
   isLookingForRoommate?: boolean;
 }
@@ -19,28 +20,54 @@ interface AuthState {
   logout: () => void;
   verifyAgent: () => void;
   toggleRoommateSearch: () => void;
+  validateToken: () => Promise<void>;
 }
+
+const API_BASE =
+  process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
 
 export const useAuthStore = create<AuthState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       user: null,
       isAuthenticated: false,
 
       login: (userData) => set({ user: userData, isAuthenticated: true }),
-      
+
       logout: () => set({ user: null, isAuthenticated: false }),
-      
-      verifyAgent: () => set((state) => ({
-        user: state.user ? { ...state.user, isVerifiedAgent: true } : null
-      })),
-      
-      toggleRoommateSearch: () => set((state) => ({
-        user: state.user ? { ...state.user, isLookingForRoommate: !state.user.isLookingForRoommate } : null
-      }))
+
+      verifyAgent: () =>
+        set((state) => ({
+          user: state.user ? { ...state.user, isVerifiedAgent: true } : null,
+        })),
+
+      toggleRoommateSearch: () =>
+        set((state) => ({
+          user: state.user
+            ? {
+                ...state.user,
+                isLookingForRoommate: !state.user.isLookingForRoommate,
+              }
+            : null,
+        })),
+
+      // Validates the stored JWT against the backend.
+      // If invalid or expired, clears the session.
+      validateToken: async () => {
+        const { user } = get();
+        if (!user?.token) return;
+        try {
+          const res = await fetch(`${API_BASE}/users/me`, {
+            headers: { Authorization: `Bearer ${user.token}` },
+          });
+          if (!res.ok) {
+            set({ user: null, isAuthenticated: false });
+          }
+        } catch {
+          // Network error — don't log out, could be temporary
+        }
+      },
     }),
-    {
-      name: 'house-agent-auth', // localStorage key
-    }
+    { name: 'house-agent-auth' }
   )
 );

@@ -6,6 +6,7 @@ import { Footer } from "@/components/layout/Footer";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ChatPanel } from "@/components/chat/ChatPanel";
 import { GlobalNotification } from "@/components/chat/GlobalNotification";
+import { AuthProvider } from "@/components/AuthProvider";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -41,11 +42,13 @@ export default function RootLayout({
           forcedTheme="light"
           disableTransitionOnChange
         >
-          <Navbar />
-          <main>{children}</main>
-          <Footer />
-          <ChatPanel />
-          <GlobalNotification />
+          <AuthProvider>
+            <Navbar />
+            <main>{children}</main>
+            <Footer />
+            <ChatPanel />
+            <GlobalNotification />
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>

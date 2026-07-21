@@ -16,6 +16,9 @@ interface Property {
   location: string;
   price: number;
   house_type: string;
+  bedrooms?: number;
+  bathrooms?: number;
+  size_sqf?: number;
   photos?: Array<{ url: string }>;
   agent_average_rating?: number;
   agent?: { name: string; avatarUrl?: string; is_verified?: boolean };
@@ -101,6 +104,10 @@ function SearchResults() {
                     location={prop.location}
                     price={prop.price}
                     type={prop.house_type}
+                    bedrooms={prop.bedrooms ?? 1}
+                    bathrooms={prop.bathrooms ?? 1}
+                    sizeSqf={prop.size_sqf ?? 0}
+                    moveInCost={prop.price * 2}
                     images={prop.photos?.map((p) => p.url) || []}
                     agentRating={prop.agent_average_rating}
                     agentName={prop.agent?.name || 'Agent'}

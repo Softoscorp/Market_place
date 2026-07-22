@@ -61,19 +61,7 @@ export default function ProfilePage() {
     return () => clearTimeout(timer);
   }, []);
 
-  // Sync formData whenever user rehydrates from store or updates
-  React.useEffect(() => {
-    if (user) {
-      setFormData((prev) => ({
-        ...prev,
-        name: user.name || '',
-        phone: user.phone || '',
-        occupation: user.role === 'agent' ? 'Real Estate Agent' : 'Student / Renter'
-      }));
-    }
-  }, [user]);
-
-  // Fetch fresh user data from backend to ensure mobile local storage cache is up to date
+  // Fetch fresh user data from backend on mount
   React.useEffect(() => {
     if (user?.token) {
       apiRequest('/users/me')
@@ -91,7 +79,9 @@ export default function ProfilePage() {
         })
         .catch((err) => console.error('Error refreshing user profile:', err));
     }
-  }, []);
+  }, [user?.token]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const displayName = user?.name || formData.name || 'User';
 
   const { conversations, openChat } = useChatStore();
   const conversationList = Object.values(conversations).sort((a, b) => {
@@ -152,13 +142,13 @@ export default function ProfilePage() {
             <div style={{ position: 'relative' }}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img 
-                src={user?.avatar_url ? (mediaUrl(user.avatar_url) || '') : `https://ui-avatars.com/api/?name=${encodeURIComponent(formData.name || user?.name || 'User')}&background=0F172A&color=fff&size=128&bold=true`}
+                src={user?.avatar_url ? (mediaUrl(user.avatar_url) || '') : `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=0F172A&color=fff&size=128&bold=true`}
                 alt="Profile Avatar" 
                 style={{ width: '72px', height: '72px', borderRadius: '50%', border: '2px solid #e2e8f0', objectFit: 'cover' }}
               />
             </div>
             <div>
-              <div style={{ fontWeight: 600, fontSize: '1rem', color: '#0f172a' }}>{formData.name || user?.name || 'User'}</div>
+              <div style={{ fontWeight: 600, fontSize: '1rem', color: '#0f172a' }}>{displayName}</div>
               <div style={{ fontSize: '0.85rem', color: '#64748b' }}>{user?.email}</div>
               <button 
                 type="button"

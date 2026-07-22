@@ -119,6 +119,9 @@ class Listing(Base):
     furnished = Column(Boolean, default=False)
     parking = Column(Boolean, default=False)
     pet_friendly = Column(Boolean, default=False)
+    generator = Column(Boolean, default=False)
+    pool = Column(Boolean, default=False)
+    gym = Column(Boolean, default=False)
 
     status = Column(Enum(ListingStatus), nullable=False, default=ListingStatus.active)
 

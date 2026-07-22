@@ -10,6 +10,21 @@ from .routers import auth, users, listings, messaging, ratings, admin, reports, 
 
 Base.metadata.create_all(bind=engine)
 
+def auto_migrate_columns():
+    try:
+        from sqlalchemy import text
+        with engine.connect() as conn:
+            for col in ["generator", "pool", "gym"]:
+                try:
+                    conn.execute(text(f"ALTER TABLE listings ADD COLUMN {col} BOOLEAN DEFAULT FALSE;"))
+                    conn.commit()
+                except Exception:
+                    pass
+    except Exception as e:
+        print("Column migration notice:", e)
+
+auto_migrate_columns()
+
 app = FastAPI(title="North Cyprus Rental Platform API")
 
 app.add_middleware(

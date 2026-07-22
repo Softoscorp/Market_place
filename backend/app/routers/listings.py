@@ -64,6 +64,9 @@ def create_listing(
         furnished=payload.furnished,
         parking=payload.parking,
         pet_friendly=payload.pet_friendly,
+        generator=payload.generator,
+        pool=payload.pool,
+        gym=payload.gym,
     )
     db.add(listing)
     db.commit()
@@ -78,6 +81,12 @@ def browse_listings(
     max_price: Optional[float] = None,
     location: Optional[str] = None,
     keyword: Optional[str] = None,
+    furnished: Optional[bool] = None,
+    parking: Optional[bool] = None,
+    pet_friendly: Optional[bool] = None,
+    generator: Optional[bool] = None,
+    pool: Optional[bool] = None,
+    gym: Optional[bool] = None,
     sort: str = Query("newest", pattern="^(newest|price_asc|price_desc)$"),
     status_filter: Optional[str] = Query("active", alias="status"),
     agent_id: Optional[int] = None,
@@ -97,6 +106,18 @@ def browse_listings(
         query = query.filter(models.Listing.price <= max_price)
     if location:
         query = query.filter(models.Listing.location.ilike(f"%{location}%"))
+    if furnished is not None:
+        query = query.filter(models.Listing.furnished == furnished)
+    if parking is not None:
+        query = query.filter(models.Listing.parking == parking)
+    if pet_friendly is not None:
+        query = query.filter(models.Listing.pet_friendly == pet_friendly)
+    if generator is not None:
+        query = query.filter(models.Listing.generator == generator)
+    if pool is not None:
+        query = query.filter(models.Listing.pool == pool)
+    if gym is not None:
+        query = query.filter(models.Listing.gym == gym)
     if keyword:
         like = f"%{keyword}%"
         query = query.filter(

@@ -112,6 +112,9 @@ class ListingCreateRequest(BaseModel):
     furnished: bool = False
     parking: bool = False
     pet_friendly: bool = False
+    generator: bool = False
+    pool: bool = False
+    gym: bool = False
 
 
 class ListingUpdateRequest(BaseModel):
@@ -123,6 +126,9 @@ class ListingUpdateRequest(BaseModel):
     furnished: Optional[bool] = None
     parking: Optional[bool] = None
     pet_friendly: Optional[bool] = None
+    generator: Optional[bool] = None
+    pool: Optional[bool] = None
+    gym: Optional[bool] = None
     status: Optional[ListingStatus] = None
 
 
@@ -137,6 +143,9 @@ class ListingOut(BaseModel):
     furnished: bool
     parking: bool
     pet_friendly: bool
+    generator: bool = False
+    pool: bool = False
+    gym: bool = False
     status: ListingStatus
     agent: PublicUserOut
     photos: list[ListingPhotoOut] = []

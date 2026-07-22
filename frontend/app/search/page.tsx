@@ -33,12 +33,27 @@ function SearchResults() {
 
   useEffect(() => {
     const params = new URLSearchParams();
-    const type = searchParams.get('type');
-    const q = searchParams.get('q');
+    const type = searchParams.get('house_type') || searchParams.get('type');
+    const q = searchParams.get('q') || searchParams.get('keyword');
+    const location = searchParams.get('location');
+    const minPrice = searchParams.get('min_price');
+    const maxPrice = searchParams.get('max_price');
+
     if (type) params.set('house_type', type);
-    if (q) params.set('q', q);
+    if (q) params.set('keyword', q);
+    if (location) params.set('location', location);
+    if (minPrice) params.set('min_price', minPrice);
+    if (maxPrice) params.set('max_price', maxPrice);
+
+    ['furnished', 'generator', 'pool', 'gym', 'parking', 'pet_friendly'].forEach((amenity) => {
+      if (searchParams.get(amenity) === 'true') {
+        params.set(amenity, 'true');
+      }
+    });
+
     if (sort && sort !== 'recommended') params.set('sort', sort);
 
+    setLoading(true);
     apiRequest(`/listings?${params.toString()}`, { auth: false })
       .then((data) => setProperties(data.items || []))
       .catch(() => setProperties([]))

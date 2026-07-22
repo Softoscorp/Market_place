@@ -19,6 +19,15 @@ export default function PostListingPage() {
   const [upfrontMonths, setUpfrontMonths] = useState(1);
   const [depositMonths, setDepositMonths] = useState(2);
   const [commissionMonths, setCommissionMonths] = useState(1);
+  const [location, setLocation] = useState('Famagusta');
+
+  // Amenities
+  const [furnished, setFurnished] = useState(true);
+  const [generator, setGenerator] = useState(false);
+  const [pool, setPool] = useState(false);
+  const [gym, setGym] = useState(false);
+  const [parking, setParking] = useState(true);
+  const [petFriendly, setPetFriendly] = useState(false);
 
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
@@ -185,10 +194,52 @@ export default function PostListingPage() {
             </div>
 
             <div className={styles.inputGroup}>
-              <label className={styles.label}>Location / Neighborhood</label>
+              <label className={styles.label}>Location / Region</label>
               <div style={{ position: 'relative' }}>
                 <MapPin size={18} style={{ position: 'absolute', left: 12, top: 12, color: 'var(--text-muted)' }} />
-                <input id="listingLocation" type="text" className={styles.input} style={{ paddingLeft: '2.5rem', width: '100%' }} placeholder="e.g. Famagusta Center" />
+                <select 
+                  className={styles.input} 
+                  style={{ paddingLeft: '2.5rem', width: '100%' }}
+                  value={location}
+                  onChange={(e) => setLocation(e.target.value)}
+                >
+                  <option value="Famagusta">Famagusta (Gazimağusa)</option>
+                  <option value="Kyrenia">Kyrenia (Girne)</option>
+                  <option value="Nicosia">Nicosia (Lefkoşa)</option>
+                  <option value="Iskele">Iskele (Trikomo)</option>
+                  <option value="Güzelyurt">Güzelyurt (Morphou)</option>
+                  <option value="Lefke">Lefke</option>
+                </select>
+              </div>
+            </div>
+
+            <div className={styles.inputGroup}>
+              <label className={styles.label}>Property Amenities</label>
+              <div className={styles.amenitiesGrid}>
+                <label className={styles.checkboxLabel}>
+                  <input type="checkbox" checked={furnished} onChange={(e) => setFurnished(e.target.checked)} />
+                  Fully Furnished
+                </label>
+                <label className={styles.checkboxLabel}>
+                  <input type="checkbox" checked={generator} onChange={(e) => setGenerator(e.target.checked)} />
+                  Generator
+                </label>
+                <label className={styles.checkboxLabel}>
+                  <input type="checkbox" checked={pool} onChange={(e) => setPool(e.target.checked)} />
+                  Pool
+                </label>
+                <label className={styles.checkboxLabel}>
+                  <input type="checkbox" checked={gym} onChange={(e) => setGym(e.target.checked)} />
+                  Gym
+                </label>
+                <label className={styles.checkboxLabel}>
+                  <input type="checkbox" checked={parking} onChange={(e) => setParking(e.target.checked)} />
+                  Parking
+                </label>
+                <label className={styles.checkboxLabel}>
+                  <input type="checkbox" checked={petFriendly} onChange={(e) => setPetFriendly(e.target.checked)} />
+                  Pet Friendly
+                </label>
               </div>
             </div>
           </div>
@@ -224,7 +275,6 @@ export default function PostListingPage() {
                 try {
                   setIsPublishing(true);
                   const title = (document.getElementById('listingTitle') as HTMLInputElement).value || 'New Property';
-                  const location = (document.getElementById('listingLocation') as HTMLInputElement).value || 'Cyprus';
                   const house_type = (document.getElementById('listingType') as HTMLSelectElement).value;
 
                   const payload = {
@@ -233,9 +283,12 @@ export default function PostListingPage() {
                     price,
                     house_type,
                     location,
-                    furnished: true,
-                    parking: true,
-                    pet_friendly: false,
+                    furnished,
+                    generator,
+                    pool,
+                    gym,
+                    parking,
+                    pet_friendly: petFriendly,
                     status: 'active'
                   };
                   

@@ -4,6 +4,36 @@
   padding: 4rem 1.5rem;
 }
 
+@media (max-width: 640px) {
+  .container {
+    padding: 1.5rem 1rem 5rem 1rem;
+    overflow-x: hidden;
+  }
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  .title {
+    font-size: 1.75rem;
+  }
+  .card {
+    padding: 1.25rem 1rem;
+    border-radius: 1rem;
+  }
+  .headerActions {
+    width: 100%;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .btnDashboard, .btnLogOut {
+    padding: 0.5rem 0.875rem;
+    font-size: 0.8125rem;
+  }
+}
+
 .grid {
   display: grid;
   grid-template-columns: 1fr;

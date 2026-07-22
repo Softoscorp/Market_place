@@ -53,11 +53,19 @@ function SearchResults() {
 
     if (sort && sort !== 'recommended') params.set('sort', sort);
 
-    setLoading(true);
+    let isMounted = true;
     apiRequest(`/listings?${params.toString()}`, { auth: false })
-      .then((data) => setProperties(data.items || []))
-      .catch(() => setProperties([]))
-      .finally(() => setLoading(false));
+      .then((data) => {
+        if (isMounted) setProperties(data.items || []);
+      })
+      .catch(() => {
+        if (isMounted) setProperties([]);
+      })
+      .finally(() => {
+        if (isMounted) setLoading(false);
+      });
+
+    return () => { isMounted = false; };
   }, [searchParams, sort]);
 
   return (

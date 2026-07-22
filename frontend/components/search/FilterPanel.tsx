@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import styles from './FilterPanel.module.css';
 
@@ -21,7 +21,10 @@ export function FilterPanel() {
   const [parking, setParking] = useState(searchParams.get('parking') === 'true');
   const [petFriendly, setPetFriendly] = useState(searchParams.get('pet_friendly') === 'true');
 
-  useEffect(() => {
+  const [prevParams, setPrevParams] = useState(searchParams.toString());
+
+  if (searchParams.toString() !== prevParams) {
+    setPrevParams(searchParams.toString());
     setLocation(searchParams.get('location') || '');
     setMinPrice(searchParams.get('min_price') || '');
     setMaxPrice(searchParams.get('max_price') || '');
@@ -32,7 +35,7 @@ export function FilterPanel() {
     setGym(searchParams.get('gym') === 'true');
     setParking(searchParams.get('parking') === 'true');
     setPetFriendly(searchParams.get('pet_friendly') === 'true');
-  }, [searchParams]);
+  }
 
   const handleApply = () => {
     const params = new URLSearchParams();

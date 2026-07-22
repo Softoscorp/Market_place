@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 
 interface ProtectedImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
   src: string;
@@ -11,23 +11,16 @@ interface ProtectedImageProps extends React.ImgHTMLAttributes<HTMLImageElement> 
 }
 
 export function ProtectedImage({ src, alt, fallbackSrc, className, style, onError, ...props }: ProtectedImageProps) {
-  const [imgSrc, setImgSrc] = useState(src);
-  const [hasError, setHasError] = useState(false);
-  const prevSrcRef = useRef(src);
+  // Track which src caused an error — when src prop changes this won't match,
+  // so the new src is shown automatically without any state reset needed.
+  const [errorSrc, setErrorSrc] = useState<string | null>(null);
 
-  // React-recommended derived state pattern: update during render when the src prop changes,
-  // instead of useEffect (which causes an extra render cycle and triggers the cascading-setState lint error).
-  // See: https://react.dev/learn/you-might-not-need-an-effect#adjusting-some-state-when-a-prop-changes
-  if (prevSrcRef.current !== src) {
-    prevSrcRef.current = src;
-    setImgSrc(src);
-    setHasError(false);
-  }
+  // Derive the displayed src purely from props + error state. No refs, no effects.
+  const displaySrc = errorSrc === src && fallbackSrc ? fallbackSrc : src;
 
   const handleError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-    if (!hasError && fallbackSrc && imgSrc !== fallbackSrc) {
-      setHasError(true);
-      setImgSrc(fallbackSrc);
+    if (fallbackSrc && errorSrc !== src) {
+      setErrorSrc(src);
     }
     if (onError) onError(e);
   };
@@ -35,7 +28,7 @@ export function ProtectedImage({ src, alt, fallbackSrc, className, style, onErro
   return (
     /* eslint-disable-next-line @next/next/no-img-element */
     <img
-      src={imgSrc}
+      src={displaySrc}
       alt={alt}
       className={className}
       style={{

@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { UploadCloud, MapPin, Calculator } from 'lucide-react';
+import { UploadCloud, MapPin, Calculator, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/lib/store/useAuthStore';
 import { BackButton } from '@/components/ui/BackButton';
@@ -13,11 +13,16 @@ export default function PostListingPage() {
   const router = useRouter();
   const { user, isAuthenticated } = useAuthStore();
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+  const [isPublishing, setIsPublishing] = useState(false);
   
   const [price, setPrice] = useState(500);
   const [upfrontMonths, setUpfrontMonths] = useState(1);
   const [depositMonths, setDepositMonths] = useState(2);
   const [commissionMonths, setCommissionMonths] = useState(1);
+
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [previewUrls, setPreviewUrls] = useState<string[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     // Basic auth guard
@@ -29,6 +34,23 @@ export default function PostListingPage() {
     }
     return () => clearTimeout(timeout);
   }, [isAuthenticated, user, router]);
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const filesArr = Array.from(e.target.files);
+      setSelectedFiles((prev) => [...prev, ...filesArr]);
+      const newUrls = filesArr.map((file) => URL.createObjectURL(file));
+      setPreviewUrls((prev) => [...prev, ...newUrls]);
+    }
+  };
+
+  const removePhoto = (index: number) => {
+    setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
+    setPreviewUrls((prev) => {
+      URL.revokeObjectURL(prev[index]);
+      return prev.filter((_, i) => i !== index);
+    });
+  };
 
   if (isCheckingAuth) {
     return (
@@ -60,13 +82,45 @@ export default function PostListingPage() {
           <div className={styles.formSection}>
             <div className={styles.inputGroup}>
               <label className={styles.label}>Property Images</label>
-              <div className={styles.uploadArea}>
+              <input 
+                type="file" 
+                ref={fileInputRef} 
+                onChange={handleFileSelect} 
+                multiple 
+                accept="image/*" 
+                style={{ display: 'none' }} 
+              />
+              <div 
+                className={styles.uploadArea}
+                onClick={() => fileInputRef.current?.click()}
+              >
                 <UploadCloud size={48} />
                 <div>
                   <strong>Click to upload</strong> or drag and drop<br/>
-                  <span style={{ fontSize: '0.875rem' }}>SVG, PNG, JPG (max. 10MB)</span>
+                  <span style={{ fontSize: '0.875rem' }}>PNG, JPG, WEBP (max 10MB per image)</span>
                 </div>
               </div>
+
+              {previewUrls.length > 0 && (
+                <div className={styles.imagePreviewsGrid}>
+                  {previewUrls.map((url, idx) => (
+                    <div key={idx} className={styles.previewThumbWrapper}>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={url} alt={`Preview ${idx}`} className={styles.previewThumb} />
+                      <button 
+                        type="button" 
+                        className={styles.removeThumbBtn} 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          removePhoto(idx);
+                        }}
+                      >
+                        <X size={12} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             <div className={styles.inputGroup}>
@@ -165,30 +219,52 @@ export default function PostListingPage() {
 
             <button 
               className={styles.submitBtn} 
+              disabled={isPublishing}
               onClick={async () => {
                 try {
+                  setIsPublishing(true);
+                  const title = (document.getElementById('listingTitle') as HTMLInputElement).value || 'New Property';
+                  const location = (document.getElementById('listingLocation') as HTMLInputElement).value || 'Cyprus';
+                  const house_type = (document.getElementById('listingType') as HTMLSelectElement).value;
+
                   const payload = {
-                    title: (document.getElementById('listingTitle') as HTMLInputElement).value || 'New Property',
-                    description: 'Property description',
+                    title,
+                    description: `${house_type} located in ${location}. Upfront: ${upfrontMonths} mo, Deposit: ${depositMonths} mo, Commission: ${commissionMonths} mo.`,
                     price,
-                    house_type: (document.getElementById('listingType') as HTMLSelectElement).value,
-                    location: (document.getElementById('listingLocation') as HTMLInputElement).value || 'Cyprus',
+                    house_type,
+                    location,
                     furnished: true,
                     parking: true,
                     pet_friendly: false,
                     status: 'active'
                   };
-                  // We would upload images first, but for now we'll just submit the listing
+                  
+                  // 1. Post listing
                   const res = await apiRequest('/listings/', { method: 'POST', body: JSON.stringify(payload) });
+
+                  // 2. Upload photos if selected
+                  if (selectedFiles.length > 0 && res.id) {
+                    for (const file of selectedFiles) {
+                      const formData = new FormData();
+                      formData.append('file', file);
+                      await apiRequest(`/listings/${res.id}/photos`, {
+                        method: 'POST',
+                        formData,
+                      });
+                    }
+                  }
+
                   alert('Listing published successfully!');
                   router.push('/property/' + res.id);
                 } catch (err: unknown) {
                   const error = err as Error;
                   alert(error.message || 'Failed to post listing');
+                } finally {
+                  setIsPublishing(false);
                 }
               }}
             >
-              Publish Listing
+              {isPublishing ? 'Publishing...' : 'Publish Listing'}
             </button>
             <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textAlign: 'center', marginTop: '1rem' }}>
               By publishing, you agree to our Verified Agent terms.

@@ -1,10 +1,15 @@
+'use client';
+
 import React from 'react';
 import Link from 'next/link';
 import { Home, Search, Users, User } from 'lucide-react';
 import { PremiumIcon } from '@/components/ui/PremiumIcon';
+import { useLanguageStore } from '@/lib/store/useLanguageStore';
 import styles from './Footer.module.css';
 
 export function Footer() {
+  const { t } = useLanguageStore();
+
   return (
     <>
       <footer className={styles.footer}>
@@ -15,20 +20,20 @@ export function Footer() {
               House Agent
             </h3>
             <p style={{ color: '#8B97A8', fontSize: '0.875rem', lineHeight: 1.5 }}>
-              The premier housing platform for North Cyprus. Find homes, connect with verified agents, and discover roommates.
+              {t('footer_tagline')}
             </p>
           </div>
           <div className={styles.column}>
-            <h4 style={{ color: '#E2E8F0', margin: 0 }}>Explore</h4>
-            <Link href="/search" className={styles.link}>Properties in Kyrenia</Link>
-            <Link href="/search" className={styles.link}>Properties in Famagusta</Link>
-            <Link href="/search" className={styles.link}>Student Dorms</Link>
+            <h4 style={{ color: '#E2E8F0', margin: 0 }}>{t('footer_explore')}</h4>
+            <Link href="/search?location=Kyrenia" className={styles.link}>{t('footer_prop_kyrenia')}</Link>
+            <Link href="/search?location=Famagusta" className={styles.link}>{t('footer_prop_famagusta')}</Link>
+            <Link href="/search?type=Studio" className={styles.link}>{t('footer_student_dorms')}</Link>
           </div>
           <div className={styles.column}>
-            <h4 style={{ color: '#E2E8F0', margin: 0 }}>Company</h4>
-            <Link href="/about" className={styles.link}>About Us</Link>
-            <Link href="/contact" className={styles.link}>Contact</Link>
-            <Link href="/terms" className={styles.link}>Terms & Privacy</Link>
+            <h4 style={{ color: '#E2E8F0', margin: 0 }}>{t('footer_company')}</h4>
+            <Link href="/about" className={styles.link}>{t('footer_about')}</Link>
+            <Link href="/contact" className={styles.link}>{t('footer_contact')}</Link>
+            <Link href="/terms" className={styles.link}>{t('footer_terms')}</Link>
           </div>
         </div>
       </footer>
@@ -37,19 +42,19 @@ export function Footer() {
       <div className={styles.bottomBar}>
         <Link href="/" className={`${styles.tabBtn} ${styles.tabBtnActive}`}>
           <Home size={24} />
-          <span>Home</span>
+          <span>{t('tab_home')}</span>
         </Link>
         <Link href="/search" className={styles.tabBtn}>
           <Search size={24} />
-          <span>Search</span>
+          <span>{t('tab_search')}</span>
         </Link>
         <Link href="/roommates" className={styles.tabBtn}>
           <Users size={24} />
-          <span>Matches</span>
+          <span>{t('tab_matches')}</span>
         </Link>
         <Link href="/profile" className={styles.tabBtn}>
           <User size={24} />
-          <span>Profile</span>
+          <span>{t('tab_profile')}</span>
         </Link>
       </div>
     </>

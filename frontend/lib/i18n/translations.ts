@@ -58,6 +58,25 @@ export const translations = {
     agents_sub: 'Work with trusted professionals who know the North Cyprus housing market.',
     no_agents: 'No agents yet.',
     no_agents_sub: 'Agents will appear here once they sign up and verify.',
+    agent_reviews: 'Reviews',
+    agent_listings: 'Listings',
+    agent_response: 'Response',
+    contact_agent: 'Contact Agent',
+
+    // Footer & Tabs
+    footer_tagline: 'The premier housing platform for North Cyprus. Find homes, connect with verified agents, and discover roommates.',
+    footer_explore: 'Explore',
+    footer_company: 'Company',
+    footer_prop_kyrenia: 'Properties in Kyrenia',
+    footer_prop_famagusta: 'Properties in Famagusta',
+    footer_student_dorms: 'Student Dorms',
+    footer_about: 'About Us',
+    footer_contact: 'Contact',
+    footer_terms: 'Terms & Privacy',
+    tab_home: 'Home',
+    tab_search: 'Search',
+    tab_matches: 'Matches',
+    tab_profile: 'Profile',
 
     // Auth
     auth_welcome_back: 'Welcome Back',
@@ -154,6 +173,25 @@ export const translations = {
     agents_sub: 'Kuzey Kıbrıs konut piyasasını iyi bilen güvenilir profesyonellerle çalışın.',
     no_agents: 'Henüz emlakçı yok.',
     no_agents_sub: 'Emlakçılar kaydolup doğruladıktan sonra burada görünecek.',
+    agent_reviews: 'Değerlendirme',
+    agent_listings: 'İlan',
+    agent_response: 'Yanıt Oranı',
+    contact_agent: 'İletişime Geç',
+
+    // Footer & Tabs
+    footer_tagline: 'Kuzey Kıbrıs\'ın lider konut platformu. Evler bulun, onaylı emlakçılarla iletişim kurun ve oda arkadaşları keşfedin.',
+    footer_explore: 'Keşfet',
+    footer_company: 'Kurumsal',
+    footer_prop_kyrenia: 'Girne Mülkleri',
+    footer_prop_famagusta: 'Gazimağusa Mülkleri',
+    footer_student_dorms: 'Öğrenci Yurtları',
+    footer_about: 'Hakkımızda',
+    footer_contact: 'İletişim',
+    footer_terms: 'Kullanım & Gizlilik',
+    tab_home: 'Ana Sayfa',
+    tab_search: 'Arama',
+    tab_matches: 'Eşleşmeler',
+    tab_profile: 'Profil',
 
     // Auth
     auth_welcome_back: 'Tekrar Hoş Geldiniz',

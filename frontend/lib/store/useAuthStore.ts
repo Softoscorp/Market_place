@@ -101,7 +101,20 @@ export const useAuthStore = create<AuthState>()(
           const res = await fetch(`${API_BASE}/users/me`, {
             headers: { Authorization: `Bearer ${user.token}` },
           });
-          if (!res.ok) {
+          if (res.ok) {
+            const freshUser = await res.json();
+            set((state) => ({
+              user: state.user
+                ? {
+                    ...state.user,
+                    name: freshUser.name || state.user.name,
+                    phone: freshUser.phone || state.user.phone,
+                    avatar_url: freshUser.avatar_url || state.user.avatar_url,
+                    is_verified: freshUser.is_verified ?? state.user.is_verified,
+                  }
+                : null,
+            }));
+          } else {
             set({ user: null, isAuthenticated: false });
           }
         } catch {

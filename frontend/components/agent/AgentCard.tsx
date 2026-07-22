@@ -1,6 +1,8 @@
 import React from 'react';
 import Link from 'next/link';
 import { Check, Star } from 'lucide-react';
+import { useLanguageStore } from '@/lib/store/useLanguageStore';
+import { mediaUrl } from '@/lib/api';
 import styles from './AgentCard.module.css';
 
 interface AgentCardProps {
@@ -26,8 +28,9 @@ export function AgentCard({
   isVerified = true,
   onContact
 }: AgentCardProps) {
+  const { t } = useLanguageStore();
   const avatarSrc = imageUrl && !imageUrl.includes('placeholder')
-    ? imageUrl
+    ? (mediaUrl(imageUrl) || imageUrl)
     : `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=0F172A&color=fff&bold=true`;
 
   return (
@@ -56,20 +59,20 @@ export function AgentCard({
             <Star size={12} fill="#D4A574" color="#D4A574" style={{ marginRight: 2 }} />
             {rating}
           </span>
-          <span className={styles.statLabel}>{reviews} Reviews</span>
+          <span className={styles.statLabel}>{reviews} {t('agent_reviews')}</span>
         </div>
         <div className={styles.statItem}>
           <span className={styles.statValue}>{activeListings}</span>
-          <span className={styles.statLabel}>Listings</span>
+          <span className={styles.statLabel}>{t('agent_listings')}</span>
         </div>
         <div className={styles.statItem}>
           <span className={styles.statValue}>100%</span>
-          <span className={styles.statLabel}>Response</span>
+          <span className={styles.statLabel}>{t('agent_response')}</span>
         </div>
       </div>
 
       <button className={styles.contactBtn} onClick={onContact}>
-        Contact Agent
+        {t('contact_agent')}
       </button>
     </div>
   );

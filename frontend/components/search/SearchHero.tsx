@@ -7,6 +7,7 @@ import { PremiumIcon } from '@/components/ui/PremiumIcon';
 import styles from './SearchHero.module.css';
 
 import { useLanguageStore } from '@/lib/store/useLanguageStore';
+import { ProtectedImage } from '@/components/ui/ProtectedImage';
 
 const SUGGESTIONS = [
   'Kyrenia Penthouse', 
@@ -77,7 +78,7 @@ export function SearchHero() {
           animate={{ opacity: 1, x: 0, scale: 1 }}
           transition={{ duration: 1, delay: 0.2, ease: [0.2, 0.8, 0.2, 1] }}
         >
-          <img 
+          <ProtectedImage 
             src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1200&q=80" 
             alt="Luxury home in North Cyprus" 
             className={styles.heroImage}

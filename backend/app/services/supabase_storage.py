@@ -1,6 +1,6 @@
 import os
 try:
-    from supabase import create_client, Client
+    from supabase import create_client, Client  # type: ignore
     HAS_SUPABASE = True
 except ImportError:
     create_client = None  # type: ignore

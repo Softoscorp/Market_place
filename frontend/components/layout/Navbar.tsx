@@ -9,14 +9,15 @@ import { PremiumIcon } from '@/components/ui/PremiumIcon';
 import styles from './Navbar.module.css';
 
 export function Navbar() {
-  const { user, isAuthenticated } = useAuthStore();
+  const { user, isAuthenticated, validateToken } = useAuthStore();
   const { lang, setLang, t } = useLanguageStore();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    validateToken();
     const timer = setTimeout(() => setMounted(true), 0);
     return () => clearTimeout(timer);
-  }, []);
+  }, [validateToken]);
 
   return (
     <nav className={styles.navbar}>

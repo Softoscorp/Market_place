@@ -10,6 +10,7 @@ export interface User {
   phone?: string;
   role: UserRole;
   token: string;
+  loginTimestamp?: number;
   isVerifiedAgent?: boolean;
   is_verified?: boolean;
   avatar_url?: string;
@@ -24,10 +25,13 @@ interface AuthState {
   verifyAgent: () => void;
   toggleRoommateSearch: () => void;
   validateToken: () => Promise<void>;
+  checkSessionExpiration: () => boolean;
 }
 
 const API_BASE =
   process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
+
+const FOUR_HOURS_MS = 4 * 60 * 60 * 1000;
 
 export const useAuthStore = create<AuthState>()(
   persist(
@@ -35,7 +39,14 @@ export const useAuthStore = create<AuthState>()(
       user: null,
       isAuthenticated: false,
 
-      login: (userData) => set({ user: userData, isAuthenticated: true }),
+      login: (userData) =>
+        set({
+          user: {
+            ...userData,
+            loginTimestamp: userData.loginTimestamp || Date.now(),
+          },
+          isAuthenticated: true,
+        }),
 
       logout: () => set({ user: null, isAuthenticated: false }),
 
@@ -54,11 +65,26 @@ export const useAuthStore = create<AuthState>()(
             : null,
         })),
 
-      // Validates the stored JWT against the backend.
-      // If invalid or expired, clears the session.
+      // Checks if the 4-hour session window has expired
+      checkSessionExpiration: () => {
+        const { user, isAuthenticated } = get();
+        if (!isAuthenticated || !user) return false;
+        
+        if (user.loginTimestamp && Date.now() - user.loginTimestamp > FOUR_HOURS_MS) {
+          set({ user: null, isAuthenticated: false });
+          return true; // Expired
+        }
+        return false; // Still valid
+      },
+
+      // Validates stored JWT & checks 4-hour session timeout
       validateToken: async () => {
-        const { user } = get();
+        const { user, checkSessionExpiration } = get();
         if (!user?.token) return;
+
+        // Automatically log out if session is older than 4 hours
+        if (checkSessionExpiration()) return;
+
         try {
           const res = await fetch(`${API_BASE}/users/me`, {
             headers: { Authorization: `Bearer ${user.token}` },

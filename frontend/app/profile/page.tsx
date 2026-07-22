@@ -76,6 +76,7 @@ export default function ProfilePage() {
           <h2 className={styles.sectionTitle}>Personal Details</h2>
           
           <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', marginBottom: '1.5rem' }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img 
               src={`https://ui-avatars.com/api/?name=${encodeURIComponent(formData.name || user?.name || 'User')}&background=0F172A&color=fff&size=128&bold=true`}
               alt="Profile Avatar" 
@@ -141,6 +142,7 @@ export default function ProfilePage() {
               });
               alert('Profile changes saved successfully!');
             } catch (err) {
+              console.error('Failed to update profile:', err);
               alert('Failed to update profile.');
             }
           }}

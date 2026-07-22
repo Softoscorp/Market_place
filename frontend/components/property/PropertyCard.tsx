@@ -3,7 +3,6 @@
 import React, { useState } from 'react';
 import { clsx } from 'clsx';
 import { Heart, MapPin, Ruler, Bed, Bath, Clock } from 'lucide-react';
-import Image from 'next/image';
 import Link from 'next/link';
 import { Badge } from '@/components/ui/Badge';
 import { PremiumIcon } from '@/components/ui/PremiumIcon';
@@ -59,10 +58,11 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
 }) => {
   const [saved, setSaved] = useState(isSaved);
   
-  // Deterministic random FOMO data based on ID for demo purposes
-  const getFomoData = (id: string) => {
-    const numId = parseInt(id) || Math.floor(Math.random() * 100);
-    const count = Math.floor(numId % 5) + 2; // Returns 2-6
+  // Deterministic FOMO data based on ID
+  const getFomoData = (idStr: string) => {
+    const hash = idStr.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    const numId = parseInt(idStr) || hash || 42;
+    const count = (numId % 5) + 2; // Returns 2-6
     const isWatching = numId % 2 === 0;
     return isWatching 
       ? `🔥 ${count} people are watching this`

@@ -11,6 +11,7 @@ interface ProtectedImageProps extends React.ImgHTMLAttributes<HTMLImageElement> 
 
 export function ProtectedImage({ src, alt, className, style, ...props }: ProtectedImageProps) {
   return (
+    /* eslint-disable-next-line @next/next/no-img-element */
     <img
       src={src}
       alt={alt}

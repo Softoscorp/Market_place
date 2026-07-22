@@ -12,9 +12,19 @@ import { register } from '@/lib/api';
 
 export default function SignupPage() {
   const router = useRouter();
-  const { login: setAuthUser } = useAuthStore();
+  const { user, isAuthenticated, login: setAuthUser } = useAuthStore();
   const { t } = useLanguageStore();
-  
+
+  React.useEffect(() => {
+    if (isAuthenticated && user) {
+      if (user.role === 'agent') {
+        router.replace('/agent-dashboard');
+      } else {
+        router.replace('/profile');
+      }
+    }
+  }, [isAuthenticated, user, router]);
+
   const [role, setRole] = useState<UserRole | null>(null);
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);

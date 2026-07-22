@@ -12,8 +12,18 @@ import { login as apiLogin, getUser, resetPassword } from '@/lib/api';
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login: setAuthUser } = useAuthStore();
+  const { user, isAuthenticated, login: setAuthUser } = useAuthStore();
   const { t } = useLanguageStore();
+
+  React.useEffect(() => {
+    if (isAuthenticated && user) {
+      if (user.role === 'agent') {
+        router.replace('/agent-dashboard');
+      } else {
+        router.replace('/profile');
+      }
+    }
+  }, [isAuthenticated, user, router]);
   
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({ email: '', password: '' });

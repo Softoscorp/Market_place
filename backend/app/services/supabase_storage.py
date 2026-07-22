@@ -12,7 +12,7 @@ if settings.supabase_url and settings.supabase_key:
 def upload_file(file_bytes: bytes, bucket: str, path: str, content_type: str = "application/octet-stream") -> str:
     """
     Uploads a file to Supabase Storage and returns the public URL.
-    Falls back to local file storage if Supabase is not configured.
+    Falls back to local file storage if Supabase is not configured or fails.
     """
     if supabase:
         try:
@@ -23,16 +23,15 @@ def upload_file(file_bytes: bytes, bucket: str, path: str, content_type: str = "
             )
             return supabase.storage.from_(bucket).get_public_url(path)
         except Exception as e:
-            logger.error(f"Supabase upload failed: {e}")
-            raise e
-    else:
-        logger.warning("Supabase is not configured. Falling back to local storage.")
-        dest_path = os.path.join(settings.media_root, path)
-        os.makedirs(os.path.dirname(dest_path), exist_ok=True)
-        with open(dest_path, "wb") as f:
-            f.write(file_bytes)
-        
-        return f"/media/{path}"
+            logger.error(f"Supabase upload failed: {e}. Falling back to local storage.")
+
+    # Local storage fallback
+    dest_path = os.path.join(settings.media_root, path)
+    os.makedirs(os.path.dirname(dest_path), exist_ok=True)
+    with open(dest_path, "wb") as f:
+        f.write(file_bytes)
+    
+    return f"/media/{path}"
 
 def delete_file(bucket: str, path: str):
     """Deletes a file from Supabase or local storage."""

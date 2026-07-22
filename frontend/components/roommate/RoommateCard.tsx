@@ -3,6 +3,7 @@
 import React from 'react';
 import { MessageCircle, Heart } from 'lucide-react';
 import { useChatStore } from '@/lib/store/useChatStore';
+import { ProtectedImage } from '@/components/ui/ProtectedImage';
 import styles from './RoommateCard.module.css';
 
 interface RoommateCardProps {
@@ -37,7 +38,7 @@ export function RoommateCard({
       <div className={styles.header}>
         <div className={styles.avatarWrapper}>
           <div className={styles.avatarRing} style={{ transform: `rotate(${(matchScore / 100) * 360}deg)` }} />
-          <img src={imageUrl} alt={name} className={styles.avatar} />
+          <ProtectedImage src={imageUrl} alt={name} className={styles.avatar} />
           <div className={styles.matchScoreBadge}>{matchScore}% Match</div>
         </div>
         <div className={styles.info}>

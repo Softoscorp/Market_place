@@ -2,8 +2,13 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Smartphone, Download, Bell, Check, X, ShieldCheck, Share, PlusSquare } from 'lucide-react';
+import { Smartphone, Download, Bell, Check, X, Share, PlusSquare } from 'lucide-react';
 import styles from './InstallAppModal.module.css';
+
+interface BeforeInstallPromptEvent extends Event {
+  prompt: () => Promise<void>;
+  userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
+}
 
 interface InstallAppModalProps {
   isOpen: boolean;
@@ -11,21 +16,22 @@ interface InstallAppModalProps {
 }
 
 export function InstallAppModal({ isOpen, onClose }: InstallAppModalProps) {
-  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
-  const [notificationsEnabled, setNotificationsEnabled] = useState(false);
+  const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
+  const [notificationsEnabled, setNotificationsEnabled] = useState(() => {
+    if (typeof window !== 'undefined' && 'Notification' in window) {
+      return Notification.permission === 'granted';
+    }
+    return false;
+  });
   const [installed, setInstalled] = useState(false);
 
   useEffect(() => {
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
-      setDeferredPrompt(e);
+      setDeferredPrompt(e as BeforeInstallPromptEvent);
     };
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-
-    if ('Notification' in window && Notification.permission === 'granted') {
-      setNotificationsEnabled(true);
-    }
 
     return () => {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);

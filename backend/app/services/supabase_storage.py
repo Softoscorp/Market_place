@@ -1,13 +1,23 @@
 import os
-from supabase import create_client, Client
+try:
+    from supabase import create_client, Client
+    HAS_SUPABASE = True
+except ImportError:
+    create_client = None  # type: ignore
+    Client = None  # type: ignore
+    HAS_SUPABASE = False
+
 from app.config import settings
 import logging
 
 logger = logging.getLogger(__name__)
 
-supabase: Client | None = None
-if settings.supabase_url and settings.supabase_key:
-    supabase = create_client(settings.supabase_url, settings.supabase_key)
+supabase = None
+if HAS_SUPABASE and settings.supabase_url and settings.supabase_key:
+    try:
+        supabase = create_client(settings.supabase_url, settings.supabase_key)
+    except Exception as e:
+        logger.warning(f"Could not initialize Supabase client: {e}")
 
 def upload_file(file_bytes: bytes, bucket: str, path: str, content_type: str = "application/octet-stream") -> str:
     """

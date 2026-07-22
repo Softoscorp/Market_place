@@ -61,6 +61,38 @@ export default function ProfilePage() {
     return () => clearTimeout(timer);
   }, []);
 
+  // Sync formData whenever user rehydrates from store or updates
+  React.useEffect(() => {
+    if (user) {
+      setFormData((prev) => ({
+        ...prev,
+        name: user.name || '',
+        phone: user.phone || '',
+        occupation: user.role === 'agent' ? 'Real Estate Agent' : 'Student / Renter'
+      }));
+    }
+  }, [user]);
+
+  // Fetch fresh user data from backend to ensure mobile local storage cache is up to date
+  React.useEffect(() => {
+    if (user?.token) {
+      apiRequest('/users/me')
+        .then((freshUser) => {
+          if (freshUser && user) {
+            login({
+              ...user,
+              name: freshUser.name || user.name,
+              phone: freshUser.phone || user.phone,
+              avatar_url: freshUser.avatar_url || user.avatar_url,
+              is_verified: freshUser.is_verified,
+              role: freshUser.role === 'renter' ? 'student' : freshUser.role
+            });
+          }
+        })
+        .catch((err) => console.error('Error refreshing user profile:', err));
+    }
+  }, []);
+
   const { conversations, openChat } = useChatStore();
   const conversationList = Object.values(conversations).sort((a, b) => {
     const lastMsgA = a.messages[a.messages.length - 1]?.timestamp || 0;
@@ -195,13 +227,20 @@ export default function ProfilePage() {
           className={styles.saveBtn}
           onClick={async () => {
             try {
-              await apiRequest('/users/me', {
+              const updatedUser = await apiRequest('/users/me', {
                 method: 'PATCH',
                 body: {
                   name: formData.name || user?.name,
                   phone: formData.phone !== undefined ? formData.phone : user?.phone
                 }
               });
+              if (user) {
+                login({
+                  ...user,
+                  name: updatedUser.name || formData.name || user.name,
+                  phone: updatedUser.phone || formData.phone || user.phone
+                });
+              }
               alert('Profile changes saved successfully!');
             } catch (err) {
               console.error('Failed to update profile:', err);

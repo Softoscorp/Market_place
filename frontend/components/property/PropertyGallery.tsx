@@ -12,6 +12,7 @@ import 'swiper/css/pagination';
 import 'swiper/css/thumbs';
 import 'swiper/css/free-mode';
 
+import { ProtectedImage } from '@/components/ui/ProtectedImage';
 import styles from './PropertyGallery.module.css';
 
 export interface PropertyGalleryProps {
@@ -54,7 +55,7 @@ export const PropertyGallery: React.FC<PropertyGalleryProps> = ({
       >
         {images.map((src, index) => (
           <SwiperSlide key={index} className={styles.mainSlide}>
-            <img 
+            <ProtectedImage 
               src={src} 
               alt={`${title} - Image ${index + 1}`} 
               className={styles.mainImage} 
@@ -63,32 +64,32 @@ export const PropertyGallery: React.FC<PropertyGalleryProps> = ({
         ))}
       </Swiper>
 
-      <Swiper
-        onSwiper={setThumbsSwiper}
-        spaceBetween={10}
-        slidesPerView={4}
-        freeMode={true}
-        watchSlidesProgress={true}
-        modules={[FreeMode, Navigation, Thumbs]}
-        className={styles.thumbSwiper}
-        breakpoints={{
-          320: { slidesPerView: 3 },
-          640: { slidesPerView: 4 },
-          1024: { slidesPerView: 5 },
-        }}
-      >
-        {images.map((src, index) => (
-          <SwiperSlide key={index}>
-            <div className={styles.thumbSlide}>
-              <img 
+      {images.length > 1 && (
+        <Swiper
+          onSwiper={setThumbsSwiper}
+          spaceBetween={10}
+          slidesPerView={4}
+          freeMode={true}
+          watchSlidesProgress={true}
+          modules={[FreeMode, Navigation, Thumbs]}
+          className={styles.thumbSwiper}
+          breakpoints={{
+            320: { slidesPerView: 3 },
+            640: { slidesPerView: 4 },
+            1024: { slidesPerView: 5 },
+          }}
+        >
+          {images.map((src, index) => (
+            <SwiperSlide key={index} className={styles.thumbSlide}>
+              <ProtectedImage 
                 src={src} 
-                alt={`Thumbnail ${index + 1}`} 
-                className={styles.thumbImage}
+                alt={`${title} - Thumbnail ${index + 1}`} 
+                className={styles.thumbImage} 
               />
-            </div>
-          </SwiperSlide>
-        ))}
-      </Swiper>
+            </SwiperSlide>
+          ))}
+        </Swiper>
+      )}
     </div>
   );
 };

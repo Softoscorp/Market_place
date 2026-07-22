@@ -9,6 +9,7 @@ import { useAuthStore } from '@/lib/store/useAuthStore';
 import Link from 'next/link';
 import { BackButton } from '@/components/ui/BackButton';
 
+import { apiRequest } from '@/lib/api';
 import { useLanguageStore } from '@/lib/store/useLanguageStore';
 
 export default function ProfilePage() {
@@ -16,6 +17,7 @@ export default function ProfilePage() {
   const { t } = useLanguageStore();
   const [formData, setFormData] = useState({
     name: user?.name || '',
+    phone: user?.phone || '',
     occupation: user?.role === 'agent' ? 'Real Estate Agent' : 'Student / Renter'
   });
   const [mounted, setMounted] = useState(false);
@@ -94,9 +96,24 @@ export default function ProfilePage() {
               type="text" 
               name="name"
               className={styles.input} 
-              value={formData.name || user?.name || ''}
+              value={formData.name !== undefined ? formData.name : (user?.name || '')}
               onChange={handleChange}
             />
+          </div>
+
+          <div className={styles.inputGroup}>
+            <label className={styles.label}>Phone Number (SMS & Alerts)</label>
+            <input 
+              type="tel" 
+              name="phone"
+              placeholder="+90 533 800 0000"
+              className={styles.input} 
+              value={formData.phone !== undefined ? formData.phone : (user?.phone || '')}
+              onChange={handleChange}
+            />
+            <span style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '4px', display: 'block' }}>
+              Used for instant SMS lead notifications and identity verification.
+            </span>
           </div>
           
           <div className={styles.inputGroup}>
@@ -111,8 +128,25 @@ export default function ProfilePage() {
           </div>
         </div>
 
-
-        <button className={styles.saveBtn}>Save Profile Changes</button>
+        <button 
+          className={styles.saveBtn}
+          onClick={async () => {
+            try {
+              await apiRequest('/users/me', {
+                method: 'PATCH',
+                body: {
+                  name: formData.name || user?.name,
+                  phone: formData.phone !== undefined ? formData.phone : user?.phone
+                }
+              });
+              alert('Profile changes saved successfully!');
+            } catch (err) {
+              alert('Failed to update profile.');
+            }
+          }}
+        >
+          Save Profile Changes
+        </button>
       </div>
 
         <div className={styles.card}>

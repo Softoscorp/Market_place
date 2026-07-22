@@ -11,6 +11,7 @@ import { PremiumIcon } from '@/components/ui/PremiumIcon';
 import { MoveInBadge } from '@/components/ui/MoveInBadge';
 import { StarRating } from '@/components/ui/StarRating';
 import { Avatar } from '@/components/ui/Avatar';
+import { ProtectedImage } from '@/components/ui/ProtectedImage';
 import styles from './PropertyCard.module.css';
 
 export interface PropertyCardProps {
@@ -101,7 +102,7 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
         </button>
 
         <div style={{ position: 'relative', width: '100%', height: '100%' }}>
-          <img 
+          <ProtectedImage 
             src={images[0] || '/images/placeholder-studio.jpg'} 
             alt={title} 
             className={styles.image}

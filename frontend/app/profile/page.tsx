@@ -21,12 +21,6 @@ export default function ProfilePage() {
   const [mounted, setMounted] = useState(false);
 
   React.useEffect(() => {
-    if (user?.name) {
-      setFormData(prev => ({ ...prev, name: user.name }));
-    }
-  }, [user]);
-
-  React.useEffect(() => {
     const timer = setTimeout(() => setMounted(true), 0);
     return () => clearTimeout(timer);
   }, []);
@@ -84,7 +78,7 @@ export default function ProfilePage() {
               type="text" 
               name="name"
               className={styles.input} 
-              value={formData.name}
+              value={formData.name || user?.name || ''}
               onChange={handleChange}
             />
           </div>

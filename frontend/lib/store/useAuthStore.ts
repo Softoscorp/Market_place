@@ -27,6 +27,7 @@ interface AuthState {
   toggleRoommateSearch: () => void;
   validateToken: () => Promise<void>;
   checkSessionExpiration: () => boolean;
+  updateUser: (partial: Partial<User>) => void;
 }
 
 const API_BASE =
@@ -51,6 +52,13 @@ export const useAuthStore = create<AuthState>()(
           },
           isAuthenticated: true,
         });
+      },
+
+      // Safe merge: always reads current state via get() so stale closures can't overwrite newer data
+      updateUser: (partial: Partial<User>) => {
+        const current = get();
+        if (!current.user) return;
+        set({ user: { ...current.user, ...partial } });
       },
 
       logout: () => {
@@ -109,7 +117,8 @@ export const useAuthStore = create<AuthState>()(
                     ...state.user,
                     name: freshUser.name || state.user.name,
                     phone: freshUser.phone || state.user.phone,
-                    avatar_url: freshUser.avatar_url || state.user.avatar_url,
+                    // Only overwrite avatar_url if backend returned a real, non-empty value
+                    avatar_url: freshUser.avatar_url ? freshUser.avatar_url : state.user.avatar_url,
                     is_verified: freshUser.is_verified ?? state.user.is_verified,
                   }
                 : null,

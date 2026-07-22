@@ -13,9 +13,11 @@ import { useRouter } from 'next/navigation';
 import { apiRequest, mediaUrl, API_BASE_URL, getToken } from '@/lib/api';
 import { useLanguageStore } from '@/lib/store/useLanguageStore';
 
+import { ProtectedImage } from '@/components/ui/ProtectedImage';
+
 export default function ProfilePage() {
   const router = useRouter();
-  const { user, logout, login } = useAuthStore();
+  const { user, logout, updateUser } = useAuthStore();
   const { t } = useLanguageStore();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
@@ -56,9 +58,8 @@ export default function ProfilePage() {
       }
 
       const updatedUser = await res.json();
-      if (user) {
-        login({ ...user, avatar_url: updatedUser.avatar_url, token });
-      }
+      // Use updateUser so we never lose other in-store fields via stale closure
+      updateUser({ avatar_url: updatedUser.avatar_url });
       alert('Profile picture updated successfully!');
     } catch (err) {
       console.error('Avatar upload error:', err);
@@ -79,15 +80,18 @@ export default function ProfilePage() {
     if (token) {
       apiRequest('/users/me')
         .then((freshUser) => {
-          if (freshUser && user) {
-            login({
-              ...user,
-              name: freshUser.name || user.name,
-              phone: freshUser.phone || user.phone,
-              avatar_url: freshUser.avatar_url || user.avatar_url,
-              is_verified: freshUser.is_verified,
-              role: freshUser.role === 'renter' ? 'student' : freshUser.role
-            });
+          if (freshUser) {
+            // Only update fields that the backend actually returned (not null/undefined)
+            // This prevents a race where freshUser has a stale null avatar_url
+            // right after a successful upload
+            const patch: Record<string, unknown> = {};
+            if (freshUser.name != null) patch.name = freshUser.name;
+            if (freshUser.phone != null) patch.phone = freshUser.phone;
+            // Only update avatar_url from backend if it's a non-empty string
+            if (freshUser.avatar_url) patch.avatar_url = freshUser.avatar_url;
+            if (freshUser.is_verified != null) patch.is_verified = freshUser.is_verified;
+            if (freshUser.role) patch.role = freshUser.role === 'renter' ? 'student' : freshUser.role;
+            updateUser(patch as Partial<import('@/lib/store/useAuthStore').User>);
           }
         })
         .catch((err) => {
@@ -164,10 +168,10 @@ export default function ProfilePage() {
           />
           <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', marginBottom: '1.5rem' }}>
             <div style={{ position: 'relative' }}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img 
+              <ProtectedImage 
                 src={user?.avatar_url ? (mediaUrl(user.avatar_url) || '') : `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=0F172A&color=fff&size=128&bold=true`}
-                alt="Profile Avatar" 
+                fallbackSrc={`https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=0F172A&color=fff&size=128&bold=true`}
+                alt={displayName} 
                 style={{ width: '72px', height: '72px', borderRadius: '50%', border: '2px solid #e2e8f0', objectFit: 'cover' }}
               />
             </div>
@@ -249,10 +253,9 @@ export default function ProfilePage() {
                 }
               });
               if (user) {
-                login({
-                  ...user,
+                updateUser({
                   name: updatedUser.name || formData.name || user.name,
-                  phone: updatedUser.phone || formData.phone || user.phone
+                  phone: updatedUser.phone || formData.phone || user.phone,
                 });
               }
               alert('Profile changes saved successfully!');

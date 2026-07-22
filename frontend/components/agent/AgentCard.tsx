@@ -5,6 +5,8 @@ import { useLanguageStore } from '@/lib/store/useLanguageStore';
 import { mediaUrl } from '@/lib/api';
 import styles from './AgentCard.module.css';
 
+import { ProtectedImage } from '@/components/ui/ProtectedImage';
+
 interface AgentCardProps {
   agentId: number | string;
   name: string;
@@ -29,16 +31,16 @@ export function AgentCard({
   onContact
 }: AgentCardProps) {
   const { t } = useLanguageStore();
+  const defaultAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=0F172A&color=fff&bold=true`;
   const avatarSrc = imageUrl && !imageUrl.includes('placeholder')
-    ? (mediaUrl(imageUrl) || imageUrl)
-    : `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=0F172A&color=fff&bold=true`;
+    ? (mediaUrl(imageUrl) || defaultAvatar)
+    : defaultAvatar;
 
   return (
     <div className={styles.card}>
       <div className={styles.header}>
         <div className={styles.avatarWrapper}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={avatarSrc} alt="" className={styles.avatar} />
+          <ProtectedImage src={avatarSrc} fallbackSrc={defaultAvatar} alt={name} className={styles.avatar} />
           {isVerified && (
             <div className={styles.verifiedBadge}>
               <Check size={12} strokeWidth={3} />

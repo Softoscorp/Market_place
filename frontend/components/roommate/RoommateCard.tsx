@@ -4,6 +4,7 @@ import React from 'react';
 import { MessageCircle, Heart } from 'lucide-react';
 import { useChatStore } from '@/lib/store/useChatStore';
 import { ProtectedImage } from '@/components/ui/ProtectedImage';
+import { mediaUrl } from '@/lib/api';
 import styles from './RoommateCard.module.css';
 
 interface RoommateCardProps {
@@ -33,12 +34,15 @@ export function RoommateCard({
 }: RoommateCardProps) {
   const { openChat } = useChatStore();
 
+  const defaultAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=0F172A&color=fff&bold=true`;
+  const avatarSrc = imageUrl ? (imageUrl.startsWith('http') ? imageUrl : mediaUrl(imageUrl) || defaultAvatar) : defaultAvatar;
+
   return (
     <div className={styles.card}>
       <div className={styles.header}>
         <div className={styles.avatarWrapper}>
           <div className={styles.avatarRing} style={{ transform: `rotate(${(matchScore / 100) * 360}deg)` }} />
-          <ProtectedImage src={imageUrl} alt={name} className={styles.avatar} />
+          <ProtectedImage src={avatarSrc} fallbackSrc={defaultAvatar} alt={name} className={styles.avatar} />
           <div className={styles.matchScoreBadge}>{matchScore}% Match</div>
         </div>
         <div className={styles.info}>

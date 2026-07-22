@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { setToken } from '@/lib/api';
 
 export type UserRole = 'student' | 'agent' | 'admin' | 'customer_care';
 
@@ -39,16 +40,27 @@ export const useAuthStore = create<AuthState>()(
       user: null,
       isAuthenticated: false,
 
-      login: (userData) =>
+      login: (userData) => {
+        if (userData.token) {
+          setToken(userData.token);
+        }
         set({
           user: {
             ...userData,
             loginTimestamp: userData.loginTimestamp || Date.now(),
           },
           isAuthenticated: true,
-        }),
+        });
+      },
 
-      logout: () => set({ user: null, isAuthenticated: false }),
+      logout: () => {
+        setToken(null);
+        if (typeof window !== 'undefined') {
+          window.localStorage.removeItem('rental_platform_token');
+          window.localStorage.removeItem('house-agent-auth');
+        }
+        set({ user: null, isAuthenticated: false });
+      },
 
       verifyAgent: () =>
         set((state) => ({

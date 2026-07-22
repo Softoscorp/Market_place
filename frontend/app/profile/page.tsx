@@ -9,10 +9,12 @@ import { useAuthStore } from '@/lib/store/useAuthStore';
 import Link from 'next/link';
 import { BackButton } from '@/components/ui/BackButton';
 
+import { useRouter } from 'next/navigation';
 import { apiRequest, mediaUrl, API_BASE_URL, getToken } from '@/lib/api';
 import { useLanguageStore } from '@/lib/store/useLanguageStore';
 
 export default function ProfilePage() {
+  const router = useRouter();
   const { user, logout, login } = useAuthStore();
   const { t } = useLanguageStore();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -136,7 +138,13 @@ export default function ProfilePage() {
               <LayoutDashboard size={18} /> Admin Dashboard
             </Link>
           )}
-          <button onClick={logout} className={styles.btnLogOut}>
+          <button 
+            onClick={() => {
+              logout();
+              router.push('/login');
+            }} 
+            className={styles.btnLogOut}
+          >
             <LogOut size={18} /> Sign Out
           </button>
         </div>

@@ -36,6 +36,12 @@ export default function SignupPage() {
     if (step === 1 && !role) return;
     
     if (step === 2) {
+      const emailRegex = /^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/;
+      if (!emailRegex.test(formData.email.trim())) {
+        setError('Please enter a valid email address (e.g., name@domain.com).');
+        return;
+      }
+
       setIsSubmitting(true);
       setError('');
       try {

@@ -64,7 +64,7 @@ export default function SignupPage() {
         setStep(3);
 
         setTimeout(() => {
-          if (role === 'agent') router.push('/kyc');
+          if (role === 'agent') router.push('/agent-dashboard');
           else router.push('/search');
         }, 3000);
       } catch (err: unknown) {

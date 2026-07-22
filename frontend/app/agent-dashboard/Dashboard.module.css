@@ -477,3 +477,67 @@
   font-size: 0.9375rem;
   color: var(--text-primary);
 }
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  .container {
+    flex-direction: column;
+    min-height: auto;
+  }
+
+  .sidebar {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid var(--border-subtle);
+    padding: 1rem;
+  }
+
+  .sidebarHeader {
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+  }
+
+  .nav {
+    flex-direction: row;
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
+    gap: 0.5rem;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .navItem {
+    white-space: nowrap;
+    padding: 0.625rem 0.875rem;
+    font-size: 0.875rem;
+  }
+
+  .topbar {
+    padding: 1rem;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .statsGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.875rem;
+    padding: 0 1rem 1rem 1rem;
+  }
+
+  .crmGrid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .listingsHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .statsGrid {
+    grid-template-columns: 1fr;
+  }
+}

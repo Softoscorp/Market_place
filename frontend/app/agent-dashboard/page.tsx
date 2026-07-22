@@ -314,18 +314,25 @@ export default function AgentDashboard() {
       </div>
 
       <div className={styles.mainContent}>
-        <div className={styles.topBar}>
-          <h1 className={styles.pageTitle}>
-            {activeTab === 'overview' && 'Dashboard Overview'}
-            {activeTab === 'listings' && 'Properties Manager'}
-            {activeTab === 'crm' && 'Client Relationships'}
-            {activeTab === 'settings' && 'Account Settings'}
-          </h1>
-          <div className={styles.userBadge}>
-            <span>{user?.name || user?.email}</span>
+        <div className={styles.topbar}>
+          <div>
+            <h1 className={styles.pageTitle}>
+              {activeTab === 'overview' && 'Dashboard Overview'}
+              {activeTab === 'listings' && 'Properties Manager'}
+              {activeTab === 'crm' && 'Client Relationships'}
+              {activeTab === 'settings' && 'Account Settings'}
+            </h1>
+            <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+              {user?.name || user?.email}
+            </p>
+          </div>
+          <div className={styles.verifiedBadge}>
+            Verified Agent
           </div>
         </div>
-        {renderTabContent()}
+        <div className={styles.contentArea}>
+          {renderTabContent()}
+        </div>
       </div>
     </div>
   );

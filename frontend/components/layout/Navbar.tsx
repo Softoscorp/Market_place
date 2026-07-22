@@ -69,7 +69,7 @@ export function Navbar() {
 
         {mounted && isAuthenticated ? (
           <Link href="/profile" className={styles.loginBtn}>
-            <User size={16} /> {t('nav_profile')}
+            <User size={16} /> {user?.name || t('nav_profile')}
           </Link>
         ) : (
           <>

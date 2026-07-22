@@ -6,12 +6,14 @@ import { User, Briefcase, ArrowRight, Check, Sparkles, Building2 } from 'lucide-
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuthStore, UserRole } from '@/lib/store/useAuthStore';
+import { useLanguageStore } from '@/lib/store/useLanguageStore';
 import styles from './SignupPage.module.css';
 import { register } from '@/lib/api';
 
 export default function SignupPage() {
   const router = useRouter();
   const { login: setAuthUser } = useAuthStore();
+  const { t } = useLanguageStore();
   
   const [role, setRole] = useState<UserRole | null>(null);
   const [step, setStep] = useState(1);
@@ -196,7 +198,7 @@ export default function SignupPage() {
 
                   <form className={styles.form} onSubmit={handleNext}>
                     <div className={styles.inputGroup}>
-                      <label className={styles.label}>Full Name {role === 'agent' ? '(or Agency Name)' : ''}</label>
+                      <label className={styles.label}>{t('auth_full_name')}</label>
                       <input 
                         type="text" 
                         className={styles.input} 
@@ -208,7 +210,7 @@ export default function SignupPage() {
                     </div>
                     
                     <div className={styles.inputGroup}>
-                      <label className={styles.label}>Email Address</label>
+                      <label className={styles.label}>{t('auth_email')}</label>
                       <input 
                         type="email" 
                         className={styles.input} 
@@ -220,7 +222,7 @@ export default function SignupPage() {
                     </div>
                     
                     <div className={styles.inputGroup}>
-                      <label className={styles.label}>Password</label>
+                      <label className={styles.label}>{t('auth_password')}</label>
                       <input 
                         type="password" 
                         className={styles.input} 
@@ -239,7 +241,7 @@ export default function SignupPage() {
                       {isSubmitting ? (
                         <span className={styles.loader}></span>
                       ) : (
-                        "Complete Sign Up"
+                        t('auth_complete_signup')
                       )}
                     </button>
                   </form>

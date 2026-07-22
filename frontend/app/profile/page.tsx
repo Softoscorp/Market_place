@@ -9,13 +9,22 @@ import { useAuthStore } from '@/lib/store/useAuthStore';
 import Link from 'next/link';
 import { BackButton } from '@/components/ui/BackButton';
 
+import { useLanguageStore } from '@/lib/store/useLanguageStore';
+
 export default function ProfilePage() {
   const { user, logout } = useAuthStore();
+  const { t } = useLanguageStore();
   const [formData, setFormData] = useState({
-    name: 'Alex Johnson',
-    occupation: 'Student at EMU'
+    name: user?.name || '',
+    occupation: user?.role === 'agent' ? 'Real Estate Agent' : 'Student / Renter'
   });
   const [mounted, setMounted] = useState(false);
+
+  React.useEffect(() => {
+    if (user?.name) {
+      setFormData(prev => ({ ...prev, name: user.name }));
+    }
+  }, [user]);
 
   React.useEffect(() => {
     const timer = setTimeout(() => setMounted(true), 0);
@@ -45,8 +54,8 @@ export default function ProfilePage() {
       <BackButton />
       <div className={styles.header}>
         <div>
-          <h1 className={styles.title}>My Profile</h1>
-          <p className={styles.subtitle}>Manage your details and roommate search status</p>
+          <h1 className={styles.title}>{t('profile_title')}</h1>
+          <p className={styles.subtitle}>{t('profile_sub')}</p>
         </div>
         <div className={styles.headerActions}>
           {user?.role === 'agent' && (

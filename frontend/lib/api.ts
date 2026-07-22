@@ -90,6 +90,15 @@ export function register(payload: Record<string, unknown>) {
   });
 }
 
+export function resetPassword(payload: { email: string; new_password: string }) {
+  return apiRequest("/auth/reset-password", {
+    method: "POST",
+    body: payload,
+    auth: false
+  });
+}
+
+
 export function getUser() {
   return apiRequest("/users/me");
 }

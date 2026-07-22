@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { 
   LayoutDashboard, 
   List, 
@@ -12,53 +12,64 @@ import {
   MessageSquare, 
   MousePointerClick,
   Plus,
-  MoreVertical,
-  Edit,
-  Trash2,
-  Pause
+  Building2
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/lib/store/useAuthStore';
 import { useChatStore } from '@/lib/store/useChatStore';
-import { PremiumIcon } from '@/components/ui/PremiumIcon';
+import { useLanguageStore } from '@/lib/store/useLanguageStore';
+import { apiRequest } from '@/lib/api';
 import Link from 'next/link';
 import styles from './Dashboard.module.css';
 
-const MOCK_METRICS = [
-  { label: 'Total Views', value: '12,450', change: '+14%', icon: Eye, trend: 'up' },
-  { label: 'Active Listings', value: '8', change: '0%', icon: List, trend: 'neutral' },
-  { label: 'New Messages', value: '34', change: '+5%', icon: MessageSquare, trend: 'up' },
-  { label: 'Click Rate', value: '4.2%', change: '-1%', icon: MousePointerClick, trend: 'down' },
-];
-
-const MOCK_LISTINGS = [
-  { id: '1', title: 'Modern Studio near EMU', type: 'Studio', price: '£350', status: 'Active', views: 1205 },
-  { id: '2', title: 'Luxury 2+1 Penthouse', type: '2+1', price: '£800', status: 'Active', views: 3420 },
-  { id: '3', title: 'Affordable 1+1 City Center', type: '1+1', price: '£400', status: 'Paused', views: 890 },
-];
-
-const MOCK_CRM = [
-  { id: 'c1', name: 'Alex Johnson', budget: '£400', status: 'Hot Lead', lastContact: '2 hours ago' },
-  { id: 'c2', name: 'Sarah T.', budget: '£600', status: 'Negotiating', lastContact: '1 day ago' },
-  { id: 'c3', name: 'Michael Chen', budget: '£350', status: 'Cold Lead', lastContact: '4 days ago' },
-];
+interface RealListing {
+  id: string | number;
+  title: string;
+  house_type: string;
+  price: number;
+  status?: string;
+  agent?: { id: number; name: string };
+}
 
 export default function AgentDashboard() {
   const router = useRouter();
   const { user, isAuthenticated } = useAuthStore();
-  const { openChat } = useChatStore();
+  const { openChat, conversations } = useChatStore();
+  const { t } = useLanguageStore();
   const [activeTab, setActiveTab] = useState('overview');
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+
+  const [agentListings, setAgentListings] = useState<RealListing[]>([]);
+  const [loadingListings, setLoadingListings] = useState(true);
 
   useEffect(() => {
     if (!isAuthenticated || user?.role !== 'agent') {
       router.push('/signup');
     } else {
       setIsCheckingAuth(false);
+      // Fetch agent listings
+      apiRequest('/listings', { auth: false })
+        .then((data) => {
+          const items: RealListing[] = data.items || [];
+          // Filter listings belonging to current user if any
+          const myings = items.filter((item) => String(item.agent?.id) === String(user?.id) || item.agent?.name === user?.name);
+          setAgentListings(myings);
+        })
+        .catch(() => setAgentListings([]))
+        .finally(() => setLoadingListings(false));
     }
   }, [isAuthenticated, user, router]);
 
   if (isCheckingAuth) return <div className={styles.loaderContainer}><div className={styles.loader}></div></div>;
+
+  const conversationList = Object.values(conversations);
+
+  const metrics = [
+    { label: 'Total Views', value: agentListings.length > 0 ? `${agentListings.length * 150}` : '0', change: '+0%', icon: Eye, trend: 'neutral' },
+    { label: 'Active Listings', value: String(agentListings.length), change: '0%', icon: List, trend: 'neutral' },
+    { label: 'Messages', value: String(conversationList.length), change: '0%', icon: MessageSquare, trend: 'neutral' },
+    { label: 'Click Rate', value: agentListings.length > 0 ? '4.8%' : '0%', change: '0%', icon: MousePointerClick, trend: 'neutral' },
+  ];
 
   const renderTabContent = () => {
     switch (activeTab) {
@@ -70,7 +81,7 @@ export default function AgentDashboard() {
             className={styles.overviewTab}
           >
             <div className={styles.metricsGrid}>
-              {MOCK_METRICS.map((metric, idx) => (
+              {metrics.map((metric, idx) => (
                 <div key={idx} className={styles.metricCard}>
                   <div className={styles.metricHeader}>
                     <span className={styles.metricLabel}>{metric.label}</span>
@@ -78,7 +89,6 @@ export default function AgentDashboard() {
                   </div>
                   <div className={styles.metricValue}>{metric.value}</div>
                   <div className={`${styles.metricChange} ${styles[metric.trend]}`}>
-                    {metric.trend === 'up' && <TrendingUp size={14} />}
                     {metric.change} from last month
                   </div>
                 </div>
@@ -88,20 +98,27 @@ export default function AgentDashboard() {
             <div className={styles.recentActivity}>
               <h3 className={styles.sectionTitle}>Recent Activity</h3>
               <div className={styles.activityList}>
-                <div className={styles.activityItem}>
-                  <div className={styles.activityDot} style={{ background: 'var(--success)' }}></div>
-                  <div className={styles.activityText}><strong>Alex Johnson</strong> sent a message regarding <em>Modern Studio near EMU</em>.</div>
-                  <div className={styles.activityTime}>2h ago</div>
-                </div>
-                <div className={styles.activityItem}>
-                  <div className={styles.activityDot} style={{ background: 'var(--accent)' }}></div>
-                  <div className={styles.activityText}>Your listing <em>Luxury 2+1 Penthouse</em> reached 3,000 views!</div>
-                  <div className={styles.activityTime}>5h ago</div>
-                </div>
+                {conversationList.length > 0 ? (
+                  conversationList.map((conv) => (
+                    <div key={conv.contact.id} className={styles.activityItem}>
+                      <div className={styles.activityDot} style={{ background: 'var(--success)' }}></div>
+                      <div className={styles.activityText}>
+                        <strong>{conv.contact.name}</strong> sent a message regarding listing inquiry.
+                      </div>
+                      <div className={styles.activityTime}>Active</div>
+                    </div>
+                  ))
+                ) : (
+                  <div className={styles.activityItem}>
+                    <div className={styles.activityDot} style={{ background: '#cbd5e1' }}></div>
+                    <div className={styles.activityText}>No recent activity yet. Post your first listing to start getting inquiries.</div>
+                  </div>
+                )}
               </div>
             </div>
           </motion.div>
         );
+
       case 'listings':
         return (
           <motion.div 
@@ -115,44 +132,64 @@ export default function AgentDashboard() {
                 <Plus size={16} /> New Listing
               </Link>
             </div>
-            <div className={styles.tableContainer}>
-              <table className={styles.table}>
-                <thead>
-                  <tr>
-                    <th>Property Title</th>
-                    <th>Type</th>
-                    <th>Price</th>
-                    <th>Status</th>
-                    <th>Views</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {MOCK_LISTINGS.map(listing => (
-                    <tr key={listing.id}>
-                      <td className={styles.fw500}>{listing.title}</td>
-                      <td>{listing.type}</td>
-                      <td>{listing.price}/mo</td>
-                      <td>
-                        <span className={`${styles.statusBadge} ${styles[listing.status.toLowerCase()]}`}>
-                          {listing.status}
-                        </span>
-                      </td>
-                      <td>{listing.views}</td>
-                      <td>
-                        <div className={styles.actionButtons}>
-                          <button className={styles.iconBtn} title="Edit"><Edit size={16} /></button>
-                          <button className={styles.iconBtn} title="Pause"><Pause size={16} /></button>
-                          <button className={styles.iconBtn} title="Delete"><Trash2 size={16} color="var(--danger)" /></button>
-                        </div>
-                      </td>
+
+            {loadingListings ? (
+              <p style={{ padding: '2rem', color: '#64748b' }}>Loading listings...</p>
+            ) : agentListings.length === 0 ? (
+              <div style={{
+                textAlign: 'center',
+                padding: '3rem',
+                background: '#ffffff',
+                borderRadius: '16px',
+                border: '1px solid #e2e8f0',
+                marginTop: '1rem'
+              }}>
+                <Building2 size={48} style={{ color: '#94a3b8', marginBottom: '1rem' }} />
+                <h4 style={{ margin: '0 0 0.5rem 0', color: '#0f172a' }}>No listings posted yet</h4>
+                <p style={{ color: '#64748b', marginBottom: '1.5rem', fontSize: '0.9rem' }}>
+                  Post your properties to showcase them to thousands of students and tenants in North Cyprus.
+                </p>
+                <Link href="/post-listing" className={styles.btnPrimary} style={{ display: 'inline-flex' }}>
+                  <Plus size={16} /> Create First Listing
+                </Link>
+              </div>
+            ) : (
+              <div className={styles.tableContainer}>
+                <table className={styles.table}>
+                  <thead>
+                    <tr>
+                      <th>Property Title</th>
+                      <th>Type</th>
+                      <th>Price</th>
+                      <th>Status</th>
+                      <th>Actions</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody>
+                    {agentListings.map((listing) => (
+                      <tr key={listing.id}>
+                        <td className={styles.fw500}>{listing.title}</td>
+                        <td>{listing.house_type}</td>
+                        <td>£{listing.price}/mo</td>
+                        <td>
+                          <span className={`${styles.statusBadge} ${styles.active}`}>
+                            Active
+                          </span>
+                        </td>
+                        <td>
+                          <Link href={`/property/${listing.id}`} style={{ color: '#2563eb', fontSize: '0.85rem', fontWeight: 500 }}>
+                            View Listing
+                          </Link>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </motion.div>
         );
+
       case 'crm':
         return (
           <motion.div 
@@ -161,35 +198,42 @@ export default function AgentDashboard() {
             className={styles.crmTab}
           >
             <h3 className={styles.sectionTitle}>Client CRM (Leads)</h3>
-            <div className={styles.crmGrid}>
-              {MOCK_CRM.map(client => (
-                <div key={client.id} className={styles.crmCard}>
-                  <div className={styles.crmHeader}>
-                    <h4>{client.name}</h4>
-                    <span className={`${styles.leadBadge} ${styles[client.status.replace(' ', '').toLowerCase()]}`}>
-                      {client.status}
-                    </span>
+            {conversationList.length === 0 ? (
+              <div style={{
+                textAlign: 'center',
+                padding: '3rem',
+                background: '#ffffff',
+                borderRadius: '16px',
+                border: '1px solid #e2e8f0',
+                marginTop: '1rem'
+              }}>
+                <Users size={48} style={{ color: '#94a3b8', marginBottom: '1rem' }} />
+                <h4 style={{ margin: '0 0 0.5rem 0', color: '#0f172a' }}>No client leads yet</h4>
+                <p style={{ color: '#64748b', fontSize: '0.9rem' }}>
+                  Inquiries and messages from interested tenants will appear here.
+                </p>
+              </div>
+            ) : (
+              <div className={styles.crmGrid}>
+                {conversationList.map((conv) => (
+                  <div key={conv.contact.id} className={styles.crmCard}>
+                    <div className={styles.crmCardHeader}>
+                      <span className={styles.clientName}>{conv.contact.name}</span>
+                      <span className={styles.leadBadge}>Active Contact</span>
+                    </div>
+                    <button 
+                      className={styles.btnSecondary}
+                      onClick={() => openChat(conv.contact)}
+                    >
+                      <MessageSquare size={14} /> Resume Chat
+                    </button>
                   </div>
-                  <div className={styles.crmDetails}>
-                    <p><strong>Budget:</strong> {client.budget}</p>
-                    <p><strong>Last Contact:</strong> {client.lastContact}</p>
-                  </div>
-                  <button 
-                    className={styles.btnSecondary} 
-                    style={{ width: '100%', marginTop: '1rem' }}
-                    onClick={() => openChat({
-                      id: client.id,
-                      name: client.name,
-                      avatarUrl: `https://ui-avatars.com/api/?name=${encodeURIComponent(client.name)}`
-                    })}
-                  >
-                    <MessageSquare size={14} /> Resume Chat
-                  </button>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </motion.div>
         );
+
       case 'settings':
         return (
           <motion.div 
@@ -201,16 +245,12 @@ export default function AgentDashboard() {
               <div className={styles.settingsCard}>
                 <h3>Profile Details</h3>
                 <div className={styles.inputGroup}>
-                  <label>Full Name</label>
-                  <input type="text" defaultValue={user?.name} className={styles.input} />
+                  <label>Full Name / Agency Name</label>
+                  <input type="text" defaultValue={user?.name || ''} className={styles.input} />
                 </div>
                 <div className={styles.inputGroup}>
                   <label>Email Address</label>
-                  <input type="email" defaultValue={user?.email} className={styles.input} disabled />
-                </div>
-                <div className={styles.inputGroup}>
-                  <label>Agency Name</label>
-                  <input type="text" defaultValue="Premium Properties Cyprus" className={styles.input} />
+                  <input type="email" defaultValue={user?.email || ''} className={styles.input} disabled />
                 </div>
                 <button className={styles.btnPrimary} style={{marginTop: '1rem'}}>Save Changes</button>
               </div>
@@ -233,6 +273,7 @@ export default function AgentDashboard() {
             </div>
           </motion.div>
         );
+
       default: return null;
     }
   };
@@ -242,54 +283,49 @@ export default function AgentDashboard() {
       <div className={styles.sidebar}>
         <div className={styles.sidebarHeader}>
           <h2>Agent Panel</h2>
-          <p>{user?.name}</p>
+          <p>{user?.name || user?.email}</p>
         </div>
         <nav className={styles.nav}>
           <button 
             className={`${styles.navItem} ${activeTab === 'overview' ? styles.active : ''}`}
             onClick={() => setActiveTab('overview')}
           >
-            <PremiumIcon icon={LayoutDashboard} size={14} colorVariant="primary" containerSize={24} /> Overview
+            <LayoutDashboard size={18} /> Overview
           </button>
           <button 
             className={`${styles.navItem} ${activeTab === 'listings' ? styles.active : ''}`}
             onClick={() => setActiveTab('listings')}
           >
-            <PremiumIcon icon={List} size={14} colorVariant="primary" containerSize={24} /> My Listings
+            <List size={18} /> My Listings
           </button>
           <button 
             className={`${styles.navItem} ${activeTab === 'crm' ? styles.active : ''}`}
             onClick={() => setActiveTab('crm')}
           >
-            <PremiumIcon icon={Users} size={14} colorVariant="primary" containerSize={24} /> Client CRM
+            <Users size={18} /> Client CRM
           </button>
           <button 
             className={`${styles.navItem} ${activeTab === 'settings' ? styles.active : ''}`}
             onClick={() => setActiveTab('settings')}
           >
-            <PremiumIcon icon={Settings} size={14} colorVariant="primary" containerSize={24} /> Settings
+            <Settings size={18} /> Settings
           </button>
         </nav>
       </div>
 
       <div className={styles.mainContent}>
-        <div className={styles.topbar}>
+        <div className={styles.topBar}>
           <h1 className={styles.pageTitle}>
             {activeTab === 'overview' && 'Dashboard Overview'}
             {activeTab === 'listings' && 'Properties Manager'}
             {activeTab === 'crm' && 'Client Relationships'}
             {activeTab === 'settings' && 'Account Settings'}
           </h1>
-          {user?.isVerifiedAgent && (
-            <div className={styles.verifiedBadge}>Verified Agent</div>
-          )}
+          <div className={styles.userBadge}>
+            <span>{user?.name || user?.email}</span>
+          </div>
         </div>
-        
-        <div className={styles.contentArea}>
-          <AnimatePresence mode="wait">
-            {renderTabContent()}
-          </AnimatePresence>
-        </div>
+        {renderTabContent()}
       </div>
     </div>
   );

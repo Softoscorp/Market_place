@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { RoommateCard } from '@/components/roommate/RoommateCard';
 import { Search, MapPin, DollarSign, User } from 'lucide-react';
 import { PremiumIcon } from '@/components/ui/PremiumIcon';
+import { useLanguageStore } from '@/lib/store/useLanguageStore';
 import styles from './RoommatesPage.module.css';
 import { apiRequest, mediaUrl } from '@/lib/api';
 
@@ -23,9 +24,11 @@ interface Roommate {
 }
 
 export default function RoommatesPage() {
+  const { t } = useLanguageStore();
   const [showMatchForm, setShowMatchForm] = useState(false);
   const [roommates, setRoommates] = useState<Roommate[]>([]);
   const [mounted, setMounted] = useState(false);
+
 
   useEffect(() => {
     const timer = setTimeout(() => setMounted(true), 0);
@@ -66,9 +69,9 @@ export default function RoommatesPage() {
       transition={{ duration: 0.6, ease: [0.2, 0.8, 0.2, 1] }}
     >
       <header className={styles.header}>
-        <h1 className={styles.title}>Find Your Perfect Roommate</h1>
+        <h1 className={styles.title}>{t('roommates_title')}</h1>
         <p className={styles.subtitle}>
-          Connect with verified students and professionals in North Cyprus looking to share a home.
+          {t('roommates_sub')}
         </p>
       </header>
 

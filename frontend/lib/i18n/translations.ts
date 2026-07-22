@@ -59,10 +59,42 @@ export const translations = {
     no_agents: 'No agents yet.',
     no_agents_sub: 'Agents will appear here once they sign up and verify.',
 
+    // Auth
+    auth_welcome_back: 'Welcome Back',
+    auth_login_sub: 'Sign in to manage your properties, roommates, and search history.',
+    auth_signin_title: 'Sign In',
+    auth_signin_sub: 'Welcome back! Please enter your details.',
+    auth_email: 'Email Address',
+    auth_password: 'Password',
+    auth_forgot_password: 'Forgot Password?',
+    auth_signin_btn: 'Sign In',
+    auth_no_account: "Don't have an account?",
+    auth_has_account: 'Already have an account?',
+    auth_reset_title: 'Reset Password',
+    auth_reset_sub: 'Enter your account email and a new password below.',
+    auth_new_password: 'New Password',
+    auth_reset_btn: 'Update Password',
+    auth_cancel: 'Cancel',
+
+    // Signup
+    auth_create_account: 'Let\'s get started. Create your account.',
+    auth_signup_sub: 'List your properties or find compatible roommates.',
+    auth_full_name: 'Full Name (or Agency Name)',
+    auth_role_student: 'Student / Renter',
+    auth_role_agent: 'Real Estate Agent',
+    auth_complete_signup: 'Complete Sign Up',
+
+    // Profile & Roommates
+    profile_title: 'My Profile',
+    profile_sub: 'Manage your details and roommate search status',
+    roommates_title: 'Find Compatible Roommates',
+    roommates_sub: 'Connect with verified students and renters in North Cyprus.',
+
     // Common
     loading: 'Loading...',
     verified: 'Verified',
     per_month: '/mo',
+    back: 'Back',
   },
 
   tr: {
@@ -123,10 +155,42 @@ export const translations = {
     no_agents: 'Henüz emlakçı yok.',
     no_agents_sub: 'Emlakçılar kaydolup doğruladıktan sonra burada görünecek.',
 
+    // Auth
+    auth_welcome_back: 'Tekrar Hoş Geldiniz',
+    auth_login_sub: 'Mülklerinizi, oda arkadaşlarınızı ve arama geçmişinizi yönetmek için giriş yapın.',
+    auth_signin_title: 'Giriş Yap',
+    auth_signin_sub: 'Tekrar hoş geldiniz! Lütfen bilgilerinizi girin.',
+    auth_email: 'E-posta Adresi',
+    auth_password: 'Şifre',
+    auth_forgot_password: 'Şifremi Unuttum?',
+    auth_signin_btn: 'Giriş Yap',
+    auth_no_account: 'Hesabınız yok mu?',
+    auth_has_account: 'Zaten hesabınız var mı?',
+    auth_reset_title: 'Şifreyi Sıfırla',
+    auth_reset_sub: 'E-posta adresinizi ve yeni şifrenizi aşağıya girin.',
+    auth_new_password: 'Yeni Şifre',
+    auth_reset_btn: 'Şifreyi Güncelle',
+    auth_cancel: 'İptal',
+
+    // Signup
+    auth_create_account: 'Hadi başlayalım. Hesabınızı oluşturun.',
+    auth_signup_sub: 'Mülklerinizi listeleyin veya uyumlu oda arkadaşları bulun.',
+    auth_full_name: 'Ad Soyad (veya Ajans Adı)',
+    auth_role_student: 'Öğrenci / Kiracı',
+    auth_role_agent: 'Emlak Danışmanı',
+    auth_complete_signup: 'Kayıt Ol',
+
+    // Profile & Roommates
+    profile_title: 'Profilim',
+    profile_sub: 'Detaylarınızı ve oda arkadaşı arama durumunuzu yönetin',
+    roommates_title: 'Uyumlu Oda Arkadaşı Bul',
+    roommates_sub: 'Kuzey Kıbrıs\'taki onaylı öğrenciler ve kiracılarla iletişim kurun.',
+
     // Common
     loading: 'Yükleniyor...',
     verified: 'Onaylı',
     per_month: '/ay',
+    back: 'Geri',
   }
 } as const;
 

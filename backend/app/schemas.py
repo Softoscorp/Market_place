@@ -38,6 +38,11 @@ class LoginRequest(BaseModel):
     password: str
 
 
+class ResetPasswordRequest(BaseModel):
+    email: EmailStr
+    new_password: str = Field(min_length=6)
+
+
 class PublicUserOut(BaseModel):
     """Safe to show to anyone — used for agent profiles, listing 'posted by', etc."""
     model_config = ConfigDict(from_attributes=True)

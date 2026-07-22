@@ -11,6 +11,8 @@ import { AgentCard } from "@/components/agent/AgentCard";
 import styles from "./page.module.css";
 import { apiRequest, mediaUrl } from "@/lib/api";
 
+import { useLanguageStore } from "@/lib/store/useLanguageStore";
+
 // Mock data for universities
 const UNIVERSITIES = [
   { name: "Eastern Mediterranean University (EMU)", location: "Famagusta", distance: "0 mins" },
@@ -41,6 +43,7 @@ interface AgentData {
 }
 
 export default function HomePage() {
+  const { t } = useLanguageStore();
   const [featuredProperties, setFeaturedProperties] = useState<PropertyData[]>([]);
   const [topAgents, setTopAgents] = useState<AgentData[]>([]);
 
@@ -69,11 +72,11 @@ export default function HomePage() {
         >
           <div className={styles.sectionHeader}>
             <div>
-              <h2 className={styles.sectionTitle}>Recently Added</h2>
-              <p className={styles.sectionSubtitle}>Discover the newest properties on the market.</p>
+              <h2 className={styles.sectionTitle}>{t('recently_added')}</h2>
+              <p className={styles.sectionSubtitle}>{t('recently_added_sub')}</p>
             </div>
             <Link href="/search?sort=newest" className={styles.viewAll}>
-              View All <ArrowRight size={16} />
+              {t('view_all')} <ArrowRight size={16} />
             </Link>
           </div>
           <div className={styles.grid}>
@@ -110,7 +113,7 @@ export default function HomePage() {
         >
           <div className={styles.sectionHeader}>
             <div>
-              <h2 className={styles.sectionTitle}>Browse by University</h2>
+              <h2 className={styles.sectionTitle}>{t('by_university')}</h2>
               <p className={styles.ctaSubtitle}>Join thousands of students and agents who have already found success on our platform.</p>
             </div>
           </div>
@@ -134,11 +137,11 @@ export default function HomePage() {
         >
           <div className={styles.sectionHeader}>
             <div>
-              <h2 className={styles.sectionTitle}>Trending Properties</h2>
-              <p className={styles.sectionSubtitle}>Properties that are getting the most attention right now.</p>
+              <h2 className={styles.sectionTitle}>{t('trending')}</h2>
+              <p className={styles.sectionSubtitle}>{t('trending_sub')}</p>
             </div>
             <Link href="/search?sort=popular" className={styles.viewAll}>
-              View All <ArrowRight size={16} />
+              {t('view_all')} <ArrowRight size={16} />
             </Link>
           </div>
           <div className={styles.grid}>
@@ -175,11 +178,11 @@ export default function HomePage() {
         >
           <div className={styles.sectionHeader}>
             <div>
-              <h2 className={styles.sectionTitle}>Top Verified Agents</h2>
-              <p className={styles.sectionSubtitle}>Work with the best real estate professionals in North Cyprus.</p>
+              <h2 className={styles.sectionTitle}>{t('top_agents')}</h2>
+              <p className={styles.sectionSubtitle}>{t('top_agents_sub')}</p>
             </div>
             <Link href="/agents" className={styles.viewAll}>
-              View All <ArrowRight size={16} />
+              {t('view_all')} <ArrowRight size={16} />
             </Link>
           </div>
           <div className={styles.grid}>
@@ -208,25 +211,25 @@ export default function HomePage() {
           transition={{ duration: 0.8, ease: [0.2, 0.8, 0.2, 1] }}
         >
           <div className="container">
-            <h2 className={`${styles.sectionTitle} text-center`}>How It Works</h2>
+            <h2 className={`${styles.sectionTitle} text-center`}>{t('how_it_works')}</h2>
             <p className={`${styles.sectionSubtitle} text-center mx-auto`} style={{ margin: '0 auto' }}>
-              Your journey to the perfect home in North Cyprus made simple and secure.
+              {t('how_sub')}
             </p>
             <div className={styles.stepsGrid}>
               <div className={styles.step}>
                 <PremiumIcon icon={Search} size={32} colorVariant="primary" />
-                <h3 style={{ marginTop: '1rem' }}>1. Search</h3>
-                <p className="text-muted">Find exactly what you&apos;re looking for with our advanced filters and university proximity tools.</p>
+                <h3 style={{ marginTop: '1rem' }}>{t('step1_title')}</h3>
+                <p className="text-muted">{t('step1_desc')}</p>
               </div>
               <div className={styles.step}>
                 <PremiumIcon icon={Users} size={32} colorVariant="accent" />
-                <h3 style={{ marginTop: '1rem' }}>2. Connect</h3>
-                <p className="text-muted">Message verified agents directly or find roommates through our trusted platform.</p>
+                <h3 style={{ marginTop: '1rem' }}>{t('step2_title')}</h3>
+                <p className="text-muted">{t('step2_desc')}</p>
               </div>
               <div className={styles.step}>
                 <PremiumIcon icon={ShieldCheck} size={32} colorVariant="success" />
-                <h3 style={{ marginTop: '1rem' }}>3. Move In</h3>
-                <p className="text-muted">Secure your ideal home with transparent move-in costs and clear rental terms.</p>
+                <h3 style={{ marginTop: '1rem' }}>{t('step3_title')}</h3>
+                <p className="text-muted">{t('step3_desc')}</p>
               </div>
             </div>
           </div>

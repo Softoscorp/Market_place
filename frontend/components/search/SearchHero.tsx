@@ -6,6 +6,8 @@ import { motion } from 'framer-motion';
 import { PremiumIcon } from '@/components/ui/PremiumIcon';
 import styles from './SearchHero.module.css';
 
+import { useLanguageStore } from '@/lib/store/useLanguageStore';
+
 const SUGGESTIONS = [
   'Kyrenia Penthouse', 
   'Famagusta Student Housing', 
@@ -15,6 +17,7 @@ const SUGGESTIONS = [
 
 export function SearchHero() {
   const [query, setQuery] = useState('');
+  const { t } = useLanguageStore();
 
   return (
     <section className={styles.hero}>
@@ -25,9 +28,9 @@ export function SearchHero() {
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.8, ease: [0.2, 0.8, 0.2, 1] }}
         >
-          <h1 className={styles.title}>Find a home you can actually afford today.</h1>
+          <h1 className={styles.title}>{t('hero_title')}</h1>
           <p className={styles.subtitle}>
-            Discover premium spaces with transparent upfront move-in costs. Verified agents, compatible roommates, zero surprises.
+            {t('hero_subtitle')}
           </p>
 
           <div className={styles.searchContainer}>
@@ -40,11 +43,11 @@ export function SearchHero() {
               <input
                 type="text"
                 className={styles.input}
-                placeholder="Try 'Kyrenia 2+1 under £600'..."
+                placeholder={t('hero_search_placeholder')}
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
               />
-              <button className={styles.actionButton}>Search</button>
+              <button className={styles.actionButton}>{t('hero_search_btn')}</button>
             </motion.div>
           </div>
 

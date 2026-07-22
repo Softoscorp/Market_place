@@ -9,7 +9,7 @@ import { useAuthStore } from '@/lib/store/useAuthStore';
 import Link from 'next/link';
 import { BackButton } from '@/components/ui/BackButton';
 
-import { apiRequest, mediaUrl } from '@/lib/api';
+import { apiRequest, mediaUrl, API_BASE_URL, getToken } from '@/lib/api';
 import { useLanguageStore } from '@/lib/store/useLanguageStore';
 
 export default function ProfilePage() {
@@ -33,8 +33,14 @@ export default function ProfilePage() {
       const data = new FormData();
       data.append('file', file);
 
-      const token = user?.token;
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://marketplace-production-2905.up.railway.app'}/users/me/avatar`, {
+      const token = getToken() || user?.token || '';
+      if (!token) {
+        alert('Your session has expired. Please log in again.');
+        logout();
+        return;
+      }
+
+      const res = await fetch(`${API_BASE_URL}/users/me/avatar`, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`
@@ -42,15 +48,19 @@ export default function ProfilePage() {
         body: data
       });
 
-      if (!res.ok) throw new Error('Avatar upload failed');
+      if (!res.ok) {
+        const errorDetail = await res.json().catch(() => ({}));
+        throw new Error(errorDetail.detail || 'Avatar upload failed');
+      }
+
       const updatedUser = await res.json();
       if (user) {
-        login({ ...user, ...updatedUser, token: user.token });
+        login({ ...user, avatar_url: updatedUser.avatar_url, token });
       }
       alert('Profile picture updated successfully!');
     } catch (err) {
-      console.error(err);
-      alert('Failed to upload profile picture.');
+      console.error('Avatar upload error:', err);
+      alert('Failed to upload profile picture. Please try logging in again.');
     } finally {
       setUploadingAvatar(false);
     }
@@ -61,9 +71,10 @@ export default function ProfilePage() {
     return () => clearTimeout(timer);
   }, []);
 
-  // Fetch fresh user data from backend on mount
+  // Fetch fresh user data from backend on mount; if token is invalid (401), clear stale session
   React.useEffect(() => {
-    if (user?.token) {
+    const token = getToken() || user?.token;
+    if (token) {
       apiRequest('/users/me')
         .then((freshUser) => {
           if (freshUser && user) {
@@ -77,9 +88,14 @@ export default function ProfilePage() {
             });
           }
         })
-        .catch((err) => console.error('Error refreshing user profile:', err));
+        .catch((err) => {
+          console.error('Error refreshing user profile:', err);
+          if (err?.status === 401) {
+            logout();
+          }
+        });
     }
-  }, [user?.token]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const displayName = user?.name || formData.name || 'User';
 

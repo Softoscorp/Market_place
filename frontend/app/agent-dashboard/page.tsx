@@ -7,7 +7,6 @@ import {
   List, 
   Users, 
   Settings, 
-  TrendingUp, 
   Eye, 
   MessageSquare, 
   MousePointerClick,
@@ -17,7 +16,6 @@ import {
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/lib/store/useAuthStore';
 import { useChatStore } from '@/lib/store/useChatStore';
-import { useLanguageStore } from '@/lib/store/useLanguageStore';
 import { apiRequest } from '@/lib/api';
 import Link from 'next/link';
 import styles from './Dashboard.module.css';
@@ -35,9 +33,7 @@ export default function AgentDashboard() {
   const router = useRouter();
   const { user, isAuthenticated } = useAuthStore();
   const { openChat, conversations } = useChatStore();
-  const { t } = useLanguageStore();
   const [activeTab, setActiveTab] = useState('overview');
-  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
 
   const [agentListings, setAgentListings] = useState<RealListing[]>([]);
   const [loadingListings, setLoadingListings] = useState(true);
@@ -45,22 +41,23 @@ export default function AgentDashboard() {
   useEffect(() => {
     if (!isAuthenticated || user?.role !== 'agent') {
       router.push('/signup');
-    } else {
-      setIsCheckingAuth(false);
-      // Fetch agent listings
-      apiRequest('/listings', { auth: false })
-        .then((data) => {
-          const items: RealListing[] = data.items || [];
-          // Filter listings belonging to current user if any
-          const myings = items.filter((item) => String(item.agent?.id) === String(user?.id) || item.agent?.name === user?.name);
-          setAgentListings(myings);
-        })
-        .catch(() => setAgentListings([]))
-        .finally(() => setLoadingListings(false));
+      return;
     }
+
+    // Fetch agent listings
+    apiRequest('/listings', { auth: false })
+      .then((data) => {
+        const items: RealListing[] = data.items || [];
+        const myings = items.filter((item) => String(item.agent?.id) === String(user?.id) || item.agent?.name === user?.name);
+        setAgentListings(myings);
+      })
+      .catch(() => setAgentListings([]))
+      .finally(() => setLoadingListings(false));
   }, [isAuthenticated, user, router]);
 
-  if (isCheckingAuth) return <div className={styles.loaderContainer}><div className={styles.loader}></div></div>;
+  if (!isAuthenticated || user?.role !== 'agent') {
+    return <div className={styles.loaderContainer}><div className={styles.loader}></div></div>;
+  }
 
   const conversationList = Object.values(conversations);
 

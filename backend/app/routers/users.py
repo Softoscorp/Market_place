@@ -1,11 +1,18 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+import os
+import uuid
+from fastapi import APIRouter, Depends, HTTPException, status, File, UploadFile
 from sqlalchemy.orm import Session
 
 from .. import models, schemas
 from ..database import get_db
 from ..dependencies import get_current_user
 
+from ..config import settings
+
 router = APIRouter(tags=["users"])
+
+UPLOAD_AVATAR_DIR = os.path.join(settings.media_root, "avatars")
+os.makedirs(UPLOAD_AVATAR_DIR, exist_ok=True)
 
 
 @router.get("/users/me", response_model=schemas.MeOut)
@@ -21,6 +28,29 @@ def update_me(
 ):
     for field, value in payload.model_dump(exclude_unset=True).items():
         setattr(current_user, field, value)
+    db.commit()
+    db.refresh(current_user)
+    return current_user
+
+
+@router.post("/users/me/avatar", response_model=schemas.MeOut)
+async def upload_avatar(
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user),
+):
+    if not file.content_type or not file.content_type.startswith("image/"):
+        raise HTTPException(status_code=400, detail="File must be an image")
+    
+    ext = os.path.splitext(file.filename or "")[1] or ".jpg"
+    filename = f"avatar_{current_user.id}_{uuid.uuid4().hex[:8]}{ext}"
+    filepath = os.path.join(UPLOAD_AVATAR_DIR, filename)
+    
+    contents = await file.read()
+    with open(filepath, "wb") as f:
+        f.write(contents)
+        
+    current_user.avatar_url = f"/media/avatars/{filename}"
     db.commit()
     db.refresh(current_user)
     return current_user

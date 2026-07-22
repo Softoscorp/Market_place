@@ -1,26 +1,60 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import styles from './ProfilePage.module.css';
-import { MessageSquare, LogOut, LayoutDashboard } from 'lucide-react';
+import { MessageSquare, LogOut, LayoutDashboard, Camera } from 'lucide-react';
 import { useChatStore } from '@/lib/store/useChatStore';
 import { useAuthStore } from '@/lib/store/useAuthStore';
 import Link from 'next/link';
 import { BackButton } from '@/components/ui/BackButton';
 
-import { apiRequest } from '@/lib/api';
+import { apiRequest, mediaUrl } from '@/lib/api';
 import { useLanguageStore } from '@/lib/store/useLanguageStore';
 
 export default function ProfilePage() {
-  const { user, logout } = useAuthStore();
+  const { user, logout, login } = useAuthStore();
   const { t } = useLanguageStore();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [formData, setFormData] = useState({
     name: user?.name || '',
     phone: user?.phone || '',
     occupation: user?.role === 'agent' ? 'Real Estate Agent' : 'Student / Renter'
   });
   const [mounted, setMounted] = useState(false);
+
+  const handleAvatarSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingAvatar(true);
+    try {
+      const data = new FormData();
+      data.append('file', file);
+
+      const token = user?.token;
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'https://marketplace-production-2905.up.railway.app'}/users/me/avatar`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`
+        },
+        body: data
+      });
+
+      if (!res.ok) throw new Error('Avatar upload failed');
+      const updatedUser = await res.json();
+      if (user) {
+        login({ ...user, ...updatedUser, token: user.token });
+      }
+      alert('Profile picture updated successfully!');
+    } catch (err) {
+      console.error(err);
+      alert('Failed to upload profile picture.');
+    } finally {
+      setUploadingAvatar(false);
+    }
+  };
 
   React.useEffect(() => {
     const timer = setTimeout(() => setMounted(true), 0);
@@ -75,19 +109,47 @@ export default function ProfilePage() {
         <div className={styles.section}>
           <h2 className={styles.sectionTitle}>Personal Details</h2>
           
+          <input 
+            type="file" 
+            ref={fileInputRef} 
+            accept="image/*" 
+            style={{ display: 'none' }} 
+            onChange={handleAvatarSelect} 
+          />
           <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', marginBottom: '1.5rem' }}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img 
-              src={`https://ui-avatars.com/api/?name=${encodeURIComponent(formData.name || user?.name || 'User')}&background=0F172A&color=fff&size=128&bold=true`}
-              alt="Profile Avatar" 
-              style={{ width: '72px', height: '72px', borderRadius: '50%', border: '2px solid #e2e8f0', objectFit: 'cover' }}
-            />
+            <div style={{ position: 'relative' }}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img 
+                src={user?.avatar_url ? (mediaUrl(user.avatar_url) || '') : `https://ui-avatars.com/api/?name=${encodeURIComponent(formData.name || user?.name || 'User')}&background=0F172A&color=fff&size=128&bold=true`}
+                alt="Profile Avatar" 
+                style={{ width: '72px', height: '72px', borderRadius: '50%', border: '2px solid #e2e8f0', objectFit: 'cover' }}
+              />
+            </div>
             <div>
               <div style={{ fontWeight: 600, fontSize: '1rem', color: '#0f172a' }}>{formData.name || user?.name || 'User'}</div>
               <div style={{ fontSize: '0.85rem', color: '#64748b' }}>{user?.email}</div>
-              <div style={{ fontSize: '0.75rem', color: '#10b981', fontWeight: 600, marginTop: '2px' }}>
-                {user?.is_verified ? 'Verified Account' : 'Active Account'}
-              </div>
+              <button 
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploadingAvatar}
+                style={{
+                  marginTop: '0.5rem',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.375rem',
+                  padding: '0.375rem 0.75rem',
+                  fontSize: '0.8125rem',
+                  fontWeight: 600,
+                  color: '#0f172a',
+                  backgroundColor: '#f1f5f9',
+                  border: '1px solid #cbd5e1',
+                  borderRadius: '0.5rem',
+                  cursor: 'pointer'
+                }}
+              >
+                <Camera size={14} />
+                {uploadingAvatar ? 'Uploading...' : 'Upload Photo'}
+              </button>
             </div>
           </div>
 

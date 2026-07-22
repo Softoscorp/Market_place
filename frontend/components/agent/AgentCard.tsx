@@ -26,12 +26,16 @@ export function AgentCard({
   isVerified = true,
   onContact
 }: AgentCardProps) {
+  const avatarSrc = imageUrl && !imageUrl.includes('placeholder')
+    ? imageUrl
+    : `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=0F172A&color=fff&bold=true`;
+
   return (
     <div className={styles.card}>
       <div className={styles.header}>
         <div className={styles.avatarWrapper}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={imageUrl} alt={name} className={styles.avatar} />
+          <img src={avatarSrc} alt="" className={styles.avatar} />
           {isVerified && (
             <div className={styles.verifiedBadge}>
               <Check size={12} strokeWidth={3} />

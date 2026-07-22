@@ -35,6 +35,9 @@ interface AgentData {
   name: string;
   avatarUrl?: string;
   is_verified?: boolean;
+  average_rating?: number;
+  total_reviews?: number;
+  active_listings?: number;
 }
 
 export default function HomePage() {
@@ -185,11 +188,11 @@ export default function HomePage() {
                 key={idx} 
                 agentId={agent.id}
                 name={agent.name}
-                agency={'Independent'}
-                imageUrl={mediaUrl(agent.avatarUrl) || '/images/placeholder-studio.jpg'}
-                rating={5.0}
-                reviews={10}
-                activeListings={5}
+                agency={'Independent Agent'}
+                imageUrl={agent.avatarUrl ? mediaUrl(agent.avatarUrl) || '' : ''}
+                rating={agent.average_rating ? Number(agent.average_rating.toFixed(1)) : 0}
+                reviews={agent.total_reviews || 0}
+                activeListings={agent.active_listings || 0}
                 isVerified={agent.is_verified}
               />
             ))}

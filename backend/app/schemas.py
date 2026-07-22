@@ -50,6 +50,7 @@ class PublicUserOut(BaseModel):
     name: str
     role: UserRole
     is_verified: bool
+    avatar_url: Optional[str] = None
     created_at: datetime
 
 
@@ -59,11 +60,12 @@ class MeOut(BaseModel):
     id: int
     email: EmailStr
     name: str
-    phone: str
+    phone: Optional[str] = None
     role: UserRole
     language: str
     is_verified: bool
     account_status: AccountStatus
+    avatar_url: Optional[str] = None
     created_at: datetime
 
 

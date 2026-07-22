@@ -72,6 +72,22 @@ export default function ProfilePage() {
         <div className={styles.card}>
         <div className={styles.section}>
           <h2 className={styles.sectionTitle}>Personal Details</h2>
+          
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', marginBottom: '1.5rem' }}>
+            <img 
+              src={`https://ui-avatars.com/api/?name=${encodeURIComponent(formData.name || user?.name || 'User')}&background=0F172A&color=fff&size=128&bold=true`}
+              alt="Profile Avatar" 
+              style={{ width: '72px', height: '72px', borderRadius: '50%', border: '2px solid #e2e8f0', objectFit: 'cover' }}
+            />
+            <div>
+              <div style={{ fontWeight: 600, fontSize: '1rem', color: '#0f172a' }}>{formData.name || user?.name || 'User'}</div>
+              <div style={{ fontSize: '0.85rem', color: '#64748b' }}>{user?.email}</div>
+              <div style={{ fontSize: '0.75rem', color: '#10b981', fontWeight: 600, marginTop: '2px' }}>
+                {user?.is_verified ? 'Verified Account' : 'Active Account'}
+              </div>
+            </div>
+          </div>
+
           <div className={styles.inputGroup}>
             <label className={styles.label}>Full Name</label>
             <input 

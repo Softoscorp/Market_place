@@ -82,6 +82,7 @@ class User(Base):
 
     # Only meaningful for agents; false/ignored for renters and admins.
     is_verified = Column(Boolean, default=False)
+    avatar_url = Column(String, nullable=True)
 
     created_at = Column(DateTime, default=datetime.utcnow)
 

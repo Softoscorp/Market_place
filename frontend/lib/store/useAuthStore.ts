@@ -10,6 +10,8 @@ export interface User {
   role: UserRole;
   token: string;
   isVerifiedAgent?: boolean;
+  is_verified?: boolean;
+  avatar_url?: string;
   isLookingForRoommate?: boolean;
 }
 

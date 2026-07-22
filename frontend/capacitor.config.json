@@ -1,0 +1,15 @@
+{
+  "appId": "com.softoscorp.houseagent",
+  "appName": "House Agent",
+  "webDir": "out",
+  "bundledWebRuntime": false,
+  "server": {
+    "url": "https://market-place-chi-lime.vercel.app",
+    "cleartext": true
+  },
+  "plugins": {
+    "PushNotifications": {
+      "presentationOptions": ["badge", "sound", "alert"]
+    }
+  }
+}

@@ -56,6 +56,18 @@ async def upload_avatar(
     return current_user
 
 
+@router.post("/users/me/push-token", status_code=status.HTTP_200_OK)
+def save_push_token(
+    payload: schemas.PushTokenRequest,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user),
+):
+    # Store mobile push token on user profile
+    current_user.status_reason = f"push_token:{payload.push_token[:100]}"
+    db.commit()
+    return {"status": "ok", "message": "Push token registered successfully"}
+
+
 @router.get("/users/me/saved", response_model=list[schemas.SavedPropertyOut])
 def get_saved_properties(
     db: Session = Depends(get_db),

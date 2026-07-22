@@ -81,6 +81,10 @@ class UpdateMeRequest(BaseModel):
     language: Optional[str] = None
 
 
+class PushTokenRequest(BaseModel):
+    push_token: str
+
+
 class AgentProfileOut(BaseModel):
     agent: PublicUserOut
     average_rating: Optional[float] = None

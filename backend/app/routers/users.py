@@ -50,7 +50,7 @@ async def upload_avatar(
     with open(filepath, "wb") as f:
         f.write(contents)
         
-    current_user.avatar_url = f"/media/avatars/{filename}"
+    current_user.avatar_url = f"/media/avatars/{filename}"  # type: ignore
     db.commit()
     db.refresh(current_user)
     return current_user
@@ -63,7 +63,7 @@ def save_push_token(
     current_user: models.User = Depends(get_current_user),
 ):
     # Store mobile push token on user profile
-    current_user.status_reason = f"push_token:{payload.push_token[:100]}"
+    current_user.status_reason = f"push_token:{payload.push_token[:100]}"  # type: ignore
     db.commit()
     return {"status": "ok", "message": "Push token registered successfully"}
 
@@ -127,7 +127,7 @@ def submit_kyc_document(
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_user),
 ):
-    if current_user.role != models.UserRole.agent:
+    if current_user.role != models.UserRole.agent:  # type: ignore
         raise HTTPException(status_code=403, detail="Only agents can submit KYC documents")
         
     doc = models.KYCDocument(

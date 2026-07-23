@@ -15,7 +15,8 @@ logger = logging.getLogger(__name__)
 supabase = None
 if HAS_SUPABASE and settings.supabase_url and settings.supabase_key:
     try:
-        supabase = create_client(settings.supabase_url, settings.supabase_key)
+        # create_client may be None at type‑checking time; ignore for runtime safety
+        supabase = create_client(settings.supabase_url, settings.supabase_key)  # type: ignore
     except Exception as e:
         logger.warning(f"Could not initialize Supabase client: {e}")
 
@@ -26,7 +27,7 @@ def upload_file(file_bytes: bytes, bucket: str, path: str, content_type: str = "
     """
     if supabase:
         try:
-            res = supabase.storage.from_(bucket).upload(
+            supabase.storage.from_(bucket).upload(
                 file=file_bytes,
                 path=path,
                 file_options={"content-type": content_type, "upsert": "true"}

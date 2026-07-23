@@ -41,7 +41,7 @@ def _get_owned_listing(listing_id: int, db: Session, current_user: models.User) 
     listing = db.query(models.Listing).filter(models.Listing.id == listing_id).first()
     if not listing:
         raise HTTPException(status_code=404, detail="Listing not found")
-    if listing.agent_id != current_user.id:
+    if listing.agent_id != current_user.id:  # type: ignore
         raise HTTPException(status_code=403, detail="Only the listing agent can do this")
     return listing
 
@@ -135,7 +135,7 @@ def browse_listings(
 
     total = query.count()
     items = query.offset((page - 1) * page_size).limit(page_size).all()
-    serialized = [_serialize_listing(l, db) for l in items]
+    serialized = [_serialize_listing(listing_obj, db) for listing_obj in items]
 
     return schemas.PaginatedListings(items=serialized, total=total, page=page, page_size=page_size)
 
@@ -180,7 +180,7 @@ def delete_listing(
     # Delete physical photo files
     for photo in listing.photos:
         db.delete(photo)
-        if photo.url.startswith("/media/"):
+        if photo.url.startswith("/media/"):  # type: ignore
             path = photo.url.replace("/media/", "")
             delete_file("rental-media", path)
         else:
@@ -246,7 +246,7 @@ def delete_photo(
         raise HTTPException(status_code=404, detail="Photo not found")
         
     # Remove file
-    if photo.url.startswith("/media/"):
+    if photo.url.startswith("/media/"):  # type: ignore
         path = photo.url.replace("/media/", "")
         delete_file("rental-media", path)
     else:

@@ -69,7 +69,21 @@ export async function apiRequest(
 
 export function mediaUrl(path: string | null | undefined): string | undefined {
   if (!path) return undefined;
-  if (path.startsWith("http")) return path;
+
+  // If the path is already an absolute URL, ensure it matches the current page's protocol.
+  // This prevents mixed‑content blocks when the front‑end is loaded over HTTPS but the
+  // stored avatar URL uses HTTP (e.g. from a dev back‑end). We only rewrite HTTP → HTTPS
+  // when the browser environment is available; during SSR the function will just
+  // return the original URL.
+  if (path.startsWith("http")) {
+    if (typeof window !== "undefined" && window.location.protocol === "https:" && path.startsWith("http://")) {
+      return path.replace(/^http:/, "https:");
+    }
+    return path;
+  }
+
+  // Relative path – prepend the configured API base URL (which already includes the
+  // correct scheme and host for the back‑end).
   return `${API_BASE_URL}${path}`;
 }
 

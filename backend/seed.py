@@ -42,8 +42,8 @@ users_to_seed = [
 for user_data in users_to_seed:
     user = db.query(User).filter_by(email=user_data["email"]).first()
     if user:
-        user.password_hash = hash_password(user_data["password"])
-        user.role = user_data["role"]
+        user.password_hash = hash_password(user_data["password"])  # type: ignore
+        user.role = user_data["role"]  # type: ignore
         print(f"Updated {user_data['email']} with password {user_data['password']}")
     else:
         new_user = User(

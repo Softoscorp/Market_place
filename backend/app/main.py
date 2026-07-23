@@ -93,8 +93,8 @@ def seed_admin_users():
         for user_data in users_to_seed:
             user = db.query(User).filter_by(email=user_data["email"]).first()
             if user:
-                user.password_hash = hash_password(user_data["password"])
-                user.role = user_data["role"]
+                user.password_hash = hash_password(user_data["password"])  # type: ignore
+                user.role = user_data["role"]  # type: ignore
             else:
                 new_user = User(
                     email=user_data["email"],

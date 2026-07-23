@@ -16,7 +16,7 @@ def auto_migrate_columns():
         with engine.connect() as conn:
             for col in ["generator", "pool", "gym"]:
                 try:
-                    conn.execute(text(f"ALTER TABLE listings ADD COLUMN {col} BOOLEAN DEFAULT FALSE;"))
+                    conn.execute(text(f"ALTER TABLE listings ADD COLUMN IF NOT EXISTS {col} BOOLEAN DEFAULT FALSE;"))
                     conn.commit()
                 except Exception:
                     pass

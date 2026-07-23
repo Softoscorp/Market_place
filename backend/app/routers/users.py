@@ -1,13 +1,15 @@
 import os
 import uuid
+import logging
 from fastapi import APIRouter, Depends, HTTPException, status, File, UploadFile
 from sqlalchemy.orm import Session
 
 from .. import models, schemas
 from ..database import get_db
 from ..dependencies import get_current_user
-
 from ..config import settings
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(tags=["users"])
 
@@ -46,6 +48,15 @@ async def upload_avatar(
     filename = f"avatar_{current_user.id}_{uuid.uuid4().hex[:8]}{ext}"
     filepath = os.path.join(UPLOAD_AVATAR_DIR, filename)
     
+    # If the user already has a local avatar, delete the old file to avoid orphaned images
+    if current_user.avatar_url and current_user.avatar_url.startswith("/media/avatars/"):  # type: ignore
+        old_path = os.path.join(settings.media_root, current_user.avatar_url.lstrip("/"))
+        try:
+            if os.path.isfile(old_path):
+                os.remove(old_path)
+        except Exception as e:
+            logger.warning(f"Failed to delete old avatar file {old_path}: {e}")
+
     contents = await file.read()
     with open(filepath, "wb") as f:
         f.write(contents)

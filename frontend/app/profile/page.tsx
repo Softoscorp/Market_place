@@ -65,6 +65,8 @@ export default function ProfilePage() {
       console.error('Avatar upload error:', err);
       alert('Failed to upload profile picture. Please try logging in again.');
     } finally {
+      // Reset the file input so the same file can be re‑selected without auto‑re‑upload
+      if (fileInputRef.current) fileInputRef.current.value = '';
       setUploadingAvatar(false);
     }
   };

@@ -1,16 +1,20 @@
 import os
 import uuid
+import logging
 from fastapi import APIRouter, Depends, HTTPException, status, File, UploadFile
 from sqlalchemy.orm import Session
 
 from .. import models, schemas
 from ..database import get_db
 from ..dependencies import get_current_user
-
 from ..config import settings
+from ..services.supabase_storage import upload_file, delete_file
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(tags=["users"])
 
+# Local fallback dir — only used when Supabase env vars are not configured
 UPLOAD_AVATAR_DIR = os.path.join(settings.media_root, "avatars")
 os.makedirs(UPLOAD_AVATAR_DIR, exist_ok=True)
 
@@ -41,16 +45,37 @@ async def upload_avatar(
 ):
     if not file.content_type or not file.content_type.startswith("image/"):
         raise HTTPException(status_code=400, detail="File must be an image")
-    
+
     ext = os.path.splitext(file.filename or "")[1] or ".jpg"
-    filename = f"avatar_{current_user.id}_{uuid.uuid4().hex[:8]}{ext}"
-    filepath = os.path.join(UPLOAD_AVATAR_DIR, filename)
-    
+    storage_path = f"avatars/avatar_{current_user.id}_{uuid.uuid4().hex[:8]}{ext}"
     contents = await file.read()
-    with open(filepath, "wb") as f:
-        f.write(contents)
-        
-    current_user.avatar_url = f"/media/avatars/{filename}"  # type: ignore
+
+    # Delete old avatar from Supabase (or local disk for legacy uploads)
+    old_url: str | None = current_user.avatar_url  # type: ignore
+    if old_url:
+        if old_url.startswith("/media/"):
+            old_disk_path = os.path.join(settings.media_root, old_url.lstrip("/"))
+            try:
+                if os.path.isfile(old_disk_path):
+                    os.remove(old_disk_path)
+            except Exception as e:
+                logger.warning(f"Could not delete old local avatar {old_disk_path}: {e}")
+        elif "/storage/v1/object/public/rental-media/" in old_url:
+            old_storage_path = old_url.split("/storage/v1/object/public/rental-media/")[-1]
+            try:
+                delete_file("rental-media", old_storage_path)
+            except Exception as e:
+                logger.warning(f"Could not delete old Supabase avatar {old_storage_path}: {e}")
+
+    # Upload to Supabase Storage (auto-falls back to local disk if Supabase not configured)
+    public_url = upload_file(
+        file_bytes=contents,
+        bucket="rental-media",
+        path=storage_path,
+        content_type=file.content_type or "image/jpeg",
+    )
+
+    current_user.avatar_url = public_url  # type: ignore
     db.commit()
     db.refresh(current_user)
     return current_user

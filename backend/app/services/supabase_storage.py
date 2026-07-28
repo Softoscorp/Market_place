@@ -7,7 +7,7 @@ except ImportError:
     Client = None  # type: ignore
     HAS_SUPABASE = False
 
-from app.config import settings
+from ..config import settings
 import logging
 
 logger = logging.getLogger(__name__)

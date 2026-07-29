@@ -111,10 +111,8 @@ export const useChatStore = create<ChatState>((set, get) => ({
       const body: any = {};
       if (listingId) {
         body.listing_id = listingId;
-        body.message = `Hi there! I'm interested in your property.`;
       } else {
         body.agent_id = parseInt(agent.id, 10);
-        body.message = `Hi there! I have a question.`;
       }
       
       const conv = await apiRequest('/messages/conversations', {

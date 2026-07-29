@@ -126,16 +126,17 @@ def start_conversation(
         db.commit()
         db.refresh(conv)
 
-    message = models.Message(
-        conversation_id=conv.id,
-        sender_id=current_user.id,
-        message_type=models.MessageType.text,
-        original_text=payload.message,
-        original_language=current_user.language,
-    )
-    db.add(message)
-    db.commit()
-    db.refresh(conv)
+    if payload.message:
+        message = models.Message(
+            conversation_id=conv.id,
+            sender_id=current_user.id,
+            message_type=models.MessageType.text,
+            original_text=payload.message,
+            original_language=current_user.language,
+        )
+        db.add(message)
+        db.commit()
+        db.refresh(conv)
 
     return _serialize_conversation(conv, current_user, db)
 

@@ -171,7 +171,7 @@ class PaginatedListings(BaseModel):
 class StartConversationRequest(BaseModel):
     listing_id: Optional[int] = None
     agent_id: Optional[int] = None
-    message: str
+    message: Optional[str] = None
 
 
 class MessageOut(BaseModel):

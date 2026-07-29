@@ -14,7 +14,7 @@ interface AgentCardProps {
   imageUrl: string;
   rating: number;
   reviews: number;
-  activeListings: number;
+  activeListings?: number;
   isVerified?: boolean;
   onContact?: () => void;
 }
@@ -63,14 +63,12 @@ export function AgentCard({
           </span>
           <span className={styles.statLabel}>{reviews} {t('agent_reviews')}</span>
         </div>
-        <div className={styles.statItem}>
-          <span className={styles.statValue}>{activeListings}</span>
-          <span className={styles.statLabel}>{t('agent_listings')}</span>
-        </div>
-        <div className={styles.statItem}>
-          <span className={styles.statValue}>100%</span>
-          <span className={styles.statLabel}>{t('agent_response')}</span>
-        </div>
+        {activeListings !== undefined && (
+          <div className={styles.statItem}>
+            <span className={styles.statValue}>{activeListings}</span>
+            <span className={styles.statLabel}>{t('agent_listings')}</span>
+          </div>
+        )}
       </div>
 
       <button className={styles.contactBtn} onClick={onContact}>

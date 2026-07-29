@@ -155,7 +155,7 @@ export default function PropertyPage({ params }: PropertyPageProps) {
 
   const bedrooms = parseInt(property.house_type.split('+')[0]) || 1;
   const bathrooms = 1;
-  const area = 75; // mocked area since not in backend
+
 
   return (
     <div className={styles.container}>
@@ -211,11 +211,7 @@ export default function PropertyPage({ params }: PropertyPageProps) {
               <div className={styles.featureValue}>{bathrooms}</div>
               <div className={styles.featureLabel}>Bathrooms</div>
             </div>
-            <div className={styles.featureItem}>
-              <PremiumIcon icon={Ruler} size={20} colorVariant="primary" containerSize={40} />
-              <div className={styles.featureValue}>{area} m²</div>
-              <div className={styles.featureLabel}>Area</div>
-            </div>
+
             <div className={styles.featureItem}>
               <PremiumIcon icon={Calendar} size={20} colorVariant="primary" containerSize={40} />
               <div className={styles.featureValue}>Monthly</div>
@@ -228,18 +224,7 @@ export default function PropertyPage({ params }: PropertyPageProps) {
             <p className={styles.description}>{property.description}</p>
           </div>
 
-          <div className={styles.section}>
-            <h2 className={styles.sectionTitle}>Distances & Location</h2>
-            <div className={styles.distancesList}>
-              <div className={styles.distanceItem}>
-                <div className={styles.distanceLabel}>
-                  <PremiumIcon icon={Navigation} size={16} colorVariant="primary" containerSize={32} />
-                  <span>City Center</span>
-                </div>
-                <div className={styles.distanceValue}>1.5km</div>
-              </div>
-            </div>
-          </div>
+
 
           <div className={styles.section} style={{ marginTop: '2rem', paddingTop: '2rem', borderTop: '1px solid #e5e7eb' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
@@ -286,7 +271,7 @@ export default function PropertyPage({ params }: PropertyPageProps) {
               imageUrl={mediaUrl(agent.avatar_url) || ''}
               rating={property.agent_average_rating || 5.0}
               reviews={property.agent_rating_count || 0}
-              activeListings={5}
+
               isVerified={agent.is_verified}
               onContact={() => openChat({ id: String(agent.id), name: agent.name, avatarUrl: mediaUrl(agent.avatar_url) || '' })}
             />

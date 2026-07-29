@@ -86,7 +86,7 @@ export default function AdminDashboard() {
   useEffect(() => {
     let timeout: NodeJS.Timeout;
     if (!isAuthenticated || (user?.role !== 'admin' && user?.role !== 'customer_care')) {
-      router.push('/login');
+      router.replace('/login');
     } else {
       timeout = setTimeout(() => {
         setIsCheckingAuth(false);

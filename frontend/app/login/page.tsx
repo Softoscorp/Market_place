@@ -19,6 +19,8 @@ export default function LoginPage() {
     if (isAuthenticated && user) {
       if (user.role === 'agent') {
         router.replace('/agent-dashboard');
+      } else if (user.role === 'admin' || user.role === 'customer_care') {
+        router.replace('/admin');
       } else {
         router.replace('/profile');
       }

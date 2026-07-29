@@ -17,7 +17,7 @@ import { ProtectedImage } from '@/components/ui/ProtectedImage';
 
 export default function ProfilePage() {
   const router = useRouter();
-  const { user, logout, updateUser } = useAuthStore();
+  const { user, isAuthenticated, logout, updateUser } = useAuthStore();
   const { t } = useLanguageStore();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
@@ -73,6 +73,13 @@ export default function ProfilePage() {
     const timer = setTimeout(() => setMounted(true), 0);
     return () => clearTimeout(timer);
   }, []);
+
+  // Auth guard: redirect to login when user logs out
+  React.useEffect(() => {
+    if (mounted && !isAuthenticated) {
+      router.replace('/login');
+    }
+  }, [mounted, isAuthenticated, router]);
 
   // Fetch fresh user data from backend on mount; if token is invalid (401), clear stale session
   React.useEffect(() => {

@@ -60,9 +60,15 @@ export default function HomePage() {
       .then((data) => setFeaturedProperties(data.items || []))
       .catch(console.error);
 
-    apiRequest("/agents", { auth: false })
-      .then((data) => setTopAgents(data || []))
-      .catch(console.error);
+    const fetchAgents = () =>
+      apiRequest("/agents", { auth: false })
+        .then((data) => setTopAgents(data || []))
+        .catch(console.error);
+
+    // Fetch immediately, then re-fetch after 2s to catch the heartbeat stamp
+    fetchAgents();
+    const quick = setTimeout(fetchAgents, 2000);
+    return () => clearTimeout(quick);
   }, []);
 
   return (

@@ -32,12 +32,26 @@ export default function AgentsPage() {
   const [agents, setAgents] = useState<Agent[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  const fetchAgents = () =>
     apiRequest('/agents', { auth: false })
       .then((data) => setAgents(Array.isArray(data) ? data : []))
-      .catch(() => setAgents([]))
-      .finally(() => setLoading(false));
-  }, []);
+      .catch(() => setAgents([]));
+
+  useEffect(() => {
+    // First fetch — show content fast
+    fetchAgents().finally(() => setLoading(false));
+
+    // Re-fetch after 2s so our own heartbeat ping has had time to stamp last_seen_at
+    const quick = setTimeout(fetchAgents, 2000);
+
+    // Live polling — refreshes online dots every 30s
+    const poll = setInterval(fetchAgents, 30_000);
+
+    return () => {
+      clearTimeout(quick);
+      clearInterval(poll);
+    };
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <motion.div

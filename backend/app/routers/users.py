@@ -26,6 +26,13 @@ def get_me(current_user: models.User = Depends(get_current_user), db: Session = 
     return out
 
 
+@router.post("/users/me/ping", status_code=204)
+def ping_presence(current_user: models.User = Depends(get_current_user)):
+    """Lightweight heartbeat — called every 60s from the frontend to keep last_seen_at fresh.
+    Returns 204 No Content. last_seen_at is already stamped by get_current_user."""
+    return None
+
+
 @router.patch("/users/me", response_model=schemas.MeOut)
 def update_me(
     payload: schemas.UpdateMeRequest,

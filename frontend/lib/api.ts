@@ -231,4 +231,7 @@ export function getAdminConversationMessages(conversationId: number) {
   return apiRequest(`/admin/conversations/${conversationId}/messages`, { auth: true });
 }
 
-
+/** Lightweight heartbeat — stamps last_seen_at on the backend. Returns nothing (204). */
+export function pingPresence(): Promise<void> {
+  return apiRequest("/users/me/ping", { method: "POST", auth: true }).catch(() => {});
+}

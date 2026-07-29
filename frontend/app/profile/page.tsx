@@ -22,29 +22,31 @@ export default function ProfilePage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [formData, setFormData] = useState({
-    name: user?.name || '',
-    phone: user?.phone || '',
-    occupation: user?.role === 'agent' ? 'Real Estate Agent' : 'Student / Renter'
+    name: undefined as string | undefined,
+    phone: undefined as string | undefined,
+    occupation: undefined as string | undefined
   });
   const [mounted, setMounted] = useState(false);
+  const [uploadMessage, setUploadMessage] = useState<{text: string, type: 'success' | 'error'} | null>(null);
 
   const handleAvatarSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     setUploadingAvatar(true);
+    setUploadMessage(null);
     try {
       const data = new FormData();
       data.append('file', file);
 
       const token = getToken() || user?.token || '';
       if (!token) {
-        alert('Your session has expired. Please log in again.');
+        setUploadMessage({ text: 'Your session has expired. Please log in again.', type: 'error' });
         logout();
         return;
       }
 
-      const res = await fetch(`${API_BASE_URL}/users/me/avatar`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/users/me/avatar`, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`
@@ -60,10 +62,13 @@ export default function ProfilePage() {
       const updatedUser = await res.json();
       // Use updateUser so we never lose other in-store fields via stale closure
       updateUser({ avatar_url: updatedUser.avatar_url });
-      alert('Profile picture updated successfully!');
+      setUploadMessage({ text: 'Profile picture updated successfully!', type: 'success' });
+      
+      // Clear success message after 3 seconds
+      setTimeout(() => setUploadMessage(null), 3000);
     } catch (err) {
       console.error('Avatar upload error:', err);
-      alert('Failed to upload profile picture. Please try logging in again.');
+      setUploadMessage({ text: 'Failed to upload profile picture.', type: 'error' });
     } finally {
       setUploadingAvatar(false);
     }
@@ -214,6 +219,19 @@ export default function ProfilePage() {
                 <Camera size={14} />
                 {uploadingAvatar ? 'Uploading...' : 'Upload Photo'}
               </button>
+              {uploadMessage && (
+                <div style={{
+                  marginTop: '0.5rem',
+                  padding: '0.375rem 0.75rem',
+                  fontSize: '0.8125rem',
+                  color: uploadMessage.type === 'success' ? '#15803d' : '#b91c1c',
+                  backgroundColor: uploadMessage.type === 'success' ? '#dcfce7' : '#fee2e2',
+                  borderRadius: '0.375rem',
+                  border: `1px solid ${uploadMessage.type === 'success' ? '#bbf7d0' : '#fecaca'}`
+                }}>
+                  {uploadMessage.text}
+                </div>
+              )}
             </div>
           </div>
 

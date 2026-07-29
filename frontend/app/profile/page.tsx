@@ -10,7 +10,7 @@ import Link from 'next/link';
 import { BackButton } from '@/components/ui/BackButton';
 
 import { useRouter } from 'next/navigation';
-import { apiRequest, mediaUrl, API_BASE_URL, getToken } from '@/lib/api';
+import { apiRequest, mediaUrl, getToken } from '@/lib/api';
 import { useLanguageStore } from '@/lib/store/useLanguageStore';
 
 import { ProtectedImage } from '@/components/ui/ProtectedImage';

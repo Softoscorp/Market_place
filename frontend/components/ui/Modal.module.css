@@ -4,7 +4,7 @@
   background-color: rgba(13, 17, 23, 0.8);
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
-  z-index: 50;
+  z-index: 100;
   display: flex;
   justify-content: center;
   align-items: flex-end; /* Slide up from bottom on mobile */
@@ -68,6 +68,7 @@
 
 .content {
   padding: var(--space-4);
+  padding-bottom: calc(var(--space-4) + env(safe-area-inset-bottom, 20px));
   overflow-y: auto;
   flex: 1;
 }

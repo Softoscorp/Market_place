@@ -194,7 +194,7 @@ class MessageOut(BaseModel):
 class ConversationOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     id: int
-    listing: ListingOut
+    listing: Optional[ListingOut] = None
     renter: PublicUserOut
     agent: PublicUserOut
     created_at: datetime

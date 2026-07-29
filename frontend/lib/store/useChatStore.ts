@@ -55,7 +55,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
       
       data.forEach((c: any) => {
         // Map to old shape dynamically based on who the current user is
-        const contactUser = (currentUser && currentUser.id === c.renter.id) ? c.agent : c.renter;
+        const contactUser = (currentUser && String(currentUser.id) === String(c.renter.id)) ? c.agent : c.renter;
         
         convs[contactUser.id.toString()] = {
           conversation_id: c.id,

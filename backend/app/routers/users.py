@@ -233,5 +233,13 @@ def list_agents(db: Session = Depends(get_db)):
     for agent in agents:
         out = schemas.PublicUserOut.model_validate(agent)
         out.respond_rate = agent.agent_respond_rate(db)
+        out.active_listings = (
+            db.query(models.Listing)
+            .filter(
+                models.Listing.agent_id == agent.id,
+                models.Listing.status == models.ListingStatus.active,
+            )
+            .count()
+        )
         results.append(out)
     return results

@@ -105,26 +105,74 @@ class User(Base):
 
     def agent_respond_rate(self, db) -> float | None:
         """
-        Returns the percentage of conversations (where this user is the agent)
-        that they have responded to. Returns None if there are no conversations.
+        Fiverr-style respond rate:
+        - Only looks at conversations in the last 60 days
+        - A conversation counts as 'responded' if the agent sent at least
+          one message within 24 hours of the renter's FIRST message
+        - New agents with zero conversations start at 100%
         """
-        conversations = db.query(Conversation).filter(
-            Conversation.agent_id == self.id
-        ).all()
-        
+        from datetime import timedelta
+        from sqlalchemy import func
+
+        cutoff = datetime.utcnow() - timedelta(days=60)
+
+        conversations = (
+            db.query(Conversation)
+            .filter(
+                Conversation.agent_id == self.id,
+                Conversation.created_at >= cutoff,
+            )
+            .all()
+        )
+
         if not conversations:
             return 100.0
-            
+
         responded_count = 0
         for conv in conversations:
-            has_response = db.query(Message).filter(
-                Message.conversation_id == conv.id,
-                Message.sender_id == self.id
-            ).first()
-            if has_response:
+            # Find the renter's first message in this conversation
+            first_renter_msg = (
+                db.query(Message)
+                .filter(
+                    Message.conversation_id == conv.id,
+                    Message.sender_id != self.id,  # renter sent it
+                )
+                .order_by(Message.created_at.asc())
+                .first()
+            )
+
+            if not first_renter_msg:
+                # No renter message yet — skip (don't penalise)
+                continue
+
+            deadline = first_renter_msg.created_at + timedelta(hours=24)
+
+            agent_reply = (
+                db.query(Message)
+                .filter(
+                    Message.conversation_id == conv.id,
+                    Message.sender_id == self.id,
+                    Message.created_at <= deadline,
+                )
+                .first()
+            )
+
+            if agent_reply:
                 responded_count += 1
-                
-        return round((responded_count / len(conversations)) * 100, 2)
+
+        # Count only convs that had a renter message (the ones we measured)
+        measurable = sum(
+            1 for conv in conversations
+            if db.query(Message).filter(
+                Message.conversation_id == conv.id,
+                Message.sender_id != self.id,
+            ).first() is not None
+        )
+
+        if measurable == 0:
+            return 100.0
+
+        return round((responded_count / measurable) * 100, 1)
 
 
 class Listing(Base):

@@ -43,6 +43,7 @@ interface AgentData {
   average_rating?: number;
   total_reviews?: number;
   active_listings?: number;
+  respond_rate?: number;
 }
 
 export default function HomePage() {
@@ -202,6 +203,7 @@ export default function HomePage() {
                 rating={agent.average_rating ? Number(agent.average_rating.toFixed(1)) : 0}
                 reviews={agent.total_reviews || 0}
                 activeListings={agent.active_listings || 0}
+                respondRate={agent.respond_rate}
                 isVerified={agent.is_verified}
                 onContact={() => {
                   if (!isAuthenticated) {

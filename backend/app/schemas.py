@@ -52,6 +52,7 @@ class PublicUserOut(BaseModel):
     is_verified: bool
     avatar_url: Optional[str] = None
     respond_rate: Optional[float] = None
+    active_listings: Optional[int] = None
     created_at: datetime
 
 

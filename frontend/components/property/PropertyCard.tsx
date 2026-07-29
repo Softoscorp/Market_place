@@ -21,7 +21,7 @@ export interface PropertyCardProps {
   currency?: string;
   images: string[];
   type: string; // e.g. "2+1"
-  sizeSqf: number;
+  sizeSqf?: number; // Kept as optional but unused to avoid TS errors from callers
   bedrooms: number;
   bathrooms: number;
   walkingDistanceMins?: number;
@@ -43,14 +43,14 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
   currency = '£',
   images,
   type,
-  sizeSqf,
+
   bedrooms,
   bathrooms,
   walkingDistanceMins,
   moveInCost,
   agentName,
   agentAvatar,
-  agentRating = 4.5,
+  agentRating,
   isVerified = false,
   isSaved = false,
   onSaveToggle,
@@ -58,17 +58,7 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
 }) => {
   const [saved, setSaved] = useState(isSaved);
   
-  // Deterministic FOMO data based on ID
-  const getFomoData = (idStr: string) => {
-    const hash = idStr.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-    const numId = parseInt(idStr) || hash || 42;
-    const count = (numId % 5) + 2; // Returns 2-6
-    const isWatching = numId % 2 === 0;
-    return isWatching 
-      ? `🔥 ${count} people are watching this`
-      : `💬 ${count} people contacted agent`;
-  };
-  const fomoMessage = getFomoData(id);
+  const fomoMessage = null;
 
   const handleSave = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -109,9 +99,7 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
           />
         </div>
 
-        <div className={styles.fomoBadge}>
-          {fomoMessage}
-        </div>
+
       </div>
 
       <div className={styles.content}>
@@ -135,10 +123,7 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
             <Bath size={16} />
             <span>{bathrooms} Baths</span>
           </div>
-          <div className={styles.detailItem}>
-            <Ruler size={16} />
-            <span>{sizeSqf} sqft</span>
-          </div>
+
           {walkingDistanceMins && (
             <div className={styles.detailItem}>
               <Clock size={16} />
@@ -156,7 +141,11 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
             <Avatar src={agentAvatar} fallback={agentName} size="sm" />
             <span>{agentName}</span>
           </div>
-          <StarRating rating={agentRating} size={14} showText />
+          {agentRating && agentRating > 0 ? (
+            <StarRating rating={agentRating} size={14} showText />
+          ) : (
+            <span style={{ fontSize: '0.75rem', color: '#6b7280', fontWeight: 500 }}>New Agent</span>
+          )}
         </div>
       </div>
     </Link>

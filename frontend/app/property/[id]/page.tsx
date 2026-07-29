@@ -40,7 +40,7 @@ interface PropertyData {
   furnished?: boolean;
   agent_average_rating?: number;
   agent_rating_count?: number;
-  agent?: { id: string; name: string; avatarUrl?: string; is_verified?: boolean };
+  agent?: { id: string; name: string; avatar_url?: string; is_verified?: boolean };
   photos?: Array<{ url: string }>;
 }
 
@@ -283,12 +283,12 @@ export default function PropertyPage({ params }: PropertyPageProps) {
               agentId={agent.id}
               name={agent.name}
               agency={'Independent Agent'}
-              imageUrl={mediaUrl(agent.avatarUrl) || ''}
+              imageUrl={mediaUrl(agent.avatar_url) || ''}
               rating={property.agent_average_rating || 5.0}
               reviews={property.agent_rating_count || 0}
               activeListings={5}
               isVerified={agent.is_verified}
-              onContact={() => openChat({ id: String(agent.id), name: agent.name, avatarUrl: mediaUrl(agent.avatarUrl) || '' })}
+              onContact={() => openChat({ id: String(agent.id), name: agent.name, avatarUrl: mediaUrl(agent.avatar_url) || '' })}
             />
           )}
 
@@ -333,9 +333,9 @@ export default function PropertyPage({ params }: PropertyPageProps) {
                 images={prop.photos && prop.photos.length > 0 ? (prop.photos.map((p: { url: string }) => mediaUrl(p.url)).filter(Boolean) as string[]) : ['/images/placeholder-studio.jpg']}
                 sizeSqf={75}
                 moveInCost={prop.price * 3}
-                agentRating={prop.agent_average_rating || 5.0}
+                agentRating={prop.agent_average_rating}
                 agentName={prop.agent?.name || 'Agent'}
-                agentAvatar={mediaUrl(prop.agent?.avatarUrl)}
+                agentAvatar={mediaUrl(prop.agent?.avatar_url)}
               />
             ))}
           </div>

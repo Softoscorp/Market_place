@@ -18,7 +18,7 @@ interface Roommate {
   nationality?: string;
   user: {
     name: string;
-    avatarUrl?: string;
+    avatar_url?: string;
     gender?: string;
   };
 }
@@ -169,7 +169,7 @@ export default function RoommatesPage() {
                 name={roommate.user?.name || 'User'}
                 age={20}
                 occupation={roommate.occupation}
-                imageUrl={mediaUrl(roommate.user?.avatarUrl) || ''}
+                imageUrl={mediaUrl(roommate.user?.avatar_url) || ''}
                 matchScore={85}
                 sharedInterests={roommate.habits?.slice(0, 3) || []}
                 budget={`£${roommate.budget}`}

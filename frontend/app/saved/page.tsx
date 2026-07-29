@@ -19,7 +19,7 @@ export interface SavedProperty {
   agent_average_rating?: number;
   agent?: {
     name: string;
-    avatarUrl?: string;
+    avatar_url?: string;
     is_verified?: boolean;
   };
 }
@@ -86,9 +86,9 @@ export default function SavedPage() {
                   images={prop.photos && prop.photos.length > 0 ? prop.photos.map((p) => mediaUrl(p.url) || '') : ['/images/placeholder-studio.jpg']}
                   sizeSqf={75}
                   moveInCost={prop.price * 3}
-                  agentRating={prop.agent_average_rating || 5.0}
+                  agentRating={prop.agent_average_rating}
                   agentName={prop.agent?.name || 'Agent'}
-                  agentAvatar={prop.agent?.avatarUrl ? mediaUrl(prop.agent.avatarUrl) : undefined}
+                  agentAvatar={prop.agent?.avatar_url ? mediaUrl(prop.agent.avatar_url) : undefined}
                   isVerified={prop.agent?.is_verified}
                 />
               ))}

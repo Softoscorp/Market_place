@@ -103,7 +103,7 @@ export default function AgentDetailPage({ params }: { params: Promise<{ id: stri
               images={prop.photos?.length > 0 ? prop.photos.map((p) => mediaUrl(p.url) || '') : ['/images/placeholder-studio.jpg']}
               sizeSqf={75}
               moveInCost={prop.price * 3}
-              agentRating={average_rating || 5.0}
+              agentRating={average_rating}
               agentName={agent.name}
               agentAvatar={mediaUrl(agent.avatar_url) || undefined}
               isVerified={agent.is_verified}

@@ -7,7 +7,7 @@ import { Home } from 'lucide-react';
 import { FilterPanel } from '@/components/search/FilterPanel';
 import { PropertyCard } from '@/components/property/PropertyCard';
 import { useLanguageStore } from '@/lib/store/useLanguageStore';
-import { apiRequest } from '@/lib/api';
+import { apiRequest, mediaUrl } from '@/lib/api';
 import styles from './page.module.css';
 
 interface Property {
@@ -21,7 +21,7 @@ interface Property {
   size_sqf?: number;
   photos?: Array<{ url: string }>;
   agent_average_rating?: number;
-  agent?: { name: string; avatarUrl?: string; is_verified?: boolean };
+  agent?: { name: string; avatar_url?: string; is_verified?: boolean };
 }
 
 function SearchResults() {
@@ -131,10 +131,10 @@ function SearchResults() {
                     bathrooms={prop.bathrooms ?? 1}
                     sizeSqf={prop.size_sqf ?? 0}
                     moveInCost={prop.price * 2}
-                    images={prop.photos?.map((p) => p.url) || []}
+                    images={prop.photos?.map((p) => mediaUrl(p.url) || '') || ['/images/placeholder-studio.jpg']}
                     agentRating={prop.agent_average_rating}
                     agentName={prop.agent?.name || 'Agent'}
-                    agentAvatar={prop.agent?.avatarUrl}
+                    agentAvatar={prop.agent?.avatar_url ? mediaUrl(prop.agent.avatar_url) : undefined}
                     isVerified={prop.agent?.is_verified}
                   />
                 ))}

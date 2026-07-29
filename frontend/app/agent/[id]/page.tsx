@@ -23,7 +23,7 @@ interface AgentProfile {
     id: number;
     name: string;
     is_verified: boolean;
-    avatarUrl?: string;
+    avatar_url?: string;
   };
   average_rating: number | null;
   rating_count: number;
@@ -96,12 +96,12 @@ interface AgentProfile {
             agentId={agent.id}
             name={agent.name}
             agency={'Independent Agent'}
-            imageUrl={mediaUrl(agent.avatarUrl) || '/images/placeholder-studio.jpg'}
+            imageUrl={mediaUrl(agent.avatar_url) || '/images/placeholder-studio.jpg'}
             rating={average_rating || 5.0}
             reviews={rating_count || 0}
             activeListings={listings?.length || 0}
             isVerified={agent.is_verified}
-            onContact={() => openChat({ id: String(agent.id), name: agent.name, avatarUrl: mediaUrl(agent.avatarUrl) || '' })}
+            onContact={() => openChat({ id: String(agent.id), name: agent.name, avatarUrl: mediaUrl(agent.avatar_url) || '' })}
           />
         </div>
       </motion.section>

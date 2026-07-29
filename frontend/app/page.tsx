@@ -94,7 +94,7 @@ export default function HomePage() {
                 images={prop.photos?.length && prop.photos.length > 0 ? prop.photos.map((p: { url: string }) => mediaUrl(p.url) || '') : ['/images/placeholder-studio.jpg']}
                 sizeSqf={75}
                 moveInCost={prop.price * 3}
-                agentRating={prop.agent_average_rating || 5.0}
+                agentRating={prop.agent_average_rating}
                 agentName={prop.agent?.name || 'Agent'}
                 agentAvatar={prop.agent?.avatar_url ? mediaUrl(prop.agent.avatar_url) : undefined}
                 isVerified={prop.agent?.is_verified}
@@ -159,7 +159,7 @@ export default function HomePage() {
                 images={prop.photos?.length && prop.photos.length > 0 ? prop.photos.map((p: { url: string }) => mediaUrl(p.url) || '') : ['/images/placeholder-studio.jpg']}
                 sizeSqf={75}
                 moveInCost={prop.price * 3}
-                agentRating={prop.agent_average_rating || 5.0}
+                agentRating={prop.agent_average_rating}
                 agentName={prop.agent?.name || 'Agent'}
                 agentAvatar={prop.agent?.avatar_url ? mediaUrl(prop.agent.avatar_url) : undefined}
                 isVerified={prop.agent?.is_verified}

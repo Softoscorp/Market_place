@@ -50,7 +50,7 @@ interface AgentData {
 export default function HomePage() {
   const router = useRouter();
   const { t } = useLanguageStore();
-  const { user, isAuthenticated } = useAuthStore();
+  const { isAuthenticated } = useAuthStore();
   const { openChat } = useChatStore();
   const [featuredProperties, setFeaturedProperties] = useState<PropertyData[]>([]);
   const [topAgents, setTopAgents] = useState<AgentData[]>([]);

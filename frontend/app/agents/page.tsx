@@ -51,7 +51,7 @@ export default function AgentsPage() {
       clearTimeout(quick);
       clearInterval(poll);
     };
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <motion.div

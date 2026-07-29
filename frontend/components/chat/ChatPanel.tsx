@@ -58,7 +58,7 @@ export function ChatPanel() {
             <div className={styles.header}>
               <div className={styles.agentInfo}>
                 <ProtectedImage 
-                  src={activeConversation.contact.avatarUrl ? mediaUrl(activeConversation.contact.avatarUrl) : ''}
+                  src={(activeConversation.contact.avatarUrl ? mediaUrl(activeConversation.contact.avatarUrl) : '') || ''}
                   fallbackSrc={`https://ui-avatars.com/api/?name=${encodeURIComponent(activeConversation.contact.name || 'User')}&background=0F172A&color=fff&size=128&bold=true`}
                   alt={activeConversation.contact.name || 'User'} 
                   className={styles.avatar}

@@ -342,7 +342,7 @@ export default function ProfilePage() {
                   onClick={() => openChat(conv.contact)}
                 >
                   <ProtectedImage 
-                    src={conv.contact.avatarUrl ? mediaUrl(conv.contact.avatarUrl) : ''}
+                    src={(conv.contact.avatarUrl ? mediaUrl(conv.contact.avatarUrl) : '') || ''}
                     fallbackSrc={`https://ui-avatars.com/api/?name=${encodeURIComponent(conv.contact.name || 'User')}&background=0F172A&color=fff&size=128&bold=true`}
                     alt={conv.contact.name || 'User'} 
                     className={styles.avatar}

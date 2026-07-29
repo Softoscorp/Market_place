@@ -273,7 +273,13 @@ export default function PropertyPage({ params }: PropertyPageProps) {
               reviews={property.agent_rating_count || 0}
 
               isVerified={agent.is_verified}
-              onContact={() => openChat({ id: String(agent.id), name: agent.name, avatarUrl: mediaUrl(agent.avatar_url) || '' })}
+              onContact={() => {
+                if (!user) {
+                  router.push('/login');
+                  return;
+                }
+                openChat({ id: String(agent.id), name: agent.name, avatarUrl: mediaUrl(agent.avatar_url) || '' }, property.id);
+              }}
             />
           )}
 

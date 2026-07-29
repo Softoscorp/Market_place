@@ -13,7 +13,7 @@ import { ReviewForm } from '@/components/reviews/ReviewForm';
 import { Button } from '@/components/ui/Button';
 
 interface ProfileData {
-  agent: { name: string; avatarUrl?: string; bio?: string; is_verified?: boolean; id: string };
+  agent: { name: string; avatar_url?: string; bio?: string; is_verified?: boolean; id: string };
   average_rating: number;
   rating_count: number;
   listings: Array<{
@@ -71,7 +71,7 @@ export default function AgentDetailPage({ params }: { params: Promise<{ id: stri
         <AgentProfile 
           name={agent.name}
           agency={'Independent Agent'}
-          imageUrl={mediaUrl(agent.avatarUrl) || ''}
+          imageUrl={mediaUrl(agent.avatar_url) || ''}
           bio={agent.bio || 'Professional real estate agent.'}
           rating={average_rating || 5.0}
           reviews={rating_count || 0}
@@ -105,7 +105,7 @@ export default function AgentDetailPage({ params }: { params: Promise<{ id: stri
               moveInCost={prop.price * 3}
               agentRating={average_rating || 5.0}
               agentName={agent.name}
-              agentAvatar={mediaUrl(agent.avatarUrl) || undefined}
+              agentAvatar={mediaUrl(agent.avatar_url) || undefined}
               isVerified={agent.is_verified}
             />
           ))}

@@ -29,13 +29,13 @@ interface PropertyData {
   house_type: string;
   photos?: Array<{ url: string }>;
   agent_average_rating?: number;
-  agent?: { name: string; avatarUrl?: string; is_verified?: boolean };
+  agent?: { name: string; avatar_url?: string; is_verified?: boolean };
 }
 
 interface AgentData {
   id: number;
   name: string;
-  avatarUrl?: string;
+  avatar_url?: string;
   is_verified?: boolean;
   average_rating?: number;
   total_reviews?: number;
@@ -96,7 +96,7 @@ export default function HomePage() {
                 moveInCost={prop.price * 3}
                 agentRating={prop.agent_average_rating || 5.0}
                 agentName={prop.agent?.name || 'Agent'}
-                agentAvatar={prop.agent?.avatarUrl ? mediaUrl(prop.agent.avatarUrl) : undefined}
+                agentAvatar={prop.agent?.avatar_url ? mediaUrl(prop.agent.avatar_url) : undefined}
                 isVerified={prop.agent?.is_verified}
               />
             ))}
@@ -161,7 +161,7 @@ export default function HomePage() {
                 moveInCost={prop.price * 3}
                 agentRating={prop.agent_average_rating || 5.0}
                 agentName={prop.agent?.name || 'Agent'}
-                agentAvatar={prop.agent?.avatarUrl ? mediaUrl(prop.agent.avatarUrl) : undefined}
+                agentAvatar={prop.agent?.avatar_url ? mediaUrl(prop.agent.avatar_url) : undefined}
                 isVerified={prop.agent?.is_verified}
               />
             ))}
@@ -192,7 +192,7 @@ export default function HomePage() {
                 agentId={agent.id}
                 name={agent.name}
                 agency={'Independent Agent'}
-                imageUrl={agent.avatarUrl ? mediaUrl(agent.avatarUrl) || '' : ''}
+                imageUrl={agent.avatar_url ? mediaUrl(agent.avatar_url) || '' : ''}
                 rating={agent.average_rating ? Number(agent.average_rating.toFixed(1)) : 0}
                 reviews={agent.total_reviews || 0}
                 activeListings={agent.active_listings || 0}

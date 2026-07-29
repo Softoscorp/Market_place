@@ -5,14 +5,14 @@ import { motion } from 'framer-motion';
 import { Users } from 'lucide-react';
 import { AgentCard } from '@/components/agent/AgentCard';
 import { useLanguageStore } from '@/lib/store/useLanguageStore';
-import { apiRequest } from '@/lib/api';
+import { apiRequest, mediaUrl } from '@/lib/api';
 import styles from './AgentsPage.module.css';
 
 interface Agent {
   id: number;
   name: string;
   agency?: string;
-  avatarUrl?: string;
+  avatar_url?: string;
   is_verified?: boolean;
   average_rating?: number;
   total_reviews?: number;
@@ -66,7 +66,7 @@ export default function AgentsPage() {
                 agentId={agent.id}
                 name={agent.name}
                 agency={agent.agency ?? ''}
-                imageUrl={agent.avatarUrl ?? ''}
+                imageUrl={mediaUrl(agent.avatar_url) || ''}
                 rating={agent.average_rating ?? 0}
                 reviews={agent.total_reviews ?? 0}
                 activeListings={agent.active_listings ?? 0}

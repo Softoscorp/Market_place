@@ -20,6 +20,7 @@ export const translations = {
     nav_profile: 'Profile',
     nav_post_listing: 'Post Listing',
     nav_dashboard: 'Dashboard',
+    nav_saved: 'Saved',
 
     // Homepage
     hero_title: 'Find a home you can actually afford today.',
@@ -135,6 +136,7 @@ export const translations = {
     nav_profile: 'Profil',
     nav_post_listing: 'İlan Ver',
     nav_dashboard: 'Yönetim Paneli',
+    nav_saved: 'Kaydedilenler',
 
     // Homepage
     hero_title: 'Bugün gerçekten karşılayabileceğin bir ev bul.',

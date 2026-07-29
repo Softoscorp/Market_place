@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Home, User, ChevronDown, Globe, Smartphone } from 'lucide-react';
+import { Home, User, ChevronDown, Globe, Smartphone, Heart } from 'lucide-react';
 import { useAuthStore } from '@/lib/store/useAuthStore';
 import { useLanguageStore } from '@/lib/store/useLanguageStore';
 import { PremiumIcon } from '@/components/ui/PremiumIcon';
@@ -85,9 +85,14 @@ export function Navbar() {
           )}
 
         {mounted && isAuthenticated ? (
-          <Link href="/profile" className={styles.loginBtn}>
-            <User size={16} /> {user?.name || t('nav_profile')}
-          </Link>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <Link href="/saved" className={styles.link} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 500 }}>
+              <Heart size={16} /> <span className={styles.hideOnMobile}>{t('nav_saved') || 'Saved'}</span>
+            </Link>
+            <Link href="/profile" className={styles.loginBtn}>
+              <User size={16} /> <span className={styles.hideOnMobile}>{user?.name || t('nav_profile')}</span>
+            </Link>
+          </div>
         ) : (
           <>
             <Link href="/login" className={styles.link} style={{ marginRight: '1rem', fontWeight: 500 }}>{t('nav_login')}</Link>

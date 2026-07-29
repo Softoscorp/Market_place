@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { Home, Search, Users, User } from 'lucide-react';
+import { Home, Search, Users, User, Heart } from 'lucide-react';
 import { PremiumIcon } from '@/components/ui/PremiumIcon';
 import { useLanguageStore } from '@/lib/store/useLanguageStore';
 import styles from './Footer.module.css';
@@ -51,6 +51,10 @@ export function Footer() {
         <Link href="/roommates" className={styles.tabBtn}>
           <Users size={24} />
           <span>{t('tab_matches')}</span>
+        </Link>
+        <Link href="/saved" className={styles.tabBtn}>
+          <Heart size={24} />
+          <span>{t('nav_saved') || 'Saved'}</span>
         </Link>
         <Link href="/profile" className={styles.tabBtn}>
           <User size={24} />

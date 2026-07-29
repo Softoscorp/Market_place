@@ -81,7 +81,7 @@ def _serialize_conversation(conv: models.Conversation, current_user: models.User
 def start_conversation(
     payload: schemas.StartConversationRequest,
     db: Session = Depends(get_db),
-    current_user: models.User = Depends(require_renter),
+    current_user: models.User = Depends(get_current_user),
 ):
     agent_id = None
     if payload.listing_id:

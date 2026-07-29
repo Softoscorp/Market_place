@@ -29,6 +29,8 @@ export default function ProfilePage() {
   const [mounted, setMounted] = useState(false);
   const [uploadMessage, setUploadMessage] = useState<{text: string, type: 'success' | 'error'} | null>(null);
 
+  const [saveMessage, setSaveMessage] = useState<{text: string, type: 'success' | 'error'} | null>(null);
+
   const handleAvatarSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -290,15 +292,30 @@ export default function ProfilePage() {
                   phone: updatedUser.phone || formData.phone || user.phone,
                 });
               }
-              alert('Profile changes saved successfully!');
+              setSaveMessage({ text: 'Profile changes saved successfully!', type: 'success' });
+              setTimeout(() => setSaveMessage(null), 3000);
             } catch (err) {
               console.error('Failed to update profile:', err);
-              alert('Failed to update profile.');
+              setSaveMessage({ text: 'Failed to update profile.', type: 'error' });
             }
           }}
         >
           Save Profile Changes
         </button>
+        {saveMessage && (
+          <div style={{
+            marginTop: '1rem',
+            padding: '0.75rem',
+            fontSize: '0.875rem',
+            color: saveMessage.type === 'success' ? '#15803d' : '#b91c1c',
+            backgroundColor: saveMessage.type === 'success' ? '#dcfce7' : '#fee2e2',
+            borderRadius: '0.5rem',
+            border: `1px solid ${saveMessage.type === 'success' ? '#bbf7d0' : '#fecaca'}`,
+            textAlign: 'center'
+          }}>
+            {saveMessage.text}
+          </div>
+        )}
       </div>
 
         <div className={styles.card}>

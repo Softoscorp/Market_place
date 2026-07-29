@@ -31,6 +31,7 @@ export default function PostListingPage() {
 
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
+  const [publishMessage, setPublishMessage] = useState<{text: string, type: 'success' | 'error'} | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -307,11 +308,11 @@ export default function PostListingPage() {
                     }
                   }
 
-                  alert('Listing published successfully!');
-                  router.push('/property/' + res.id);
+                  setPublishMessage({ text: 'Listing published successfully! Redirecting...', type: 'success' });
+                  setTimeout(() => router.push('/property/' + res.id), 1500);
                 } catch (err: unknown) {
                   const error = err as Error;
-                  alert(error.message || 'Failed to post listing');
+                  setPublishMessage({ text: error.message || 'Failed to post listing', type: 'error' });
                 } finally {
                   setIsPublishing(false);
                 }
@@ -319,6 +320,20 @@ export default function PostListingPage() {
             >
               {isPublishing ? 'Publishing...' : 'Publish Listing'}
             </button>
+            {publishMessage && (
+              <div style={{
+                marginTop: '1rem',
+                padding: '0.75rem',
+                fontSize: '0.875rem',
+                color: publishMessage.type === 'success' ? '#15803d' : '#b91c1c',
+                backgroundColor: publishMessage.type === 'success' ? '#dcfce7' : '#fee2e2',
+                borderRadius: '0.5rem',
+                border: `1px solid ${publishMessage.type === 'success' ? '#bbf7d0' : '#fecaca'}`,
+                textAlign: 'center'
+              }}>
+                {publishMessage.text}
+              </div>
+            )}
             <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textAlign: 'center', marginTop: '1rem' }}>
               By publishing, you agree to our Verified Agent terms.
             </p>

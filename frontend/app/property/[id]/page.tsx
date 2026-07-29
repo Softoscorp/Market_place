@@ -61,10 +61,13 @@ export default function PropertyPage({ params }: PropertyPageProps) {
   const [showBookingModal, setShowBookingModal] = useState(false);
   const [showRoommatePrompt, setShowRoommatePrompt] = useState(false);
   const [showRoommateForm, setShowRoommateForm] = useState(false);
-  const [roommateData, setRoommateData] = useState({
-    budget: '',
-    bio: ''
-  });
+  const [roommateData, setRoommateData] = useState({ budget: '', bio: '' });
+  const [notification, setNotification] = useState<{text: string, type: 'success' | 'error'} | null>(null);
+
+  const showToast = (text: string, type: 'success' | 'error' = 'success') => {
+    setNotification({ text, type });
+    setTimeout(() => setNotification(null), 3000);
+  };
 
   useEffect(() => {
     apiRequest(`/listings/${resolvedParams.id}`, { auth: false })
@@ -92,16 +95,16 @@ export default function PropertyPage({ params }: PropertyPageProps) {
       if (!property) return;
       await saveProperty(property.id);
       setIsSaved(true);
-      alert("Property saved to your favorites!");
+      showToast("Property saved to your favorites!", "success");
     } catch (error) {
       console.error(error);
-      alert("Please log in to save properties.");
+      showToast("Please log in to save properties.", "error");
     }
   };
 
   const handleBookingSubmit = () => {
     if (!user) {
-      alert("Please log in to book this apartment.");
+      showToast("Please log in to book this apartment.", "error");
       router.push('/login');
       return;
     }
@@ -137,11 +140,11 @@ export default function PropertyPage({ params }: PropertyPageProps) {
         }
       });
       setShowRoommateForm(false);
-      alert("Roommate profile created successfully!");
+      showToast("Roommate profile created successfully!", "success");
       router.push('/roommates');
     } catch (error) {
       console.error(error);
-      alert("Error creating roommate profile.");
+      showToast("Error creating roommate profile.", "error");
     }
   };
 
@@ -160,6 +163,29 @@ export default function PropertyPage({ params }: PropertyPageProps) {
   return (
     <div className={styles.container}>
       <BackButton />
+      {notification && (
+        <motion.div 
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
+          style={{
+            position: 'fixed',
+            top: '20px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            zIndex: 9999,
+            padding: '1rem 1.5rem',
+            backgroundColor: notification.type === 'success' ? '#15803d' : '#b91c1c',
+            color: 'white',
+            borderRadius: '8px',
+            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+            fontWeight: 500,
+            fontSize: '0.875rem'
+          }}
+        >
+          {notification.text}
+        </motion.div>
+      )}
       <nav className={styles.breadcrumb}>
         <Link href="/" className={styles.breadcrumbLink}>Home</Link>
         <span className={styles.breadcrumbSeparator}>/</span>

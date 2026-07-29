@@ -166,7 +166,7 @@ export default function ProfilePage() {
           <button 
             onClick={() => {
               logout();
-              router.push('/login');
+                window.location.href = '/login';
             }} 
             className={styles.btnLogOut}
           >

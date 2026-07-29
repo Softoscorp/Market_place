@@ -332,7 +332,7 @@ export default function AgentDashboard() {
               className={styles.navItem}
               onClick={() => {
                 logout();
-                router.push('/');
+                window.location.href = '/';
               }}
               style={{ color: 'var(--danger)' }}
             >

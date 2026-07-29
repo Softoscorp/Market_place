@@ -63,11 +63,14 @@ export const useAuthStore = create<AuthState>()(
       },
 
       logout: () => {
+        // Clear token reference
         setToken(null);
+        // Wipe ALL auth storage keys synchronously before any redirect
         if (typeof window !== 'undefined') {
           window.localStorage.removeItem('rental_platform_token');
           window.localStorage.removeItem('house-agent-auth');
         }
+        // Clear Zustand state
         set({ user: null, isAuthenticated: false });
       },
 

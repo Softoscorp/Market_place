@@ -46,6 +46,7 @@ interface AdminUser {
   role: string;
   is_verified: boolean;
   account_status: string;
+  last_seen_at?: string | null;
 }
 
 interface AdminConversation {
@@ -263,6 +264,7 @@ export default function AdminDashboard() {
                   <tr>
                     <th>Name</th>
                     <th>Email</th>
+                    <th>Status</th>
                     <th>Current Role</th>
                     <th>Actions</th>
                   </tr>
@@ -272,6 +274,19 @@ export default function AdminDashboard() {
                     <tr key={u.id}>
                       <td className={styles.fw500}>{u.name}</td>
                       <td>{u.email}</td>
+                      <td>
+                        {(() => {
+                          const online = u.last_seen_at ? (Date.now() - new Date(u.last_seen_at.endsWith('Z') ? u.last_seen_at : u.last_seen_at + 'Z').getTime()) < 5 * 60 * 1000 : false;
+                          const diffMin = u.last_seen_at ? Math.floor((Date.now() - new Date(u.last_seen_at.endsWith('Z') ? u.last_seen_at : u.last_seen_at + 'Z').getTime()) / 60000) : null;
+                          const label = online ? 'Online now' : diffMin === null ? 'Never' : diffMin < 60 ? `${diffMin}m ago` : `${Math.floor(diffMin/60)}h ago`;
+                          return (
+                            <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                              <span style={{ width: 8, height: 8, borderRadius: '50%', background: online ? '#22c55e' : '#9ca3af', display: 'inline-block', boxShadow: online ? '0 0 4px #22c55e' : 'none' }} />
+                              <span style={{ fontSize: '0.78rem', color: online ? '#22c55e' : '#9ca3af' }}>{label}</span>
+                            </span>
+                          );
+                        })()}
+                      </td>
                       <td>
                         <span className={`${styles.statusBadge} ${styles.active}`}>{u.role}</span>
                       </td>

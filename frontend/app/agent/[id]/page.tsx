@@ -27,6 +27,9 @@ interface AgentProfile {
     name: string;
     is_verified: boolean;
     avatar_url?: string;
+    respond_rate?: number;
+    last_seen_at?: string | null;
+    active_listings?: number;
   };
   average_rating: number | null;
   rating_count: number;
@@ -104,6 +107,7 @@ interface AgentProfile {
             reviews={rating_count || 0}
             activeListings={listings?.length || 0}
             respondRate={agent.respond_rate}
+            lastSeenAt={agent.last_seen_at}
             isVerified={agent.is_verified}
             onContact={() => {
               if (!isAuthenticated) {

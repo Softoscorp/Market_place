@@ -53,6 +53,7 @@ class PublicUserOut(BaseModel):
     avatar_url: Optional[str] = None
     respond_rate: Optional[float] = None
     active_listings: Optional[int] = None
+    last_seen_at: Optional[datetime] = None
     created_at: datetime
 
 
@@ -69,6 +70,7 @@ class MeOut(BaseModel):
     account_status: AccountStatus
     avatar_url: Optional[str] = None
     respond_rate: Optional[float] = None
+    last_seen_at: Optional[datetime] = None
     created_at: datetime
 
 
@@ -316,6 +318,7 @@ class AdminUserOut(BaseModel):
     is_verified: bool
     account_status: AccountStatus
     status_reason: Optional[str] = None
+    last_seen_at: Optional[datetime] = None
     created_at: datetime
 
 

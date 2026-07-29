@@ -1,6 +1,7 @@
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
+from datetime import datetime
 
 from . import models
 from .database import get_db
@@ -30,6 +31,10 @@ def get_current_user(
             detail=f"This account is {user.account_status.value}."
             + (f" Reason: {user.status_reason}" if user.status_reason else ""),
         )
+
+    # Stamp last seen — lightweight update, no full commit overhead
+    user.last_seen_at = datetime.utcnow()
+    db.commit()
 
     return user
 

@@ -119,3 +119,21 @@
 .contactBtn:active {
   transform: scale(0.97);
 }
+
+.onlineDot {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid var(--bg-surface);
+  transition: background 0.3s ease;
+}
+
+.onlineStatus {
+  font-size: 0.72rem;
+  font-weight: 500;
+  margin: 3px 0 0;
+  letter-spacing: 0.01em;
+}

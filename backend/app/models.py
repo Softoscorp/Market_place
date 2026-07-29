@@ -85,6 +85,7 @@ class User(Base):
     avatar_url = Column(String, nullable=True)
 
     created_at = Column(DateTime, default=datetime.utcnow)
+    last_seen_at = Column(DateTime, nullable=True, default=None)
 
     listings = relationship("Listing", back_populates="agent", cascade="all, delete-orphan")
 

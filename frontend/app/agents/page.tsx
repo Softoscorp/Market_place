@@ -21,6 +21,7 @@ interface Agent {
   total_reviews?: number;
   active_listings?: number;
   respond_rate?: number;
+  last_seen_at?: string | null;
 }
 
 export default function AgentsPage() {
@@ -78,6 +79,7 @@ export default function AgentsPage() {
                 reviews={agent.total_reviews ?? 0}
                 activeListings={agent.active_listings ?? 0}
                 respondRate={agent.respond_rate}
+                lastSeenAt={agent.last_seen_at}
                 isVerified={agent.is_verified}
                 onContact={() => {
                   if (!isAuthenticated) {

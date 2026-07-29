@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { apiRequest } from '../api';
+import { useAuthStore } from './useAuthStore';
 
 export interface Agent {
   id: string;
@@ -49,16 +50,18 @@ export const useChatStore = create<ChatState>((set, get) => ({
   fetchConversations: async () => {
     try {
       const data = await apiRequest('/messages/conversations');
-      const convs: Record<string, Conversation> = {};
+      const currentUser = useAuthStore.getState().user;
       
       data.forEach((c: any) => {
-        // Map to old shape
-        convs[c.agent.id.toString()] = {
+        // Map to old shape dynamically based on who the current user is
+        const contactUser = (currentUser && currentUser.id === c.renter.id) ? c.agent : c.renter;
+        
+        convs[contactUser.id.toString()] = {
           conversation_id: c.id,
           contact: {
-            id: c.agent.id.toString(),
-            name: c.agent.name,
-            avatarUrl: c.agent.avatar_url
+            id: contactUser.id.toString(),
+            name: contactUser.name,
+            avatarUrl: contactUser.avatar_url
           },
           messages: c.last_message ? [{ 
             id: c.last_message.id, 

@@ -62,10 +62,10 @@ export default function AgentDashboard() {
   const conversationList = Object.values(conversations);
 
   const metrics = [
-    { label: 'Total Views', value: agentListings.length > 0 ? `${agentListings.length * 150}` : '0', change: '+0%', icon: Eye, trend: 'neutral' },
+    { label: 'Total Views', value: '0', change: '0%', icon: Eye, trend: 'neutral' },
     { label: 'Active Listings', value: String(agentListings.length), change: '0%', icon: List, trend: 'neutral' },
     { label: 'Messages', value: String(conversationList.length), change: '0%', icon: MessageSquare, trend: 'neutral' },
-    { label: 'Click Rate', value: agentListings.length > 0 ? '4.8%' : '0%', change: '0%', icon: MousePointerClick, trend: 'neutral' },
+    { label: 'Click Rate', value: '0%', change: '0%', icon: MousePointerClick, trend: 'neutral' },
   ];
 
   const renderTabContent = () => {

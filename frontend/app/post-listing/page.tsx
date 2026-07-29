@@ -293,7 +293,7 @@ export default function PostListingPage() {
                   };
                   
                   // 1. Post listing
-                  const res = await apiRequest('/listings/', { method: 'POST', body: JSON.stringify(payload) });
+                  const res = await apiRequest('/listings', { method: 'POST', body: payload });
 
                   // 2. Upload photos if selected
                   if (selectedFiles.length > 0 && res.id) {

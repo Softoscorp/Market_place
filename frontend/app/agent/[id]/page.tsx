@@ -2,11 +2,12 @@
 
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { AgentCard } from '@/components/agent/AgentCard';
 import { PropertyCard } from '@/components/property/PropertyCard';
 import { BackButton } from '@/components/ui/BackButton';
 import { useChatStore } from '@/lib/store/useChatStore';
+import { useAuthStore } from '@/lib/store/useAuthStore';
 import { getAgentProfile, mediaUrl } from '@/lib/api';
 
 import styles from './page.module.css';
@@ -16,7 +17,9 @@ export default function AgentProfilePage() {
   // Safe way to get params in Next.js 15+ without awaiting: React.use(params as any)
   // For simplicity, we assume params is resolved or we cast it
   const id = params?.id as string;
+  const router = useRouter();
   const { openChat } = useChatStore();
+  const { isAuthenticated } = useAuthStore();
 
 interface AgentProfile {
   agent: {
@@ -101,7 +104,13 @@ interface AgentProfile {
             reviews={rating_count || 0}
             activeListings={listings?.length || 0}
             isVerified={agent.is_verified}
-            onContact={() => openChat({ id: String(agent.id), name: agent.name, avatarUrl: mediaUrl(agent.avatar_url) || '' })}
+            onContact={() => {
+              if (!isAuthenticated) {
+                router.push('/login');
+                return;
+              }
+              openChat({ id: String(agent.id), name: agent.name, avatarUrl: mediaUrl(agent.avatar_url) || '' });
+            }}
           />
         </div>
       </motion.section>

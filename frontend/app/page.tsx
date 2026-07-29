@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Search, ArrowRight, Users, ShieldCheck } from "lucide-react";
 import { motion } from "framer-motion";
 import { PremiumIcon } from "@/components/ui/PremiumIcon";
@@ -10,6 +11,8 @@ import { PropertyCard } from "@/components/property/PropertyCard";
 import { AgentCard } from "@/components/agent/AgentCard";
 import styles from "./page.module.css";
 import { apiRequest, mediaUrl } from "@/lib/api";
+import { useAuthStore } from "@/lib/store/useAuthStore";
+import { useChatStore } from "@/lib/store/useChatStore";
 
 import { useLanguageStore } from "@/lib/store/useLanguageStore";
 
@@ -43,7 +46,10 @@ interface AgentData {
 }
 
 export default function HomePage() {
+  const router = useRouter();
   const { t } = useLanguageStore();
+  const { user, isAuthenticated } = useAuthStore();
+  const { openChat } = useChatStore();
   const [featuredProperties, setFeaturedProperties] = useState<PropertyData[]>([]);
   const [topAgents, setTopAgents] = useState<AgentData[]>([]);
 
@@ -197,6 +203,13 @@ export default function HomePage() {
                 reviews={agent.total_reviews || 0}
                 activeListings={agent.active_listings || 0}
                 isVerified={agent.is_verified}
+                onContact={() => {
+                  if (!isAuthenticated) {
+                    router.push('/login');
+                    return;
+                  }
+                  openChat({ id: String(agent.id), name: agent.name, avatarUrl: agent.avatar_url ? mediaUrl(agent.avatar_url) || '' : '' });
+                }}
               />
             ))}
           </div>

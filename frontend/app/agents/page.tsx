@@ -1,10 +1,13 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { Users } from 'lucide-react';
 import { AgentCard } from '@/components/agent/AgentCard';
 import { useLanguageStore } from '@/lib/store/useLanguageStore';
+import { useAuthStore } from '@/lib/store/useAuthStore';
+import { useChatStore } from '@/lib/store/useChatStore';
 import { apiRequest, mediaUrl } from '@/lib/api';
 import styles from './AgentsPage.module.css';
 
@@ -20,7 +23,10 @@ interface Agent {
 }
 
 export default function AgentsPage() {
+  const router = useRouter();
   const { t } = useLanguageStore();
+  const { isAuthenticated } = useAuthStore();
+  const { openChat } = useChatStore();
   const [agents, setAgents] = useState<Agent[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -61,8 +67,8 @@ export default function AgentsPage() {
           transition={{ duration: 0.8, delay: 0.1, ease: [0.2, 0.8, 0.2, 1] }}
         >
           {agents.map((agent) => (
-            <a key={agent.id} href={`/agent/${agent.id}`} className={styles.link}>
               <AgentCard
+                key={agent.id}
                 agentId={agent.id}
                 name={agent.name}
                 agency={agent.agency ?? ''}
@@ -71,8 +77,14 @@ export default function AgentsPage() {
                 reviews={agent.total_reviews ?? 0}
                 activeListings={agent.active_listings ?? 0}
                 isVerified={agent.is_verified}
+                onContact={() => {
+                  if (!isAuthenticated) {
+                    router.push('/login');
+                    return;
+                  }
+                  openChat({ id: String(agent.id), name: agent.name, avatarUrl: agent.avatar_url ? mediaUrl(agent.avatar_url) || '' : '' });
+                }}
               />
-            </a>
           ))}
         </motion.div>
       )}

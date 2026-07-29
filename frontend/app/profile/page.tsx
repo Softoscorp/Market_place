@@ -112,7 +112,14 @@ export default function ProfilePage() {
 
   const displayName = user?.name || formData.name || 'User';
 
-  const { conversations, openChat } = useChatStore();
+  const { conversations, openChat, fetchConversations } = useChatStore();
+  
+  React.useEffect(() => {
+    if (isAuthenticated) {
+      fetchConversations();
+    }
+  }, [isAuthenticated, fetchConversations]);
+
   const conversationList = Object.values(conversations).sort((a, b) => {
     const lastMsgA = a.messages[a.messages.length - 1]?.timestamp || 0;
     const lastMsgB = b.messages[b.messages.length - 1]?.timestamp || 0;

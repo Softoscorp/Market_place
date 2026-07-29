@@ -32,11 +32,17 @@ interface RealListing {
 export default function AgentDashboard() {
   const router = useRouter();
   const { user, isAuthenticated } = useAuthStore();
-  const { openChat, conversations } = useChatStore();
+  const { openChat, conversations, fetchConversations } = useChatStore();
   const [activeTab, setActiveTab] = useState('overview');
 
   const [agentListings, setAgentListings] = useState<RealListing[]>([]);
   const [loadingListings, setLoadingListings] = useState(true);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchConversations();
+    }
+  }, [isAuthenticated, fetchConversations]);
 
   useEffect(() => {
     if (!isAuthenticated || user?.role !== 'agent') {

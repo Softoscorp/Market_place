@@ -64,7 +64,15 @@ export async function apiRequest(
   }
 
   if (!response.ok) {
-    throw new ApiError(response.status, (data as Record<string, string>)?.detail || `Request failed (${response.status})`);
+    let errorMessage = `Request failed (${response.status})`;
+    const detail = (data as any)?.detail;
+    if (typeof detail === 'string') {
+      errorMessage = detail;
+    } else if (Array.isArray(detail)) {
+      // Handle FastAPI validation error arrays
+      errorMessage = detail.map((err: any) => `${err.loc?.join('.')} ${err.msg}`).join(', ');
+    }
+    throw new ApiError(response.status, errorMessage);
   }
   return data;
 }

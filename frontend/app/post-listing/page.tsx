@@ -150,10 +150,11 @@ export default function PostListingPage() {
               <div className={styles.inputGroup}>
                 <label className={styles.label}>Type</label>
                 <select id="listingType" className={styles.input}>
-                  <option value="Studio">Studio</option>
+                  <option value="1+0">Studio (1+0)</option>
                   <option value="1+1">1+1</option>
                   <option value="2+1">2+1</option>
                   <option value="3+1">3+1</option>
+                  <option value="4+1">4+1</option>
                 </select>
               </div>
             </div>
@@ -288,8 +289,7 @@ export default function PostListingPage() {
                     pool,
                     gym,
                     parking,
-                    pet_friendly: petFriendly,
-                    status: 'active'
+                    pet_friendly: petFriendly
                   };
                   
                   // 1. Post listing

@@ -51,6 +51,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
     try {
       const data = await apiRequest('/messages/conversations');
       const currentUser = useAuthStore.getState().user;
+      const convs: Record<string, Conversation> = {};
       
       data.forEach((c: any) => {
         // Map to old shape dynamically based on who the current user is

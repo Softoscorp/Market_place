@@ -225,8 +225,8 @@ export default function AgentDashboard() {
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                         <ProtectedImage 
                           src={conv.contact.avatarUrl ? mediaUrl(conv.contact.avatarUrl) : ''}
-                          fallbackSrc={`https://ui-avatars.com/api/?name=${encodeURIComponent(conv.contact.name)}&background=0F172A&color=fff&size=128&bold=true`}
-                          alt={conv.contact.name} 
+                          fallbackSrc={`https://ui-avatars.com/api/?name=${encodeURIComponent(conv.contact.name || 'User')}&background=0F172A&color=fff&size=128&bold=true`}
+                          alt={conv.contact.name || 'User'} 
                           style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover' }}
                         />
                         <span className={styles.clientName}>{conv.contact.name}</span>

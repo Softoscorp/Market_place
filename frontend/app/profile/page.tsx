@@ -343,8 +343,8 @@ export default function ProfilePage() {
                 >
                   <ProtectedImage 
                     src={conv.contact.avatarUrl ? mediaUrl(conv.contact.avatarUrl) : ''}
-                    fallbackSrc={`https://ui-avatars.com/api/?name=${encodeURIComponent(conv.contact.name)}&background=0F172A&color=fff&size=128&bold=true`}
-                    alt={conv.contact.name} 
+                    fallbackSrc={`https://ui-avatars.com/api/?name=${encodeURIComponent(conv.contact.name || 'User')}&background=0F172A&color=fff&size=128&bold=true`}
+                    alt={conv.contact.name || 'User'} 
                     className={styles.avatar}
                     style={{ width: '48px', height: '48px', borderRadius: '50%', objectFit: 'cover' }}
                   />

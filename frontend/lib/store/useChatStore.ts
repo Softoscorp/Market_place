@@ -1,39 +1,35 @@
 import { create } from 'zustand';
-import api from '../api'; // Assuming you have an api.ts
+import { apiRequest } from '../api';
 
 export interface Agent {
   id: string;
   name: string;
-  avatar_url?: string;
+  avatarUrl: string;
 }
 
 export interface Message {
   id: number;
   text: string;
-  sender_id: string | number;
-  created_at: string;
-  is_read: boolean;
+  sender: 'user' | 'agent';
+  timestamp: number;
 }
 
 export interface Conversation {
-  id: number;
-  listing: any;
-  renter: Agent;
-  agent: Agent;
-  last_message?: Message;
-  unread_count: number;
+  conversation_id: number;
+  contact: Agent;
+  messages: Message[];
+  unreadCount: number;
 }
 
-// Map the old chat store shape as closely as possible to minimize UI changes
 interface ChatState {
   isOpen: boolean;
   activeConversationId: number | null;
   activeAgentId: string | null;
   activeListingId: number | null;
-  conversations: Record<string, any>;
+  conversations: Record<string, Conversation>;
   notification: any | null;
   
-  openChat: (agent: any, listingId?: number) => void;
+  openChat: (agent: Agent, listingId?: number) => void;
   closeChat: () => void;
   sendMessage: (text: string) => Promise<void>;
   fetchConversations: () => Promise<void>;
@@ -52,15 +48,18 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
   fetchConversations: async () => {
     try {
-      const res = await api.get('/messages/conversations');
-      const data = res.data;
+      const data = await apiRequest('/messages/conversations');
+      const convs: Record<string, Conversation> = {};
       
-      const convs: Record<string, any> = {};
       data.forEach((c: any) => {
         // Map to old shape
-        convs[c.agent.id] = {
+        convs[c.agent.id.toString()] = {
           conversation_id: c.id,
-          contact: c.agent,
+          contact: {
+            id: c.agent.id.toString(),
+            name: c.agent.name,
+            avatarUrl: c.agent.avatar_url
+          },
           messages: c.last_message ? [{ 
             id: c.last_message.id, 
             text: c.last_message.text, 
@@ -78,11 +77,9 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
   fetchMessages: async (conversationId: number) => {
     try {
-      const res = await api.get(`/messages/conversations/${conversationId}/messages`);
-      const msgs = res.data;
+      const msgs = await apiRequest(`/messages/conversations/${conversationId}/messages`);
       
       set((state) => {
-        // Update the active conversation's messages
         const agentId = state.activeAgentId;
         if (!agentId) return state;
 
@@ -91,7 +88,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
           convs[agentId].messages = msgs.map((m: any) => ({
             id: m.id,
             text: m.text,
-            sender: m.sender_id.toString() === agentId.toString() ? 'agent' : 'user',
+            sender: m.sender_id.toString() === agentId ? 'agent' : 'user',
             timestamp: new Date(m.created_at).getTime()
           }));
         }
@@ -108,11 +105,13 @@ export const useChatStore = create<ChatState>((set, get) => ({
     // Attempt to start or get conversation
     if (listingId) {
       try {
-        const res = await api.post('/messages/conversations', {
-          listing_id: listingId,
-          message: `Hi there! I'm interested in your property.`
+        const conv = await apiRequest('/messages/conversations', {
+          method: 'POST',
+          body: {
+            listing_id: listingId,
+            message: `Hi there! I'm interested in your property.`
+          }
         });
-        const conv = res.data;
         set({ activeConversationId: conv.id });
         await get().fetchMessages(conv.id);
       } catch (e: any) {
@@ -147,9 +146,8 @@ export const useChatStore = create<ChatState>((set, get) => ({
     const { activeConversationId, activeAgentId, conversations } = get();
     if (!activeConversationId || !activeAgentId) return;
 
-    // Optimistically add message
     const timestamp = Date.now();
-    const newMsg = { id: timestamp, text, sender: 'user', timestamp };
+    const newMsg: Message = { id: timestamp, text, sender: 'user', timestamp };
 
     set((state) => {
       const conv = state.conversations[activeAgentId];
@@ -168,7 +166,10 @@ export const useChatStore = create<ChatState>((set, get) => ({
     try {
       const formData = new FormData();
       formData.append('body', text);
-      await api.post(`/messages/conversations/${activeConversationId}/messages`, formData);
+      await apiRequest(`/messages/conversations/${activeConversationId}/messages`, {
+        method: 'POST',
+        formData: formData
+      });
       // Wait a moment then refresh
       setTimeout(() => get().fetchMessages(activeConversationId), 500);
     } catch (e) {

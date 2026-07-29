@@ -1,4 +1,4 @@
-import api from './api';
+import { apiRequest } from './api';
 
 const VAPID_PUBLIC_KEY = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || 'BLcgyvE6IT5XrF-owvxeUyO5EikDzc8AqNDYXMB0_ol33ROLpmnCBtspdsBRrV7qMq1Ta3IZ3pjiSvwLdipjoow';
 
@@ -43,10 +43,13 @@ export async function subscribeToPushNotifications() {
 
     const subJson = subscription.toJSON();
     if (subJson.endpoint && subJson.keys) {
-      await api.post('/users/me/push-token', {
-        endpoint: subJson.endpoint,
-        p256dh: subJson.keys.p256dh,
-        auth: subJson.keys.auth
+      await apiRequest('/users/me/push-token', {
+        method: "POST",
+        body: {
+          endpoint: subJson.endpoint,
+          p256dh: subJson.keys.p256dh,
+          auth: subJson.keys.auth
+        }
       });
       console.log('Push subscription saved to server.');
     }

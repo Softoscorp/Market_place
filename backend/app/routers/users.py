@@ -87,11 +87,26 @@ def save_push_token(
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_user),
 ):
-    # Store mobile push token on user profile
-    current_user.status_reason = f"push_token:{payload.push_token[:100]}"  # type: ignore
-    db.commit()
-    return {"status": "ok", "message": "Push token registered successfully"}
+    # Check if subscription already exists
+    existing = db.query(models.PushSubscription).filter(
+        models.PushSubscription.endpoint == payload.endpoint
+    ).first()
 
+    if existing:
+        existing.user_id = current_user.id
+        existing.p256dh = payload.p256dh
+        existing.auth = payload.auth
+    else:
+        new_sub = models.PushSubscription(
+            user_id=current_user.id,
+            endpoint=payload.endpoint,
+            p256dh=payload.p256dh,
+            auth=payload.auth
+        )
+        db.add(new_sub)
+
+    db.commit()
+    return {"status": "ok", "message": "Push subscription saved successfully"}
 
 @router.get("/users/me/saved", response_model=list[schemas.SavedPropertyOut])
 def get_saved_properties(

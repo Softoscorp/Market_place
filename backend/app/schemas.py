@@ -82,7 +82,9 @@ class UpdateMeRequest(BaseModel):
 
 
 class PushTokenRequest(BaseModel):
-    push_token: str
+    endpoint: str
+    p256dh: str
+    auth: str
 
 
 class AgentProfileOut(BaseModel):

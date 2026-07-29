@@ -18,6 +18,12 @@ export function ChatPanel() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [activeConversation?.messages]);
 
+  useEffect(() => {
+    if (isOpen) {
+      import('@/lib/push').then(m => m.subscribeToPushNotifications());
+    }
+  }, [isOpen]);
+
   if (!isOpen || !activeConversation) return null;
 
   const handleSend = (e: React.FormEvent) => {

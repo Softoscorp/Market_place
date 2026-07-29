@@ -195,6 +195,30 @@ def send_text_message(
     db.add(message)
     db.commit()
     db.refresh(message)
+
+    # Send push notification
+    recipient_id = conv.agent_id if current_user.id == conv.renter_id else conv.renter_id
+    subscriptions = db.query(models.PushSubscription).filter(models.PushSubscription.user_id == recipient_id).all()
+    if subscriptions:
+        from ..services.push import send_push_notification
+        for sub in subscriptions:
+            sub_info = {
+                "endpoint": sub.endpoint,
+                "keys": {
+                    "p256dh": sub.p256dh,
+                    "auth": sub.auth
+                }
+            }
+            payload = {
+                "title": f"New message from {current_user.name}",
+                "body": body,
+                "url": f"/chat"
+            }
+            success = send_push_notification(sub_info, payload)
+            if success == "EXPIRED":
+                db.delete(sub)
+                db.commit()
+
     return _serialize_message(message, current_user, db)
 
 
@@ -231,4 +255,28 @@ def send_voice_message(
     db.add(message)
     db.commit()
     db.refresh(message)
+
+    # Send push notification
+    recipient_id = conv.agent_id if current_user.id == conv.renter_id else conv.renter_id
+    subscriptions = db.query(models.PushSubscription).filter(models.PushSubscription.user_id == recipient_id).all()
+    if subscriptions:
+        from ..services.push import send_push_notification
+        for sub in subscriptions:
+            sub_info = {
+                "endpoint": sub.endpoint,
+                "keys": {
+                    "p256dh": sub.p256dh,
+                    "auth": sub.auth
+                }
+            }
+            payload = {
+                "title": f"New voice message from {current_user.name}",
+                "body": "🎤 Voice Message",
+                "url": f"/chat"
+            }
+            success = send_push_notification(sub_info, payload)
+            if success == "EXPIRED":
+                db.delete(sub)
+                db.commit()
+
     return _serialize_message(message, current_user, db)

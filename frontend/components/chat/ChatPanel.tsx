@@ -2,9 +2,12 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Send } from 'lucide-react';
+import { X, Send, Image as ImageIcon, Phone, Video, MoreVertical } from 'lucide-react';
 import { useChatStore } from '@/lib/store/useChatStore';
+import { useAuthStore } from '@/lib/store/useAuthStore';
 import styles from './ChatPanel.module.css';
+import { ProtectedImage } from '@/components/ui/ProtectedImage';
+import { mediaUrl } from '@/lib/api';
 
 export function ChatPanel() {
   const { isOpen, activeAgentId, conversations, closeChat, sendMessage } = useChatStore();
@@ -54,7 +57,13 @@ export function ChatPanel() {
           >
             <div className={styles.header}>
               <div className={styles.agentInfo}>
-                <img src={activeConversation.contact.avatarUrl} alt={activeConversation.contact.name} className={styles.avatar} />
+                <ProtectedImage 
+                  src={activeConversation.contact.avatarUrl ? mediaUrl(activeConversation.contact.avatarUrl) : ''}
+                  fallbackSrc={`https://ui-avatars.com/api/?name=${encodeURIComponent(activeConversation.contact.name)}&background=0F172A&color=fff&size=128&bold=true`}
+                  alt={activeConversation.contact.name} 
+                  className={styles.avatar}
+                  style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover' }}
+                />
                 <div>
                   <h3 className={styles.agentName}>{activeConversation.contact.name}</h3>
                   <div className={styles.status}>

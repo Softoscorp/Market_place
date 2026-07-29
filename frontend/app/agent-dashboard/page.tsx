@@ -16,7 +16,8 @@ import {
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/lib/store/useAuthStore';
 import { useChatStore } from '@/lib/store/useChatStore';
-import { apiRequest } from '@/lib/api';
+import { apiRequest, mediaUrl } from '@/lib/api';
+import { ProtectedImage } from '@/components/ui/ProtectedImage';
 import Link from 'next/link';
 import styles from './Dashboard.module.css';
 
@@ -221,7 +222,15 @@ export default function AgentDashboard() {
                 {conversationList.map((conv) => (
                   <div key={conv.contact.id} className={styles.crmCard}>
                     <div className={styles.crmCardHeader}>
-                      <span className={styles.clientName}>{conv.contact.name}</span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                        <ProtectedImage 
+                          src={conv.contact.avatarUrl ? mediaUrl(conv.contact.avatarUrl) : ''}
+                          fallbackSrc={`https://ui-avatars.com/api/?name=${encodeURIComponent(conv.contact.name)}&background=0F172A&color=fff&size=128&bold=true`}
+                          alt={conv.contact.name} 
+                          style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover' }}
+                        />
+                        <span className={styles.clientName}>{conv.contact.name}</span>
+                      </div>
                       <span className={styles.leadBadge}>Active Contact</span>
                     </div>
                     <button 

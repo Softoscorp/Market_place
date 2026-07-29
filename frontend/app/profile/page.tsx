@@ -269,8 +269,9 @@ export default function ProfilePage() {
               type="text" 
               name="occupation"
               className={styles.input} 
-              value={formData.occupation}
-              onChange={handleChange}
+              value={user?.role === 'agent' ? 'Real Estate Agent' : 'Student / Renter'}
+              readOnly
+              style={{ backgroundColor: '#f8fafc', color: '#64748b', cursor: 'not-allowed' }}
             />
           </div>
         </div>
@@ -340,8 +341,13 @@ export default function ProfilePage() {
                   className={styles.conversationItem}
                   onClick={() => openChat(conv.contact)}
                 >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={conv.contact.avatarUrl} alt={conv.contact.name} className={styles.avatar} />
+                  <ProtectedImage 
+                    src={conv.contact.avatarUrl ? mediaUrl(conv.contact.avatarUrl) : ''}
+                    fallbackSrc={`https://ui-avatars.com/api/?name=${encodeURIComponent(conv.contact.name)}&background=0F172A&color=fff&size=128&bold=true`}
+                    alt={conv.contact.name} 
+                    className={styles.avatar}
+                    style={{ width: '48px', height: '48px', borderRadius: '50%', objectFit: 'cover' }}
+                  />
                   <div className={styles.conversationInfo}>
                     <div className={styles.conversationHeader}>
                       <h4 className={styles.contactName}>{conv.contact.name}</h4>

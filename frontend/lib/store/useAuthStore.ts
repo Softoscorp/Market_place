@@ -15,6 +15,7 @@ export interface User {
   isVerifiedAgent?: boolean;
   is_verified?: boolean;
   avatar_url?: string;
+  respond_rate?: number;
   isLookingForRoommate?: boolean;
 }
 

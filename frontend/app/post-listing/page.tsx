@@ -20,6 +20,7 @@ export default function PostListingPage() {
   const [depositMonths, setDepositMonths] = useState(2);
   const [commissionMonths, setCommissionMonths] = useState(1);
   const [location, setLocation] = useState('Famagusta');
+  const [distanceToUni, setDistanceToUni] = useState(1.5);
 
   // Amenities
   const [furnished, setFurnished] = useState(true);
@@ -160,6 +161,17 @@ export default function PostListingPage() {
               </div>
             </div>
 
+            <div className={styles.inputGroup}>
+              <label className={styles.label}>Distance to University (km)</label>
+              <input 
+                type="number" 
+                step="0.1"
+                className={styles.input} 
+                value={distanceToUni}
+                onChange={(e) => setDistanceToUni(Number(e.target.value))}
+              />
+            </div>
+
             <div className={styles.row}>
               <div className={styles.inputGroup}>
                 <label className={styles.label}>Upfront Rent (Months)</label>
@@ -285,6 +297,7 @@ export default function PostListingPage() {
                     price,
                     house_type,
                     location,
+                    distance_to_university: distanceToUni,
                     furnished,
                     generator,
                     pool,

@@ -351,13 +351,19 @@ export default function ProfilePage() {
                   <div className={styles.conversationInfo}>
                     <div className={styles.conversationHeader}>
                       <h4 className={styles.contactName}>{conv.contact.name}</h4>
-                      <span className={styles.time}>
-                        {new Date(lastMessage.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                      </span>
+                      {lastMessage && (
+                        <span className={styles.time}>
+                          {new Date(lastMessage.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </span>
+                      )}
                     </div>
                     <div className={styles.messagePreview}>
                       <span className={styles.lastText}>
-                        {lastMessage.sender === 'user' ? 'You: ' : ''}{lastMessage.text}
+                        {lastMessage ? (
+                          <>{lastMessage.sender === 'user' ? 'You: ' : ''}{lastMessage.text}</>
+                        ) : (
+                          <span style={{ fontStyle: 'italic', color: '#94a3b8' }}>New conversation...</span>
+                        )}
                       </span>
                       {conv.unreadCount > 0 && (
                         <span className={styles.unreadBadge}>{conv.unreadCount}</span>

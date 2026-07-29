@@ -40,8 +40,9 @@ interface PropertyData {
   furnished?: boolean;
   agent_average_rating?: number;
   agent_rating_count?: number;
-  agent?: { id: string; name: string; avatar_url?: string; is_verified?: boolean };
+  agent?: { id: string; name: string; avatar_url?: string; is_verified?: boolean; respond_rate?: number };
   photos?: Array<{ url: string }>;
+  distance_to_university?: number;
 }
 
 export default function PropertyPage({ params }: PropertyPageProps) {
@@ -209,12 +210,12 @@ export default function PropertyPage({ params }: PropertyPageProps) {
                   <PremiumIcon icon={MapPin} size={14} colorVariant="primary" containerSize={28} />
                   {property.location}
                 </div>
-              </div>
-              <div className={styles.priceContainer}>
-                <div className={styles.price}>
-                  £{property.price}
+                <div className={styles.priceContainer}>
+                  <div className={styles.price}>
+                    £{property.price}
+                  </div>
+                  <div className={styles.priceLabel}>per month</div>
                 </div>
-                <div className={styles.priceLabel}>per month</div>
               </div>
             </div>
             
@@ -227,6 +228,13 @@ export default function PropertyPage({ params }: PropertyPageProps) {
           <PropertyGallery images={images} title={property.title} />
 
           <div className={styles.featuresGrid}>
+            {property.distance_to_university != null && property.distance_to_university > 0 && (
+              <div className={styles.featureItem}>
+                <PremiumIcon icon={MapPin} size={20} colorVariant="primary" containerSize={40} />
+                <div className={styles.featureValue}>{property.distance_to_university} km</div>
+                <div className={styles.featureLabel}>From Uni</div>
+              </div>
+            )}
             <div className={styles.featureItem}>
               <PremiumIcon icon={Bed} size={20} colorVariant="primary" containerSize={40} />
               <div className={styles.featureValue}>{bedrooms}</div>
@@ -255,7 +263,7 @@ export default function PropertyPage({ params }: PropertyPageProps) {
           <div className={styles.section} style={{ marginTop: '2rem', paddingTop: '2rem', borderTop: '1px solid #e5e7eb' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
               <h2 className={styles.sectionTitle} style={{ margin: 0 }}>Property Reviews ({reviews.length})</h2>
-              {!showReviewForm && (
+              {!showReviewForm && user?.role !== 'agent' && (
                 <Button variant="secondary" onClick={() => setShowReviewForm(true)}>
                   Write a Review
                 </Button>
@@ -297,7 +305,7 @@ export default function PropertyPage({ params }: PropertyPageProps) {
               imageUrl={mediaUrl(agent.avatar_url) || ''}
               rating={property.agent_average_rating || 5.0}
               reviews={property.agent_rating_count || 0}
-
+              respondRate={agent.respond_rate}
               isVerified={agent.is_verified}
               onContact={() => {
                 if (!user) {

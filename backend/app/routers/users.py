@@ -20,8 +20,10 @@ os.makedirs(UPLOAD_AVATAR_DIR, exist_ok=True)
 
 
 @router.get("/users/me", response_model=schemas.MeOut)
-def get_me(current_user: models.User = Depends(get_current_user)):
-    return current_user
+def get_me(current_user: models.User = Depends(get_current_user), db: Session = Depends(get_db)):
+    out = schemas.MeOut.model_validate(current_user)
+    out.respond_rate = current_user.agent_respond_rate(db) if current_user.role == models.UserRole.agent else None
+    return out
 
 
 @router.patch("/users/me", response_model=schemas.MeOut)
@@ -34,7 +36,9 @@ def update_me(
         setattr(current_user, field, value)
     db.commit()
     db.refresh(current_user)
-    return current_user
+    out = schemas.MeOut.model_validate(current_user)
+    out.respond_rate = current_user.agent_respond_rate(db) if current_user.role == models.UserRole.agent else None
+    return out
 
 
 @router.post("/users/me/avatar", response_model=schemas.MeOut)
@@ -78,7 +82,9 @@ async def upload_avatar(
     current_user.avatar_url = public_url  # type: ignore
     db.commit()
     db.refresh(current_user)
-    return current_user
+    out = schemas.MeOut.model_validate(current_user)
+    out.respond_rate = current_user.agent_respond_rate(db) if current_user.role == models.UserRole.agent else None
+    return out
 
 
 @router.post("/users/me/push-token", status_code=status.HTTP_200_OK)
@@ -192,6 +198,9 @@ def get_agent_profile(agent_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Agent not found")
 
     avg, count = agent.agent_rating_summary(db)
+    
+    agent_out = schemas.PublicUserOut.model_validate(agent)
+    agent_out.respond_rate = agent.agent_respond_rate(db)
 
     listings = (
         db.query(models.Listing)
@@ -210,7 +219,7 @@ def get_agent_profile(agent_id: int, db: Session = Depends(get_db)):
         listing_outs.append(out)
 
     return schemas.AgentProfileOut(
-        agent=agent,
+        agent=agent_out,
         average_rating=avg,
         rating_count=count,
         listings=listing_outs,
@@ -219,4 +228,10 @@ def get_agent_profile(agent_id: int, db: Session = Depends(get_db)):
 
 @router.get("/agents", response_model=list[schemas.PublicUserOut])
 def list_agents(db: Session = Depends(get_db)):
-    return db.query(models.User).filter(models.User.role == models.UserRole.agent).limit(10).all()
+    agents = db.query(models.User).filter(models.User.role == models.UserRole.agent).limit(10).all()
+    results = []
+    for agent in agents:
+        out = schemas.PublicUserOut.model_validate(agent)
+        out.respond_rate = agent.agent_respond_rate(db)
+        results.append(out)
+    return results

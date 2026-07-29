@@ -15,6 +15,7 @@ interface AgentCardProps {
   rating: number;
   reviews: number;
   activeListings?: number;
+  respondRate?: number;
   isVerified?: boolean;
   onContact?: () => void;
 }
@@ -27,6 +28,7 @@ export function AgentCard({
   rating,
   reviews,
   activeListings,
+  respondRate,
   isVerified = true,
   onContact
 }: AgentCardProps) {
@@ -67,6 +69,12 @@ export function AgentCard({
           <div className={styles.statItem}>
             <span className={styles.statValue}>{activeListings}</span>
             <span className={styles.statLabel}>{t('agent_listings')}</span>
+          </div>
+        )}
+        {respondRate !== undefined && (
+          <div className={styles.statItem}>
+            <span className={styles.statValue}>{Math.round(respondRate * 100)}%</span>
+            <span className={styles.statLabel}>Respond Rate</span>
           </div>
         )}
       </div>

@@ -103,6 +103,7 @@ interface AgentProfile {
             rating={average_rating || 5.0}
             reviews={rating_count || 0}
             activeListings={listings?.length || 0}
+            respondRate={agent.respond_rate}
             isVerified={agent.is_verified}
             onContact={() => {
               if (!isAuthenticated) {

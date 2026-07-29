@@ -12,6 +12,7 @@ import { mediaUrl } from '@/lib/api';
 export function ChatPanel() {
   const { isOpen, activeAgentId, conversations, closeChat, sendMessage } = useChatStore();
   const [message, setMessage] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const activeConversation = activeAgentId ? conversations[activeAgentId] : null;
@@ -27,7 +28,18 @@ export function ChatPanel() {
     }
   }, [isOpen]);
 
-  if (!isOpen || !activeConversation) return null;
+  // Show loading spinner while conversation is being fetched
+  useEffect(() => {
+    if (isOpen && !activeConversation) {
+      setIsLoading(true);
+      const timer = setTimeout(() => setIsLoading(false), 5000); // fallback timeout
+      return () => clearTimeout(timer);
+    } else {
+      setIsLoading(false);
+    }
+  }, [isOpen, activeConversation]);
+
+  if (!isOpen) return null;
 
   const handleSend = (e: React.FormEvent) => {
     e.preventDefault();
@@ -57,20 +69,29 @@ export function ChatPanel() {
           >
             <div className={styles.header}>
               <div className={styles.agentInfo}>
-                <ProtectedImage 
-                  src={(activeConversation.contact.avatarUrl ? mediaUrl(activeConversation.contact.avatarUrl) : '') || ''}
-                  fallbackSrc={`https://ui-avatars.com/api/?name=${encodeURIComponent(activeConversation.contact.name || 'User')}&background=0F172A&color=fff&size=128&bold=true`}
-                  alt={activeConversation.contact.name || 'User'} 
-                  className={styles.avatar}
-                  style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover' }}
-                />
-                <div>
-                  <h3 className={styles.agentName}>{activeConversation.contact.name}</h3>
-                  <div className={styles.status}>
-                    <span className={styles.statusDot} />
-                    Online now
+                {activeConversation ? (
+                  <>
+                    <ProtectedImage 
+                      src={(activeConversation.contact.avatarUrl ? mediaUrl(activeConversation.contact.avatarUrl) : '') || ''}
+                      fallbackSrc={`https://ui-avatars.com/api/?name=${encodeURIComponent(activeConversation.contact.name || 'User')}&background=0F172A&color=fff&size=128&bold=true`}
+                      alt={activeConversation.contact.name || 'User'} 
+                      className={styles.avatar}
+                      style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover' }}
+                    />
+                    <div>
+                      <h3 className={styles.agentName}>{activeConversation.contact.name}</h3>
+                      <div className={styles.status}>
+                        <span className={styles.statusDot} />
+                        Online now
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                    <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: '#e5e7eb' }} />
+                    <h3 className={styles.agentName}>Connecting...</h3>
                   </div>
-                </div>
+                )}
               </div>
               <button onClick={closeChat} className={styles.closeBtn}>
                 <X size={20} />
@@ -78,7 +99,18 @@ export function ChatPanel() {
             </div>
 
             <div className={styles.chatArea}>
-              {activeConversation.messages.map(msg => (
+              {!activeConversation && isLoading && (
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', flexDirection: 'column', gap: '1rem', color: '#6b7280' }}>
+                  <div style={{ width: '32px', height: '32px', border: '3px solid #e5e7eb', borderTopColor: '#111827', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+                  <span style={{ fontSize: '0.875rem' }}>Starting conversation...</span>
+                </div>
+              )}
+              {!activeConversation && !isLoading && (
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#6b7280', fontSize: '0.875rem', textAlign: 'center', padding: '1rem' }}>
+                  Could not load conversation. Please try again.
+                </div>
+              )}
+              {activeConversation && activeConversation.messages.map(msg => (
                 <div 
                   key={msg.id} 
                   className={`${styles.message} ${msg.sender === 'user' ? styles.messageSent : styles.messageReceived}`}
@@ -96,11 +128,12 @@ export function ChatPanel() {
               <input 
                 type="text" 
                 className={styles.input}
-                placeholder="Type a message..."
+                placeholder={activeConversation ? "Type a message..." : "Connecting..."}
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
+                disabled={!activeConversation}
               />
-              <button type="submit" className={styles.sendBtn} disabled={!message.trim()}>
+              <button type="submit" className={styles.sendBtn} disabled={!message.trim() || !activeConversation}>
                 <Send size={18} />
               </button>
             </form>

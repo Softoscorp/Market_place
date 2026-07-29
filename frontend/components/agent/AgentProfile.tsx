@@ -15,6 +15,7 @@ interface AgentProfileProps {
   reviews: number;
   activeListings: number;
   experienceYears: number;
+  respondRate?: number;
   isVerified?: boolean;
 }
 
@@ -27,6 +28,7 @@ export function AgentProfile({
   reviews,
   activeListings,
   experienceYears,
+  respondRate,
   isVerified = true
 }: AgentProfileProps) {
   const { openChat } = useChatStore();
@@ -80,6 +82,12 @@ export function AgentProfile({
               <span className={styles.statValue}>{experienceYears} yrs</span>
               <span className={styles.statLabel}>Experience</span>
             </div>
+            {respondRate !== undefined && (
+              <div className={styles.statItem}>
+                <span className={styles.statValue}>{Math.round(respondRate * 100)}%</span>
+                <span className={styles.statLabel}>Respond Rate</span>
+              </div>
+            )}
           </div>
         </div>
         

@@ -32,6 +32,7 @@ def _check_no_contact_info(title: str, description: str):
 def _serialize_listing(listing: models.Listing, db: Session) -> schemas.ListingOut:
     avg, count = listing.agent.agent_rating_summary(db)
     out = schemas.ListingOut.model_validate(listing)
+    out.agent.respond_rate = listing.agent.agent_respond_rate(db)
     out.agent_average_rating = avg
     out.agent_rating_count = count
     return out
@@ -61,6 +62,7 @@ def create_listing(
         price=payload.price,
         house_type=payload.house_type,
         location=payload.location,
+        distance_to_university=payload.distance_to_university,
         furnished=payload.furnished,
         parking=payload.parking,
         pet_friendly=payload.pet_friendly,

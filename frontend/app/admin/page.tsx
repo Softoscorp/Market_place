@@ -12,7 +12,8 @@ import {
   AlertTriangle,
   ShieldCheck,
   Mail,
-  X
+  X,
+  LogOut
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/lib/store/useAuthStore';
@@ -66,7 +67,7 @@ interface AdminMessage {
 
 export default function AdminDashboard() {
   const router = useRouter();
-  const { user, isAuthenticated } = useAuthStore();
+  const { user, isAuthenticated, logout } = useAuthStore();
   const [activeTabState, setActiveTabState] = useState('overview');
   const activeTab = user?.role === 'customer_care' ? 'chats' : activeTabState;
   const setActiveTab = setActiveTabState;
@@ -458,6 +459,19 @@ export default function AdminDashboard() {
           >
             <PremiumIcon icon={MessageSquare} size={14} colorVariant="primary" containerSize={24} /> Support Chats
           </button>
+          
+          <div style={{ marginTop: 'auto', paddingTop: '2rem' }}>
+            <button 
+              className={styles.navItem}
+              onClick={() => {
+                logout();
+                router.push('/');
+              }}
+              style={{ color: 'var(--danger)' }}
+            >
+              <PremiumIcon icon={LogOut} size={14} colorVariant="danger" containerSize={24} /> Sign Out
+            </button>
+          </div>
         </nav>
       </div>
 

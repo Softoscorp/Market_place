@@ -91,7 +91,7 @@ def start_conversation(
         agent_id = listing.agent_id
     elif payload.agent_id:
         agent = db.query(models.User).filter(models.User.id == payload.agent_id).first()
-        if not agent or agent.role != models.UserRole.agent:
+        if not agent or agent.role not in [models.UserRole.agent, models.UserRole.admin, models.UserRole.customer_care]:
             raise HTTPException(status_code=404, detail="Agent not found")
         agent_id = agent.id
     else:

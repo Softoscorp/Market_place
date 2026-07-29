@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 
 from .. import models, schemas
 from ..database import get_db
-from ..dependencies import get_current_user, require_renter
+from ..dependencies import get_current_user
 
 router = APIRouter(tags=["ratings"])
 
@@ -17,11 +17,15 @@ def rate_apartment(
     listing_id: int,
     payload: schemas.ApartmentRatingCreateRequest,
     db: Session = Depends(get_db),
-    current_user: models.User = Depends(require_renter),
+    current_user: models.User = Depends(get_current_user),
 ):
     listing = db.query(models.Listing).filter(models.Listing.id == listing_id).first()
     if not listing:
         raise HTTPException(status_code=404, detail="Listing not found")
+
+    # Agents cannot rate their own listings
+    if listing.agent_id == current_user.id:
+        raise HTTPException(status_code=403, detail="You cannot rate your own listing.")
 
     has_conversation = (
         db.query(models.Conversation)
@@ -75,8 +79,11 @@ def rate_agent(
     agent_id: int,
     payload: schemas.AgentRatingCreateRequest,
     db: Session = Depends(get_db),
-    current_user: models.User = Depends(require_renter),
+    current_user: models.User = Depends(get_current_user),
 ):
+    # Users cannot rate themselves
+    if agent_id == current_user.id:
+        raise HTTPException(status_code=403, detail="You cannot rate yourself.")
     agent = (
         db.query(models.User)
         .filter(models.User.id == agent_id, models.User.role == models.UserRole.agent)

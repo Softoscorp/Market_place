@@ -51,6 +51,7 @@ class PublicUserOut(BaseModel):
     role: UserRole
     is_verified: bool
     avatar_url: Optional[str] = None
+    respond_rate: Optional[float] = None
     created_at: datetime
 
 
@@ -66,6 +67,7 @@ class MeOut(BaseModel):
     is_verified: bool
     account_status: AccountStatus
     avatar_url: Optional[str] = None
+    respond_rate: Optional[float] = None
     created_at: datetime
 
 
@@ -111,6 +113,7 @@ class ListingCreateRequest(BaseModel):
     price: float = Field(ge=0)
     house_type: HouseType
     location: str
+    distance_to_university: Optional[float] = 0.0
     furnished: bool = False
     parking: bool = False
     pet_friendly: bool = False
@@ -142,6 +145,7 @@ class ListingOut(BaseModel):
     price: float
     house_type: HouseType
     location: str
+    distance_to_university: Optional[float] = 0.0
     furnished: bool
     parking: bool
     pet_friendly: bool

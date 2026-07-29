@@ -11,7 +11,8 @@ import {
   MessageSquare, 
   MousePointerClick,
   Plus,
-  Building2
+  Building2,
+  LogOut
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/lib/store/useAuthStore';
@@ -32,7 +33,7 @@ interface RealListing {
 
 export default function AgentDashboard() {
   const router = useRouter();
-  const { user, isAuthenticated } = useAuthStore();
+  const { user, isAuthenticated, logout } = useAuthStore();
   const { openChat, conversations, fetchConversations } = useChatStore();
   const [activeTab, setActiveTab] = useState('overview');
 
@@ -51,12 +52,11 @@ export default function AgentDashboard() {
       return;
     }
 
-    // Fetch agent listings
-    apiRequest('/listings', { auth: false })
+    // Fetch agent listings specifically for this agent
+    apiRequest(`/listings?agent_id=${user.id}`, { auth: false })
       .then((data) => {
         const items: RealListing[] = data.items || [];
-        const myings = items.filter((item) => String(item.agent?.id) === String(user?.id) || item.agent?.name === user?.name);
-        setAgentListings(myings);
+        setAgentListings(items);
       })
       .catch(() => setAgentListings([]))
       .finally(() => setLoadingListings(false));
@@ -68,11 +68,15 @@ export default function AgentDashboard() {
 
   const conversationList = Object.values(conversations);
 
+  const respondRateStr = user?.respond_rate != null 
+    ? `${Math.round(user.respond_rate * 100)}%`
+    : '0%';
+
   const metrics = [
     { label: 'Total Views', value: '0', change: '0%', icon: Eye, trend: 'neutral' },
     { label: 'Active Listings', value: String(agentListings.length), change: '0%', icon: List, trend: 'neutral' },
     { label: 'Messages', value: String(conversationList.length), change: '0%', icon: MessageSquare, trend: 'neutral' },
-    { label: 'Click Rate', value: '0%', change: '0%', icon: MousePointerClick, trend: 'neutral' },
+    { label: 'Respond Rate', value: respondRateStr, change: '0%', icon: MousePointerClick, trend: 'neutral' },
   ];
 
   const renderTabContent = () => {
@@ -322,6 +326,19 @@ export default function AgentDashboard() {
           >
             <Settings size={18} /> Settings
           </button>
+          
+          <div style={{ marginTop: 'auto', paddingTop: '2rem' }}>
+            <button 
+              className={styles.navItem}
+              onClick={() => {
+                logout();
+                router.push('/');
+              }}
+              style={{ color: 'var(--danger)' }}
+            >
+              <LogOut size={18} color="var(--danger)" /> Sign Out
+            </button>
+          </div>
         </nav>
       </div>
 

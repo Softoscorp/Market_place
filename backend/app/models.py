@@ -103,6 +103,29 @@ class User(Base):
         # shows up against real Postgres. Cast explicitly.
         return (round(float(avg), 2) if avg is not None else None, count or 0)
 
+    def agent_respond_rate(self, db) -> float | None:
+        """
+        Returns the percentage of conversations (where this user is the agent)
+        that they have responded to. Returns None if there are no conversations.
+        """
+        conversations = db.query(Conversation).filter(
+            Conversation.agent_id == self.id
+        ).all()
+        
+        if not conversations:
+            return 100.0
+            
+        responded_count = 0
+        for conv in conversations:
+            has_response = db.query(Message).filter(
+                Message.conversation_id == conv.id,
+                Message.sender_id == self.id
+            ).first()
+            if has_response:
+                responded_count += 1
+                
+        return round((responded_count / len(conversations)) * 100, 2)
+
 
 class Listing(Base):
     __tablename__ = "listings"
@@ -115,6 +138,7 @@ class Listing(Base):
     price = Column(Float, nullable=False)  # monthly rent
     house_type = Column(Enum(HouseType), nullable=False)
     location = Column(String, nullable=False)  # free-text area/neighborhood
+    distance_to_university = Column(Float, nullable=True, default=0.0)
 
     furnished = Column(Boolean, default=False)
     parking = Column(Boolean, default=False)

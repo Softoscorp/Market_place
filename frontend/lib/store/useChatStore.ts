@@ -177,8 +177,11 @@ export const useChatStore = create<ChatState>((set, get) => ({
       });
       // Wait a moment then refresh
       setTimeout(() => get().fetchMessages(activeConversationId), 500);
-    } catch (e) {
+    } catch (e: any) {
       console.error('Failed to send message', e);
+      if (typeof window !== 'undefined' && e?.detail) {
+        alert(typeof e.detail === 'string' ? e.detail : JSON.stringify(e.detail));
+      }
     }
   }
 }));

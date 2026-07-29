@@ -16,7 +16,7 @@ export function ProtectedImage({ src, alt, fallbackSrc, className, style, onErro
   const [errorSrc, setErrorSrc] = useState<string | null>(null);
 
   // Derive the displayed src purely from props + error state. No refs, no effects.
-  const displaySrc = errorSrc === src && fallbackSrc ? fallbackSrc : src;
+  const displaySrc = (!src || errorSrc === src) && fallbackSrc ? fallbackSrc : src;
 
   const handleError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
     if (fallbackSrc && errorSrc !== src) {

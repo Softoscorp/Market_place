@@ -83,9 +83,19 @@ def start_conversation(
     db: Session = Depends(get_db),
     current_user: models.User = Depends(require_renter),
 ):
-    listing = db.query(models.Listing).filter(models.Listing.id == payload.listing_id).first()
-    if not listing:
-        raise HTTPException(status_code=404, detail="Listing not found")
+    agent_id = None
+    if payload.listing_id:
+        listing = db.query(models.Listing).filter(models.Listing.id == payload.listing_id).first()
+        if not listing:
+            raise HTTPException(status_code=404, detail="Listing not found")
+        agent_id = listing.agent_id
+    elif payload.agent_id:
+        agent = db.query(models.User).filter(models.User.id == payload.agent_id).first()
+        if not agent or agent.role != models.UserRole.agent:
+            raise HTTPException(status_code=404, detail="Agent not found")
+        agent_id = agent.id
+    else:
+        raise HTTPException(status_code=400, detail="Must provide listing_id or agent_id")
 
     reason = find_external_contact_info(payload.message)
     if reason:
@@ -94,21 +104,23 @@ def start_conversation(
             detail=f"Your message {reason}. Keep contact details in the platform's chat only.",
         )
 
-    conv = (
-        db.query(models.Conversation)
-        .filter(
-            and_(
-                models.Conversation.listing_id == payload.listing_id,
-                models.Conversation.renter_id == current_user.id,
-            )
-        )
-        .first()
+    # Check for existing conversation
+    query = db.query(models.Conversation).filter(
+        models.Conversation.renter_id == current_user.id,
+        models.Conversation.agent_id == agent_id
     )
+    if payload.listing_id:
+        query = query.filter(models.Conversation.listing_id == payload.listing_id)
+    else:
+        query = query.filter(models.Conversation.listing_id.is_(None))
+        
+    conv = query.first()
+
     if not conv:
         conv = models.Conversation(
             listing_id=payload.listing_id,
             renter_id=current_user.id,
-            agent_id=listing.agent_id,
+            agent_id=agent_id,
         )
         db.add(conv)
         db.commit()

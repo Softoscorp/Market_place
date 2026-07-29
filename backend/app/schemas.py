@@ -169,7 +169,8 @@ class PaginatedListings(BaseModel):
 # ============================================================================
 
 class StartConversationRequest(BaseModel):
-    listing_id: int
+    listing_id: Optional[int] = None
+    agent_id: Optional[int] = None
     message: str
 
 

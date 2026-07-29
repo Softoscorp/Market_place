@@ -103,21 +103,24 @@ export const useChatStore = create<ChatState>((set, get) => ({
     set({ isOpen: true, activeAgentId: agent.id, activeListingId: listingId || null });
     
     // Attempt to start or get conversation
-    if (listingId) {
-      try {
-        const conv = await apiRequest('/messages/conversations', {
-          method: 'POST',
-          body: {
-            listing_id: listingId,
-            message: `Hi there! I'm interested in your property.`
-          }
-        });
-        set({ activeConversationId: conv.id });
-        await get().fetchMessages(conv.id);
-      } catch (e: any) {
-        // If message is just "getting", maybe it errors because conversation exists
-        // Just fetch messages if it failed
+    try {
+      const body: any = {};
+      if (listingId) {
+        body.listing_id = listingId;
+        body.message = `Hi there! I'm interested in your property.`;
+      } else {
+        body.agent_id = parseInt(agent.id, 10);
+        body.message = `Hi there! I have a question.`;
       }
+      
+      const conv = await apiRequest('/messages/conversations', {
+        method: 'POST',
+        body
+      });
+      set({ activeConversationId: conv.id });
+      await get().fetchMessages(conv.id);
+    } catch (e: any) {
+      // If it fails, maybe it already exists. We'll fetch below.
     }
     
     await get().fetchConversations();

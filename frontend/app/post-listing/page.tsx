@@ -200,22 +200,30 @@ export default function PostListingPage() {
                 </select>
               </div>
               <div className={styles.inputGroup}>
-                <label className={styles.label}>Deposit (Months)</label>
-                <input 
-                  type="number" 
-                  className={styles.input} 
+                <label className={styles.label}>Deposit</label>
+                <select 
+                  className={styles.input}
                   value={depositMonths}
                   onChange={(e) => setDepositMonths(Number(e.target.value))}
-                />
+                >
+                  <option value={0}>No Deposit</option>
+                  <option value={1}>1 Month Rent</option>
+                  <option value={2}>2 Months Rent</option>
+                  <option value={3}>3 Months Rent</option>
+                </select>
               </div>
               <div className={styles.inputGroup}>
-                <label className={styles.label}>Commission (Months)</label>
-                <input 
-                  type="number" 
-                  className={styles.input} 
+                <label className={styles.label}>Agency Commission</label>
+                <select 
+                  className={styles.input}
                   value={commissionMonths}
                   onChange={(e) => setCommissionMonths(Number(e.target.value))}
-                />
+                >
+                  <option value={0}>No Commission</option>
+                  <option value={0.5}>Half Month Rent (50%)</option>
+                  <option value={1}>1 Month Rent (100%)</option>
+                  <option value={2}>2 Months Rent</option>
+                </select>
               </div>
             </div>
 

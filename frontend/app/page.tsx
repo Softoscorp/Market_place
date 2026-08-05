@@ -19,11 +19,11 @@ import { useLanguageStore } from "@/lib/store/useLanguageStore";
 
 // Locations to replace universities
 const LOCATIONS = [
-  { name: "Nicosia", count: "120+ properties" },
-  { name: "Kyrenia", count: "85+ properties" },
-  { name: "Famagusta", count: "150+ properties" },
-  { name: "Lefke", count: "40+ properties" },
-  { name: "Guzelyurt", count: "30+ properties" }
+  { name: "Nicosia" },
+  { name: "Kyrenia" },
+  { name: "Famagusta" },
+  { name: "Lefke" },
+  { name: "Guzelyurt" }
 ];
 
 interface PropertyData {
@@ -181,7 +181,6 @@ export default function HomePage() {
               <Link key={idx} href={`/search?location=${encodeURIComponent(loc.name)}`} style={{ textDecoration: 'none', color: 'inherit' }}>
                 <div className={styles.uniCard}>
                   <h3>{loc.name}</h3>
-                  <p>{loc.count}</p>
                 </div>
               </Link>
             ))}

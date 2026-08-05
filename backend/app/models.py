@@ -200,6 +200,7 @@ class Listing(Base):
     title = Column(String, nullable=False)
     description = Column(Text, nullable=False, default="")
     price = Column(Float, nullable=False)  # monthly rent
+    currency = Column(String, nullable=False, default="£")
     house_type = Column(Enum(HouseType), nullable=False)
     location = Column(String, nullable=False)  # free-text area/neighborhood
     distance_to_university = Column(Float, nullable=True, default=0.0)

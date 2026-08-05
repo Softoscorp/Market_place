@@ -22,6 +22,9 @@ interface Property {
   photos?: Array<{ url: string }>;
   agent_average_rating?: number;
   agent?: { name: string; avatar_url?: string; verification_tier?: 'none' | 'local' | 'international' };
+  upfront_rent_months?: number;
+  deposit_months?: number;
+  commission_months?: number;
 }
 
 function SearchResults() {
@@ -130,7 +133,9 @@ function SearchResults() {
                     bedrooms={prop.bedrooms ?? 1}
                     bathrooms={prop.bathrooms ?? 1}
                     sizeSqf={prop.size_sqf ?? 0}
-                    moveInCost={prop.price * 2}
+                    upfrontMonths={prop.upfront_rent_months}
+                    depositMonths={prop.deposit_months}
+                    commissionMonths={prop.commission_months}
                     images={prop.photos?.map((p) => mediaUrl(p.url) || '') || ['/images/placeholder-studio.jpg']}
                     agentRating={prop.agent_average_rating}
                     agentName={prop.agent?.name || 'Agent'}

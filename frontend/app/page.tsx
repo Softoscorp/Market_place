@@ -25,6 +25,9 @@ const UNIVERSITIES = [
 ];
 
 interface PropertyData {
+  upfront_rent_months?: number;
+  deposit_months?: number;
+  commission_months?: number;
   id: string | number;
   title: string;
   location: string;
@@ -106,8 +109,9 @@ export default function HomePage() {
                 bedrooms={parseInt(prop.house_type?.split('+')[0]) || 1}
                 bathrooms={1}
                 images={prop.photos?.length && prop.photos.length > 0 ? prop.photos.map((p: { url: string }) => mediaUrl(p.url) || '') : ['/images/placeholder-studio.jpg']}
-                sizeSqf={75}
-                moveInCost={prop.price * 3}
+                upfrontMonths={prop.upfront_rent_months}
+                depositMonths={prop.deposit_months}
+                commissionMonths={prop.commission_months}
                 agentRating={prop.agent_average_rating}
                 agentName={prop.agent?.name || 'Agent'}
                 agentAvatar={prop.agent?.avatar_url ? mediaUrl(prop.agent.avatar_url) : undefined}
@@ -171,8 +175,9 @@ export default function HomePage() {
                 bedrooms={parseInt(prop.house_type?.split('+')[0]) || 1}
                 bathrooms={1}
                 images={prop.photos?.length && prop.photos.length > 0 ? prop.photos.map((p: { url: string }) => mediaUrl(p.url) || '') : ['/images/placeholder-studio.jpg']}
-                sizeSqf={75}
-                moveInCost={prop.price * 3}
+                upfrontMonths={prop.upfront_rent_months}
+                depositMonths={prop.deposit_months}
+                commissionMonths={prop.commission_months}
                 agentRating={prop.agent_average_rating}
                 agentName={prop.agent?.name || 'Agent'}
                 agentAvatar={prop.agent?.avatar_url ? mediaUrl(prop.agent.avatar_url) : undefined}

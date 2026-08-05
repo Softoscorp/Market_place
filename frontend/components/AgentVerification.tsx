@@ -20,6 +20,7 @@ export function AgentVerification({ verificationTier }: { verificationTier: stri
   const [success, setSuccess] = useState("");
 
   const [hasMetThreshold, setHasMetThreshold] = useState(false);
+  const [transactionCount, setTransactionCount] = useState(0);
 
   const loadStatus = async () => {
     try {
@@ -28,7 +29,9 @@ export function AgentVerification({ verificationTier }: { verificationTier: stri
         getMyConversations()
       ]);
       setApps(res);
-      if (convs && convs.length >= 5) {
+      const count = convs?.length || 0;
+      setTransactionCount(count);
+      if (count >= 5) {
         setHasMetThreshold(true);
       }
     } catch (err: unknown) {
@@ -120,9 +123,9 @@ export function AgentVerification({ verificationTier }: { verificationTier: stri
                 <div className="text-sm text-gray-600">
                   <p className="font-medium mb-2">Unlock Verification</p>
                   <div className="w-full bg-gray-200 rounded-full h-2 mb-2">
-                    <div className="bg-blue-600 h-2 rounded-full" style={{ width: "60%" }}></div>
+                    <div className="bg-blue-600 h-2 rounded-full" style={{ width: `${Math.min(100, (transactionCount / 5) * 100)}%` }}></div>
                   </div>
-                  <p>You need 2 more unique conversations to apply for verification.</p>
+                  <p>You need {Math.max(0, 5 - transactionCount)} more unique transactions to apply for verification.</p>
                 </div>
               ) : (
                 <div className="space-y-4">

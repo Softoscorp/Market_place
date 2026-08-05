@@ -99,7 +99,7 @@ class User(Base):
     avatar_url = Column(String, nullable=True)
 
     created_at = Column(DateTime, default=datetime.utcnow)
-    last_seen_at = Column(DateTime, nullable=True, default=None)
+    last_seen_at = Column(DateTime(timezone=True), nullable=True, default=None)
 
     listings = relationship("Listing", back_populates="agent", cascade="all, delete-orphan")
 
@@ -202,6 +202,10 @@ class Listing(Base):
     house_type = Column(Enum(HouseType), nullable=False)
     location = Column(String, nullable=False)  # free-text area/neighborhood
     distance_to_university = Column(Float, nullable=True, default=0.0)
+
+    upfront_rent_months = Column(Integer, nullable=False, default=1)
+    deposit_months = Column(Integer, nullable=False, default=1)
+    commission_months = Column(Integer, nullable=False, default=1)
 
     furnished = Column(Boolean, default=False)
     parking = Column(Boolean, default=False)

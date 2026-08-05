@@ -25,7 +25,10 @@ export interface PropertyCardProps {
   bedrooms: number;
   bathrooms: number;
   walkingDistanceMins?: number;
-  moveInCost: number;
+  moveInCost?: number; // Kept for backwards compatibility
+  upfrontMonths?: number;
+  depositMonths?: number;
+  commissionMonths?: number;
   agentName: string;
   agentAvatar?: string;
   agentRating?: number;
@@ -48,6 +51,9 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
   bathrooms,
   walkingDistanceMins,
   moveInCost,
+  upfrontMonths,
+  depositMonths,
+  commissionMonths,
   agentName,
   agentAvatar,
   agentRating,
@@ -72,6 +78,21 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
     currency: 'GBP',
     maximumFractionDigits: 0
   }).format(price).replace('£', currency);
+
+  // Calculate move in cost dynamically if terms are provided
+  const calculatedMoveInCost = (upfrontMonths !== undefined && depositMonths !== undefined && commissionMonths !== undefined) 
+    ? price * (upfrontMonths + depositMonths + commissionMonths)
+    : (moveInCost || price * 3);
+
+  const formattedMoveInCost = new Intl.NumberFormat('en-GB', {
+    style: 'currency',
+    currency: 'GBP',
+    maximumFractionDigits: 0
+  }).format(calculatedMoveInCost).replace('£', currency);
+
+  const termsString = (upfrontMonths !== undefined && depositMonths !== undefined && commissionMonths !== undefined) 
+    ? `${upfrontMonths}+${depositMonths}+${commissionMonths}`
+    : '1+1+1';
 
   return (
     <Link href={`/property/${id}`} className={clsx(styles.card, className)}>
@@ -132,7 +153,12 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
         </div>
 
         <div className={styles.moveInBadge}>
-          <MoveInBadge cost={moveInCost} />
+          <MoveInBadge cost={calculatedMoveInCost} />
+          {(upfrontMonths !== undefined || moveInCost) && (
+            <span className={styles.termsText} style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block', marginTop: '0.25rem', textAlign: 'center' }}>
+              Terms: {termsString}
+            </span>
+          )}
         </div>
 
         <div className={styles.footer}>

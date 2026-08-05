@@ -119,6 +119,9 @@ class ListingCreateRequest(BaseModel):
     house_type: HouseType
     location: str
     distance_to_university: Optional[float] = 0.0
+    upfront_rent_months: int = 1
+    deposit_months: int = 1
+    commission_months: int = 1
     furnished: bool = False
     parking: bool = False
     pet_friendly: bool = False
@@ -133,6 +136,9 @@ class ListingUpdateRequest(BaseModel):
     price: Optional[float] = Field(default=None, ge=0)
     house_type: Optional[HouseType] = None
     location: Optional[str] = None
+    upfront_rent_months: Optional[int] = None
+    deposit_months: Optional[int] = None
+    commission_months: Optional[int] = None
     furnished: Optional[bool] = None
     parking: Optional[bool] = None
     pet_friendly: Optional[bool] = None
@@ -151,6 +157,9 @@ class ListingOut(BaseModel):
     house_type: HouseType
     location: str
     distance_to_university: Optional[float] = 0.0
+    upfront_rent_months: int
+    deposit_months: int
+    commission_months: int
     furnished: bool
     parking: bool
     pet_friendly: bool

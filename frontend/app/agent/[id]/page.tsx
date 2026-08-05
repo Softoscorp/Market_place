@@ -45,6 +45,9 @@ interface AgentProfile {
     house_type?: string;
     photos?: Array<{ url: string }>;
     features?: string[];
+    upfront_rent_months?: number;
+    deposit_months?: number;
+    commission_months?: number;
   }>;
 }
 
@@ -143,7 +146,9 @@ interface AgentProfile {
                 sizeSqf={listing.sqm}
                 bedrooms={listing.bedrooms}
                 bathrooms={listing.bathrooms}
-                moveInCost={listing.price * 2}
+                upfrontMonths={listing.upfront_rent_months}
+                depositMonths={listing.deposit_months}
+                commissionMonths={listing.commission_months}
                 agentName={agent.name}
               />
             ))}

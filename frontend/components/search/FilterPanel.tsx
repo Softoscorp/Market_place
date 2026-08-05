@@ -96,7 +96,7 @@ export function FilterPanel() {
       </div>
 
       <div className={styles.section}>
-        <h3 className={styles.sectionTitle}>Price Range (£)</h3>
+        <h3 className={styles.sectionTitle}>Monthly Rent (£)</h3>
         <div className={styles.priceRange}>
           <input 
             type="number" 

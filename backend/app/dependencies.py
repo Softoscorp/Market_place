@@ -1,7 +1,7 @@
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
-from datetime import datetime
+from datetime import datetime, timezone
 
 from . import models
 from .database import get_db
@@ -33,7 +33,7 @@ def get_current_user(
         )
 
     # Stamp last seen — lightweight update, no full commit overhead
-    user.last_seen_at = datetime.utcnow()
+    user.last_seen_at = datetime.now(timezone.utc)
     db.commit()
 
     return user

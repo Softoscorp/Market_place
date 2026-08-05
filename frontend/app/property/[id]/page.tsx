@@ -43,6 +43,9 @@ interface PropertyData {
   agent?: { id: string; name: string; avatar_url?: string; verification_tier?: 'none' | 'local' | 'international'; respond_rate?: number };
   photos?: Array<{ url: string }>;
   distance_to_university?: number;
+  upfront_rent_months?: number;
+  deposit_months?: number;
+  commission_months?: number;
 }
 
 export default function PropertyPage({ params }: PropertyPageProps) {
@@ -291,9 +294,9 @@ export default function PropertyPage({ params }: PropertyPageProps) {
         <div className={styles.sidebar}>
           <MoveInCalculator 
             rent={property.price}
-            deposit={property.price * 2} // mock deposit
-            commission={property.price} // mock commission
-            advanceMonths={1}
+            deposit={property.price * (property.deposit_months || 1)}
+            commission={property.price * (property.commission_months || 1)}
+            advanceMonths={property.upfront_rent_months || 1}
             currency={'£'}
           />
 
@@ -357,7 +360,9 @@ export default function PropertyPage({ params }: PropertyPageProps) {
                 bathrooms={1}
                 images={prop.photos && prop.photos.length > 0 ? (prop.photos.map((p: { url: string }) => mediaUrl(p.url)).filter(Boolean) as string[]) : ['/images/placeholder-studio.jpg']}
                 sizeSqf={75}
-                moveInCost={prop.price * 3}
+                upfrontMonths={prop.upfront_rent_months}
+                depositMonths={prop.deposit_months}
+                commissionMonths={prop.commission_months}
                 agentRating={prop.agent_average_rating}
                 agentName={prop.agent?.name || 'Agent'}
                 agentAvatar={mediaUrl(prop.agent?.avatar_url)}

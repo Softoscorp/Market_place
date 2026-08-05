@@ -23,6 +23,9 @@ interface ProfileData {
     price: number;
     house_type: string;
     photos: Array<{ url: string }>;
+    upfront_rent_months?: number;
+    deposit_months?: number;
+    commission_months?: number;
   }>;
 }
 
@@ -104,7 +107,9 @@ export default function AgentDetailPage({ params }: { params: Promise<{ id: stri
               bathrooms={1}
               images={prop.photos?.length > 0 ? prop.photos.map((p) => mediaUrl(p.url) || '') : ['/images/placeholder-studio.jpg']}
               sizeSqf={75}
-              moveInCost={prop.price * 3}
+              upfrontMonths={prop.upfront_rent_months}
+              depositMonths={prop.deposit_months}
+              commissionMonths={prop.commission_months}
               agentRating={average_rating}
               agentName={agent.name}
               agentAvatar={mediaUrl(agent.avatar_url) || undefined}

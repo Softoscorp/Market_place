@@ -21,6 +21,7 @@ export default function PostListingPage() {
   const [commissionMonths, setCommissionMonths] = useState(1);
   const [location, setLocation] = useState('Famagusta');
   const [distanceToUni, setDistanceToUni] = useState(1.5);
+  const [description, setDescription] = useState('');
 
   // Amenities
   const [furnished, setFurnished] = useState(true);
@@ -137,6 +138,17 @@ export default function PostListingPage() {
             <div className={styles.inputGroup}>
               <label className={styles.label}>Listing Title</label>
               <input id="listingTitle" type="text" className={styles.input} placeholder="e.g. Modern 2+1 near EMU" />
+            </div>
+
+            <div className={styles.inputGroup}>
+              <label className={styles.label}>Description</label>
+              <textarea 
+                className={styles.input} 
+                style={{ minHeight: '100px', resize: 'vertical', fontFamily: 'inherit' }}
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Describe the property..."
+              />
             </div>
 
             <div className={styles.row}>
@@ -293,10 +305,13 @@ export default function PostListingPage() {
 
                   const payload = {
                     title,
-                    description: `${house_type} located in ${location}. Upfront: ${upfrontMonths} mo, Deposit: ${depositMonths} mo, Commission: ${commissionMonths} mo.`,
+                    description,
                     price,
                     house_type,
                     location,
+                    upfront_rent_months: upfrontMonths,
+                    deposit_months: depositMonths,
+                    commission_months: commissionMonths,
                     distance_to_university: distanceToUni,
                     furnished,
                     generator,

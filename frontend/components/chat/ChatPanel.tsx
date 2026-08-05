@@ -8,6 +8,7 @@ import { useAuthStore } from '@/lib/store/useAuthStore';
 import styles from './ChatPanel.module.css';
 import { ProtectedImage } from '@/components/ui/ProtectedImage';
 import { mediaUrl } from '@/lib/api';
+import { isOnline, lastSeenText } from '@/lib/timeAgo';
 
 export function ChatPanel() {
   const { isOpen, activeAgentId, activeConversationId, conversations, closeChat, sendMessage } = useChatStore();
@@ -94,9 +95,12 @@ export function ChatPanel() {
                     />
                     <div>
                       <h3 className={styles.agentName}>{activeConversation.contact.name}</h3>
-                      <div className={styles.status}>
-                        <span className={styles.statusDot} />
-                        Online now
+                      <div className={styles.status} style={{ color: isOnline(activeConversation.contact.lastSeenAt) ? '#22c55e' : '#9ca3af' }}>
+                        <span className={styles.statusDot} style={{ 
+                          background: isOnline(activeConversation.contact.lastSeenAt) ? '#22c55e' : '#9ca3af',
+                          boxShadow: isOnline(activeConversation.contact.lastSeenAt) ? '0 0 0 2px #fff, 0 0 6px #22c55e' : 'none'
+                        }} />
+                        {lastSeenText(activeConversation.contact.lastSeenAt)}
                       </div>
                     </div>
                   </>

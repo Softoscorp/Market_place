@@ -6,6 +6,7 @@ export interface Agent {
   id: string;
   name: string;
   avatarUrl: string;
+  lastSeenAt?: string | null;
 }
 
 export interface Message {
@@ -62,7 +63,8 @@ export const useChatStore = create<ChatState>((set, get) => ({
           contact: {
             id: contactUser.id.toString(),
             name: contactUser.name,
-            avatarUrl: contactUser.avatar_url
+            avatarUrl: contactUser.avatar_url,
+            lastSeenAt: contactUser.last_seen_at
           },
           messages: c.last_message ? [{ 
             id: c.last_message.id, 

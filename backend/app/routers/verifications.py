@@ -5,7 +5,7 @@ from typing import List
 
 from .. import models, schemas
 from ..database import get_db
-from ..deps import get_current_user
+from ..dependencies import get_current_user
 
 router = APIRouter(prefix="/verifications", tags=["verifications"])
 

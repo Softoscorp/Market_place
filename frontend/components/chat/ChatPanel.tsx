@@ -11,9 +11,8 @@ import { mediaUrl } from '@/lib/api';
 import { isOnline, lastSeenText } from '@/lib/timeAgo';
 
 export function ChatPanel() {
-  const { isOpen, activeAgentId, activeConversationId, conversations, closeChat, sendMessage, chatError, clearChatError } = useChatStore();
+  const { isOpen, activeAgentId, activeConversationId, conversations, closeChat, sendMessage, chatError, clearChatError, isLoadingMessages } = useChatStore();
   const [message, setMessage] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const activeConversation = activeAgentId ? conversations[activeAgentId] : null;
@@ -23,27 +22,14 @@ export function ChatPanel() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [activeConversation?.messages]);
 
-
-
-  // Show loading spinner while conversation is being fetched
-  useEffect(() => {
-    if (isOpen && !activeConversation) {
-      setIsLoading(true);
-      const timer = setTimeout(() => setIsLoading(false), 5000); // fallback timeout
-      return () => clearTimeout(timer);
-    } else {
-      setIsLoading(false);
-    }
-  }, [isOpen, activeConversation]);
-
-  // Poll for new messages every 3 seconds while chat is open
+  // Poll for new messages every 5 seconds while chat is open
   useEffect(() => {
     let interval: NodeJS.Timeout;
     const { fetchMessages } = useChatStore.getState();
     if (isOpen && activeConversationId) {
       interval = setInterval(() => {
         fetchMessages(activeConversationId);
-      }, 3000);
+      }, 5000);
     }
     return () => {
       if (interval) clearInterval(interval);
@@ -113,18 +99,18 @@ export function ChatPanel() {
             </div>
 
             <div className={styles.chatArea}>
-              {!activeConversation && isLoading && (
+              {isLoadingMessages && (
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', flexDirection: 'column', gap: '1rem', color: '#6b7280' }}>
-                  <div style={{ width: '32px', height: '32px', border: '3px solid #e5e7eb', borderTopColor: '#111827', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
-                  <span style={{ fontSize: '0.875rem' }}>Starting conversation...</span>
+                  <div style={{ width: '28px', height: '28px', border: '3px solid #e5e7eb', borderTopColor: '#111827', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+                  <span style={{ fontSize: '0.875rem' }}>Loading messages...</span>
                 </div>
               )}
-              {!activeConversation && !isLoading && (
+              {!isLoadingMessages && !activeConversation && (
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#6b7280', fontSize: '0.875rem', textAlign: 'center', padding: '1rem' }}>
                   Could not load conversation. Please try again.
                 </div>
               )}
-              {activeConversation && activeConversation.messages.map(msg => (
+              {!isLoadingMessages && activeConversation && activeConversation.messages.map(msg => (
                 <div 
                   key={msg.id} 
                   className={`${styles.message} ${msg.sender === 'user' ? styles.messageSent : styles.messageReceived}`}

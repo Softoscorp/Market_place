@@ -31,6 +31,7 @@ interface ChatState {
   conversations: Record<string, Conversation>;
   notification: any | null;
   chatError: string | null;
+  isLoadingMessages: boolean;
   
   openChat: (agent: Agent, listingId?: number) => void;
   closeChat: () => void;
@@ -50,6 +51,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
   conversations: {},
   notification: null,
   chatError: null,
+  isLoadingMessages: false,
 
   fetchConversations: async () => {
     try {
@@ -87,36 +89,46 @@ export const useChatStore = create<ChatState>((set, get) => ({
   fetchMessages: async (conversationId: number) => {
     try {
       const msgs = await apiRequest(`/messages/conversations/${conversationId}/messages`);
-      
       const currentUser = useAuthStore.getState().user;
-      
+
       set((state) => {
         const agentId = state.activeAgentId;
         if (!agentId) return state;
 
         const convs = { ...state.conversations };
         if (convs[agentId]) {
-          const serverMessages = msgs.map((m: any) => ({
+          // Map all server messages
+          const serverMessages: Message[] = msgs.map((m: any) => ({
             id: m.id,
             text: m.text,
-            sender: (currentUser && m.sender_id.toString() === currentUser.id.toString()) ? 'user' : 'agent',
+            sender: (currentUser && m.sender_id.toString() === currentUser.id.toString()) ? 'user' as const : 'agent' as const,
             timestamp: new Date(m.created_at.endsWith('Z') ? m.created_at : m.created_at + 'Z').getTime()
           }));
-          
-          const tempMessages = (convs[agentId].messages || []).filter(m => m.id > 10000000000);
-          convs[agentId].messages = [...serverMessages, ...tempMessages];
+
+          const serverIds = new Set(serverMessages.map(m => m.id));
+
+          // Keep only optimistic (temp) messages that haven't been confirmed by server yet
+          const pendingTempMessages = (convs[agentId].messages || []).filter(
+            m => m.id > 10_000_000_000 && !serverIds.has(m.id)
+          );
+
+          convs[agentId] = {
+            ...convs[agentId],
+            messages: [...serverMessages, ...pendingTempMessages]
+          };
         }
-        return { conversations: convs };
+        return { conversations: convs, isLoadingMessages: false };
       });
     } catch (e) {
       console.error('Failed to fetch messages', e);
+      set({ isLoadingMessages: false });
     }
   },
 
   openChat: async (agent, listingId) => {
-    set({ isOpen: true, activeAgentId: agent.id, activeListingId: listingId || null });
+    set({ isOpen: true, activeAgentId: agent.id, activeListingId: listingId || null, isLoadingMessages: true });
     
-    // Trigger push notification subscription synchronously in the click handler
+    // Trigger push notification subscription
     if (typeof window !== 'undefined') {
       import('@/lib/push').then(m => m.subscribeToPushNotifications());
     }
@@ -125,12 +137,12 @@ export const useChatStore = create<ChatState>((set, get) => ({
     const existingConv = get().conversations[agent.id];
     if (existingConv && existingConv.conversation_id) {
       set({ activeConversationId: existingConv.conversation_id });
-      // Fetch all messages asynchronously (don't await so UI is responsive)
-      get().fetchMessages(existingConv.conversation_id);
+      // Await full message history before marking as loaded
+      await get().fetchMessages(existingConv.conversation_id);
       return;
     }
     
-    // Attempt to start or get conversation from the server
+    // Start or get conversation from the server
     try {
       const body: any = {};
       if (listingId) {
@@ -148,6 +160,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
       await get().fetchMessages(conv.id);
     } catch (e: any) {
       console.error('Failed to open chat:', e);
+      set({ isLoadingMessages: false });
     }
   },
 

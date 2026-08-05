@@ -16,6 +16,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     validateToken();
   }, [validateToken]);
 
+  // Init push notifications whenever the user is (or becomes) authenticated.
+  // This covers both fresh logins AND returning users who were already logged in
+  // when a new APK was installed (so the permission dialog always fires).
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    import('@/lib/pushNotifications')
+      .then((m) => m.initPushNotifications())
+      .catch(() => {});
+  }, [isAuthenticated]);
+
   // Heartbeat — keeps last_seen_at fresh while the user is active
   useEffect(() => {
     if (!isAuthenticated) return;

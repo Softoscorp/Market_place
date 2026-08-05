@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { getMyVerificationStatus, applyForVerification, uploadVerificationProof } from "@/lib/api";
+import { getMyVerificationStatus, applyForVerification, uploadVerificationProof, getMyConversations } from "@/lib/api";
 import { CheckCircle, Clock, XCircle, ShieldAlert, Upload, Globe } from "lucide-react";
 
 interface VerificationApplication {
@@ -19,16 +19,18 @@ export function AgentVerification({ verificationTier }: { verificationTier: stri
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  // In a real app we'd fetch this from backend:
-  // For now, we simulate having 5 conversations to unlock. 
-  // Wait, the plan says: "Since there's no payment system yet, I'll use number of unique conversations... 
-  // I will just mock this for now to True for demonstration, or we can assume it's unlocked."
-  const hasMetThreshold = true; 
+  const [hasMetThreshold, setHasMetThreshold] = useState(false);
 
   const loadStatus = async () => {
     try {
-      const res = await getMyVerificationStatus();
+      const [res, convs] = await Promise.all([
+        getMyVerificationStatus(),
+        getMyConversations()
+      ]);
       setApps(res);
+      if (convs && convs.length >= 5) {
+        setHasMetThreshold(true);
+      }
     } catch (err: unknown) {
       console.error(err);
     } finally {

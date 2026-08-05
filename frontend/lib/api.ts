@@ -294,3 +294,6 @@ export async function uploadVerificationProof(file: File): Promise<{ url: string
 
   return res.json();
 }
+export function getMyConversations() {
+  return apiRequest("/messages/conversations", { auth: true });
+}

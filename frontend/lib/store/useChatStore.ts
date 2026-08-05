@@ -106,7 +106,16 @@ export const useChatStore = create<ChatState>((set, get) => ({
   openChat: async (agent, listingId) => {
     set({ isOpen: true, activeAgentId: agent.id, activeListingId: listingId || null });
     
-    // Attempt to start or get conversation
+    // Check if we already have the conversation in the store
+    const existingConv = get().conversations[agent.id];
+    if (existingConv && existingConv.conversation_id) {
+      set({ activeConversationId: existingConv.conversation_id });
+      // Fetch all messages asynchronously (don't await so UI is responsive)
+      get().fetchMessages(existingConv.conversation_id);
+      return;
+    }
+    
+    // Attempt to start or get conversation from the server
     try {
       const body: any = {};
       if (listingId) {
@@ -120,16 +129,10 @@ export const useChatStore = create<ChatState>((set, get) => ({
         body
       });
       set({ activeConversationId: conv.id });
+      await get().fetchConversations();
       await get().fetchMessages(conv.id);
     } catch (e: any) {
-      // If it fails, maybe it already exists. We'll fetch below.
-    }
-    
-    await get().fetchConversations();
-    const convInfo = get().conversations[agent.id];
-    if (convInfo?.conversation_id) {
-      set({ activeConversationId: convInfo.conversation_id });
-      await get().fetchMessages(convInfo.conversation_id);
+      console.error('Failed to open chat:', e);
     }
   },
 

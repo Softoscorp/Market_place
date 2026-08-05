@@ -20,6 +20,16 @@ def auto_migrate_columns():
                     conn.commit()
                 except Exception:
                     pass
+            try:
+                conn.execute(text("ALTER TABLE users ADD COLUMN last_seen_at TIMESTAMP WITH TIME ZONE;"))
+                conn.commit()
+            except Exception:
+                pass
+            try:
+                conn.execute(text("ALTER TABLE users ADD COLUMN verification_tier VARCHAR DEFAULT 'none';"))
+                conn.commit()
+            except Exception:
+                pass
     except Exception as e:
         print("Column migration notice:", e)
 

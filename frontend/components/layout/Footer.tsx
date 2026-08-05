@@ -2,13 +2,26 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { Home, Search, Users, User, Heart } from 'lucide-react';
+import { usePathname } from 'next/navigation';
+import { Home, Search, Users, MessageSquare, User } from 'lucide-react';
 import { PremiumIcon } from '@/components/ui/PremiumIcon';
 import { useLanguageStore } from '@/lib/store/useLanguageStore';
+import { useChatStore } from '@/lib/store/useChatStore';
+import { useAuthStore } from '@/lib/store/useAuthStore';
 import styles from './Footer.module.css';
 
 export function Footer() {
   const { t } = useLanguageStore();
+  const pathname = usePathname();
+  const { conversations } = useChatStore();
+  const { isAuthenticated } = useAuthStore();
+
+  const unreadCount = Object.values(conversations).reduce((acc, conv) => acc + (conv.unreadCount || 0), 0);
+
+  const isActive = (href: string) => {
+    if (href === '/') return pathname === '/';
+    return pathname.startsWith(href);
+  };
 
   return (
     <>
@@ -40,23 +53,31 @@ export function Footer() {
 
       {/* Mobile Bottom Tab Bar */}
       <div className={styles.bottomBar}>
-        <Link href="/" className={`${styles.tabBtn} ${styles.tabBtnActive}`}>
+        <Link href="/" className={`${styles.tabBtn} ${isActive('/') ? styles.tabBtnActive : ''}`}>
           <Home size={24} />
           <span>{t('tab_home')}</span>
         </Link>
-        <Link href="/search" className={styles.tabBtn}>
+        <Link href="/search" className={`${styles.tabBtn} ${isActive('/search') ? styles.tabBtnActive : ''}`}>
           <Search size={24} />
           <span>{t('tab_search')}</span>
         </Link>
-        <Link href="/roommates" className={styles.tabBtn}>
+        <Link href="/roommates" className={`${styles.tabBtn} ${isActive('/roommates') ? styles.tabBtnActive : ''}`}>
           <Users size={24} />
           <span>{t('tab_matches')}</span>
         </Link>
-        <Link href="/saved" className={styles.tabBtn}>
-          <Heart size={24} />
-          <span>{t('nav_saved') || 'Saved'}</span>
+
+        {/* Messages tab with live unread badge */}
+        <Link href="/messages" className={`${styles.tabBtn} ${isActive('/messages') ? styles.tabBtnActive : ''}`} style={{ position: 'relative' }}>
+          <MessageSquare size={24} />
+          {isAuthenticated && unreadCount > 0 && (
+            <span className={styles.tabBadge}>
+              {unreadCount > 99 ? '99+' : unreadCount}
+            </span>
+          )}
+          <span>Messages</span>
         </Link>
-        <Link href="/profile" className={styles.tabBtn}>
+
+        <Link href="/profile" className={`${styles.tabBtn} ${isActive('/profile') ? styles.tabBtnActive : ''}`}>
           <User size={24} />
           <span>{t('tab_profile')}</span>
         </Link>

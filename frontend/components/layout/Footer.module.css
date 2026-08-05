@@ -80,6 +80,31 @@
   color: var(--text-primary);
 }
 
+.tabBadge {
+  position: absolute;
+  top: -4px;
+  right: calc(50% - 22px);
+  background-color: #ef4444;
+  color: #fff;
+  font-size: 0.6rem;
+  font-weight: 700;
+  border-radius: 999px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--bg-primary, #fff);
+  line-height: 1;
+  animation: badgePop 0.2s ease-out;
+}
+
+@keyframes badgePop {
+  from { transform: scale(0.5); opacity: 0; }
+  to   { transform: scale(1);   opacity: 1; }
+}
+
 @media (max-width: 768px) {
   .footer {
     padding-bottom: 80px;

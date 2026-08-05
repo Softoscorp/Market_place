@@ -23,11 +23,7 @@ export function ChatPanel() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [activeConversation?.messages]);
 
-  useEffect(() => {
-    if (isOpen) {
-      import('@/lib/push').then(m => m.subscribeToPushNotifications());
-    }
-  }, [isOpen]);
+
 
   // Show loading spinner while conversation is being fetched
   useEffect(() => {

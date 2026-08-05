@@ -113,6 +113,11 @@ export const useChatStore = create<ChatState>((set, get) => ({
   openChat: async (agent, listingId) => {
     set({ isOpen: true, activeAgentId: agent.id, activeListingId: listingId || null });
     
+    // Trigger push notification subscription synchronously in the click handler
+    if (typeof window !== 'undefined') {
+      import('@/lib/push').then(m => m.subscribeToPushNotifications());
+    }
+    
     // Check if we already have the conversation in the store
     const existingConv = get().conversations[agent.id];
     if (existingConv && existingConv.conversation_id) {

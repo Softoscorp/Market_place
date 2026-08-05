@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Home, User, ChevronDown, Globe, Smartphone, Heart, Menu, X } from 'lucide-react';
+import { Home, User, ChevronDown, Globe, Smartphone, Heart, Menu, X, MessageSquare } from 'lucide-react';
 import { useAuthStore } from '@/lib/store/useAuthStore';
 import { useLanguageStore } from '@/lib/store/useLanguageStore';
 import { useChatStore } from '@/lib/store/useChatStore';
@@ -115,27 +115,17 @@ export function Navbar() {
             <Link href="/saved" className={styles.link} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 500 }}>
               <Heart size={16} /> <span className={styles.hideOnMobile}>{t('nav_saved') || 'Saved'}</span>
             </Link>
-            <Link href="/profile" className={styles.loginBtn} style={{ position: 'relative' }}>
-              <User size={16} /> <span className={styles.hideOnMobile}>{user?.name || t('nav_profile')}</span>
+            {/* Messages Icon with Badge */}
+            <Link href="/profile?tab=messages" className={styles.link} style={{ position: 'relative', display: 'flex', alignItems: 'center' }} title="Messages">
+              <MessageSquare size={20} />
               {unreadCount > 0 && (
-                <span style={{
-                  position: 'absolute',
-                  top: '-5px',
-                  right: '-5px',
-                  backgroundColor: '#ef4444',
-                  color: 'white',
-                  fontSize: '0.7rem',
-                  fontWeight: 'bold',
-                  borderRadius: '50%',
-                  width: '18px',
-                  height: '18px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}>
-                  {unreadCount}
+                <span className={styles.notifBadge}>
+                  {unreadCount > 99 ? '99+' : unreadCount}
                 </span>
               )}
+            </Link>
+            <Link href="/profile" className={styles.loginBtn}>
+              <User size={16} /> <span className={styles.hideOnMobile}>{user?.name || t('nav_profile')}</span>
             </Link>
           </div>
         ) : (
@@ -198,6 +188,15 @@ export function Navbar() {
               <>
                 <Link href="/saved" className={styles.mobileLink} onClick={() => setMobileMenuOpen(false)}>
                   <Heart size={18} /> {t('nav_saved') || 'Saved Properties'}
+                </Link>
+                <Link href="/profile?tab=messages" className={styles.mobileLink} onClick={() => setMobileMenuOpen(false)} style={{ position: 'relative' }}>
+                  <MessageSquare size={18} />
+                  Messages
+                  {unreadCount > 0 && (
+                    <span className={styles.notifBadge} style={{ position: 'static', marginLeft: '4px' }}>
+                      {unreadCount > 99 ? '99+' : unreadCount}
+                    </span>
+                  )}
                 </Link>
                 <Link href="/profile" className={styles.mobileLink} onClick={() => setMobileMenuOpen(false)}>
                   <User size={18} /> {user?.name || t('nav_profile')}

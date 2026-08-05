@@ -4,9 +4,7 @@
   align-items: center;
   padding: 0 48px;
   height: 64px;
-  background-color: rgba(245, 245, 247, 0.72);
-  backdrop-filter: saturate(180%) blur(20px);
-  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  background-color: #ffffff;
   border-bottom: 1px solid var(--border-subtle);
   position: sticky;
   top: 0;
@@ -15,7 +13,7 @@
 }
 
 :global(.dark) .navbar {
-  background-color: rgba(0, 0, 0, 0.72);
+  background-color: #000000;
 }
 
 .logo {

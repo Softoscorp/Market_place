@@ -21,7 +21,7 @@ export function AgentTierModal({ isOpen, onClose }: AgentTierModalProps) {
             <div className={styles.tierHeader}>
               <div className={`${styles.tierBadge} ${styles.tierGoldBadge}`}>
                 <Check size={16} strokeWidth={2.5} />
-                <span>Verified Gold</span>
+                <span>Verified</span>
               </div>
             </div>
             <p className={styles.tierDesc}>
@@ -33,7 +33,7 @@ export function AgentTierModal({ isOpen, onClose }: AgentTierModalProps) {
             <div className={styles.tierHeader}>
               <div className={`${styles.tierBadge} ${styles.tierGreenBadge}`}>
                 <Check size={16} strokeWidth={2.5} />
-                <span>Verified Green</span>
+                <span>Verified</span>
               </div>
             </div>
             <p className={styles.tierDesc}>

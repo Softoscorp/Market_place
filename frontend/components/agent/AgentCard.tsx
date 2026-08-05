@@ -68,13 +68,13 @@ export function AgentCard({
           {verificationTier === 'local' && (
             <div className={`${styles.tierBadge} ${styles.tier1Badge}`}>
               <Check size={14} strokeWidth={2.5} />
-              <span>Verified Green</span>
+              <span>Verified</span>
             </div>
           )}
           {verificationTier === 'international' && (
             <div className={`${styles.tierBadge} ${styles.tier2Badge}`}>
               <Check size={14} strokeWidth={2.5} />
-              <span>Verified Gold</span>
+              <span>Verified</span>
             </div>
           )}
           {(!verificationTier || verificationTier === 'none') && (

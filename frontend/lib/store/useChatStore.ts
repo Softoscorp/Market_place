@@ -254,9 +254,24 @@ export const useChatStore = create<ChatState>((set, get) => ({
         formData: formData
       });
 
-      // Fetch canonical server state — this removes the temp message and adds
-      // the real one in one atomic update, preventing the double-message race
-      // that occurred when the polling interval also called fetchMessages.
+      // Remove the optimistic temp message BEFORE fetching server state.
+      // fetchMessages keeps any message with id > 10_000_000_000 as "pending",
+      // so if we don't remove it first it gets added back alongside the real one.
+      set((state) => {
+        const conv = state.conversations[activeAgentId];
+        if (!conv) return state;
+        return {
+          conversations: {
+            ...state.conversations,
+            [activeAgentId]: {
+              ...conv,
+              messages: conv.messages.filter(m => m.id !== tempId)
+            }
+          }
+        };
+      });
+
+      // Now fetch canonical server state — real message comes back cleanly
       await get().fetchMessages(activeConversationId);
     } catch (e: unknown) {
       // Remove temp message on failure

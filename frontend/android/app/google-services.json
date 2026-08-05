@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1006425122103",
+    "project_id": "house-agent-ae49c",
+    "storage_bucket": "house-agent-ae49c.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1006425122103:android:e7eebded1340599233a6b2",
+        "android_client_info": {
+          "package_name": "com.houseagent.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBaF7vv-Rh0EGtaSXAQtV2qvtijKslEZkM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { Info } from 'lucide-react';
+import { Info, Users } from 'lucide-react';
 import { AgentCard } from '@/components/agent/AgentCard';
 import { AgentTierModal } from '@/components/agent/AgentTierModal';
 import { useLanguageStore } from '@/lib/store/useLanguageStore';

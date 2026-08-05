@@ -10,7 +10,7 @@ import { ProtectedImage } from '@/components/ui/ProtectedImage';
 import { mediaUrl } from '@/lib/api';
 
 export function ChatPanel() {
-  const { isOpen, activeAgentId, conversations, closeChat, sendMessage } = useChatStore();
+  const { isOpen, activeAgentId, activeConversationId, conversations, closeChat, sendMessage } = useChatStore();
   const [message, setMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -42,7 +42,7 @@ export function ChatPanel() {
   // Poll for new messages every 3 seconds while chat is open
   useEffect(() => {
     let interval: NodeJS.Timeout;
-    const { activeConversationId, fetchMessages } = useChatStore.getState();
+    const { fetchMessages } = useChatStore.getState();
     if (isOpen && activeConversationId) {
       interval = setInterval(() => {
         fetchMessages(activeConversationId);
@@ -51,7 +51,7 @@ export function ChatPanel() {
     return () => {
       if (interval) clearInterval(interval);
     };
-  }, [isOpen, useChatStore.getState().activeConversationId]);
+  }, [isOpen, activeConversationId]);
 
   if (!isOpen) return null;
 

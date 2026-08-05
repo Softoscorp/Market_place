@@ -3,7 +3,7 @@
 import React, { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import styles from './ProfilePage.module.css';
-import { MessageSquare, LogOut, LayoutDashboard, Camera } from 'lucide-react';
+import { MessageSquare, LogOut, LayoutDashboard, Camera, ShieldCheck, ShieldAlert, BadgeCheck, FileText, Upload, ChevronRight } from 'lucide-react';
 import { useChatStore } from '@/lib/store/useChatStore';
 import { useAuthStore } from '@/lib/store/useAuthStore';
 import Link from 'next/link';
@@ -30,6 +30,74 @@ export default function ProfilePage() {
   const [uploadMessage, setUploadMessage] = useState<{text: string, type: 'success' | 'error'} | null>(null);
 
   const [saveMessage, setSaveMessage] = useState<{text: string, type: 'success' | 'error'} | null>(null);
+
+  // Verification states
+  const [verifications, setVerifications] = useState<any[]>([]);
+  const [uploadingProof, setUploadingProof] = useState<string | null>(null);
+  const proofInputRef = useRef<HTMLInputElement>(null);
+  const [targetTier, setTargetTier] = useState<string | null>(null);
+
+  const fetchVerifications = async () => {
+    if (user?.role !== 'agent') return;
+    try {
+      const token = getToken() || user?.token;
+      if (!token) return;
+      
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/verifications/my-status`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setVerifications(data);
+      }
+    } catch (e) {
+      console.error('Failed to fetch verifications', e);
+    }
+  };
+
+  const handleProofUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !targetTier) return;
+
+    setUploadingProof(targetTier);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const token = getToken() || user?.token;
+      
+      // Upload file
+      const uploadRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/verifications/upload-proof`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData
+      });
+      if (!uploadRes.ok) throw new Error('Upload failed');
+      const { url } = await uploadRes.json();
+
+      // Submit application
+      const applyRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/verifications/apply`, {
+        method: 'POST',
+        headers: { 
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ tier: targetTier, proof_urls: [url] })
+      });
+      if (!applyRes.ok) {
+        const err = await applyRes.json();
+        throw new Error(err.detail || 'Application failed');
+      }
+
+      await fetchVerifications();
+      alert('Application submitted successfully!');
+    } catch (err: any) {
+      alert('Error: ' + err.message);
+    } finally {
+      setUploadingProof(null);
+      setTargetTier(null);
+      if (proofInputRef.current) proofInputRef.current.value = '';
+    }
+  };
 
   const handleAvatarSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -114,6 +182,10 @@ export default function ProfilePage() {
             logout();
           }
         });
+      
+      if (user?.role === 'agent') {
+        fetchVerifications();
+      }
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -319,7 +391,127 @@ export default function ProfilePage() {
         )}
       </div>
 
+      {/* Verification Center (Agents Only) */}
+      {user?.role === 'agent' && (
         <div className={styles.card}>
+          <div className={styles.sectionHeader}>
+            <h2 className={styles.title} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <ShieldCheck size={24} color="#0f172a" />
+              Verification Center
+            </h2>
+            <p className={styles.subtitle}>Build trust by verifying your identity and business</p>
+          </div>
+          
+          <input 
+            type="file" 
+            ref={proofInputRef} 
+            accept="image/*,.pdf" 
+            style={{ display: 'none' }} 
+            onChange={handleProofUpload} 
+          />
+
+          <div className={styles.verificationGrid}>
+            {/* Tier 1 Card */}
+            <div className={`${styles.verificationCard} ${styles.tier1}`}>
+              <div className={styles.verificationHeader}>
+                <div className={`${styles.verificationIcon} ${styles.tier1Icon}`}>
+                  <ShieldCheck size={24} />
+                </div>
+                <div>
+                  <div className={styles.verificationTitle}>Tier 1: Local</div>
+                  <div style={{ fontSize: '0.75rem', fontWeight: 600, color: '#d97706', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Identity Verification</div>
+                </div>
+              </div>
+              <p className={styles.verificationDesc}>
+                Upload a Government-issued ID Card, Driver's License, or Passport to prove your identity.
+              </p>
+              
+              {(() => {
+                const app = verifications.find(v => v.tier === 'local');
+                const isApproved = user?.verification_tier === 'local' || user?.verification_tier === 'international';
+                
+                if (isApproved) {
+                  return (
+                    <div className={`${styles.verificationStatus} ${styles.statusApproved}`}>
+                      <BadgeCheck size={18} /> Verified
+                    </div>
+                  );
+                } else if (app && app.status === 'pending') {
+                  return (
+                    <div className={`${styles.verificationStatus} ${styles.statusPending}`}>
+                      <ShieldAlert size={18} /> Review Pending
+                    </div>
+                  );
+                } else {
+                  return (
+                    <button 
+                      className={styles.verificationBtn} 
+                      onClick={() => { setTargetTier('local'); proofInputRef.current?.click(); }}
+                      disabled={uploadingProof === 'local'}
+                    >
+                      {uploadingProof === 'local' ? 'Uploading...' : <><Upload size={16} /> Apply for Tier 1</>}
+                    </button>
+                  );
+                }
+              })()}
+            </div>
+
+            {/* Tier 2 Card */}
+            <div className={`${styles.verificationCard} ${styles.tier2}`}>
+              <div className={styles.verificationHeader}>
+                <div className={`${styles.verificationIcon} ${styles.tier2Icon}`}>
+                  <BadgeCheck size={24} />
+                </div>
+                <div>
+                  <div className={styles.verificationTitle}>Tier 2: International</div>
+                  <div style={{ fontSize: '0.75rem', fontWeight: 600, color: '#eab308', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Business Verification</div>
+                </div>
+              </div>
+              <p className={styles.verificationDesc}>
+                Upload your registered Business Certificate or Professional Real Estate License for premium visibility.
+              </p>
+              
+              {(() => {
+                const app = verifications.find(v => v.tier === 'international');
+                const isLocalApproved = user?.verification_tier === 'local' || user?.verification_tier === 'international';
+                const isInternationalApproved = user?.verification_tier === 'international';
+                
+                if (isInternationalApproved) {
+                  return (
+                    <div className={`${styles.verificationStatus} ${styles.statusApproved}`}>
+                      <BadgeCheck size={18} /> Premium Verified
+                    </div>
+                  );
+                } else if (app && app.status === 'pending') {
+                  return (
+                    <div className={`${styles.verificationStatus} ${styles.statusPending}`}>
+                      <ShieldAlert size={18} /> Review Pending
+                    </div>
+                  );
+                } else if (!isLocalApproved) {
+                  return (
+                    <button className={styles.verificationBtn} disabled title="Requires Tier 1 Verification first">
+                      Complete Tier 1 First
+                    </button>
+                  );
+                } else {
+                  return (
+                    <button 
+                      className={`${styles.verificationBtn} ${styles.active}`} 
+                      onClick={() => { setTargetTier('international'); proofInputRef.current?.click(); }}
+                      disabled={uploadingProof === 'international'}
+                    >
+                      {uploadingProof === 'international' ? 'Uploading...' : <><Upload size={16} /> Apply for Tier 2</>}
+                    </button>
+                  );
+                }
+              })()}
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className={styles.card}>
         <div className={styles.sectionHeader}>
           <h2 className={styles.title}>Messages Hub</h2>
           <p className={styles.subtitle}>All your conversations in one place</p>

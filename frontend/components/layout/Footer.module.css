@@ -66,18 +66,45 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
-  color: var(--text-muted);
+  gap: 3px;
+  color: #9ca3af;
   background: transparent;
   border: none;
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   font-weight: 500;
   text-decoration: none;
-  transition: color var(--duration-fast) var(--ease-out);
+  transition: color 0.15s ease;
+  padding: 4px 12px;
+  border-radius: 999px;
+  position: relative;
+}
+
+.tabBtn svg {
+  transition: transform 0.15s ease;
 }
 
 .tabBtnActive {
-  color: var(--text-primary);
+  color: #111827;
+  font-weight: 700;
+}
+
+.tabBtnActive svg {
+  color: #111827;
+  transform: scale(1.1);
+}
+
+/* Dark pill indicator behind the icon when active */
+.tabBtnActive::before {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 42px;
+  height: 30px;
+  background-color: rgba(17, 24, 39, 0.1);
+  border-radius: 999px;
+  z-index: -1;
 }
 
 .tabBadge {

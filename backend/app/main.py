@@ -5,8 +5,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
 from .config import settings
-from .database import Base, engine
+from .database import Base, engine, get_db
 from .routers import auth, users, listings, messaging, ratings, admin, reports, roommates, verifications
+import sentry_sdk
+from sqlalchemy.orm import Session
+from fastapi import Depends, HTTPException
 
 Base.metadata.create_all(bind=engine)
 
@@ -36,6 +39,14 @@ def auto_migrate_columns():
 auto_migrate_columns()
 
 app = FastAPI(title="North Cyprus Rental Platform API")
+
+sentry_dsn = os.getenv("SENTRY_DSN")
+if sentry_dsn:
+    sentry_sdk.init(
+        dsn=sentry_dsn,
+        traces_sample_rate=1.0,
+        profiles_sample_rate=1.0,
+    )
 
 app.add_middleware(
     CORSMiddleware,
@@ -130,5 +141,10 @@ def root():
 
 
 @app.get("/health")
-def health():
-    return {"status": "healthy"}
+def health(db: Session = Depends(get_db)):
+    try:
+        from sqlalchemy import text
+        db.execute(text("SELECT 1"))
+        return {"status": "healthy", "database": "connected"}
+    except Exception as e:
+        raise HTTPException(status_code=503, detail="Database connection failed")

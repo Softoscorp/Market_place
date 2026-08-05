@@ -23,6 +23,36 @@ export interface Conversation {
   unreadCount: number;
 }
 
+// Raw shapes returned by the FastAPI backend
+interface RawApiUser {
+  id: number;
+  name: string;
+  avatar_url: string;
+  last_seen_at: string | null;
+}
+
+interface RawApiLastMessage {
+  id: number;
+  text: string;
+  sender_id: number;
+  created_at: string;
+}
+
+interface RawApiConversation {
+  id: number;
+  agent: RawApiUser;
+  renter: RawApiUser;
+  last_message: RawApiLastMessage | null;
+  unread_count: number;
+}
+
+interface RawApiMessage {
+  id: number;
+  text: string;
+  sender_id: number;
+  created_at: string;
+}
+
 interface ChatState {
   isOpen: boolean;
   activeConversationId: number | null;
@@ -62,7 +92,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
         const existing = state.conversations;
         const convs: Record<string, Conversation> = {};
 
-        data.forEach((c: Record<string, any>) => {
+        data.forEach((c: RawApiConversation) => {
           const contactUser = (currentUser && String(currentUser.id) === String(c.renter.id)) ? c.agent : c.renter;
           const key = contactUser.id.toString();
           const prev = existing[key];
@@ -111,7 +141,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
         const convs = { ...state.conversations };
         if (convs[agentId]) {
           // Map all server messages
-          const serverMessages: Message[] = msgs.map((m: Record<string, any>) => ({
+          const serverMessages: Message[] = msgs.map((m: RawApiMessage) => ({
             id: m.id,
             text: m.text,
             sender: (currentUser && m.sender_id.toString() === currentUser.id.toString()) ? 'user' as const : 'agent' as const,

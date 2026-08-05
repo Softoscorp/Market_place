@@ -1,9 +1,5 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  turbopack: {},
-  experimental: {
-    // Disable PWA service worker in production build to avoid Turbopack conflict
-  },
   eslint: {
     ignoreDuringBuilds: true,
   },
@@ -15,5 +11,5 @@ const nextConfig = {
 import { withSentryConfig } from "@sentry/nextjs";
 
 export default withSentryConfig(nextConfig, {
-  silent: true, // Suppresses all logs
+  silent: true,
 });

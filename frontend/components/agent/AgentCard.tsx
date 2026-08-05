@@ -7,6 +7,7 @@ import { isOnline, lastSeenText } from '@/lib/timeAgo';
 import styles from './AgentCard.module.css';
 
 import { ProtectedImage } from '@/components/ui/ProtectedImage';
+import { Tooltip } from '@/components/ui/Tooltip';
 
 interface AgentCardProps {
   agentId: number | string;
@@ -50,14 +51,18 @@ export function AgentCard({
         <div className={styles.avatarWrapper}>
           <ProtectedImage src={avatarSrc} fallbackSrc={defaultAvatar} alt={name} className={styles.avatar} />
           {verificationTier === 'local' && (
-            <div className={styles.verifiedBadge}>
-              <Check size={12} strokeWidth={3} />
-            </div>
+            <Tooltip content="Verified Local Agent (Tier 1)">
+              <div className={styles.verifiedBadge}>
+                <Check size={12} strokeWidth={3} />
+              </div>
+            </Tooltip>
           )}
           {verificationTier === 'international' && (
-            <div className={styles.internationalBadge}>
-              <Globe size={12} strokeWidth={3} />
-            </div>
+            <Tooltip content="Verified Global Agent (Tier 2)">
+              <div className={styles.internationalBadge}>
+                <Globe size={12} strokeWidth={3} />
+              </div>
+            </Tooltip>
           )}
           <div
             className={styles.onlineDot}

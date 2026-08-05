@@ -50,20 +50,6 @@ export function AgentCard({
       <div className={styles.header}>
         <div className={styles.avatarWrapper}>
           <ProtectedImage src={avatarSrc} fallbackSrc={defaultAvatar} alt={name} className={styles.avatar} />
-          {verificationTier === 'local' && (
-            <Tooltip content="Verified Local Agent (Tier 1)">
-              <div className={styles.verifiedBadge}>
-                <Check size={12} strokeWidth={3} />
-              </div>
-            </Tooltip>
-          )}
-          {verificationTier === 'international' && (
-            <Tooltip content="Verified Global Agent (Tier 2)">
-              <div className={styles.internationalBadge}>
-                <Globe size={12} strokeWidth={3} />
-              </div>
-            </Tooltip>
-          )}
           <div
             className={styles.onlineDot}
             style={{
@@ -78,7 +64,21 @@ export function AgentCard({
             <h3 className={styles.name} style={{ cursor: 'pointer' }}>{name}</h3>
           </Link>
           <p className={styles.agency}>{agency}</p>
-          <p className={styles.onlineStatus} style={{ color: online ? '#22c55e' : '#9ca3af', fontSize: '0.75rem', margin: '2px 0 0' }}>
+          
+          {verificationTier === 'local' && (
+            <div className={`${styles.tierBadge} ${styles.tier1Badge}`}>
+              <Check size={14} strokeWidth={2.5} />
+              <span>Tier 1: Local Verified</span>
+            </div>
+          )}
+          {verificationTier === 'international' && (
+            <div className={`${styles.tierBadge} ${styles.tier2Badge}`}>
+              <Globe size={14} strokeWidth={2.5} />
+              <span>Tier 2: Premium Global</span>
+            </div>
+          )}
+          
+          <p className={styles.onlineStatus} style={{ color: online ? '#22c55e' : '#9ca3af', fontSize: '0.75rem', margin: '6px 0 0' }}>
             {statusText}
           </p>
         </div>

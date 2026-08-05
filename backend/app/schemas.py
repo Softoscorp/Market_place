@@ -24,6 +24,7 @@ class RegisterRequest(BaseModel):
     phone: Optional[str] = None
     role: UserRole
     language: str = "en"
+    device_id: Optional[str] = None
 
     @field_validator("role")
     @classmethod

@@ -34,6 +34,14 @@ def register(payload: schemas.RegisterRequest, db: Session = Depends(get_db)):
     existing = db.query(models.User).filter(models.User.email == payload.email).first()
     if existing:
         raise HTTPException(status_code=400, detail="Email already registered")
+        
+    if payload.device_id:
+        existing_device = db.query(models.User).filter(models.User.device_id == payload.device_id).first()
+        if existing_device:
+            raise HTTPException(
+                status_code=403, 
+                detail="An account has already been created from this device. Please use your existing account."
+            )
 
     user = models.User(
         email=payload.email.strip().lower(),
@@ -42,6 +50,7 @@ def register(payload: schemas.RegisterRequest, db: Session = Depends(get_db)):
         phone=payload.phone or "",
         role=payload.role,
         language=payload.language,
+        device_id=payload.device_id,
     )
     db.add(user)
     db.commit()

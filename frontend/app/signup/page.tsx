@@ -9,6 +9,7 @@ import { useAuthStore, UserRole } from '@/lib/store/useAuthStore';
 import { useLanguageStore } from '@/lib/store/useLanguageStore';
 import styles from './SignupPage.module.css';
 import { register } from '@/lib/api';
+import fpPromise from '@fingerprintjs/fingerprintjs';
 
 export default function SignupPage() {
   const router = useRouter();
@@ -30,6 +31,16 @@ export default function SignupPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({ name: '', email: '', password: '' });
   const [error, setError] = useState('');
+  const [deviceId, setDeviceId] = useState<string | null>(null);
+
+  React.useEffect(() => {
+    // Initialize fingerprintjs on mount
+    fpPromise.load().then(fp => fp.get()).then(result => {
+      setDeviceId(result.visitorId);
+    }).catch(err => {
+      console.warn('Could not generate device ID', err);
+    });
+  }, []);
 
   const handleNext = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -52,6 +63,7 @@ export default function SignupPage() {
           password: formData.password,
           name: formData.name,
           role: apiRole,
+          device_id: deviceId || undefined,
         });
 
         // Store the token returned by the server

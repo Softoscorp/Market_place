@@ -1,0 +1,151 @@
+.card {
+  background-color: var(--bg-surface);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--border-subtle);
+  padding: 1.5rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.sectionHeader {
+  margin-bottom: 1.5rem;
+}
+
+.title {
+  font-family: var(--font-heading);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.subtitle {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  margin: 0.25rem 0 0 0;
+}
+
+.verificationGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .verificationGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.verificationCard {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  border: 1px solid #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.tier1 {
+  border-top: 4px solid #d97706; /* Bronze/Amber for Tier 1 */
+}
+
+.tier2 {
+  border-top: 4px solid #eab308; /* Gold for Tier 2 */
+}
+
+.verificationHeader {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.verificationIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+}
+.tier1Icon {
+  background-color: #fef3c7;
+  color: #d97706;
+}
+
+.tier2Icon {
+  background-color: #fef08a;
+  color: #eab308;
+}
+
+.verificationTitle {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.verificationDesc {
+  font-size: 0.875rem;
+  color: #64748b;
+  margin-bottom: 1.5rem;
+  flex-grow: 1;
+}
+
+.verificationStatus {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 500;
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
+}
+
+.statusPending {
+  color: #f59e0b;
+}
+
+.statusApproved {
+  color: #10b981;
+}
+
+.statusNone {
+  color: #94a3b8;
+}
+
+.verificationBtn {
+  width: 100%;
+  padding: 0.75rem;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  background-color: #f1f5f9;
+  color: #0f172a;
+  transition: all 0.2s;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.verificationBtn:hover:not(:disabled) {
+  background-color: #e2e8f0;
+}
+
+.verificationBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.verificationBtn.active {
+  background-color: #0f172a;
+  color: white;
+}
+
+.verificationBtn.active:hover:not(:disabled) {
+  background-color: #1e293b;
+}

@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { getMyVerificationStatus, applyForVerification, uploadVerificationProof, getMyConversations } from "@/lib/api";
-import { CheckCircle, Clock, XCircle, ShieldAlert, Upload, Globe } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { getMyVerificationStatus, applyForVerification, uploadVerificationProof } from "@/lib/api";
+import { ShieldCheck, ShieldAlert, BadgeCheck, Upload } from "lucide-react";
+import styles from "./AgentVerification.module.css";
 
 interface VerificationApplication {
   id: number;
@@ -14,26 +15,14 @@ interface VerificationApplication {
 export function AgentVerification({ verificationTier }: { verificationTier: string }) {
   const [apps, setApps] = useState<VerificationApplication[]>([]);
   const [loading, setLoading] = useState(true);
-  const [uploading, setUploading] = useState(false);
-  const [file, setFile] = useState<File | null>(null);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
-
-  const [hasMetThreshold, setHasMetThreshold] = useState(false);
-  const [transactionCount, setTransactionCount] = useState(0);
+  const [uploadingTier, setUploadingTier] = useState<string | null>(null);
+  const [targetTier, setTargetTier] = useState<"local" | "international">("local");
+  const proofInputRef = useRef<HTMLInputElement>(null);
 
   const loadStatus = async () => {
     try {
-      const [res, convs] = await Promise.all([
-        getMyVerificationStatus(),
-        getMyConversations()
-      ]);
+      const res = await getMyVerificationStatus();
       setApps(res);
-      const count = convs?.length || 0;
-      setTransactionCount(count);
-      if (count >= 5) {
-        setHasMetThreshold(true);
-      }
     } catch (err: unknown) {
       console.error(err);
     } finally {
@@ -45,132 +34,172 @@ export function AgentVerification({ verificationTier }: { verificationTier: stri
     loadStatus();
   }, []);
 
-  const handleApply = async () => {
-    if (!file) {
-      setError("Please select a photo proof first.");
-      return;
-    }
+  const handleProofUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
     try {
-      setUploading(true);
-      setError("");
-      setSuccess("");
+      setUploadingTier(targetTier);
       const { url } = await uploadVerificationProof(file);
-      await applyForVerification("local", [url]);
-      setSuccess("Application submitted successfully!");
-      setFile(null);
+      await applyForVerification(targetTier, [url]);
       await loadStatus();
     } catch (err: unknown) {
-      if (err instanceof Error) {
-        setError(err.message || "Failed to apply");
-      } else {
-        setError("Failed to apply");
-      }
+      console.error(err);
+      alert("Failed to submit verification application. Please try again.");
     } finally {
-      setUploading(false);
+      setUploadingTier(null);
+      if (proofInputRef.current) {
+        proofInputRef.current.value = '';
+      }
     }
   };
 
   if (loading) return <div className="p-6 text-gray-500">Loading verification status...</div>;
 
-  const localApp = apps.find(a => a.tier === "local");
-
   return (
-    <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm space-y-6">
-      <div>
-        <h3 className="text-lg font-bold text-[#1a1a1a] flex items-center gap-2">
-          <ShieldAlert className="w-5 h-5 text-blue-600" />
-          Trust & Verification
-        </h3>
-        <p className="text-gray-500 text-sm mt-1">
-          Build trust with renters by verifying your identity and physical presence.
-        </p>
+    <div className={styles.card}>
+      <div className={styles.sectionHeader}>
+        <h2 className={styles.title}>
+          <ShieldCheck size={24} color="#0f172a" />
+          Verification Center
+        </h2>
+        <p className={styles.subtitle}>Build trust by verifying your identity and business</p>
       </div>
 
-      <div className="border border-gray-200 rounded-lg overflow-hidden">
-        {/* Tier 1: Local */}
-        <div className="p-5 border-b border-gray-200 bg-gray-50/50">
-          <div className="flex justify-between items-start mb-4">
-            <div>
-              <h4 className="font-semibold text-gray-900 flex items-center gap-2">
-                Local Verified <CheckCircle className="w-4 h-4 text-blue-600" />
-              </h4>
-              <p className="text-sm text-gray-500 mt-1">
-                Show renters you are a verified agent operating in North Cyprus.
-              </p>
-            </div>
-            {verificationTier === "local" || verificationTier === "international" ? (
-              <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">Verified</span>
-            ) : localApp?.status === "pending" ? (
-              <span className="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs font-medium flex items-center gap-1">
-                <Clock className="w-3 h-3" /> In Review
-              </span>
-            ) : localApp?.status === "rejected" ? (
-              <span className="px-3 py-1 bg-red-100 text-red-700 rounded-full text-xs font-medium flex items-center gap-1">
-                <XCircle className="w-3 h-3" /> Rejected
-              </span>
-            ) : null}
-          </div>
+      <input
+        type="file"
+        ref={proofInputRef}
+        accept="image/*,.pdf"
+        style={{ display: 'none' }}
+        onChange={handleProofUpload}
+      />
 
-          {verificationTier !== "local" && verificationTier !== "international" && localApp?.status !== "pending" && (
-            <div className="bg-white p-4 rounded border border-gray-200 mt-2">
-              {localApp?.status === "rejected" && (
-                <div className="mb-4 text-sm text-red-600 bg-red-50 p-3 rounded">
-                  <strong>Application Rejected:</strong> {localApp.reviewer_notes || "No reason provided."}
-                </div>
-              )}
-              
-              {!hasMetThreshold ? (
-                <div className="text-sm text-gray-600">
-                  <p className="font-medium mb-2">Unlock Verification</p>
-                  <div className="w-full bg-gray-200 rounded-full h-2 mb-2">
-                    <div className="bg-blue-600 h-2 rounded-full" style={{ width: `${Math.min(100, (transactionCount / 5) * 100)}%` }}></div>
-                  </div>
-                  <p>You need {Math.max(0, 5 - transactionCount)} more unique transactions to apply for verification.</p>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  <div className="text-sm text-gray-600">
-                    You have unlocked verification! Upload a photo of yourself at one of your listings, or a valid ID.
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <label className="cursor-pointer bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2">
-                      <Upload className="w-4 h-4" />
-                      {file ? file.name : "Select Photo"}
-                      <input type="file" className="hidden" accept="image/*" onChange={e => setFile(e.target.files?.[0] || null)} />
-                    </label>
-                    <button 
-                      onClick={handleApply}
-                      disabled={uploading || !file}
-                      className="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 disabled:opacity-50 transition-colors"
-                    >
-                      {uploading ? "Uploading..." : "Submit Application"}
-                    </button>
-                  </div>
-                  {error && <p className="text-red-500 text-xs">{error}</p>}
-                  {success && <p className="text-green-600 text-xs">{success}</p>}
-                </div>
-              )}
+      <div className={styles.verificationGrid}>
+        {/* Tier 1 Card */}
+        <div className={`${styles.verificationCard} ${styles.tier1}`}>
+          <div className={styles.verificationHeader}>
+            <div className={`${styles.verificationIcon} ${styles.tier1Icon}`}>
+              <ShieldCheck size={24} />
             </div>
-          )}
+            <div>
+              <div className={styles.verificationTitle}>Tier 1: Local</div>
+              <div style={{ fontSize: '0.75rem', fontWeight: 600, color: '#d97706', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Identity Verification</div>
+            </div>
+          </div>
+          <p className={styles.verificationDesc}>
+            Upload a Government-issued ID Card, Driver's License, or Passport to prove your identity.
+          </p>
+
+          {(() => {
+            const app = apps.find(v => v.tier === 'local');
+            const isApproved = verificationTier === 'local' || verificationTier === 'international';
+
+            if (isApproved) {
+              return (
+                <div className={`${styles.verificationStatus} ${styles.statusApproved}`}>
+                  <BadgeCheck size={18} /> Verified
+                </div>
+              );
+            } else if (app && app.status === 'pending') {
+              return (
+                <div className={`${styles.verificationStatus} ${styles.statusPending}`}>
+                  <ShieldAlert size={18} /> Review Pending
+                </div>
+              );
+            } else if (app && app.status === 'rejected') {
+              return (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  <div className={`${styles.verificationStatus}`} style={{ color: '#ef4444', marginBottom: 0 }}>
+                    <ShieldAlert size={18} /> Rejected: {app.reviewer_notes}
+                  </div>
+                  <button
+                    className={styles.verificationBtn}
+                    onClick={() => { setTargetTier('local'); proofInputRef.current?.click(); }}
+                    disabled={uploadingTier === 'local'}
+                  >
+                    {uploadingTier === 'local' ? 'Uploading...' : <><Upload size={16} /> Re-apply for Tier 1</>}
+                  </button>
+                </div>
+              );
+            } else {
+              return (
+                <button
+                  className={styles.verificationBtn}
+                  onClick={() => { setTargetTier('local'); proofInputRef.current?.click(); }}
+                  disabled={uploadingTier === 'local'}
+                >
+                  {uploadingTier === 'local' ? 'Uploading...' : <><Upload size={16} /> Apply for Tier 1</>}
+                </button>
+              );
+            }
+          })()}
         </div>
 
-        {/* Tier 2: International */}
-        <div className="p-5">
-          <div className="flex justify-between items-start">
-            <div>
-              <h4 className="font-semibold text-gray-900 flex items-center gap-2">
-                International Verified <Globe className="w-4 h-4 text-amber-500" />
-              </h4>
-              <p className="text-sm text-gray-500 mt-1 max-w-md">
-                For top-tier agents trusted to handle remote bookings from clients abroad. This is an invite-only tier.
-              </p>
+        {/* Tier 2 Card */}
+        <div className={`${styles.verificationCard} ${styles.tier2}`}>
+          <div className={styles.verificationHeader}>
+            <div className={`${styles.verificationIcon} ${styles.tier2Icon}`}>
+              <BadgeCheck size={24} />
             </div>
-            {verificationTier === "international" ? (
-              <span className="px-3 py-1 bg-amber-100 text-amber-700 rounded-full text-xs font-medium">Premium</span>
-            ) : (
-              <span className="px-3 py-1 bg-gray-100 text-gray-500 rounded-full text-xs font-medium">Coming Soon</span>
-            )}
+            <div>
+              <div className={styles.verificationTitle}>Tier 2: International</div>
+              <div style={{ fontSize: '0.75rem', fontWeight: 600, color: '#eab308', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Business Verification</div>
+            </div>
           </div>
+          <p className={styles.verificationDesc}>
+            Upload your registered Business Certificate or Professional Real Estate License for premium visibility.
+          </p>
+
+          {(() => {
+            const app = apps.find(v => v.tier === 'international');
+            const isLocalApproved = verificationTier === 'local' || verificationTier === 'international';
+            const isInternationalApproved = verificationTier === 'international';
+
+            if (isInternationalApproved) {
+              return (
+                <div className={`${styles.verificationStatus} ${styles.statusApproved}`}>
+                  <BadgeCheck size={18} /> Premium Verified
+                </div>
+              );
+            } else if (app && app.status === 'pending') {
+              return (
+                <div className={`${styles.verificationStatus} ${styles.statusPending}`}>
+                  <ShieldAlert size={18} /> Review Pending
+                </div>
+              );
+            } else if (app && app.status === 'rejected') {
+              return (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  <div className={`${styles.verificationStatus}`} style={{ color: '#ef4444', marginBottom: 0 }}>
+                    <ShieldAlert size={18} /> Rejected: {app.reviewer_notes}
+                  </div>
+                  <button
+                    className={`${styles.verificationBtn} ${styles.active}`}
+                    onClick={() => { setTargetTier('international'); proofInputRef.current?.click(); }}
+                    disabled={uploadingTier === 'international'}
+                  >
+                    {uploadingTier === 'international' ? 'Uploading...' : <><Upload size={16} /> Re-apply for Tier 2</>}
+                  </button>
+                </div>
+              );
+            } else if (!isLocalApproved) {
+              return (
+                <button className={styles.verificationBtn} disabled title="Requires Tier 1 Verification first">
+                  Complete Tier 1 First
+                </button>
+              );
+            } else {
+              return (
+                <button
+                  className={`${styles.verificationBtn} ${styles.active}`}
+                  onClick={() => { setTargetTier('international'); proofInputRef.current?.click(); }}
+                  disabled={uploadingTier === 'international'}
+                >
+                  {uploadingTier === 'international' ? 'Uploading...' : <><Upload size={16} /> Apply for Tier 2</>}
+                </button>
+              );
+            }
+          })()}
         </div>
       </div>
     </div>

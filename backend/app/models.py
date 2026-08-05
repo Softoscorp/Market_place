@@ -100,6 +100,7 @@ class User(Base):
 
     created_at = Column(DateTime, default=datetime.utcnow)
     last_seen_at = Column(DateTime(timezone=True), nullable=True, default=None)
+    device_id = Column(String, nullable=True)
 
     listings = relationship("Listing", back_populates="agent", cascade="all, delete-orphan")
 

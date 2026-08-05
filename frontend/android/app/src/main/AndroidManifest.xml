@@ -38,4 +38,12 @@
     <!-- Permissions -->
 
     <uses-permission android:name="android.permission.INTERNET" />
+
+    <!-- Required for push notifications on Android 13+ (API 33+).
+         Without this the notification toggle in App Info is completely greyed out. -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <!-- Allow vibration for message notifications -->
+    <uses-permission android:name="android.permission.VIBRATE" />
+
 </manifest>

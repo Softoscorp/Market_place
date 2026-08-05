@@ -173,7 +173,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
     
     // Trigger push notification subscription
     if (typeof window !== 'undefined') {
-      import('@/lib/push').then(m => m.subscribeToPushNotifications());
+      import('@/lib/pushNotifications').then(m => m.initPushNotifications()).catch(() => {});
     }
     
     // Check if we already have the conversation in the store
@@ -249,34 +249,17 @@ export const useChatStore = create<ChatState>((set, get) => ({
     try {
       const formData = new FormData();
       formData.append('body', text);
-      const savedMsg = await apiRequest(`/messages/conversations/${activeConversationId}/messages`, {
+      await apiRequest(`/messages/conversations/${activeConversationId}/messages`, {
         method: 'POST',
         formData: formData
       });
-      
-      set((state) => {
-        const conv = state.conversations[activeAgentId];
-        if (!conv) return state;
-        
-        const realMsg = {
-          id: savedMsg.id,
-          text: savedMsg.text,
-          sender: 'user' as const,
-          timestamp: new Date(savedMsg.created_at.endsWith('Z') ? savedMsg.created_at : savedMsg.created_at + 'Z').getTime()
-        };
-        
-        return {
-          conversations: {
-            ...state.conversations,
-            [activeAgentId]: {
-              ...conv,
-              messages: conv.messages.map(m => m.id === tempId ? realMsg : m)
-            }
-          }
-        };
-      });
+
+      // Fetch canonical server state — this removes the temp message and adds
+      // the real one in one atomic update, preventing the double-message race
+      // that occurred when the polling interval also called fetchMessages.
+      await get().fetchMessages(activeConversationId);
     } catch (e: unknown) {
-      // Remove temp message if failed
+      // Remove temp message on failure
       set((state) => {
         const conv = state.conversations[activeAgentId];
         if (!conv) return state;

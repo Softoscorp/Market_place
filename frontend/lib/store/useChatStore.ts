@@ -69,8 +69,8 @@ export const useChatStore = create<ChatState>((set, get) => ({
           messages: c.last_message ? [{ 
             id: c.last_message.id, 
             text: c.last_message.text, 
-            sender: c.last_message.sender_id === c.agent.id ? 'agent' : 'user', 
-            timestamp: new Date(c.last_message.created_at).getTime() 
+            sender: (currentUser && c.last_message.sender_id.toString() === currentUser.id.toString()) ? 'user' : 'agent', 
+            timestamp: new Date(c.last_message.created_at.endsWith('Z') ? c.last_message.created_at : c.last_message.created_at + 'Z').getTime() 
           }] : [],
           unreadCount: c.unread_count
         };
@@ -85,18 +85,23 @@ export const useChatStore = create<ChatState>((set, get) => ({
     try {
       const msgs = await apiRequest(`/messages/conversations/${conversationId}/messages`);
       
+      const currentUser = useAuthStore.getState().user;
+      
       set((state) => {
         const agentId = state.activeAgentId;
         if (!agentId) return state;
 
         const convs = { ...state.conversations };
         if (convs[agentId]) {
-          convs[agentId].messages = msgs.map((m: any) => ({
+          const serverMessages = msgs.map((m: any) => ({
             id: m.id,
             text: m.text,
-            sender: m.sender_id.toString() === agentId ? 'agent' : 'user',
-            timestamp: new Date(m.created_at).getTime()
+            sender: (currentUser && m.sender_id.toString() === currentUser.id.toString()) ? 'user' : 'agent',
+            timestamp: new Date(m.created_at.endsWith('Z') ? m.created_at : m.created_at + 'Z').getTime()
           }));
+          
+          const tempMessages = (convs[agentId].messages || []).filter(m => m.id > 10000000000);
+          convs[agentId].messages = [...serverMessages, ...tempMessages];
         }
         return { conversations: convs };
       });
@@ -176,13 +181,47 @@ export const useChatStore = create<ChatState>((set, get) => ({
     try {
       const formData = new FormData();
       formData.append('body', text);
-      await apiRequest(`/messages/conversations/${activeConversationId}/messages`, {
+      const savedMsg = await apiRequest(`/messages/conversations/${activeConversationId}/messages`, {
         method: 'POST',
         formData: formData
       });
-      // Wait a moment then refresh
-      setTimeout(() => get().fetchMessages(activeConversationId), 500);
+      
+      set((state) => {
+        const conv = state.conversations[activeAgentId];
+        if (!conv) return state;
+        
+        const realMsg = {
+          id: savedMsg.id,
+          text: savedMsg.text,
+          sender: 'user' as const,
+          timestamp: new Date(savedMsg.created_at.endsWith('Z') ? savedMsg.created_at : savedMsg.created_at + 'Z').getTime()
+        };
+        
+        return {
+          conversations: {
+            ...state.conversations,
+            [activeAgentId]: {
+              ...conv,
+              messages: conv.messages.map(m => m.id === timestamp ? realMsg : m)
+            }
+          }
+        };
+      });
     } catch (e: any) {
+      // Remove temp message if failed
+      set((state) => {
+        const conv = state.conversations[activeAgentId];
+        if (!conv) return state;
+        return {
+          conversations: {
+            ...state.conversations,
+            [activeAgentId]: {
+              ...conv,
+              messages: conv.messages.filter(m => m.id !== timestamp)
+            }
+          }
+        };
+      });
       console.error('Failed to send message', e);
       if (typeof window !== 'undefined' && e?.detail) {
         alert(typeof e.detail === 'string' ? e.detail : JSON.stringify(e.detail));

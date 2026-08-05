@@ -39,6 +39,20 @@ export function ChatPanel() {
     }
   }, [isOpen, activeConversation]);
 
+  // Poll for new messages every 3 seconds while chat is open
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    const { activeConversationId, fetchMessages } = useChatStore.getState();
+    if (isOpen && activeConversationId) {
+      interval = setInterval(() => {
+        fetchMessages(activeConversationId);
+      }, 3000);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [isOpen, useChatStore.getState().activeConversationId]);
+
   if (!isOpen) return null;
 
   const handleSend = (e: React.FormEvent) => {

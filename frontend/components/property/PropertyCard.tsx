@@ -155,7 +155,7 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
         <div className={styles.moveInBadge}>
           <MoveInBadge cost={calculatedMoveInCost} />
           {(upfrontMonths !== undefined || moveInCost) && (
-            <span className={styles.termsText} style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block', marginTop: '0.25rem', textAlign: 'center' }}>
+            <span className={styles.termsText} style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block', marginTop: '0.25rem', textAlign: 'left' }}>
               Terms: {termsString}
             </span>
           )}

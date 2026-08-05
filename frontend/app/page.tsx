@@ -92,7 +92,7 @@ export default function HomePage() {
           const filteredAgents = (data || []).filter((agent: AgentData) => agent.name !== 'Demo Agent');
           
           // Sort by online status (online first)
-          filteredAgents.sort((a, b) => {
+          filteredAgents.sort((a: AgentData, b: AgentData) => {
             const aOnline = isOnline(a.last_seen_at);
             const bOnline = isOnline(b.last_seen_at);
             if (aOnline && !bOnline) return -1;

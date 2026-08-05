@@ -54,7 +54,7 @@ export default function AgentsPage() {
         let agentList = Array.isArray(data) ? data : [];
         
         // Sort by online status (online first)
-        agentList.sort((a, b) => {
+        agentList.sort((a: Agent, b: Agent) => {
           const aOnline = isOnline(a.last_seen_at);
           const bOnline = isOnline(b.last_seen_at);
           if (aOnline && !bOnline) return -1;

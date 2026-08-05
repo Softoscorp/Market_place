@@ -3,8 +3,9 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { Users } from 'lucide-react';
+import { Info } from 'lucide-react';
 import { AgentCard } from '@/components/agent/AgentCard';
+import { AgentTierModal } from '@/components/agent/AgentTierModal';
 import { useLanguageStore } from '@/lib/store/useLanguageStore';
 import { useAuthStore } from '@/lib/store/useAuthStore';
 import { useChatStore } from '@/lib/store/useChatStore';
@@ -31,6 +32,20 @@ export default function AgentsPage() {
   const { openChat } = useChatStore();
   const [agents, setAgents] = useState<Agent[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showTierModal, setShowTierModal] = useState(false);
+
+  useEffect(() => {
+    // Show tier modal once per browser
+    const hasSeenModal = localStorage.getItem('hasSeenAgentTiers');
+    if (!hasSeenModal) {
+      // Delay it slightly so it pops up smoothly after initial load
+      const t = setTimeout(() => {
+        setShowTierModal(true);
+        localStorage.setItem('hasSeenAgentTiers', 'true');
+      }, 800);
+      return () => clearTimeout(t);
+    }
+  }, []);
 
   const fetchAgents = () =>
     apiRequest('/agents', { auth: false })
@@ -61,7 +76,17 @@ export default function AgentsPage() {
       transition={{ duration: 0.6, ease: [0.2, 0.8, 0.2, 1] }}
     >
       <header className={styles.header}>
-        <h1 className={styles.title}>{t('agents_title')}</h1>
+        <div className={styles.titleRow}>
+          <h1 className={styles.title}>{t('agents_title')}</h1>
+          <button 
+            className={styles.infoBtn}
+            onClick={() => setShowTierModal(true)}
+            aria-label="About agent tiers"
+          >
+            <Info size={20} />
+            <span>Verification Tiers</span>
+          </button>
+        </div>
         <p className={styles.subtitle}>{t('agents_sub')}</p>
       </header>
 
@@ -106,6 +131,11 @@ export default function AgentsPage() {
           ))}
         </motion.div>
       )}
+
+      <AgentTierModal 
+        isOpen={showTierModal} 
+        onClose={() => setShowTierModal(false)} 
+      />
     </motion.div>
   );
 }

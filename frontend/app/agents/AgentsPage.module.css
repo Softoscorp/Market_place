@@ -9,11 +9,39 @@
   text-align: center;
 }
 
+.titleRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin: 0 0 0.5rem 0;
+}
+
 .title {
   font-family: 'DM Serif Display', serif;
   font-size: 2.5rem;
   color: #E2E8F0;
-  margin: 0 0 0.5rem 0;
+  margin: 0;
+}
+
+.infoBtn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text-secondary);
+  padding: 6px 12px;
+  border-radius: var(--radius-full);
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.infoBtn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-primary);
 }
 
 .subtitle {

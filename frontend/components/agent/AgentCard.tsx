@@ -68,14 +68,21 @@ export function AgentCard({
           {verificationTier === 'local' && (
             <div className={`${styles.tierBadge} ${styles.tier1Badge}`}>
               <Check size={14} strokeWidth={2.5} />
-              <span>Tier 1: Local Verified</span>
+              <span>Verified Green</span>
             </div>
           )}
           {verificationTier === 'international' && (
             <div className={`${styles.tierBadge} ${styles.tier2Badge}`}>
-              <Globe size={14} strokeWidth={2.5} />
-              <span>Tier 2: Premium Global</span>
+              <Check size={14} strokeWidth={2.5} />
+              <span>Verified Gold</span>
             </div>
+          )}
+          {(!verificationTier || verificationTier === 'none') && (
+            <Tooltip content="You can still rent through them but it will be at your own risk." position="bottom">
+              <div className={`${styles.tierBadge} ${styles.tierNoneBadge}`}>
+                <span>Not Verified Yet</span>
+              </div>
+            </Tooltip>
           )}
           
           <p className={styles.onlineStatus} style={{ color: online ? '#22c55e' : '#9ca3af', fontSize: '0.75rem', margin: '6px 0 0' }}>

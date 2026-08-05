@@ -30,6 +30,7 @@ interface ChatState {
   activeListingId: number | null;
   conversations: Record<string, Conversation>;
   notification: any | null;
+  chatError: string | null;
   
   openChat: (agent: Agent, listingId?: number) => void;
   closeChat: () => void;
@@ -37,6 +38,7 @@ interface ChatState {
   fetchConversations: () => Promise<void>;
   fetchMessages: (conversationId: number) => Promise<void>;
   clearNotification: () => void;
+  clearChatError: () => void;
   markAsRead: (agentId: string) => void;
 }
 
@@ -47,6 +49,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
   activeListingId: null,
   conversations: {},
   notification: null,
+  chatError: null,
 
   fetchConversations: async () => {
     try {
@@ -148,7 +151,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
     }
   },
 
-  closeChat: () => set({ isOpen: false, activeAgentId: null, activeConversationId: null, activeListingId: null }),
+  closeChat: () => set({ isOpen: false, activeAgentId: null, activeConversationId: null, activeListingId: null, chatError: null }),
 
   markAsRead: (agentId) => {
     set((state) => {
@@ -161,13 +164,17 @@ export const useChatStore = create<ChatState>((set, get) => ({
   },
 
   clearNotification: () => set({ notification: null }),
+  
+  clearChatError: () => set({ chatError: null }),
 
   sendMessage: async (text) => {
     const { activeConversationId, activeAgentId, conversations } = get();
     if (!activeConversationId || !activeAgentId) return;
 
-    const timestamp = Date.now();
-    const newMsg: Message = { id: timestamp, text, sender: 'user', timestamp };
+    set({ chatError: null });
+
+    const tempId = Date.now();
+    const newMsg: Message = { id: tempId, text, sender: 'user', timestamp: tempId };
 
     set((state) => {
       const conv = state.conversations[activeAgentId];
@@ -207,7 +214,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
             ...state.conversations,
             [activeAgentId]: {
               ...conv,
-              messages: conv.messages.map(m => m.id === timestamp ? realMsg : m)
+              messages: conv.messages.map(m => m.id === tempId ? realMsg : m)
             }
           }
         };
@@ -222,14 +229,16 @@ export const useChatStore = create<ChatState>((set, get) => ({
             ...state.conversations,
             [activeAgentId]: {
               ...conv,
-              messages: conv.messages.filter(m => m.id !== timestamp)
+              messages: conv.messages.filter(m => m.id !== tempId)
             }
           }
         };
       });
       console.error('Failed to send message', e);
       if (typeof window !== 'undefined' && e?.detail) {
-        alert(typeof e.detail === 'string' ? e.detail : JSON.stringify(e.detail));
+        set({ chatError: typeof e.detail === 'string' ? e.detail : JSON.stringify(e.detail) });
+      } else {
+        set({ chatError: 'Failed to send message. Please try again.' });
       }
     }
   }

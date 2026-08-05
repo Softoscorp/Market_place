@@ -11,7 +11,7 @@ import { mediaUrl } from '@/lib/api';
 import { isOnline, lastSeenText } from '@/lib/timeAgo';
 
 export function ChatPanel() {
-  const { isOpen, activeAgentId, activeConversationId, conversations, closeChat, sendMessage } = useChatStore();
+  const { isOpen, activeAgentId, activeConversationId, conversations, closeChat, sendMessage, chatError, clearChatError } = useChatStore();
   const [message, setMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -137,6 +137,26 @@ export function ChatPanel() {
               ))}
               <div ref={messagesEndRef} />
             </div>
+
+            {chatError && (
+              <div style={{
+                backgroundColor: '#fee2e2',
+                color: '#ef4444',
+                padding: '0.75rem',
+                fontSize: '0.875rem',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                borderTop: '1px solid #fecaca',
+                margin: '0 1rem',
+                borderRadius: '0.5rem 0.5rem 0 0'
+              }}>
+                <span>{chatError}</span>
+                <button onClick={clearChatError} style={{ color: '#ef4444', cursor: 'pointer', background: 'none', border: 'none' }}>
+                  <X size={14} />
+                </button>
+              </div>
+            )}
 
             <form onSubmit={handleSend} className={styles.inputArea}>
               <input 

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Home, User, ChevronDown, Globe, Smartphone, Heart, Menu, X } from 'lucide-react';
 import { useAuthStore } from '@/lib/store/useAuthStore';
 import { useLanguageStore } from '@/lib/store/useLanguageStore';
+import { useChatStore } from '@/lib/store/useChatStore';
 import { PremiumIcon } from '@/components/ui/PremiumIcon';
 import { InstallAppModal } from '@/components/ui/InstallAppModal';
 import styles from './Navbar.module.css';
@@ -12,6 +13,7 @@ import styles from './Navbar.module.css';
 export function Navbar() {
   const { user, isAuthenticated, validateToken } = useAuthStore();
   const { lang, setLang, t } = useLanguageStore();
+  const { conversations, fetchConversations } = useChatStore();
   const [mounted, setMounted] = useState(false);
   const [showInstallModal, setShowInstallModal] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -21,6 +23,18 @@ export function Navbar() {
     const timer = setTimeout(() => setMounted(true), 0);
     return () => clearTimeout(timer);
   }, [validateToken]);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchConversations();
+      // Poll conversations every 15 seconds for global badge
+      const interval = setInterval(fetchConversations, 15000);
+      return () => clearInterval(interval);
+    }
+  }, [isAuthenticated, fetchConversations]);
+
+  const unreadCount = Object.values(conversations).reduce((acc, conv) => acc + (conv.unreadCount || 0), 0);
+
 
   // Close mobile menu on resize to desktop
   useEffect(() => {
@@ -101,8 +115,27 @@ export function Navbar() {
             <Link href="/saved" className={styles.link} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 500 }}>
               <Heart size={16} /> <span className={styles.hideOnMobile}>{t('nav_saved') || 'Saved'}</span>
             </Link>
-            <Link href="/profile" className={styles.loginBtn}>
+            <Link href="/profile" className={styles.loginBtn} style={{ position: 'relative' }}>
               <User size={16} /> <span className={styles.hideOnMobile}>{user?.name || t('nav_profile')}</span>
+              {unreadCount > 0 && (
+                <span style={{
+                  position: 'absolute',
+                  top: '-5px',
+                  right: '-5px',
+                  backgroundColor: '#ef4444',
+                  color: 'white',
+                  fontSize: '0.7rem',
+                  fontWeight: 'bold',
+                  borderRadius: '50%',
+                  width: '18px',
+                  height: '18px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}>
+                  {unreadCount}
+                </span>
+              )}
             </Link>
           </div>
         ) : (

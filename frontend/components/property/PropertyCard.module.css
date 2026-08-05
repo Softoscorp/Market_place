@@ -144,6 +144,9 @@
   margin-top: auto;
   padding-top: 6px;
   border-top: 1px solid var(--border-subtle);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
 }
 
 .footer {

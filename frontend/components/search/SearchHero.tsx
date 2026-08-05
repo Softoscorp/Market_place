@@ -66,7 +66,7 @@ export function SearchHero() {
           transition={{ duration: 1, delay: 0.2, ease: [0.2, 0.8, 0.2, 1] }}
         >
           <ProtectedImage 
-            src="https://images.unsplash.com/photo-1613490908676-e137f2dd0617?auto=format&fit=crop&w=1200&q=80" 
+            src="/hero-home.jpg" 
             alt="Luxury home in North Cyprus" 
             className={styles.heroImage}
           />

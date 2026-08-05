@@ -1,12 +1,15 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Check, Star, Phone, Mail, MapPin, MessageSquareHeart } from 'lucide-react';
+import { Check, Star, Phone, Mail, MapPin, MessageSquareHeart, Globe } from 'lucide-react';
 import { useChatStore } from '@/lib/store/useChatStore';
 import { PremiumIcon } from '@/components/ui/PremiumIcon';
+import { isOnline, lastSeenText } from '@/lib/timeAgo';
 import styles from './AgentProfile.module.css';
 
-interface AgentProfileProps {
+import { ProtectedImage } from '@/components/ui/ProtectedImage';
+
+export interface AgentProfileProps {
   name: string;
   agency: string;
   imageUrl: string;
@@ -16,7 +19,8 @@ interface AgentProfileProps {
   activeListings: number;
   experienceYears: number;
   respondRate?: number;
-  isVerified?: boolean;
+  verificationTier?: 'none' | 'local' | 'international';
+  lastSeenAt?: string | null;
 }
 
 export function AgentProfile({
@@ -29,7 +33,8 @@ export function AgentProfile({
   activeListings,
   experienceYears,
   respondRate,
-  isVerified = true
+  verificationTier = 'none',
+  lastSeenAt
 }: AgentProfileProps) {
   const { openChat } = useChatStore();
   const [isRatingMode, setIsRatingMode] = useState(false);
@@ -52,16 +57,29 @@ export function AgentProfile({
     <div className={styles.profile}>
       <div className={styles.header}>
         <div className={styles.avatarWrapper}>
-          <img src={imageUrl} alt={name} className={styles.avatar} />
-          {isVerified && (
+          <ProtectedImage src={imageUrl} alt={name} className={styles.avatar} />
+          {verificationTier === 'local' && (
             <div className={styles.verifiedBadge}>
               <Check size={16} strokeWidth={3} />
+            </div>
+          )}
+          {verificationTier === 'international' && (
+            <div className={styles.internationalBadge}>
+              <Globe size={16} strokeWidth={3} />
             </div>
           )}
         </div>
         
         <div className={styles.info}>
-          <h1 className={styles.name}>{name}</h1>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
+            <h1 className={styles.name} style={{ margin: 0 }}>{name}</h1>
+            {lastSeenAt && (
+              <span className={isOnline(lastSeenAt) ? styles.statusOnline : styles.statusOffline}>
+                <span className={styles.statusDot} />
+                {lastSeenText(lastSeenAt)}
+              </span>
+            )}
+          </div>
           <p className={styles.agency}>
             <PremiumIcon icon={MapPin} size={14} colorVariant="primary" containerSize={24} /> {agency}
           </p>
@@ -84,7 +102,7 @@ export function AgentProfile({
             </div>
             {respondRate !== undefined && (
               <div className={styles.statItem}>
-                <span className={styles.statValue}>{Math.round(respondRate * 100)}%</span>
+                <span className={styles.statValue}>{respondRate}%</span>
                 <span className={styles.statLabel}>Respond Rate</span>
               </div>
             )}
@@ -140,7 +158,7 @@ export function AgentProfile({
       <div className={styles.section}>
         <h2 className={styles.sectionTitle}>About {name}</h2>
         <p style={{ color: '#8B97A8', lineHeight: 1.6 }}>
-          As a top-rated agent specializing in student and professional housing across North Cyprus, I prioritize finding the perfect match for your lifestyle and budget. Whether you're looking for a quiet studio in Nicosia or a vibrant shared apartment in Kyrenia, I have the local expertise to guide you.
+          As a top-rated agent specializing in student and professional housing across North Cyprus, I prioritize finding the perfect match for your lifestyle and budget. Whether you&apos;re looking for a quiet studio in Nicosia or a vibrant shared apartment in Kyrenia, I have the local expertise to guide you.
         </p>
       </div>
 

@@ -20,7 +20,7 @@ export interface SavedProperty {
   agent?: {
     name: string;
     avatar_url?: string;
-    is_verified?: boolean;
+    verification_tier?: 'none' | 'local' | 'international';
   };
 }
 
@@ -89,7 +89,7 @@ export default function SavedPage() {
                   agentRating={prop.agent_average_rating}
                   agentName={prop.agent?.name || 'Agent'}
                   agentAvatar={prop.agent?.avatar_url ? mediaUrl(prop.agent.avatar_url) : undefined}
-                  isVerified={prop.agent?.is_verified}
+                  verificationTier={prop.agent?.verification_tier}
                 />
               ))}
             </div>

@@ -12,13 +12,16 @@ import {
   MousePointerClick,
   Plus,
   Building2,
-  LogOut
+  LogOut,
+  ShieldAlert
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/lib/store/useAuthStore';
 import { useChatStore } from '@/lib/store/useChatStore';
 import { apiRequest, mediaUrl } from '@/lib/api';
 import { ProtectedImage } from '@/components/ui/ProtectedImage';
+import { AgentVerification } from '@/components/AgentVerification';
+import { isOnline, lastSeenText } from '@/lib/timeAgo';
 import Link from 'next/link';
 import styles from './Dashboard.module.css';
 
@@ -69,7 +72,7 @@ export default function AgentDashboard() {
   const conversationList = Object.values(conversations);
 
   const respondRateStr = user?.respond_rate != null 
-    ? `${Math.round(user.respond_rate * 100)}%`
+    ? `${user.respond_rate}%`
     : '0%';
 
   const metrics = [
@@ -290,6 +293,16 @@ export default function AgentDashboard() {
           </motion.div>
         );
 
+      case 'verification':
+        return (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+          >
+            <AgentVerification verificationTier={user?.verification_tier || 'none'} />
+          </motion.div>
+        );
+
       default: return null;
     }
   };
@@ -326,6 +339,12 @@ export default function AgentDashboard() {
           >
             <Settings size={18} /> Settings
           </button>
+          <button 
+            className={`${styles.navItem} ${activeTab === 'verification' ? styles.active : ''}`}
+            onClick={() => setActiveTab('verification')}
+          >
+            <ShieldAlert size={18} /> Verification
+          </button>
           
           <div style={{ marginTop: 'auto', paddingTop: '2rem' }}>
             <button 
@@ -348,15 +367,28 @@ export default function AgentDashboard() {
             <h1 className={styles.pageTitle}>
               {activeTab === 'overview' && 'Dashboard Overview'}
               {activeTab === 'listings' && 'Properties Manager'}
-              {activeTab === 'crm' && 'Client Relationships'}
+              {activeTab === 'crm' && 'Client CRM'}
               {activeTab === 'settings' && 'Account Settings'}
+              {activeTab === 'verification' && 'Trust & Verification'}
             </h1>
             <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
               {user?.name || user?.email}
             </p>
           </div>
-          <div className={styles.verifiedBadge}>
-            Verified Agent
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', fontWeight: 500, color: isOnline(user?.last_seen_at) ? 'var(--success)' : 'var(--text-secondary)' }}>
+              <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: isOnline(user?.last_seen_at) ? 'var(--success)' : 'var(--text-secondary)' }} />
+              {lastSeenText(user?.last_seen_at)}
+            </div>
+            
+            {user?.verification_tier === 'local' && (
+              <div className={styles.verifiedBadge}>Local Verified</div>
+            )}
+            {user?.verification_tier === 'international' && (
+              <div className={styles.verifiedBadge} style={{ backgroundColor: 'rgba(245, 158, 11, 0.1)', color: '#b45309', borderColor: 'rgba(245, 158, 11, 0.2)' }}>
+                Int. Verified
+              </div>
+            )}
           </div>
         </div>
         <div className={styles.contentArea}>

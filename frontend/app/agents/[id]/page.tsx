@@ -13,7 +13,7 @@ import { ReviewForm } from '@/components/reviews/ReviewForm';
 import { Button } from '@/components/ui/Button';
 
 interface ProfileData {
-  agent: { name: string; avatar_url?: string; bio?: string; is_verified?: boolean; id: string };
+  agent: { name: string; avatar_url?: string; bio?: string; verification_tier?: 'none' | 'local' | 'international'; last_seen_at?: string | null; respond_rate?: number; id: string };
   average_rating: number;
   rating_count: number;
   listings: Array<{
@@ -77,7 +77,9 @@ export default function AgentDetailPage({ params }: { params: Promise<{ id: stri
           reviews={rating_count || 0}
           activeListings={listings?.length || 0}
           experienceYears={2}
-          isVerified={agent.is_verified}
+          verificationTier={agent.verification_tier}
+          lastSeenAt={agent.last_seen_at}
+          respondRate={agent.respond_rate}
         />
       </motion.div>
 
@@ -106,7 +108,7 @@ export default function AgentDetailPage({ params }: { params: Promise<{ id: stri
               agentRating={average_rating}
               agentName={agent.name}
               agentAvatar={mediaUrl(agent.avatar_url) || undefined}
-              isVerified={agent.is_verified}
+              verificationTier={agent.verification_tier}
             />
           ))}
         </div>

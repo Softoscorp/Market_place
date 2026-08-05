@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { Check, Star } from 'lucide-react';
+import { Check, Star, Globe } from 'lucide-react';
 import { useLanguageStore } from '@/lib/store/useLanguageStore';
 import { mediaUrl } from '@/lib/api';
 import { isOnline, lastSeenText } from '@/lib/timeAgo';
@@ -18,7 +18,7 @@ interface AgentCardProps {
   activeListings?: number;
   respondRate?: number;
   lastSeenAt?: string | null;
-  isVerified?: boolean;
+  verificationTier?: 'none' | 'local' | 'international';
   onContact?: () => void;
 }
 
@@ -32,7 +32,7 @@ export function AgentCard({
   activeListings,
   respondRate,
   lastSeenAt,
-  isVerified = true,
+  verificationTier = 'none',
   onContact
 }: AgentCardProps) {
   const { t } = useLanguageStore();
@@ -49,9 +49,14 @@ export function AgentCard({
       <div className={styles.header}>
         <div className={styles.avatarWrapper}>
           <ProtectedImage src={avatarSrc} fallbackSrc={defaultAvatar} alt={name} className={styles.avatar} />
-          {isVerified && (
+          {verificationTier === 'local' && (
             <div className={styles.verifiedBadge}>
               <Check size={12} strokeWidth={3} />
+            </div>
+          )}
+          {verificationTier === 'international' && (
+            <div className={styles.internationalBadge}>
+              <Globe size={12} strokeWidth={3} />
             </div>
           )}
           <div

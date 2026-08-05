@@ -13,13 +13,14 @@ import {
   ShieldCheck,
   Mail,
   X,
-  LogOut
+  LogOut,
+  Award
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/lib/store/useAuthStore';
 import { PremiumIcon } from '@/components/ui/PremiumIcon';
 import styles from '../agent-dashboard/Dashboard.module.css';
-import { apiRequest, getAdminUsers, updateUserRole, getAdminConversations, getAdminConversationMessages } from '@/lib/api';
+import { apiRequest, getAdminUsers, updateUserRole, getAdminConversations, getAdminConversationMessages, getAdminVerifications, approveVerification, rejectVerification } from '@/lib/api';
 
 interface Report {
   id: number;
@@ -37,6 +38,16 @@ interface KYCDoc {
   agent_id: number;
   document_type: string;
   status: string;
+}
+
+interface VerificationApplication {
+  id: number;
+  agent_id: number;
+  tier: string;
+  status: string;
+  proof_urls: string[];
+  reviewer_notes?: string;
+  created_at: string;
 }
 
 interface AdminUser {
@@ -80,6 +91,7 @@ export default function AdminDashboard() {
   const [selectedConversation, setSelectedConversation] = useState<AdminConversation | null>(null);
   const [chatMessages, setChatMessages] = useState<AdminMessage[]>([]);
   const [reports, setReports] = useState<Report[]>([]);
+  const [verifications, setVerifications] = useState<VerificationApplication[]>([]);
   const [emailModal, setEmailModal] = useState<{ email: string; name: string } | null>(null);
   const [emailSubject, setEmailSubject] = useState('');
   const [emailBody, setEmailBody] = useState('');
@@ -105,6 +117,7 @@ export default function AdminDashboard() {
           apiRequest('/admin/reports', { auth: true })
             .then(data => setReports(data || []))
             .catch(console.error);
+          getAdminVerifications().then(data => setVerifications(data || [])).catch(console.error);
         }
       }, 0);
     }
@@ -244,6 +257,93 @@ export default function AdminDashboard() {
                             <button className={styles.iconBtn} onClick={() => handleRejectKYC(doc.id)} title="Reject"><XCircle size={16} color="var(--danger)" /></button>
                           </div>
                         )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </motion.div>
+        );
+      case 'verifications':
+        return (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className={styles.listingsTab}>
+            <div className={styles.tabHeader}>
+              <h3 className={styles.sectionTitle}>Agent Verification Applications</h3>
+            </div>
+            <div className={styles.tableContainer}>
+              <table className={styles.table}>
+                <thead>
+                  <tr>
+                    <th>Agent ID</th>
+                    <th>Requested Tier</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {verifications.map(app => (
+                    <tr key={app.id}>
+                      <td className={styles.fw500}>#{app.agent_id}</td>
+                      <td>
+                        <span className={styles.statusBadge} style={{ 
+                          background: app.tier === 'international' ? '#fef3c7' : '#f3f4f6',
+                          color: app.tier === 'international' ? '#b45309' : '#374151'
+                        }}>
+                          {app.tier}
+                        </span>
+                      </td>
+                      <td>
+                        <span className={`${styles.statusBadge} ${app.status === 'approved' ? styles.active : app.status === 'rejected' ? styles.paused : ''}`}>
+                          {app.status}
+                        </span>
+                      </td>
+                      <td>
+                        <div style={{ display: 'flex', gap: '8px' }}>
+                          {app.status === 'pending' && (
+                            <>
+                              <button 
+                                className={styles.actionBtn} 
+                                onClick={async () => {
+                                  try {
+                                    await approveVerification(app.id);
+                                    setVerifications(apps => apps.map(a => a.id === app.id ? { ...a, status: 'approved' } : a));
+                                    alert('Approved verification');
+                                  } catch (e) {
+                                    console.error(e);
+                                    alert('Failed to approve');
+                                  }
+                                }}
+                                title="Approve"
+                              >
+                                <CheckCircle size={16} color="var(--success)" />
+                              </button>
+                              <button 
+                                className={styles.actionBtn} 
+                                onClick={async () => {
+                                  const reason = prompt('Rejection reason:');
+                                  if (reason === null) return;
+                                  try {
+                                    await rejectVerification(app.id, reason);
+                                    setVerifications(apps => apps.map(a => a.id === app.id ? { ...a, status: 'rejected' } : a));
+                                    alert('Rejected verification');
+                                  } catch (e) {
+                                    console.error(e);
+                                    alert('Failed to reject');
+                                  }
+                                }}
+                                title="Reject"
+                              >
+                                <XCircle size={16} color="var(--danger)" />
+                              </button>
+                            </>
+                          )}
+                          {app.proof_urls.map((url, idx) => (
+                            <a key={idx} href={url} target="_blank" rel="noreferrer" style={{ fontSize: '12px', color: 'var(--brand-blue)', textDecoration: 'underline' }}>
+                              Proof {idx + 1}
+                            </a>
+                          ))}
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -453,6 +553,12 @@ export default function AdminDashboard() {
                 onClick={() => setActiveTab('kyc')}
               >
                 <PremiumIcon icon={FileText} size={14} colorVariant="primary" containerSize={24} /> KYC Verification
+              </button>
+              <button 
+                className={`${styles.navItem} ${activeTab === 'verifications' ? styles.active : ''}`}
+                onClick={() => { setActiveTab('verifications'); getAdminVerifications().then(data => setVerifications(data || [])).catch(console.error); }}
+              >
+                <PremiumIcon icon={Award} size={14} colorVariant="primary" containerSize={24} /> Agent Tiers
               </button>
               <button 
                 className={`${styles.navItem} ${activeTab === 'users' ? styles.active : ''}`}

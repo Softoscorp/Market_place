@@ -14,9 +14,11 @@ export interface User {
   loginTimestamp?: number;
   isVerifiedAgent?: boolean;
   is_verified?: boolean;
+  verification_tier?: 'none' | 'local' | 'international';
   avatar_url?: string;
   respond_rate?: number;
   isLookingForRoommate?: boolean;
+  last_seen_at?: string | null;
 }
 
 interface AuthState {

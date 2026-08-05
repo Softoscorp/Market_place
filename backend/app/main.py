@@ -6,7 +6,7 @@ from fastapi.staticfiles import StaticFiles
 
 from .config import settings
 from .database import Base, engine
-from .routers import auth, users, listings, messaging, ratings, admin, reports, roommates
+from .routers import auth, users, listings, messaging, ratings, admin, reports, roommates, verifications
 
 Base.metadata.create_all(bind=engine)
 
@@ -46,6 +46,7 @@ app.include_router(ratings.router)
 app.include_router(admin.router)
 app.include_router(reports.router)
 app.include_router(roommates.router)
+app.include_router(verifications.router)
 
 
 def seed_admin_users():

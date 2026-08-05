@@ -25,7 +25,7 @@ interface AgentProfile {
   agent: {
     id: number;
     name: string;
-    is_verified: boolean;
+    verification_tier?: 'none' | 'local' | 'international';
     avatar_url?: string;
     respond_rate?: number;
     last_seen_at?: string | null;
@@ -108,7 +108,7 @@ interface AgentProfile {
             activeListings={listings?.length || 0}
             respondRate={agent.respond_rate}
             lastSeenAt={agent.last_seen_at}
-            isVerified={agent.is_verified}
+            verificationTier={agent.verification_tier}
             onContact={() => {
               if (!isAuthenticated) {
                 router.push('/login');

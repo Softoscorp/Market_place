@@ -9,6 +9,7 @@ const PING_INTERVAL_MS = 60_000; // stamp last_seen_at every 60 seconds
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const validateToken = useAuthStore((s) => s.validateToken);
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const updateUser = useAuthStore((s) => s.updateUser);
 
   // Validate token on mount
   useEffect(() => {
@@ -19,12 +20,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (!isAuthenticated) return;
 
-    // Ping immediately so we don't wait 60s for the first stamp
-    pingPresence();
+    const pingAndUpdate = () => {
+      pingPresence();
+      updateUser({ last_seen_at: new Date().toISOString() });
+    };
 
-    const interval = setInterval(pingPresence, PING_INTERVAL_MS);
+    // Ping immediately so we don't wait 60s for the first stamp
+    pingAndUpdate();
+
+    const interval = setInterval(pingAndUpdate, PING_INTERVAL_MS);
     return () => clearInterval(interval);
-  }, [isAuthenticated]);
+  }, [isAuthenticated, updateUser]);
 
   return <>{children}</>;
 }

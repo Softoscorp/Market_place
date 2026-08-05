@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { MapPin, Ruler, Bed, Bath, Navigation, Calendar, Heart } from 'lucide-react';
+import { MapPin, Bed, Bath, ArrowLeft, Heart, Share2, Calendar } from 'lucide-react';
 import { PropertyGallery } from '@/components/property/PropertyGallery';
 import { MoveInCalculator } from '@/components/property/MoveInCalculator';
 import { AgentCard } from '@/components/agent/AgentCard';
@@ -40,7 +40,7 @@ interface PropertyData {
   furnished?: boolean;
   agent_average_rating?: number;
   agent_rating_count?: number;
-  agent?: { id: string; name: string; avatar_url?: string; is_verified?: boolean; respond_rate?: number };
+  agent?: { id: string; name: string; avatar_url?: string; verification_tier?: 'none' | 'local' | 'international'; respond_rate?: number };
   photos?: Array<{ url: string }>;
   distance_to_university?: number;
 }
@@ -306,7 +306,7 @@ export default function PropertyPage({ params }: PropertyPageProps) {
               rating={property.agent_average_rating || 5.0}
               reviews={property.agent_rating_count || 0}
               respondRate={agent.respond_rate}
-              isVerified={agent.is_verified}
+              verificationTier={agent.verification_tier}
               onContact={() => {
                 if (!user) {
                   router.push('/login');

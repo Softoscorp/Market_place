@@ -16,7 +16,7 @@ interface Agent {
   name: string;
   agency?: string;
   avatar_url?: string;
-  is_verified?: boolean;
+  verification_tier?: 'none' | 'local' | 'international';
   average_rating?: number;
   total_reviews?: number;
   active_listings?: number;
@@ -94,7 +94,7 @@ export default function AgentsPage() {
                 activeListings={agent.active_listings ?? 0}
                 respondRate={agent.respond_rate}
                 lastSeenAt={agent.last_seen_at}
-                isVerified={agent.is_verified}
+                verificationTier={agent.verification_tier}
                 onContact={() => {
                   if (!isAuthenticated) {
                     router.push('/login');

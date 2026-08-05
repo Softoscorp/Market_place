@@ -67,6 +67,18 @@ class KYCStatus(str, enum.Enum):
     rejected = "rejected"
 
 
+class VerificationTier(str, enum.Enum):
+    none = "none"
+    local = "local"
+    international = "international"
+
+
+class VerificationStatus(str, enum.Enum):
+    pending = "pending"
+    approved = "approved"
+    rejected = "rejected"
+
+
 class User(Base):
     __tablename__ = "users"
 
@@ -81,7 +93,9 @@ class User(Base):
     status_reason = Column(String, nullable=True)  # why an admin banned/suspended them
 
     # Only meaningful for agents; false/ignored for renters and admins.
+    # is_verified kept for backwards compat — use verification_tier going forward
     is_verified = Column(Boolean, default=False)
+    verification_tier = Column(Enum(VerificationTier, native_enum=False), nullable=False, default=VerificationTier.none)
     avatar_url = Column(String, nullable=True)
 
     created_at = Column(DateTime, default=datetime.utcnow)
@@ -387,3 +401,19 @@ class PushSubscription(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
 
     user = relationship("User")
+
+
+class VerificationApplication(Base):
+    """Tracks agent verification requests. One active application per agent per tier."""
+    __tablename__ = "verification_applications"
+
+    id = Column(Integer, primary_key=True, index=True)
+    agent_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    tier = Column(Enum(VerificationTier, native_enum=False), nullable=False)
+    status = Column(Enum(VerificationStatus, native_enum=False), nullable=False, default=VerificationStatus.pending)
+    proof_urls = Column(JSON, nullable=False, default=list)
+    reviewer_notes = Column(Text, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    reviewed_at = Column(DateTime, nullable=True)
+
+    agent = relationship("User", foreign_keys=[agent_id])

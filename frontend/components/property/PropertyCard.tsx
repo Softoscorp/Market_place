@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { clsx } from 'clsx';
-import { Heart, MapPin, Ruler, Bed, Bath, Clock } from 'lucide-react';
+import { Heart, MapPin, Bed, Bath, Clock } from 'lucide-react';
 import Link from 'next/link';
 import { Badge } from '@/components/ui/Badge';
 import { PremiumIcon } from '@/components/ui/PremiumIcon';
@@ -29,7 +29,7 @@ export interface PropertyCardProps {
   agentName: string;
   agentAvatar?: string;
   agentRating?: number;
-  isVerified?: boolean;
+  verificationTier?: 'none' | 'local' | 'international';
   isSaved?: boolean;
   onSaveToggle?: (id: string) => void;
   className?: string;
@@ -51,14 +51,12 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
   agentName,
   agentAvatar,
   agentRating,
-  isVerified = false,
+  verificationTier = 'none',
   isSaved = false,
   onSaveToggle,
   className
 }) => {
   const [saved, setSaved] = useState(isSaved);
-  
-  const fomoMessage = null;
 
   const handleSave = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -80,7 +78,8 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
       <div className={styles.gallery}>
         <div className={styles.badges}>
           <Badge variant="accent">{type}</Badge>
-          {isVerified && <Badge variant="verified">Verified</Badge>}
+          {verificationTier === 'local' && <Badge variant="verified">Local Verified</Badge>}
+          {verificationTier === 'international' && <Badge variant="verified" style={{ background: '#f59e0b', color: '#fff', borderColor: '#f59e0b' }}>Int. Verified</Badge>}
         </div>
         
         <button 

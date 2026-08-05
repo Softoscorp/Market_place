@@ -14,20 +14,18 @@ export interface DuplicateOffer {
   agentName: string;
   agentAvatar?: string;
   agentRating: number;
-  isVerified: boolean;
+  verificationTier: 'none' | 'local' | 'international';
   price: number;
   moveInCost: number;
   currency?: string;
 }
 
 export interface DuplicateGroupProps {
-  propertyTitle: string;
   offers: DuplicateOffer[];
   className?: string;
 }
 
 export const DuplicateGroup: React.FC<DuplicateGroupProps> = ({
-  propertyTitle,
   offers,
   className
 }) => {
@@ -63,8 +61,11 @@ export const DuplicateGroup: React.FC<DuplicateGroupProps> = ({
               <div className={styles.agentDetails}>
                 <div className={styles.agentName}>
                   {offer.agentName}
-                  {offer.isVerified && (
-                    <Badge variant="verified" className={styles.verifiedBadge}>Verified</Badge>
+                  {offer.verificationTier === 'local' && (
+                    <Badge variant="verified" className={styles.verifiedBadge}>Local Verified</Badge>
+                  )}
+                  {offer.verificationTier === 'international' && (
+                    <Badge variant="verified" className={styles.verifiedBadge} style={{ background: '#f59e0b', color: '#fff', borderColor: '#f59e0b' }}>Int. Verified</Badge>
                   )}
                 </div>
                 <StarRating rating={offer.agentRating} size={12} showText />

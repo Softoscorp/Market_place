@@ -32,14 +32,14 @@ interface PropertyData {
   house_type: string;
   photos?: Array<{ url: string }>;
   agent_average_rating?: number;
-  agent?: { name: string; avatar_url?: string; is_verified?: boolean };
+  agent?: { name: string; avatar_url?: string; verification_tier?: 'none' | 'local' | 'international' };
 }
 
 interface AgentData {
   id: number;
   name: string;
   avatar_url?: string;
-  is_verified?: boolean;
+  verification_tier?: 'none' | 'local' | 'international';
   average_rating?: number;
   total_reviews?: number;
   active_listings?: number;
@@ -111,7 +111,7 @@ export default function HomePage() {
                 agentRating={prop.agent_average_rating}
                 agentName={prop.agent?.name || 'Agent'}
                 agentAvatar={prop.agent?.avatar_url ? mediaUrl(prop.agent.avatar_url) : undefined}
-                isVerified={prop.agent?.is_verified}
+                verificationTier={prop.agent?.verification_tier}
               />
             ))}
           </div>
@@ -176,7 +176,7 @@ export default function HomePage() {
                 agentRating={prop.agent_average_rating}
                 agentName={prop.agent?.name || 'Agent'}
                 agentAvatar={prop.agent?.avatar_url ? mediaUrl(prop.agent.avatar_url) : undefined}
-                isVerified={prop.agent?.is_verified}
+                verificationTier={prop.agent?.verification_tier}
               />
             ))}
           </div>
@@ -212,7 +212,7 @@ export default function HomePage() {
                 activeListings={agent.active_listings || 0}
                 respondRate={agent.respond_rate}
                 lastSeenAt={agent.last_seen_at}
-                isVerified={agent.is_verified}
+                verificationTier={agent.verification_tier}
                 onContact={() => {
                   if (!isAuthenticated) {
                     router.push('/login');

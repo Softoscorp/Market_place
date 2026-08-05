@@ -235,3 +235,62 @@ export function getAdminConversationMessages(conversationId: number) {
 export function pingPresence(): Promise<void> {
   return apiRequest("/users/me/ping", { method: "POST", auth: true }).catch(() => {});
 }
+
+// ============================================================================
+// Verifications
+// ============================================================================
+
+export function applyForVerification(tier: string, proof_urls: string[]) {
+  return apiRequest("/verifications/apply", {
+    method: "POST",
+    body: { tier, proof_urls },
+    auth: true,
+  });
+}
+
+export function getMyVerificationStatus() {
+  return apiRequest("/verifications/my-status", { auth: true });
+}
+
+export function getAdminVerifications() {
+  return apiRequest("/verifications/admin", { auth: true });
+}
+
+export function approveVerification(appId: number, reviewerNotes?: string) {
+  return apiRequest(`/verifications/admin/${appId}/approve`, {
+    method: "POST",
+    body: { reviewer_notes: reviewerNotes },
+    auth: true,
+  });
+}
+
+export function rejectVerification(appId: number, reviewerNotes: string) {
+  return apiRequest(`/verifications/admin/${appId}/reject`, {
+    method: "POST",
+    body: { reviewer_notes: reviewerNotes },
+    auth: true,
+  });
+}
+
+export async function uploadVerificationProof(file: File): Promise<{ url: string }> {
+  const token = localStorage.getItem("house-agent-auth");
+  if (!token) throw new Error("Not authenticated");
+
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const res = await fetch(`${API_BASE_URL}/verifications/upload-proof`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${JSON.parse(token).state.token}`,
+    },
+    body: formData,
+  });
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || "Failed to upload proof");
+  }
+
+  return res.json();
+}

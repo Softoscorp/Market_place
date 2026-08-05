@@ -21,7 +21,7 @@ interface Property {
   size_sqf?: number;
   photos?: Array<{ url: string }>;
   agent_average_rating?: number;
-  agent?: { name: string; avatar_url?: string; is_verified?: boolean };
+  agent?: { name: string; avatar_url?: string; verification_tier?: 'none' | 'local' | 'international' };
 }
 
 function SearchResults() {
@@ -135,7 +135,7 @@ function SearchResults() {
                     agentRating={prop.agent_average_rating}
                     agentName={prop.agent?.name || 'Agent'}
                     agentAvatar={prop.agent?.avatar_url ? mediaUrl(prop.agent.avatar_url) : undefined}
-                    isVerified={prop.agent?.is_verified}
+                    verificationTier={prop.agent?.verification_tier}
                   />
                 ))}
               </div>

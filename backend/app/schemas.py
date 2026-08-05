@@ -3,7 +3,7 @@ from typing import Optional
 
 from pydantic import BaseModel, EmailStr, Field, ConfigDict, field_validator
 
-from .models import UserRole, AccountStatus, HouseType, ListingStatus, MessageType, ReportTargetType, ReportStatus, KYCStatus
+from .models import UserRole, AccountStatus, HouseType, ListingStatus, MessageType, ReportTargetType, ReportStatus, KYCStatus, VerificationTier, VerificationStatus
 
 
 # ============================================================================
@@ -50,6 +50,7 @@ class PublicUserOut(BaseModel):
     name: str
     role: UserRole
     is_verified: bool
+    verification_tier: VerificationTier = VerificationTier.none
     avatar_url: Optional[str] = None
     respond_rate: Optional[float] = None
     active_listings: Optional[int] = None
@@ -67,6 +68,7 @@ class MeOut(BaseModel):
     role: UserRole
     language: str
     is_verified: bool
+    verification_tier: VerificationTier = VerificationTier.none
     account_status: AccountStatus
     avatar_url: Optional[str] = None
     respond_rate: Optional[float] = None
@@ -316,6 +318,7 @@ class AdminUserOut(BaseModel):
     phone: str
     role: UserRole
     is_verified: bool
+    verification_tier: VerificationTier = VerificationTier.none
     account_status: AccountStatus
     status_reason: Optional[str] = None
     last_seen_at: Optional[datetime] = None
@@ -398,3 +401,24 @@ class KYCDocumentOut(BaseModel):
     status: KYCStatus
     created_at: datetime
     agent: PublicUserOut
+
+
+# ============================================================================
+# Verifications
+# ============================================================================
+
+class VerificationApplicationCreate(BaseModel):
+    proof_urls: list[str]
+    tier: VerificationTier
+
+
+class VerificationApplicationOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: int
+    agent_id: int
+    tier: VerificationTier
+    status: VerificationStatus
+    proof_urls: list[str]
+    reviewer_notes: Optional[str] = None
+    created_at: datetime
+    reviewed_at: Optional[datetime] = None

@@ -29,7 +29,7 @@ interface ChatState {
   activeAgentId: string | null;
   activeListingId: number | null;
   conversations: Record<string, Conversation>;
-  notification: any | null;
+  notification: { title: string; body: string } | null;
   chatError: string | null;
   isLoadingMessages: boolean;
   
@@ -62,7 +62,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
         const existing = state.conversations;
         const convs: Record<string, Conversation> = {};
 
-        data.forEach((c: any) => {
+        data.forEach((c: Record<string, any>) => {
           const contactUser = (currentUser && String(currentUser.id) === String(c.renter.id)) ? c.agent : c.renter;
           const key = contactUser.id.toString();
           const prev = existing[key];
@@ -111,7 +111,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
         const convs = { ...state.conversations };
         if (convs[agentId]) {
           // Map all server messages
-          const serverMessages: Message[] = msgs.map((m: any) => ({
+          const serverMessages: Message[] = msgs.map((m: Record<string, any>) => ({
             id: m.id,
             text: m.text,
             sender: (currentUser && m.sender_id.toString() === currentUser.id.toString()) ? 'user' as const : 'agent' as const,
@@ -157,7 +157,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
     
     // Start or get conversation from the server
     try {
-      const body: any = {};
+      const body: Record<string, number> = {};
       if (listingId) {
         body.listing_id = listingId;
       } else {
@@ -171,7 +171,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
       set({ activeConversationId: conv.id });
       await get().fetchConversations();
       await get().fetchMessages(conv.id);
-    } catch (e: any) {
+    } catch (e: unknown) {
       console.error('Failed to open chat:', e);
       set({ isLoadingMessages: false });
     }
@@ -194,7 +194,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
   clearChatError: () => set({ chatError: null }),
 
   sendMessage: async (text) => {
-    const { activeConversationId, activeAgentId, conversations } = get();
+    const { activeConversationId, activeAgentId } = get();
     if (!activeConversationId || !activeAgentId) return;
 
     set({ chatError: null });
@@ -245,7 +245,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
           }
         };
       });
-    } catch (e: any) {
+    } catch (e: unknown) {
       // Remove temp message if failed
       set((state) => {
         const conv = state.conversations[activeAgentId];
@@ -261,10 +261,13 @@ export const useChatStore = create<ChatState>((set, get) => ({
         };
       });
       console.error('Failed to send message', e);
-      if (typeof window !== 'undefined' && e?.detail) {
-        set({ chatError: typeof e.detail === 'string' ? e.detail : JSON.stringify(e.detail) });
-      } else {
-        set({ chatError: 'Failed to send message. Please try again.' });
+      if (typeof window !== 'undefined') {
+        const err = e as { detail?: unknown };
+        if (err?.detail) {
+          set({ chatError: typeof err.detail === 'string' ? err.detail : JSON.stringify(err.detail) });
+        } else {
+          set({ chatError: 'Failed to send message. Please try again.' });
+        }
       }
     }
   }

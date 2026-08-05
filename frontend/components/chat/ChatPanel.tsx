@@ -2,9 +2,9 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Send, Image as ImageIcon, Phone, Video, MoreVertical } from 'lucide-react';
+import { X, Send } from 'lucide-react';
 import { useChatStore } from '@/lib/store/useChatStore';
-import { useAuthStore } from '@/lib/store/useAuthStore';
+
 import styles from './ChatPanel.module.css';
 import { ProtectedImage } from '@/components/ui/ProtectedImage';
 import { mediaUrl } from '@/lib/api';

@@ -11,7 +11,7 @@ import styles from './MessagesPage.module.css';
 
 export default function MessagesPage() {
   const router = useRouter();
-  const { user, isAuthenticated } = useAuthStore();
+  const { isAuthenticated } = useAuthStore();
   const { conversations, fetchConversations, openChat } = useChatStore();
 
   useEffect(() => {

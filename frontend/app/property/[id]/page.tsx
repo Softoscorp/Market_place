@@ -157,7 +157,7 @@ export default function PropertyPage({ params }: PropertyPageProps) {
     ? (property.photos.map((p) => mediaUrl(p.url)).filter(Boolean) as string[])
     : ['/images/placeholder-studio.jpg'];
 
-  const bedrooms = parseInt(property.house_type.split('+')[0]) || 1;
+  const bedrooms = parseInt(property.house_type?.split('+')[0]) || 1;
   const bathrooms = 1;
 
 
@@ -352,8 +352,8 @@ export default function PropertyPage({ params }: PropertyPageProps) {
                 location={prop.location}
                 price={prop.price}
                 currency={'£'}
-                type={prop.house_type}
-                bedrooms={parseInt(prop.house_type.split('+')[0]) || 1}
+                type={prop.house_type || 'Unknown'}
+                bedrooms={parseInt(prop.house_type?.split('+')[0]) || 1}
                 bathrooms={1}
                 images={prop.photos && prop.photos.length > 0 ? (prop.photos.map((p: { url: string }) => mediaUrl(p.url)).filter(Boolean) as string[]) : ['/images/placeholder-studio.jpg']}
                 sizeSqf={75}

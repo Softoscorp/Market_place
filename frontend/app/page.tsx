@@ -102,7 +102,7 @@ export default function HomePage() {
                 location={prop.location}
                 price={prop.price}
                 currency="£"
-                type={prop.house_type}
+                type={prop.house_type || 'Unknown'}
                 bedrooms={parseInt(prop.house_type?.split('+')[0]) || 1}
                 bathrooms={1}
                 images={prop.photos?.length && prop.photos.length > 0 ? prop.photos.map((p: { url: string }) => mediaUrl(p.url) || '') : ['/images/placeholder-studio.jpg']}
@@ -167,7 +167,7 @@ export default function HomePage() {
                 location={prop.location}
                 price={prop.price}
                 currency="£"
-                type={prop.house_type}
+                type={prop.house_type || 'Unknown'}
                 bedrooms={parseInt(prop.house_type?.split('+')[0]) || 1}
                 bathrooms={1}
                 images={prop.photos?.length && prop.photos.length > 0 ? prop.photos.map((p: { url: string }) => mediaUrl(p.url) || '') : ['/images/placeholder-studio.jpg']}

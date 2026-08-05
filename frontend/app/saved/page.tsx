@@ -80,8 +80,8 @@ export default function SavedPage() {
                   location={prop.location}
                   price={prop.price}
                   currency="£"
-                  type={prop.house_type}
-                  bedrooms={parseInt(prop.house_type.split('+')[0]) || 1}
+                  type={prop.house_type || 'Unknown'}
+                  bedrooms={parseInt(prop.house_type?.split('+')[0]) || 1}
                   bathrooms={1}
                   images={prop.photos && prop.photos.length > 0 ? prop.photos.map((p) => mediaUrl(p.url) || '') : ['/images/placeholder-studio.jpg']}
                   sizeSqf={75}

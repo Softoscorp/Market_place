@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Home, User, ChevronDown, Globe, Smartphone, Heart } from 'lucide-react';
+import { Home, User, ChevronDown, Globe, Smartphone, Heart, Menu, X } from 'lucide-react';
 import { useAuthStore } from '@/lib/store/useAuthStore';
 import { useLanguageStore } from '@/lib/store/useLanguageStore';
 import { PremiumIcon } from '@/components/ui/PremiumIcon';
@@ -14,12 +14,24 @@ export function Navbar() {
   const { lang, setLang, t } = useLanguageStore();
   const [mounted, setMounted] = useState(false);
   const [showInstallModal, setShowInstallModal] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     validateToken();
     const timer = setTimeout(() => setMounted(true), 0);
     return () => clearTimeout(timer);
   }, [validateToken]);
+
+  // Close mobile menu on resize to desktop
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth > 768) {
+        setMobileMenuOpen(false);
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   return (
     <>
@@ -107,6 +119,76 @@ export function Navbar() {
           <Link href="/admin" className={styles.postBtn} style={{ backgroundColor: '#111' }}>{t('nav_dashboard')}</Link>
         )}
       </div>
+
+      {/* Mobile Menu Button */}
+      <button 
+        className={styles.mobileMenuBtn} 
+        onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+        aria-label="Toggle menu"
+      >
+        {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+      </button>
+
+      {/* Mobile Menu Overlay */}
+      {mobileMenuOpen && (
+        <div className={styles.mobileMenu}>
+          <div className={styles.mobileLinks}>
+            <Link href="/search" className={styles.mobileLink} onClick={() => setMobileMenuOpen(false)}>{t('nav_properties')}</Link>
+            <Link href="/agents" className={styles.mobileLink} onClick={() => setMobileMenuOpen(false)}>{t('nav_agents')}</Link>
+            <Link href="/roommates" className={styles.mobileLink} onClick={() => setMobileMenuOpen(false)}>{t('nav_roommates')}</Link>
+            
+            <div className={styles.mobileDivider} />
+            
+            <button
+              className={styles.mobileActionBtn}
+              onClick={() => {
+                setShowInstallModal(true);
+                setMobileMenuOpen(false);
+              }}
+            >
+              <Smartphone size={18} /> Install Mobile App
+            </button>
+            
+            <button
+              className={styles.mobileActionBtn}
+              onClick={() => {
+                setLang(lang === 'en' ? 'tr' : 'en');
+                setMobileMenuOpen(false);
+              }}
+            >
+              <Globe size={18} /> {lang === 'en' ? 'Türkçe' : 'English'}
+            </button>
+            
+            <div className={styles.mobileDivider} />
+            
+            {mounted && isAuthenticated ? (
+              <>
+                <Link href="/saved" className={styles.mobileLink} onClick={() => setMobileMenuOpen(false)}>
+                  <Heart size={18} /> {t('nav_saved') || 'Saved Properties'}
+                </Link>
+                <Link href="/profile" className={styles.mobileLink} onClick={() => setMobileMenuOpen(false)}>
+                  <User size={18} /> {user?.name || t('nav_profile')}
+                </Link>
+                {user?.role === 'agent' && (
+                  <Link href="/post-listing" className={styles.mobileLink} style={{ color: 'var(--accent)' }} onClick={() => setMobileMenuOpen(false)}>
+                    {t('nav_post_listing')}
+                  </Link>
+                )}
+                {(user?.role === 'admin' || user?.role === 'customer_care') && (
+                  <Link href="/admin" className={styles.mobileLink} style={{ color: 'var(--accent)' }} onClick={() => setMobileMenuOpen(false)}>
+                    {t('nav_dashboard')}
+                  </Link>
+                )}
+              </>
+            ) : (
+              <>
+                <Link href="/login" className={styles.mobileLink} onClick={() => setMobileMenuOpen(false)}>{t('nav_login')}</Link>
+                <Link href="/signup" className={styles.mobileLink} style={{ color: 'var(--accent)' }} onClick={() => setMobileMenuOpen(false)}>{t('nav_signup')}</Link>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </nav>
     <InstallAppModal isOpen={showInstallModal} onClose={() => setShowInstallModal(false)} />
     </>

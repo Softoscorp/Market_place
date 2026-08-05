@@ -35,10 +35,9 @@
 }
 
 .grid {
-  display: grid;
-  grid-template-columns: 1fr;
+  display: flex;
+  flex-direction: column;
   gap: 2rem;
-  align-items: start;
 }
 
 @media (min-width: 992px) {

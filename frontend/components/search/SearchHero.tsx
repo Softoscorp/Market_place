@@ -6,19 +6,20 @@ import { motion } from 'framer-motion';
 import { PremiumIcon } from '@/components/ui/PremiumIcon';
 import styles from './SearchHero.module.css';
 
+import { useRouter } from 'next/navigation';
 import { useLanguageStore } from '@/lib/store/useLanguageStore';
 import { ProtectedImage } from '@/components/ui/ProtectedImage';
-
-const SUGGESTIONS = [
-  'Kyrenia Penthouse', 
-  'Famagusta Student Housing', 
-  'Nicosia Near University',
-  'Iskele Sea View'
-];
 
 export function SearchHero() {
   const [query, setQuery] = useState('');
   const { t } = useLanguageStore();
+  const router = useRouter();
+
+  const handleSearch = () => {
+    if (query.trim()) {
+      router.push(`/search?location=${encodeURIComponent(query.trim())}`);
+    }
+  };
 
   return (
     <section className={styles.hero}>
@@ -47,29 +48,15 @@ export function SearchHero() {
                 placeholder={t('hero_search_placeholder')}
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    handleSearch();
+                  }
+                }}
               />
-              <button className={styles.actionButton}>{t('hero_search_btn')}</button>
+              <button className={styles.actionButton} onClick={handleSearch}>{t('hero_search_btn')}</button>
             </motion.div>
           </div>
-
-          <motion.div 
-            className={styles.suggestions}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.4, duration: 0.8 }}
-          >
-            {SUGGESTIONS.map((suggestion) => (
-              <motion.button 
-                key={suggestion} 
-                className={styles.suggestionBadge}
-                onClick={() => setQuery(suggestion)}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                {suggestion}
-              </motion.button>
-            ))}
-          </motion.div>
         </motion.div>
 
         <motion.div
@@ -79,7 +66,7 @@ export function SearchHero() {
           transition={{ duration: 1, delay: 0.2, ease: [0.2, 0.8, 0.2, 1] }}
         >
           <ProtectedImage 
-            src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1200&q=80" 
+            src="https://images.unsplash.com/photo-1613490908676-e137f2dd0617?auto=format&fit=crop&w=1200&q=80" 
             alt="Luxury home in North Cyprus" 
             className={styles.heroImage}
           />

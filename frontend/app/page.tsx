@@ -17,6 +17,8 @@ import { Skeleton } from "@/components/ui/Skeleton";
 
 import { useLanguageStore } from "@/lib/store/useLanguageStore";
 
+import { isOnline } from "@/lib/timeAgo";
+
 // Locations to replace universities
 const LOCATIONS = [
   { name: "Nicosia" },
@@ -88,6 +90,16 @@ export default function HomePage() {
         .then((data) => {
           // Filter out Demo Agent
           const filteredAgents = (data || []).filter((agent: AgentData) => agent.name !== 'Demo Agent');
+          
+          // Sort by online status (online first)
+          filteredAgents.sort((a, b) => {
+            const aOnline = isOnline(a.last_seen_at);
+            const bOnline = isOnline(b.last_seen_at);
+            if (aOnline && !bOnline) return -1;
+            if (!aOnline && bOnline) return 1;
+            return 0;
+          });
+          
           setTopAgents(filteredAgents);
           agentsLoaded = true;
           checkLoading();

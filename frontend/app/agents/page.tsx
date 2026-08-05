@@ -10,6 +10,7 @@ import { useLanguageStore } from '@/lib/store/useLanguageStore';
 import { useAuthStore } from '@/lib/store/useAuthStore';
 import { useChatStore } from '@/lib/store/useChatStore';
 import { apiRequest, mediaUrl } from '@/lib/api';
+import { isOnline } from '@/lib/timeAgo';
 import styles from './AgentsPage.module.css';
 
 interface Agent {
@@ -49,7 +50,20 @@ export default function AgentsPage() {
 
   const fetchAgents = () =>
     apiRequest('/agents', { auth: false })
-      .then((data) => setAgents(Array.isArray(data) ? data : []))
+      .then((data) => {
+        let agentList = Array.isArray(data) ? data : [];
+        
+        // Sort by online status (online first)
+        agentList.sort((a, b) => {
+          const aOnline = isOnline(a.last_seen_at);
+          const bOnline = isOnline(b.last_seen_at);
+          if (aOnline && !bOnline) return -1;
+          if (!aOnline && bOnline) return 1;
+          return 0;
+        });
+
+        setAgents(agentList);
+      })
       .catch(() => setAgents([]));
 
   useEffect(() => {

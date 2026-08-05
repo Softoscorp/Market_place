@@ -55,6 +55,8 @@ export const useAuthStore = create<AuthState>()(
           },
           isAuthenticated: true,
         });
+        // Register FCM/web-push token after login
+        import('@/lib/pushNotifications').then(m => m.initPushNotifications()).catch(() => {});
       },
 
       // Safe merge: always reads current state via get() so stale closures can't overwrite newer data

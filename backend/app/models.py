@@ -423,3 +423,31 @@ class VerificationApplication(Base):
     reviewed_at = Column(DateTime, nullable=True)
 
     agent = relationship("User", foreign_keys=[agent_id])
+
+
+class FcmToken(Base):
+    """Stores FCM device tokens for native Android push notifications."""
+    __tablename__ = "fcm_tokens"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    token = Column(String, nullable=False, unique=True)
+    platform = Column(String, nullable=False, default="android")  # android | ios
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    user = relationship("User", foreign_keys=[user_id])
+
+
+class PushSubscription(Base):
+    """Stores Web Push (VAPID) subscriptions for browser/PWA notifications."""
+    __tablename__ = "push_subscriptions"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    endpoint = Column(String, nullable=False, unique=True)
+    p256dh = Column(String, nullable=False)
+    auth = Column(String, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    user = relationship("User", foreign_keys=[user_id])

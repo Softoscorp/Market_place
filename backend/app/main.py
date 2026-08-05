@@ -6,7 +6,7 @@ from fastapi.staticfiles import StaticFiles
 
 from .config import settings
 from .database import Base, engine, get_db
-from .routers import auth, users, listings, messaging, ratings, admin, reports, roommates, verifications
+from .routers import auth, users, listings, messaging, ratings, admin, reports, roommates, verifications, notifications
 import sentry_sdk
 from sqlalchemy.orm import Session
 from fastapi import Depends, HTTPException
@@ -68,6 +68,7 @@ app.include_router(admin.router)
 app.include_router(reports.router)
 app.include_router(roommates.router)
 app.include_router(verifications.router)
+app.include_router(notifications.router)
 
 
 def seed_admin_users():

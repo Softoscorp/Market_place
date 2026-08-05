@@ -209,7 +209,7 @@ def send_text_message(
     db.commit()
     db.refresh(message)
 
-    # Send push notification
+    # ── Web push (browser / PWA) ──────────────────────────────────────────────
     recipient_id = conv.agent_id if current_user.id == conv.renter_id else conv.renter_id
     subscriptions = db.query(models.PushSubscription).filter(models.PushSubscription.user_id == recipient_id).all()
     if subscriptions:
@@ -230,6 +230,22 @@ def send_text_message(
             success = send_push_notification(sub_info, payload)
             if success == "EXPIRED":
                 db.delete(sub)
+                db.commit()
+
+    # ── FCM (native Android APK) ──────────────────────────────────────────────
+    fcm_tokens = db.query(models.FcmToken).filter(models.FcmToken.user_id == recipient_id).all()
+    if fcm_tokens:
+        from ..services.fcm import send_fcm_notification
+        for fcm in fcm_tokens:
+            ok = send_fcm_notification(
+                token=fcm.token,
+                title=f"New message from {current_user.name}",
+                body=body[:100],
+                data={"conversation_id": str(conv.id), "sender_id": str(current_user.id)},
+            )
+            if not ok:
+                # Clean up invalid tokens
+                db.delete(fcm)
                 db.commit()
 
     return _serialize_message(message, current_user, db)

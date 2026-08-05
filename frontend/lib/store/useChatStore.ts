@@ -57,32 +57,45 @@ export const useChatStore = create<ChatState>((set, get) => ({
     try {
       const data = await apiRequest('/messages/conversations');
       const currentUser = useAuthStore.getState().user;
-      const convs: Record<string, Conversation> = {};
-      
-      data.forEach((c: any) => {
-        // Map to old shape dynamically based on who the current user is
-        const contactUser = (currentUser && String(currentUser.id) === String(c.renter.id)) ? c.agent : c.renter;
-        
-        convs[contactUser.id.toString()] = {
-          conversation_id: c.id,
-          contact: {
-            id: contactUser.id.toString(),
-            name: contactUser.name,
-            avatarUrl: contactUser.avatar_url,
-            lastSeenAt: contactUser.last_seen_at
-          },
-          messages: c.last_message ? [{ 
-            id: c.last_message.id, 
-            text: c.last_message.text, 
-            sender: (currentUser && c.last_message.sender_id.toString() === currentUser.id.toString()) ? 'user' : 'agent', 
-            timestamp: new Date(c.last_message.created_at.endsWith('Z') ? c.last_message.created_at : c.last_message.created_at + 'Z').getTime() 
-          }] : [],
-          unreadCount: c.unread_count
-        };
+
+      set((state) => {
+        const existing = state.conversations;
+        const convs: Record<string, Conversation> = {};
+
+        data.forEach((c: any) => {
+          const contactUser = (currentUser && String(currentUser.id) === String(c.renter.id)) ? c.agent : c.renter;
+          const key = contactUser.id.toString();
+          const prev = existing[key];
+
+          // If we already have a full message history loaded (more than 1 message),
+          // preserve it — only update metadata like unreadCount and contact info.
+          const messages = (prev && prev.messages.length > 1)
+            ? prev.messages
+            : c.last_message ? [{
+                id: c.last_message.id,
+                text: c.last_message.text,
+                sender: (currentUser && c.last_message.sender_id.toString() === currentUser.id.toString()) ? 'user' as const : 'agent' as const,
+                timestamp: new Date(c.last_message.created_at.endsWith('Z') ? c.last_message.created_at : c.last_message.created_at + 'Z').getTime()
+              }] : [];
+
+          convs[key] = {
+            conversation_id: c.id,
+            contact: {
+              id: key,
+              name: contactUser.name,
+              avatarUrl: contactUser.avatar_url,
+              lastSeenAt: contactUser.last_seen_at
+            },
+            messages,
+            unreadCount: c.unread_count
+          };
+        });
+
+        return { conversations: convs };
       });
-      set({ conversations: convs });
     } catch (e) {
       console.error('Failed to fetch conversations', e);
+
     }
   },
 

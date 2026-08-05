@@ -128,6 +128,7 @@ class ListingCreateRequest(BaseModel):
     generator: bool = False
     pool: bool = False
     gym: bool = False
+    currency: str = "£"
 
 
 class ListingUpdateRequest(BaseModel):
@@ -146,6 +147,7 @@ class ListingUpdateRequest(BaseModel):
     pool: Optional[bool] = None
     gym: Optional[bool] = None
     status: Optional[ListingStatus] = None
+    currency: Optional[str] = None
 
 
 class ListingOut(BaseModel):
@@ -167,6 +169,7 @@ class ListingOut(BaseModel):
     pool: bool = False
     gym: bool = False
     status: ListingStatus
+    currency: str
     agent: PublicUserOut
     photos: list[ListingPhotoOut] = []
     agent_average_rating: Optional[float] = None

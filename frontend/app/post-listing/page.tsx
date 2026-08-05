@@ -16,6 +16,7 @@ export default function PostListingPage() {
   const [isPublishing, setIsPublishing] = useState(false);
   
   const [price, setPrice] = useState(500);
+  const [currency, setCurrency] = useState("£");
   const [upfrontMonths, setUpfrontMonths] = useState(1);
   const [depositMonths, setDepositMonths] = useState(2);
   const [commissionMonths, setCommissionMonths] = useState(1);
@@ -153,13 +154,26 @@ export default function PostListingPage() {
 
             <div className={styles.row}>
               <div className={styles.inputGroup}>
-                <label className={styles.label}>Monthly Rent (£)</label>
-                <input 
-                  type="number" 
-                  className={styles.input} 
-                  value={price}
-                  onChange={(e) => setPrice(Number(e.target.value))}
-                />
+                <label className={styles.label}>Monthly Rent</label>
+                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                  <select 
+                    className={styles.input}
+                    value={currency}
+                    onChange={(e) => setCurrency(e.target.value)}
+                    style={{ width: '80px', flexShrink: 0 }}
+                  >
+                    <option value="£">£</option>
+                    <option value="$">$</option>
+                    <option value="₺">₺</option>
+                  </select>
+                  <input 
+                    type="number" 
+                    className={styles.input} 
+                    value={price}
+                    onChange={(e) => setPrice(Number(e.target.value))}
+                    style={{ flexGrow: 1 }}
+                  />
+                </div>
               </div>
               <div className={styles.inputGroup}>
                 <label className={styles.label}>Type</label>
@@ -284,22 +298,22 @@ export default function PostListingPage() {
               Move-in Cost Preview
             </div>
             
-            <div className={styles.previewRow}>
-              <span>Upfront Rent ({upfrontMonths}x)</span>
-              <span>£{upfront}</span>
+            <div className={styles.summaryItem}>
+              <span>Upfront Rent</span>
+              <span>{currency}{upfront}</span>
             </div>
-            <div className={styles.previewRow}>
-              <span>Deposit ({depositMonths}x)</span>
-              <span>£{deposit}</span>
+            <div className={styles.summaryItem}>
+              <span>Deposit</span>
+              <span>{currency}{deposit}</span>
             </div>
-            <div className={styles.previewRow}>
-              <span>Agency Commission ({commissionMonths}x)</span>
-              <span>£{commission}</span>
+            <div className={styles.summaryItem}>
+              <span>Agency Commission</span>
+              <span>{currency}{commission}</span>
             </div>
             
-            <div className={`${styles.previewRow} ${styles.total}`}>
+            <div className={styles.summaryItem}>
               <span>Total Move-in Cost</span>
-              <span>£{totalMoveIn}</span>
+              <span>{currency}{totalMoveIn}</span>
             </div>
 
             <button 
@@ -315,6 +329,7 @@ export default function PostListingPage() {
                     title,
                     description,
                     price,
+                    currency,
                     house_type,
                     location,
                     upfront_rent_months: upfrontMonths,

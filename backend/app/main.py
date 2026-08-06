@@ -17,6 +17,34 @@ def auto_migrate_columns():
     try:
         from sqlalchemy import text
         with engine.connect() as conn:
+            # Force create notification tables in case Base.metadata.create_all missed them
+            try:
+                conn.execute(text("""
+                CREATE TABLE IF NOT EXISTS fcm_tokens (
+                    id SERIAL PRIMARY KEY,
+                    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                    token VARCHAR NOT NULL UNIQUE,
+                    platform VARCHAR NOT NULL DEFAULT 'android',
+                    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                );
+                """))
+                conn.commit()
+                
+                conn.execute(text("""
+                CREATE TABLE IF NOT EXISTS push_subscriptions (
+                    id SERIAL PRIMARY KEY,
+                    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                    endpoint VARCHAR NOT NULL UNIQUE,
+                    p256dh VARCHAR NOT NULL,
+                    auth VARCHAR NOT NULL,
+                    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                );
+                """))
+                conn.commit()
+            except Exception as e:
+                print("Failed to auto-create notification tables:", e)
+
             for col in ["generator", "pool", "gym"]:
                 try:
                     conn.execute(text(f"ALTER TABLE listings ADD COLUMN {col} BOOLEAN DEFAULT FALSE;"))

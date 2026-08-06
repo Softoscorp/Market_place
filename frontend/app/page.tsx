@@ -85,35 +85,29 @@ export default function HomePage() {
         checkLoading();
       });
 
-    const fetchAgents = () =>
-      apiRequest("/agents", { auth: false })
-        .then((data) => {
-          // Filter out Demo Agent
-          const filteredAgents = (data || []).filter((agent: AgentData) => agent.name !== 'Demo Agent');
-          
-          // Sort by online status (online first)
-          filteredAgents.sort((a: AgentData, b: AgentData) => {
-            const aOnline = isOnline(a.last_seen_at);
-            const bOnline = isOnline(b.last_seen_at);
-            if (aOnline && !bOnline) return -1;
-            if (!aOnline && bOnline) return 1;
-            return 0;
-          });
-          
-          setTopAgents(filteredAgents);
-          agentsLoaded = true;
-          checkLoading();
-        })
-        .catch((err) => {
-          console.error(err);
-          agentsLoaded = true;
-          checkLoading();
+    apiRequest("/agents", { auth: false })
+      .then((data) => {
+        // Filter out Demo Agent
+        const filteredAgents = (data || []).filter((agent: AgentData) => agent.name !== 'Demo Agent');
+
+        // Sort by online status (online first)
+        filteredAgents.sort((a: AgentData, b: AgentData) => {
+          const aOnline = isOnline(a.last_seen_at);
+          const bOnline = isOnline(b.last_seen_at);
+          if (aOnline && !bOnline) return -1;
+          if (!aOnline && bOnline) return 1;
+          return 0;
         });
 
-    // Fetch immediately, then re-fetch after 2s to catch the heartbeat stamp
-    fetchAgents();
-    const quick = setTimeout(fetchAgents, 2000);
-    return () => clearTimeout(quick);
+        setTopAgents(filteredAgents);
+        agentsLoaded = true;
+        checkLoading();
+      })
+      .catch((err) => {
+        console.error(err);
+        agentsLoaded = true;
+        checkLoading();
+      });
   }, []);
 
   return (

@@ -13,6 +13,26 @@ from ..database import get_db
 from ..dependencies import get_current_user, require_agent
 from ..services.supabase_storage import upload_file, delete_file
 
+
+def _get_agent_metrics(db: Session, listings: list[models.Listing]) -> dict[int, dict[str, float | int]]:
+    metrics_by_agent_id: dict[int, dict[str, float | int]] = {}
+    agent_ids = {listing.agent_id for listing in listings if getattr(listing, "agent_id", None) is not None}
+
+    for agent_id in agent_ids:
+        agent = db.query(models.User).filter(models.User.id == agent_id).first()
+        if not agent:
+            continue
+
+        avg, count = agent.agent_rating_summary(db)
+        respond_rate = agent.agent_respond_rate(db)
+        metrics_by_agent_id[agent_id] = {
+            "average_rating": avg if avg is not None else 0.0,
+            "rating_count": count,
+            "respond_rate": respond_rate if respond_rate is not None else 0.0,
+        }
+
+    return metrics_by_agent_id
+
 router = APIRouter(prefix="/listings", tags=["listings"])
 
 
@@ -29,10 +49,14 @@ def _check_no_contact_info(title: str, description: str):
             )
 
 
-def _serialize_listing(listing: models.Listing, db: Session) -> schemas.ListingOut:
-    avg, count = listing.agent.agent_rating_summary(db)
+def _serialize_listing(listing: models.Listing, db: Session, agent_metrics: dict[int, dict[str, float | int]] | None = None) -> schemas.ListingOut:
+    metrics = agent_metrics.get(listing.agent_id) if agent_metrics else None
+    avg = metrics["average_rating"] if metrics else None
+    count = metrics["rating_count"] if metrics else 0
+    respond_rate = metrics["respond_rate"] if metrics else None
+
     out = schemas.ListingOut.model_validate(listing)
-    out.agent.respond_rate = listing.agent.agent_respond_rate(db)
+    out.agent.respond_rate = respond_rate
     out.agent_average_rating = avg
     out.agent_rating_count = count
     return out
@@ -73,7 +97,7 @@ def create_listing(
     db.add(listing)
     db.commit()
     db.refresh(listing)
-    return _serialize_listing(listing, db)
+    return _serialize_listing(listing, db, _get_agent_metrics(db, [listing]))
 
 
 @router.get("", response_model=schemas.PaginatedListings)
@@ -137,7 +161,8 @@ def browse_listings(
 
     total = query.count()
     items = query.offset((page - 1) * page_size).limit(page_size).all()
-    serialized = [_serialize_listing(listing_obj, db) for listing_obj in items]
+    agent_metrics = _get_agent_metrics(db, items)
+    serialized = [_serialize_listing(listing_obj, db, agent_metrics) for listing_obj in items]
 
     return schemas.PaginatedListings(items=serialized, total=total, page=page, page_size=page_size)
 
@@ -147,7 +172,7 @@ def get_listing(listing_id: int, db: Session = Depends(get_db)):
     listing = db.query(models.Listing).filter(models.Listing.id == listing_id).first()
     if not listing:
         raise HTTPException(status_code=404, detail="Listing not found")
-    return _serialize_listing(listing, db)
+    return _serialize_listing(listing, db, _get_agent_metrics(db, [listing]))
 
 
 @router.patch("/{listing_id}", response_model=schemas.ListingOut)
@@ -168,7 +193,7 @@ def update_listing(
         setattr(listing, field, value)
     db.commit()
     db.refresh(listing)
-    return _serialize_listing(listing, db)
+    return _serialize_listing(listing, db, _get_agent_metrics(db, [listing]))
 
 
 @router.delete("/{listing_id}", status_code=204)
@@ -228,7 +253,7 @@ def upload_photo(
     db.add(photo)
     db.commit()
     db.refresh(listing)
-    return _serialize_listing(listing, db)
+    return _serialize_listing(listing, db, _get_agent_metrics(db, [listing]))
 
 
 @router.delete("/{listing_id}/photos/{photo_id}", response_model=schemas.ListingOut)
@@ -259,4 +284,4 @@ def delete_photo(
     db.delete(photo)
     db.commit()
     db.refresh(listing)
-    return _serialize_listing(listing, db)
+    return _serialize_listing(listing, db, _get_agent_metrics(db, [listing]))

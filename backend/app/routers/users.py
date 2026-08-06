@@ -2,6 +2,7 @@ import os
 import uuid
 import logging
 from fastapi import APIRouter, Depends, HTTPException, status, File, UploadFile
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from .. import models, schemas
@@ -205,7 +206,7 @@ def get_agent_profile(agent_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Agent not found")
 
     avg, count = agent.agent_rating_summary(db)
-    
+
     agent_out = schemas.PublicUserOut.model_validate(agent)
     agent_out.respond_rate = agent.agent_respond_rate(db)
 
@@ -237,17 +238,20 @@ def get_agent_profile(agent_id: int, db: Session = Depends(get_db)):
 def list_agents(db: Session = Depends(get_db)):
     agents = db.query(models.User).filter(models.User.role == models.UserRole.agent).limit(10).all()
     results = []
+    agent_ids = [agent.id for agent in agents]
+    active_listing_counts = {
+        agent_id: count
+        for agent_id, count in db.query(models.Listing.agent_id, func.count(models.Listing.id))
+        .filter(
+            models.Listing.agent_id.in_(agent_ids),
+            models.Listing.status == models.ListingStatus.active,
+        )
+        .group_by(models.Listing.agent_id)
+    }
     for agent in agents:
         out = schemas.PublicUserOut.model_validate(agent)
         out.respond_rate = agent.agent_respond_rate(db)
-        out.active_listings = (
-            db.query(models.Listing)
-            .filter(
-                models.Listing.agent_id == agent.id,
-                models.Listing.status == models.ListingStatus.active,
-            )
-            .count()
-        )
+        out.active_listings = active_listing_counts.get(agent.id, 0)
         results.append(out)
     return results
 

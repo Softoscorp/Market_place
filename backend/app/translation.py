@@ -21,6 +21,8 @@ import requests
 
 from .config import settings
 
+_translation_cache: dict[tuple[str, str, str], str] = {}
+
 GOOGLE_TRANSLATE_ENDPOINT = "https://translation.googleapis.com/language/translate/v2"
 
 
@@ -75,3 +77,20 @@ def reset_translation_service_cache():
     """Test helper — lets tests swap the API key/service mid-run."""
     global _service_instance
     _service_instance = None
+
+
+def translate_with_cache(text: str, source_lang: str, target_lang: str, service: TranslationService | None = None) -> str:
+    """Return a cached translation when possible to avoid repeated slow translation calls."""
+    key = (text, source_lang, target_lang)
+    if key in _translation_cache:
+        return _translation_cache[key]
+
+    active_service = service or get_translation_service()
+    translated = active_service.translate(text, source_lang, target_lang)
+    _translation_cache[key] = translated
+    return translated
+
+
+def reset_translation_cache():
+    """Clear the in-process translation cache."""
+    _translation_cache.clear()

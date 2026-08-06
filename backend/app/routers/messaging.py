@@ -1,5 +1,6 @@
 import os
 import uuid
+from concurrent.futures import ThreadPoolExecutor
 
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form
 from sqlalchemy import and_
@@ -8,12 +9,14 @@ from sqlalchemy.orm import Session
 from .. import models, schemas
 from ..config import settings
 from ..contact_filter import find_external_contact_info
-from ..database import get_db
+from ..database import SessionLocal, get_db
 from ..dependencies import get_current_user, require_renter
-from ..translation import get_translation_service
+from ..translation import translate_with_cache
 from ..services.supabase_storage import upload_file
 
 router = APIRouter(prefix="/messages", tags=["messages"])
+
+_notification_executor = ThreadPoolExecutor(max_workers=4)
 
 
 def _get_conversation_for_user(conversation_id: int, db: Session, user: models.User) -> models.Conversation:
@@ -37,15 +40,11 @@ def _serialize_message(message: models.Message, reader: models.User, db: Session
             if reader.language in cache:
                 text = cache[reader.language]
             else:
-                service = get_translation_service()
-                translated = service.translate(
+                translated = translate_with_cache(
                     message.original_text, message.original_language, reader.language
                 )
                 cache = {**cache, reader.language: translated}
                 message.translations = cache
-                db.add(message)
-                db.commit()
-                db.refresh(message)
                 text = translated
             was_translated = True
 
@@ -209,44 +208,49 @@ def send_text_message(
     db.commit()
     db.refresh(message)
 
-    # ── Web push (browser / PWA) ──────────────────────────────────────────────
     recipient_id = conv.agent_id if current_user.id == conv.renter_id else conv.renter_id
-    subscriptions = db.query(models.PushSubscription).filter(models.PushSubscription.user_id == recipient_id).all()
-    if subscriptions:
-        from ..services.push import send_push_notification
-        for sub in subscriptions:
-            sub_info = {
-                "endpoint": sub.endpoint,
-                "keys": {
-                    "p256dh": sub.p256dh,
-                    "auth": sub.auth
-                }
-            }
-            payload = {
-                "title": f"New message from {current_user.name}",
-                "body": body,
-                "url": f"/chat"
-            }
-            success = send_push_notification(sub_info, payload)
-            if success == "EXPIRED":
-                db.delete(sub)
-                db.commit()
 
-    # ── FCM (native Android APK) ──────────────────────────────────────────────
-    fcm_tokens = db.query(models.FcmToken).filter(models.FcmToken.user_id == recipient_id).all()
-    if fcm_tokens:
-        from ..services.fcm import send_fcm_notification
-        for fcm in fcm_tokens:
-            ok = send_fcm_notification(
-                token=fcm.token,
-                title=f"New message from {current_user.name}",
-                body=body[:100],
-                data={"conversation_id": str(conv.id), "sender_id": str(current_user.id)},
-            )
-            if not ok:
-                # Clean up invalid tokens
-                db.delete(fcm)
-                db.commit()
+    def _dispatch_notifications() -> None:
+        notification_db = SessionLocal()
+        try:
+            subscriptions = notification_db.query(models.PushSubscription).filter(models.PushSubscription.user_id == recipient_id).all()
+            if subscriptions:
+                from ..services.push import send_push_notification
+                for sub in subscriptions:
+                    sub_info = {
+                        "endpoint": sub.endpoint,
+                        "keys": {
+                            "p256dh": sub.p256dh,
+                            "auth": sub.auth
+                        }
+                    }
+                    payload = {
+                        "title": f"New message from {current_user.name}",
+                        "body": body,
+                        "url": "/chat"
+                    }
+                    success = send_push_notification(sub_info, payload)
+                    if success == "EXPIRED":
+                        notification_db.delete(sub)
+                        notification_db.commit()
+
+            fcm_tokens = notification_db.query(models.FcmToken).filter(models.FcmToken.user_id == recipient_id).all()
+            if fcm_tokens:
+                from ..services.fcm import send_fcm_notification
+                for fcm in fcm_tokens:
+                    ok = send_fcm_notification(
+                        token=fcm.token,
+                        title=f"New message from {current_user.name}",
+                        body=body[:100],
+                        data={"conversation_id": str(conv.id), "sender_id": str(current_user.id)},
+                    )
+                    if not ok:
+                        notification_db.delete(fcm)
+                        notification_db.commit()
+        finally:
+            notification_db.close()
+
+    _notification_executor.submit(_dispatch_notifications)
 
     return _serialize_message(message, current_user, db)
 

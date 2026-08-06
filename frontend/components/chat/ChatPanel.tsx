@@ -8,14 +8,36 @@ import { useChatStore } from '@/lib/store/useChatStore';
 import styles from './ChatPanel.module.css';
 import { ProtectedImage } from '@/components/ui/ProtectedImage';
 import { mediaUrl } from '@/lib/api';
-import { isOnline, lastSeenText } from '@/lib/timeAgo';
+import { isOnline } from '@/lib/timeAgo';
+import { useLanguageStore } from '@/lib/store/useLanguageStore';
 
 export function ChatPanel() {
   const { isOpen, activeAgentId, activeConversationId, conversations, closeChat, sendMessage, chatError, clearChatError, isLoadingMessages } = useChatStore();
+  const { t } = useLanguageStore();
   const [message, setMessage] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const activeConversation = activeAgentId ? conversations[activeAgentId] : null;
+
+  const getLocalizedLastSeenText = (lastSeenAt: string | null | undefined) => {
+    if (!lastSeenAt) return t('chat_offline');
+
+    const date = new Date(lastSeenAt.endsWith('Z') ? lastSeenAt : `${lastSeenAt}Z`);
+    const diffMs = Date.now() - date.getTime();
+    const diffMin = Math.floor(diffMs / 60000);
+
+    if (diffMin < 1) return t('chat_online_now');
+    if (diffMin < 60) return t('chat_last_seen_min').replace('{count}', String(diffMin));
+
+    const diffHours = Math.floor(diffMin / 60);
+    if (diffHours < 24) return t('chat_last_seen_hour').replace('{count}', String(diffHours));
+
+    const diffDays = Math.floor(diffHours / 24);
+    if (diffDays === 1) return t('chat_last_seen_yesterday');
+    if (diffDays < 7) return t('chat_last_seen_days').replace('{count}', String(diffDays));
+
+    return t('chat_offline');
+  };
 
   // Auto-scroll to bottom when messages change
   useEffect(() => {
@@ -71,7 +93,7 @@ export function ChatPanel() {
                     <ProtectedImage 
                       src={(activeConversation.contact.avatarUrl ? mediaUrl(activeConversation.contact.avatarUrl) : '') || ''}
                       fallbackSrc={`https://ui-avatars.com/api/?name=${encodeURIComponent(activeConversation.contact.name || 'User')}&background=0F172A&color=fff&size=128&bold=true`}
-                      alt={activeConversation.contact.name || 'User'} 
+                      alt={activeConversation.contact.name || t('chat_user')} 
                       className={styles.avatar}
                       style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover' }}
                     />
@@ -82,14 +104,14 @@ export function ChatPanel() {
                           background: isOnline(activeConversation.contact.lastSeenAt) ? '#22c55e' : '#9ca3af',
                           boxShadow: isOnline(activeConversation.contact.lastSeenAt) ? '0 0 0 2px #fff, 0 0 6px #22c55e' : 'none'
                         }} />
-                        {lastSeenText(activeConversation.contact.lastSeenAt)}
+                        {getLocalizedLastSeenText(activeConversation.contact.lastSeenAt)}
                       </div>
                     </div>
                   </>
                 ) : (
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                     <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: '#e5e7eb' }} />
-                    <h3 className={styles.agentName}>Connecting...</h3>
+                    <h3 className={styles.agentName}>{t('chat_connecting')}</h3>
                   </div>
                 )}
               </div>
@@ -102,12 +124,12 @@ export function ChatPanel() {
               {isLoadingMessages && (
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', flexDirection: 'column', gap: '1rem', color: '#6b7280' }}>
                   <div style={{ width: '28px', height: '28px', border: '3px solid #e5e7eb', borderTopColor: '#111827', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
-                  <span style={{ fontSize: '0.875rem' }}>Loading messages...</span>
+                  <span style={{ fontSize: '0.875rem' }}>{t('chat_loading_messages')}</span>
                 </div>
               )}
               {!isLoadingMessages && !activeConversation && (
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#6b7280', fontSize: '0.875rem', textAlign: 'center', padding: '1rem' }}>
-                  Could not load conversation. Please try again.
+                  {t('chat_error_load')}
                 </div>
               )}
               {!isLoadingMessages && activeConversation && activeConversation.messages.map(msg => (
@@ -148,7 +170,7 @@ export function ChatPanel() {
               <input 
                 type="text" 
                 className={styles.input}
-                placeholder={activeConversation ? "Type a message..." : "Connecting..."}
+                placeholder={activeConversation ? t('chat_type_message') : t('chat_placeholder_connecting')}
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 disabled={!activeConversation}

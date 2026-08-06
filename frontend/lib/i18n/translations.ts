@@ -124,6 +124,20 @@ export const translations = {
     nav_install_app: 'Install Mobile App',
     nav_saved_properties: 'Saved Properties',
 
+    // Chat
+    chat_connecting: 'Connecting...',
+    chat_loading_messages: 'Loading messages...',
+    chat_error_load: 'Could not load conversation. Please try again.',
+    chat_type_message: 'Type a message...',
+    chat_placeholder_connecting: 'Connecting...',
+    chat_online_now: 'Online now',
+    chat_last_seen_min: 'Last seen {count} min ago',
+    chat_last_seen_hour: 'Last seen {count}h ago',
+    chat_last_seen_yesterday: 'Last seen yesterday',
+    chat_last_seen_days: 'Last seen {count} days ago',
+    chat_offline: 'Offline',
+    chat_user: 'User',
+
     // Profile & Dashboard
     messages_hub: 'Messages Hub',
     messages_hub_sub: 'All your conversations in one place',
@@ -265,6 +279,20 @@ export const translations = {
     tab_messages: 'Mesajlar',
     nav_install_app: 'Mobil Uygulamayı Yükle',
     nav_saved_properties: 'Kaydedilen Mülkler',
+
+    // Chat
+    chat_connecting: 'Bağlanıyor...',
+    chat_loading_messages: 'Mesajlar yükleniyor...',
+    chat_error_load: 'Konuşma yüklenemedi. Lütfen tekrar deneyin.',
+    chat_type_message: 'Mesaj yaz...',
+    chat_placeholder_connecting: 'Bağlanıyor...',
+    chat_online_now: 'Şu anda çevrimiçi',
+    chat_last_seen_min: '{count} dakika önce görüldü',
+    chat_last_seen_hour: '{count} saat önce görüldü',
+    chat_last_seen_yesterday: 'Dün görüldü',
+    chat_last_seen_days: '{count} gün önce görüldü',
+    chat_offline: 'Çevrimdışı',
+    chat_user: 'Kullanıcı',
 
     // Profile & Dashboard
     messages_hub: 'Mesaj Merkezi',

@@ -249,14 +249,20 @@ export const useChatStore = create<ChatState>((set, get) => ({
     try {
       const formData = new FormData();
       formData.append('body', text);
-      await apiRequest(`/messages/conversations/${activeConversationId}/messages`, {
+      const rawSentMsg = await apiRequest(`/messages/conversations/${activeConversationId}/messages`, {
         method: 'POST',
         formData: formData
       });
 
-      // Remove the optimistic temp message BEFORE fetching server state.
-      // fetchMessages keeps any message with id > 10_000_000_000 as "pending",
-      // so if we don't remove it first it gets added back alongside the real one.
+      const currentUser = useAuthStore.getState().user;
+      const sentMsg: Message = {
+        id: rawSentMsg.id,
+        text: rawSentMsg.text || text,
+        sender: 'user',
+        timestamp: new Date(rawSentMsg.created_at?.endsWith('Z') ? rawSentMsg.created_at : (rawSentMsg.created_at + 'Z')).getTime() || tempId
+      };
+
+      // Swap the temp message with the canonical server message in place to avoid UI flicker
       set((state) => {
         const conv = state.conversations[activeAgentId];
         if (!conv) return state;
@@ -265,14 +271,12 @@ export const useChatStore = create<ChatState>((set, get) => ({
             ...state.conversations,
             [activeAgentId]: {
               ...conv,
-              messages: conv.messages.filter(m => m.id !== tempId)
+              messages: conv.messages.map(m => m.id === tempId ? sentMsg : m)
             }
           }
         };
       });
 
-      // Now fetch canonical server state — real message comes back cleanly
-      await get().fetchMessages(activeConversationId);
     } catch (e: unknown) {
       // Remove temp message on failure
       set((state) => {

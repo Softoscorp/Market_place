@@ -70,20 +70,17 @@ export default function SignupPage() {
         const { setToken } = await import('@/lib/api');
         setToken(data.access_token);
 
-        setAuthUser({
-          id: String(data.user.id),
-          name: data.user.name,
-          email: data.user.email,
-          role: role!,
-          token: data.access_token,
-        });
-
         setIsSubmitting(false);
         setStep(3);
 
         setTimeout(() => {
-          if (role === 'agent') router.push('/agent-dashboard');
-          else router.push('/search');
+          setAuthUser({
+            id: String(data.user.id),
+            name: data.user.name,
+            email: data.user.email,
+            role: role!,
+            token: data.access_token,
+          });
         }, 3000);
       } catch (err: unknown) {
         const error = err as Error;

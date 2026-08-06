@@ -52,18 +52,16 @@ export default function LoginPage() {
       const { getToken } = await import('@/lib/api');
       const token = getToken() || '';
 
-      setAuthUser({
-        id: user.id.toString(),
-        name: user.name,
-        email: user.email,
-        role: user.role === 'renter' ? 'student' : user.role,
-        token,
-      });
-      
       setSuccess(true);
       
       setTimeout(() => {
-        router.push('/');
+        setAuthUser({
+          id: user.id.toString(),
+          name: user.name,
+          email: user.email,
+          role: user.role === 'renter' ? 'student' : user.role,
+          token,
+        });
       }, 1500);
     } catch (err: unknown) {
       const error = err as Error;

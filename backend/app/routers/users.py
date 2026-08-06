@@ -250,3 +250,15 @@ def list_agents(db: Session = Depends(get_db)):
         )
         results.append(out)
     return results
+
+@router.post("/me/deactivate", response_model=schemas.PublicUserOut)
+def deactivate_my_account(
+    payload: schemas.DeactivateAccountRequest,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user),
+):
+    current_user.account_status = models.AccountStatus.suspended
+    current_user.status_reason = payload.reason or "User deactivated their own account"
+    db.commit()
+    db.refresh(current_user)
+    return current_user

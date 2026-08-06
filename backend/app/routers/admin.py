@@ -62,6 +62,26 @@ def update_user_role(
     return user
 
 
+@router.patch("/users/{user_id}/account-status", response_model=schemas.AdminUserOut)
+def set_user_account_status(
+    user_id: int,
+    payload: schemas.AdminSetAccountStatusRequest,
+    db: Session = Depends(get_db),
+    admin: models.User = Depends(require_admin),
+):
+    user = db.query(models.User).filter(models.User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    if user.role == models.UserRole.admin and user.id != admin.id:
+        raise HTTPException(status_code=400, detail="Can't change status of another admin account")
+
+    user.account_status = payload.status
+    user.status_reason = payload.status_reason
+    db.commit()
+    db.refresh(user)
+    return user
+
+
 @router.patch("/agents/{agent_id}/verify", response_model=schemas.AdminUserOut)
 def set_agent_verified(
     agent_id: int,

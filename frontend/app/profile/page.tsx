@@ -568,6 +568,61 @@ export default function ProfilePage() {
           </div>
         )}
       </div>
+      
+      {/* Danger Zone */}
+      <div className={styles.card} style={{ border: '1px solid #ef4444', marginTop: '2rem' }}>
+        <div className={styles.sectionHeader}>
+          <h2 className={styles.title} style={{ color: '#ef4444' }}>Danger Zone</h2>
+          <p className={styles.subtitle}>Irreversible and critical account actions</p>
+        </div>
+        
+        <div style={{ padding: '1rem 0' }}>
+          <h3 style={{ fontSize: '1rem', fontWeight: 600, color: '#f8fafc', marginBottom: '0.5rem' }}>Deactivate Account</h3>
+          <p style={{ color: '#94a3b8', fontSize: '0.875rem', marginBottom: '1rem', lineHeight: 1.5 }}>
+            Deactivating your account will immediately log you out and block access to your account. Your profile and listings will no longer be visible to the public. For security and fraud prevention, your data is retained in our systems.
+          </p>
+          <button 
+            onClick={async () => {
+              if (window.confirm("Are you sure you want to deactivate your account? This action will log you out immediately.")) {
+                try {
+                  const token = getToken() || user?.token;
+                  if (!token) return;
+                  await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/users/me/deactivate`, {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                      'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ reason: "User self-deactivated" })
+                  });
+                  alert("Your account has been deactivated.");
+                  logout();
+                } catch (e) {
+                  alert("Failed to deactivate account. Please contact support.");
+                }
+              }
+            }}
+            style={{
+              backgroundColor: '#ef4444',
+              color: 'white',
+              padding: '0.75rem 1.5rem',
+              borderRadius: '0.5rem',
+              border: 'none',
+              fontWeight: 600,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              transition: 'background-color 0.2s'
+            }}
+            onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#dc2626'}
+            onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#ef4444'}
+          >
+            <ShieldAlert size={18} />
+            Deactivate My Account
+          </button>
+        </div>
+      </div>
       </div>
     </motion.div>
   );

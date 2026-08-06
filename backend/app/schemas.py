@@ -435,3 +435,10 @@ class VerificationApplicationOut(BaseModel):
     reviewer_notes: Optional[str] = None
     created_at: datetime
     reviewed_at: Optional[datetime] = None
+
+class DeactivateAccountRequest(BaseModel):
+    reason: str | None = None
+
+class AdminSetAccountStatusRequest(BaseModel):
+    status: models.AccountStatus
+    status_reason: str | None = None

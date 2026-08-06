@@ -3,6 +3,7 @@ from typing import Optional
 
 from pydantic import BaseModel, EmailStr, Field, ConfigDict, field_validator
 
+from . import models
 from .models import UserRole, AccountStatus, HouseType, ListingStatus, MessageType, ReportTargetType, ReportStatus, KYCStatus, VerificationTier, VerificationStatus
 
 

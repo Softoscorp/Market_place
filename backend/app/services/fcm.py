@@ -14,6 +14,29 @@ logger = logging.getLogger(__name__)
 _fcm_app = None
 
 
+def _parse_service_account(sa_json: str) -> dict:
+    """
+    Parse the service account JSON tolerantly.
+    When pasted into Railway, the private_key value often gets its \\n escape
+    sequences converted to real newlines, making the JSON invalid.
+    This function fixes that before parsing.
+    """
+    import re
+    try:
+        return json.loads(sa_json)
+    except json.JSONDecodeError:
+        # Fix: re-escape any raw newlines inside the private_key string value.
+        # The regex matches the entire private_key string value (including the
+        # surrounding quotes) and escapes any real newlines within it.
+        fixed = re.sub(
+            r'("private_key"\s*:\s*")(.*?)(")',
+            lambda m: m.group(1) + m.group(2).replace('\n', '\\n') + m.group(3),
+            sa_json,
+            flags=re.DOTALL,
+        )
+        return json.loads(fixed)
+
+
 def _get_firebase_app():
     global _fcm_app
     if _fcm_app is not None:
@@ -28,8 +51,9 @@ def _get_firebase_app():
         import firebase_admin
         from firebase_admin import credentials
 
+        cred_dict = _parse_service_account(sa_json)
         if not firebase_admin._apps:
-            cred = credentials.Certificate(json.loads(sa_json))
+            cred = credentials.Certificate(cred_dict)
             _fcm_app = firebase_admin.initialize_app(cred)
         else:
             _fcm_app = firebase_admin.get_app()

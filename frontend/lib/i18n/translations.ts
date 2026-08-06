@@ -115,6 +115,9 @@ export const translations = {
     verified: 'Verified',
     per_month: '/mo',
     back: 'Back',
+    independent_agent: 'Independent Agent',
+    browse_by_location: 'Browse by Location',
+    browse_location_sub: 'Discover properties in top cities and regions.',
   },
 
   tr: {
@@ -231,6 +234,9 @@ export const translations = {
     verified: 'Onaylı',
     per_month: '/ay',
     back: 'Geri',
+    independent_agent: 'Bağımsız Emlakçı',
+    browse_by_location: 'Konuma Göre Gözat',
+    browse_location_sub: 'En iyi şehir ve bölgelerdeki mülkleri keşfedin.',
   }
 } as const;
 

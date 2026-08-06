@@ -11,6 +11,7 @@ import { apiRequest, mediaUrl, getAgentRatings } from '@/lib/api';
 import { ReviewList } from '@/components/reviews/ReviewList';
 import { ReviewForm } from '@/components/reviews/ReviewForm';
 import { Button } from '@/components/ui/Button';
+import { useLanguageStore } from '@/lib/store/useLanguageStore';
 
 interface ProfileData {
   agent: { name: string; avatar_url?: string; bio?: string; verification_tier?: 'none' | 'local' | 'international'; last_seen_at?: string | null; respond_rate?: number; id: string };
@@ -56,6 +57,7 @@ export default function AgentDetailPage({ params }: { params: Promise<{ id: stri
   if (!profile) return notFound();
 
   const { agent, average_rating, rating_count, listings } = profile;
+  const { t } = useLanguageStore();
 
   return (
     <motion.div 
@@ -73,7 +75,7 @@ export default function AgentDetailPage({ params }: { params: Promise<{ id: stri
       >
         <AgentProfile 
           name={agent.name}
-          agency={'Independent Agent'}
+          agency={t('independent_agent')}
           imageUrl={mediaUrl(agent.avatar_url) || ''}
           bio={agent.bio || 'Professional real estate agent.'}
           rating={average_rating || 5.0}

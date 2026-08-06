@@ -184,8 +184,8 @@ export default function HomePage() {
         >
           <div className={styles.sectionHeader}>
             <div>
-              <h2 className={styles.sectionTitle}>Browse by Location</h2>
-              <p className={styles.ctaSubtitle}>Discover properties in top cities and regions.</p>
+              <h2 className={styles.sectionTitle}>{t('browse_by_location')}</h2>
+              <p className={styles.ctaSubtitle}>{t('browse_location_sub')}</p>
             </div>
           </div>
           <div className={styles.universityGrid}>
@@ -289,7 +289,7 @@ export default function HomePage() {
                   key={idx} 
                   agentId={agent.id}
                   name={agent.name}
-                  agency={'Independent Agent'}
+                  agency={t('independent_agent')}
                   imageUrl={agent.avatar_url ? mediaUrl(agent.avatar_url) || '' : ''}
                   rating={agent.average_rating ? Number(agent.average_rating.toFixed(1)) : 0}
                   reviews={agent.total_reviews || 0}

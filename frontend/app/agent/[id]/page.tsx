@@ -8,6 +8,7 @@ import { PropertyCard } from '@/components/property/PropertyCard';
 import { BackButton } from '@/components/ui/BackButton';
 import { useChatStore } from '@/lib/store/useChatStore';
 import { useAuthStore } from '@/lib/store/useAuthStore';
+import { useLanguageStore } from '@/lib/store/useLanguageStore';
 import { getAgentProfile, mediaUrl } from '@/lib/api';
 
 import styles from './page.module.css';
@@ -20,6 +21,7 @@ export default function AgentProfilePage() {
   const router = useRouter();
   const { openChat } = useChatStore();
   const { isAuthenticated } = useAuthStore();
+  const { t } = useLanguageStore();
 
 interface AgentProfile {
   agent: {
@@ -104,7 +106,7 @@ interface AgentProfile {
           <AgentCard
             agentId={agent.id}
             name={agent.name}
-            agency={'Independent Agent'}
+            agency={t('independent_agent')}
             imageUrl={mediaUrl(agent.avatar_url) || '/images/placeholder-studio.jpg'}
             rating={average_rating || 5.0}
             reviews={rating_count || 0}

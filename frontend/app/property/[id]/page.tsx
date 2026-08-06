@@ -17,6 +17,7 @@ import { Input } from '@/components/ui/Input';
 import { PropertyCard } from '@/components/property/PropertyCard';
 import { useChatStore } from '@/lib/store/useChatStore';
 import { useAuthStore } from '@/lib/store/useAuthStore';
+import { useLanguageStore } from '@/lib/store/useLanguageStore';
 import { useRouter } from 'next/navigation';
 import { apiRequest, mediaUrl, saveProperty, getApartmentRatings } from '@/lib/api';
 import { ReviewList } from '@/components/reviews/ReviewList';
@@ -61,6 +62,7 @@ export default function PropertyPage({ params }: PropertyPageProps) {
 
   // Booking and Roommate Flow
   const { user } = useAuthStore();
+  const { t } = useLanguageStore();
   const router = useRouter();
   const [showBookingModal, setShowBookingModal] = useState(false);
   const [showRoommatePrompt, setShowRoommatePrompt] = useState(false);
@@ -304,7 +306,7 @@ export default function PropertyPage({ params }: PropertyPageProps) {
             <AgentCard
               agentId={agent.id}
               name={agent.name}
-              agency={'Independent Agent'}
+              agency={t('independent_agent')}
               imageUrl={mediaUrl(agent.avatar_url) || ''}
               rating={property.agent_average_rating || 5.0}
               reviews={property.agent_rating_count || 0}

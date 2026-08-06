@@ -388,7 +388,9 @@ export default function AdminDashboard() {
                         })()}
                       </td>
                       <td>
-                        <span className={`${styles.statusBadge} ${styles.active}`}>{u.role}</span>
+                        <span className={`${styles.statusBadge} ${u.account_status === 'active' ? styles.active : styles.paused}`}>
+                          {u.account_status || 'active'}
+                        </span>
                       </td>
                       <td>
                         <select 
@@ -401,6 +403,38 @@ export default function AdminDashboard() {
                           <option value="agent">Agent</option>
                           <option value="customer_care">Customer Care</option>
                         </select>
+                        
+                        <select 
+                          className={styles.input} 
+                          style={{ padding: '0.25rem', width: 'auto', marginLeft: '8px' }}
+                          value={u.account_status || 'active'}
+                          onChange={async (e) => {
+                            const newStatus = e.target.value;
+                            let reason = "";
+                            if (newStatus !== 'active') {
+                              const input = prompt(`Reason for changing status to ${newStatus}:`);
+                              if (input === null) return;
+                              reason = input;
+                            }
+                            
+                            try {
+                              await apiRequest(`/admin/users/${u.id}/account-status`, {
+                                method: 'PATCH',
+                                auth: true,
+                                body: JSON.stringify({ status: newStatus, status_reason: reason })
+                              });
+                              setAdminUsers(users => users.map(user => user.id === u.id ? { ...user, account_status: newStatus } : user));
+                              alert('Account status updated');
+                            } catch (err) {
+                              alert('Failed to update account status');
+                            }
+                          }}
+                        >
+                          <option value="active">Active</option>
+                          <option value="suspended">Suspended</option>
+                          <option value="banned">Banned</option>
+                        </select>
+                        
                         <button
                           className={styles.iconBtn}
                           style={{ marginLeft: '8px' }}

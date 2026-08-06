@@ -513,15 +513,15 @@ export default function ProfilePage() {
 
       <div className={styles.card}>
         <div className={styles.sectionHeader}>
-          <h2 className={styles.title}>Messages Hub</h2>
-          <p className={styles.subtitle}>All your conversations in one place</p>
+          <h2 className={styles.title}>{t('messages_hub')}</h2>
+          <p className={styles.subtitle}>{t('messages_hub_sub')}</p>
         </div>
 
         {conversationList.length === 0 ? (
           <div className={styles.emptyState}>
             <MessageSquare size={48} className={styles.emptyIcon} />
-            <h3>No messages yet</h3>
-            <p>When you contact an agent or roommate, your conversations will appear here.</p>
+            <h3>{t('no_messages_yet')}</h3>
+            <p>{t('no_messages_sub')}</p>
           </div>
         ) : (
           <div className={styles.conversationList}>
@@ -572,18 +572,18 @@ export default function ProfilePage() {
       {/* Danger Zone */}
       <div className={styles.card} style={{ border: '1px solid #ef4444', marginTop: '2rem' }}>
         <div className={styles.sectionHeader}>
-          <h2 className={styles.title} style={{ color: '#ef4444' }}>Danger Zone</h2>
-          <p className={styles.subtitle}>Irreversible and critical account actions</p>
+          <h2 className={styles.title} style={{ color: '#ef4444' }}>{t('danger_zone')}</h2>
+          <p className={styles.subtitle}>{t('danger_zone_sub')}</p>
         </div>
         
         <div style={{ padding: '1rem 0' }}>
-          <h3 style={{ fontSize: '1rem', fontWeight: 600, color: '#f8fafc', marginBottom: '0.5rem' }}>Deactivate Account</h3>
+          <h3 style={{ fontSize: '1rem', fontWeight: 600, color: '#f8fafc', marginBottom: '0.5rem' }}>{t('deactivate_account')}</h3>
           <p style={{ color: '#94a3b8', fontSize: '0.875rem', marginBottom: '1rem', lineHeight: 1.5 }}>
-            Deactivating your account will immediately log you out and block access to your account. Your profile and listings will no longer be visible to the public. For security and fraud prevention, your data is retained in our systems.
+            {t('deactivate_desc')}
           </p>
           <button 
             onClick={async () => {
-              if (window.confirm("Are you sure you want to deactivate your account? This action will log you out immediately.")) {
+              if (window.confirm(t('deactivate_confirm'))) {
                 try {
                   const token = getToken() || user?.token;
                   if (!token) return;
@@ -595,10 +595,10 @@ export default function ProfilePage() {
                     },
                     body: JSON.stringify({ reason: "User self-deactivated" })
                   });
-                  alert("Your account has been deactivated.");
+                  alert(t('deactivate_success'));
                   logout();
                 } catch (e) {
-                  alert("Failed to deactivate account. Please contact support.");
+                  alert(t('deactivate_error'));
                 }
               }
             }}
@@ -619,7 +619,7 @@ export default function ProfilePage() {
             onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#ef4444'}
           >
             <ShieldAlert size={18} />
-            Deactivate My Account
+            {t('deactivate_btn')}
           </button>
         </div>
       </div>

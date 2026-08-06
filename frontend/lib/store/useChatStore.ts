@@ -59,7 +59,7 @@ interface ChatState {
   activeAgentId: string | null;
   activeListingId: number | null;
   conversations: Record<string, Conversation>;
-  notification: { title: string; body: string } | null;
+  notification: { contactName: string; avatarUrl: string; text: string } | null;
   chatError: string | null;
   isLoadingMessages: boolean;
   
@@ -69,6 +69,7 @@ interface ChatState {
   fetchConversations: () => Promise<void>;
   fetchMessages: (conversationId: number) => Promise<void>;
   clearNotification: () => void;
+  setNotification: (notif: { contactName: string; avatarUrl: string; text: string }) => void;
   clearChatError: () => void;
   markAsRead: (agentId: string) => void;
 }
@@ -220,6 +221,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
   },
 
   clearNotification: () => set({ notification: null }),
+  setNotification: (notif) => set({ notification: notif }),
   
   clearChatError: () => set({ chatError: null }),
 

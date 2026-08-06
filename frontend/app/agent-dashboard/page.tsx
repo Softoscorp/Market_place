@@ -18,6 +18,7 @@ import {
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/lib/store/useAuthStore';
 import { useChatStore } from '@/lib/store/useChatStore';
+import { useLanguageStore } from '@/lib/store/useLanguageStore';
 import { apiRequest, mediaUrl } from '@/lib/api';
 import { ProtectedImage } from '@/components/ui/ProtectedImage';
 import { AgentVerification } from '@/components/AgentVerification';
@@ -38,6 +39,7 @@ export default function AgentDashboard() {
   const router = useRouter();
   const { user, isAuthenticated, logout } = useAuthStore();
   const { openChat, conversations, fetchConversations } = useChatStore();
+  const { t } = useLanguageStore();
   const [activeTab, setActiveTab] = useState('overview');
 
   const [agentListings, setAgentListings] = useState<RealListing[]>([]);
@@ -277,28 +279,27 @@ export default function AgentDashboard() {
               <div className={styles.settingsCard}>
                 <h3>Notifications</h3>
                 <div className={styles.toggleRow}>
-                  <span>Email alerts for new messages</span>
+                  <span>{t('notification_email')}</span>
                   <input type="checkbox" defaultChecked />
                 </div>
                 <div className={styles.toggleRow}>
-                  <span>SMS alerts for hot leads</span>
+                  <span>{t('notification_sms')}</span>
                   <input type="checkbox" defaultChecked />
                 </div>
                 <div className={styles.toggleRow}>
-                  <span>Weekly analytics report</span>
+                  <span>{t('notification_weekly')}</span>
                   <input type="checkbox" />
                 </div>
               </div>
-              </div>
 
               <div className={styles.settingsCard} style={{ border: '1px solid #ef4444' }}>
-                <h3 style={{ color: '#ef4444' }}>Danger Zone</h3>
+                <h3 style={{ color: '#ef4444' }}>{t('danger_zone')}</h3>
                 <p style={{ color: '#64748b', fontSize: '0.875rem', marginBottom: '1rem', lineHeight: 1.5 }}>
-                  Deactivating your account will immediately log you out and block access to your account. Your profile and listings will no longer be visible to the public. For security and fraud prevention, your data is retained in our systems.
+                  {t('deactivate_desc')}
                 </p>
                 <button 
                   onClick={async () => {
-                    if (window.confirm("Are you sure you want to deactivate your account? This action will log you out immediately.")) {
+                    if (window.confirm(t('deactivate_confirm'))) {
                       try {
                         const { getToken } = await import('@/lib/api');
                         const token = getToken() || user?.token;
@@ -311,10 +312,10 @@ export default function AgentDashboard() {
                           },
                           body: JSON.stringify({ reason: "Agent self-deactivated" })
                         });
-                        alert("Your account has been deactivated.");
+                        alert(t('deactivate_success'));
                         logout();
                       } catch (e) {
-                        alert("Failed to deactivate account. Please contact support.");
+                        alert(t('deactivate_error'));
                       }
                     }
                   }}
@@ -335,7 +336,7 @@ export default function AgentDashboard() {
                   onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#ef4444'}
                 >
                   <ShieldAlert size={18} />
-                  Deactivate My Account
+                  {t('deactivate_btn')}
                 </button>
               </div>
             </div>
@@ -360,7 +361,7 @@ export default function AgentDashboard() {
     <div className={styles.container}>
       <div className={styles.sidebar}>
         <div className={styles.sidebarHeader}>
-          <h2>Agent Panel</h2>
+          <h2>{t('agent_panel')}</h2>
           <p>{user?.name || user?.email}</p>
         </div>
         <nav className={styles.nav}>

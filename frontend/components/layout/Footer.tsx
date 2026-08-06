@@ -74,7 +74,7 @@ export function Footer() {
               {unreadCount > 99 ? '99+' : unreadCount}
             </span>
           )}
-          <span>Messages</span>
+          <span>{t('tab_messages')}</span>
         </Link>
 
         <Link href="/profile" className={`${styles.tabBtn} ${isActive('/profile') ? styles.tabBtnActive : ''}`}>

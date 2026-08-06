@@ -118,6 +118,29 @@ export const translations = {
     independent_agent: 'Independent Agent',
     browse_by_location: 'Browse by Location',
     browse_location_sub: 'Discover properties in top cities and regions.',
+
+    // New additions
+    tab_messages: 'Messages',
+    nav_install_app: 'Install Mobile App',
+    nav_saved_properties: 'Saved Properties',
+
+    // Profile & Dashboard
+    messages_hub: 'Messages Hub',
+    messages_hub_sub: 'All your conversations in one place',
+    no_messages_yet: 'No messages yet',
+    no_messages_sub: 'When you contact an agent or roommate, your conversations will appear here.',
+    danger_zone: 'Danger Zone',
+    danger_zone_sub: 'Irreversible and critical account actions',
+    deactivate_account: 'Deactivate Account',
+    deactivate_desc: 'Deactivating your account will immediately log you out and block access. Your profile and listings will no longer be visible. Your data is retained for fraud prevention.',
+    deactivate_btn: 'Deactivate My Account',
+    deactivate_confirm: 'Are you sure you want to deactivate your account? This action will log you out immediately.',
+    deactivate_success: 'Your account has been deactivated.',
+    deactivate_error: 'Failed to deactivate account. Please contact support.',
+    agent_panel: 'Agent Panel',
+    notification_email: 'Email alerts for new messages',
+    notification_sms: 'SMS alerts for hot leads',
+    notification_weekly: 'Weekly analytics report',
   },
 
   tr: {
@@ -237,6 +260,29 @@ export const translations = {
     independent_agent: 'Bağımsız Emlakçı',
     browse_by_location: 'Konuma Göre Gözat',
     browse_location_sub: 'En iyi şehir ve bölgelerdeki mülkleri keşfedin.',
+
+    // New additions
+    tab_messages: 'Mesajlar',
+    nav_install_app: 'Mobil Uygulamayı Yükle',
+    nav_saved_properties: 'Kaydedilen Mülkler',
+
+    // Profile & Dashboard
+    messages_hub: 'Mesaj Merkezi',
+    messages_hub_sub: 'Tüm konuşmalarınız tek bir yerde',
+    no_messages_yet: 'Henüz mesaj yok',
+    no_messages_sub: 'Bir emlakçı veya oda arkadaşıyla iletişime geçtiğinizde konuşmalarınız burada görünecek.',
+    danger_zone: 'Tehlikeli Bölge',
+    danger_zone_sub: 'Geri alınamaz ve kritik hesap işlemleri',
+    deactivate_account: 'Hesabı Devre Dışı Bırak',
+    deactivate_desc: 'Hesabınızı devre dışı bırakmak sizi anında çıkış yaptırır ve hesaba erişimi engeller. Profiliniz ve ilanlarınız artık görünmez. Verileriniz dolandırıcılık önleme amacıyla saklanır.',
+    deactivate_btn: 'Hesabımı Devre Dışı Bırak',
+    deactivate_confirm: 'Hesabınızı devre dışı bırakmak istediğinizden emin misiniz? Bu işlem sizi anında çıkış yaptıracaktır.',
+    deactivate_success: 'Hesabınız devre dışı bırakıldı.',
+    deactivate_error: 'Hesap devre dışı bırakılamadı. Lütfen destek ile iletişime geçin.',
+    agent_panel: 'Emlakçı Paneli',
+    notification_email: 'Yeni mesajlar için e-posta bildirimleri',
+    notification_sms: 'Sıcak potansiyeller için SMS bildirimleri',
+    notification_weekly: 'Haftalık analitik raporu',
   }
 } as const;
 

@@ -46,7 +46,16 @@ async function initCapacitorPush() {
     // Foreground notification received
     PushNotifications.addListener('pushNotificationReceived', (notification) => {
       console.log('[Push] Notification received:', notification);
-      // Optionally show in-app toast here
+      
+      // Update the unread count globally and show the in-app toast
+      import('@/lib/store/useChatStore').then(({ useChatStore }) => {
+        useChatStore.getState().fetchConversations();
+        useChatStore.getState().setNotification({
+          contactName: notification.title || notification.data?.contactName || 'New Message',
+          text: notification.body || notification.data?.text || '',
+          avatarUrl: notification.data?.avatarUrl || ''
+        });
+      });
     });
 
     // User tapped a notification
@@ -88,6 +97,22 @@ async function initWebPush() {
   } catch (e) {
     console.warn('[Push] Web push init failed:', e);
   }
+
+  // Listen for push messages from the service worker
+  navigator.serviceWorker.addEventListener('message', (event) => {
+    if (event.data && event.data.type === 'PUSH_RECEIVED') {
+      console.log('[Push] Web Push notification received in foreground:', event.data.payload);
+      import('@/lib/store/useChatStore').then(({ useChatStore }) => {
+        useChatStore.getState().fetchConversations();
+        const payload = event.data.payload;
+        useChatStore.getState().setNotification({
+          contactName: payload.title || payload.data?.contactName || 'New Message',
+          text: payload.body || payload.data?.text || '',
+          avatarUrl: payload.data?.avatarUrl || ''
+        });
+      });
+    }
+  });
 }
 
 function urlBase64ToUint8Array(base64String: string) {

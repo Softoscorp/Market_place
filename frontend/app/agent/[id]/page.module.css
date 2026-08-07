@@ -50,8 +50,40 @@
   gap: 32px;
 }
 
+@media (max-width: 1024px) {
+  .container {
+    padding: 100px 16px 48px;
+  }
+
+  .profileSection {
+    width: 100%;
+    position: static;
+    margin-bottom: 1.5rem;
+  }
+
+  .profileCardWrapper {
+    max-width: 100%;
+  }
+
+  .grid {
+    gap: 24px;
+  }
+}
+
 @media (max-width: 768px) {
   .container {
-    padding-top: 100px;
+    padding: 1.5rem 1rem 3rem;
+  }
+
+  .profileSection {
+    margin-bottom: 1rem;
+  }
+
+  .grid {
+    gap: 1.25rem;
+  }
+
+  .sectionTitle {
+    font-size: 1.5rem;
   }
 }

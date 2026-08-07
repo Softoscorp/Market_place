@@ -43,3 +43,23 @@
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 1.5rem;
 }
+
+@media (max-width: 1024px) {
+  .container {
+    padding: var(--space-6) var(--space-4);
+  }
+
+  .profileSection,
+  .listingsSection {
+    width: 100%;
+  }
+
+  .profileSection {
+    position: static;
+    margin-bottom: 2rem;
+  }
+
+  .grid {
+    gap: 1rem;
+  }
+}

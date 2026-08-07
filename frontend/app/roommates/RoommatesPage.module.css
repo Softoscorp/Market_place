@@ -234,12 +234,30 @@
   .title {
     font-size: 2rem;
   }
-  
+
   .actionSection {
     flex-direction: column;
   }
-  
+
   .matchBtn {
     padding: 1rem;
+    width: 100%;
+  }
+
+  .content {
+    gap: 2rem;
+  }
+
+  .formWrapper,
+  .filterWrapper {
+    padding: 1.5rem;
+  }
+
+  .filterGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .optInCard {
+    padding: 2rem;
   }
 }

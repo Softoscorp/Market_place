@@ -240,3 +240,10 @@
   transform: translateY(-2px);
   box-shadow: var(--shadow-md);
 }
+
+@media (max-width: 1023px) {
+  .previewSidebar {
+    position: static;
+    top: auto;
+  }
+}

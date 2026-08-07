@@ -375,3 +375,49 @@
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
+
+@media (max-width: 992px) {
+  .container {
+    min-height: auto;
+    padding: 0;
+  }
+
+  .splitLayout {
+    flex-direction: column;
+  }
+
+  .formSide {
+    width: 100%;
+    padding: 1.5rem 1rem 2rem;
+  }
+
+  .formWrapper {
+    max-width: 100%;
+  }
+
+  .header {
+    margin-bottom: 2rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .visualOverlay {
+    padding: 2rem;
+  }
+
+  .visualContent h1 {
+    font-size: 2.25rem;
+  }
+
+  .visualContent p {
+    margin-bottom: 1.5rem;
+  }
+
+  .formSide {
+    padding: 1rem 0.75rem 1.5rem;
+  }
+
+  .formWrapper {
+    padding: 1.5rem;
+  }
+}

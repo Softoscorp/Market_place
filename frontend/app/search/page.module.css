@@ -95,6 +95,17 @@
     width: 100%;
     position: static;
   }
+
+  .headerContent {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-4);
+  }
+
+  .sortSelect {
+    width: 100%;
+    max-width: none;
+  }
 }
 
 .emptyState {

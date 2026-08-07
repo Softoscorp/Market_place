@@ -66,6 +66,20 @@
   gap: 2rem;
 }
 
+@media (max-width: 768px) {
+  .container {
+    padding: 2rem 1rem;
+  }
+
+  .tabs {
+    flex-wrap: wrap;
+  }
+
+  .grid {
+    gap: 1.25rem;
+  }
+}
+
 .emptyState {
   display: flex;
   flex-direction: column;

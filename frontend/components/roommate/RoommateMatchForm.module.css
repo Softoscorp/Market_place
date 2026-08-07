@@ -65,6 +65,17 @@
   gap: 16px;
 }
 
+@media (max-width: 768px) {
+  .optionsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .footer {
+    flex-direction: column;
+    gap: 16px;
+  }
+}
+
 .optionCard {
   background-color: var(--bg-input);
   border: 1px solid var(--border);

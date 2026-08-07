@@ -44,7 +44,7 @@ export const MoveInCalculator: React.FC<MoveInCalculatorProps> = ({
           <div className={styles.itemLabel}>
             <span>Rent ({advanceMonths} month{advanceMonths > 1 ? 's' : ''} advance)</span>
             <Tooltip content={`Monthly rent is ${formatMoney(rent)}. You pay ${advanceMonths} month(s) upfront.`}>
-              <Info size={14} className={styles.infoIcon} />
+              <Info size={14} className={styles.infoIcon} aria-hidden="true" />
             </Tooltip>
           </div>
           <span className={styles.itemValue}>{formatMoney(advanceTotal)}</span>
@@ -54,7 +54,7 @@ export const MoveInCalculator: React.FC<MoveInCalculatorProps> = ({
           <div className={styles.itemLabel}>
             <span>Deposit</span>
             <Tooltip content="Refundable deposit held by the landlord.">
-              <Info size={14} className={styles.infoIcon} />
+              <Info size={14} className={styles.infoIcon} aria-hidden="true" />
             </Tooltip>
           </div>
           <span className={styles.itemValue}>{formatMoney(deposit)}</span>
@@ -64,7 +64,7 @@ export const MoveInCalculator: React.FC<MoveInCalculatorProps> = ({
           <div className={styles.itemLabel}>
             <span>Agency Commission</span>
             <Tooltip content="One-time fee for the real estate agency.">
-              <Info size={14} className={styles.infoIcon} />
+              <Info size={14} className={styles.infoIcon} aria-hidden="true" />
             </Tooltip>
           </div>
           <span className={styles.itemValue}>{formatMoney(commission)}</span>

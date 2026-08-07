@@ -99,36 +99,36 @@ export function ChatPanel() {
                     />
                     <div>
                       <h3 className={styles.agentName}>{activeConversation.contact.name}</h3>
-                      <div className={styles.status} style={{ color: isOnline(activeConversation.contact.lastSeenAt) ? '#22c55e' : '#9ca3af' }}>
+                      <div className={styles.status} style={{ color: isOnline(activeConversation.contact.lastSeenAt) ? 'var(--success)' : 'var(--text-muted)' }}>
                         <span className={styles.statusDot} style={{ 
-                          background: isOnline(activeConversation.contact.lastSeenAt) ? '#22c55e' : '#9ca3af',
-                          boxShadow: isOnline(activeConversation.contact.lastSeenAt) ? '0 0 0 2px #fff, 0 0 6px #22c55e' : 'none'
+                          background: isOnline(activeConversation.contact.lastSeenAt) ? 'var(--success)' : 'var(--text-muted)',
+                          boxShadow: isOnline(activeConversation.contact.lastSeenAt) ? '0 0 0 2px var(--bg-surface), 0 0 6px var(--success)' : 'none'
                         }} />
                         {getLocalizedLastSeenText(activeConversation.contact.lastSeenAt)}
                       </div>
                     </div>
                   </>
                 ) : (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                    <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: '#e5e7eb' }} />
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
+                    <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'var(--bg-surface)' }} />
                     <h3 className={styles.agentName}>{t('chat_connecting')}</h3>
                   </div>
                 )}
               </div>
-              <button onClick={closeChat} className={styles.closeBtn}>
+              <button onClick={closeChat} className={styles.closeBtn} aria-label="Close chat">
                 <X size={20} />
               </button>
             </div>
 
             <div className={styles.chatArea}>
               {isLoadingMessages && (
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', flexDirection: 'column', gap: '1rem', color: '#6b7280' }}>
-                  <div style={{ width: '28px', height: '28px', border: '3px solid #e5e7eb', borderTopColor: '#111827', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
-                  <span style={{ fontSize: '0.875rem' }}>{t('chat_loading_messages')}</span>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', flexDirection: 'column', gap: 'var(--space-4)', color: 'var(--text-secondary)' }}>
+                  <div style={{ width: '28px', height: '28px', border: '3px solid var(--border)', borderTopColor: 'var(--text-primary)', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+                  <span style={{ fontSize: 'var(--text-sm)' }}>{t('chat_loading_messages')}</span>
                 </div>
               )}
               {!isLoadingMessages && !activeConversation && (
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#6b7280', fontSize: '0.875rem', textAlign: 'center', padding: '1rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: 'var(--text-secondary)', fontSize: 'var(--text-sm)', textAlign: 'center', padding: 'var(--space-4)' }}>
                   {t('chat_error_load')}
                 </div>
               )}
@@ -138,7 +138,7 @@ export function ChatPanel() {
                   className={`${styles.message} ${msg.sender === 'user' ? styles.messageSent : styles.messageReceived}`}
                 >
                   {msg.text}
-                  <div style={{ fontSize: '0.7rem', opacity: 0.7, marginTop: '4px', textAlign: msg.sender === 'user' ? 'right' : 'left' }}>
+                  <div style={{ fontSize: 'var(--text-xs)', opacity: 0.7, marginTop: 'var(--space-1)', textAlign: msg.sender === 'user' ? 'right' : 'left' }}>
                     {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </div>
                 </div>
@@ -148,19 +148,19 @@ export function ChatPanel() {
 
             {chatError && (
               <div style={{
-                backgroundColor: '#fee2e2',
-                color: '#ef4444',
-                padding: '0.75rem',
-                fontSize: '0.875rem',
+                backgroundColor: 'var(--danger-muted)',
+                color: 'var(--danger)',
+                padding: 'var(--space-3)',
+                fontSize: 'var(--text-sm)',
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
-                borderTop: '1px solid #fecaca',
-                margin: '0 1rem',
-                borderRadius: '0.5rem 0.5rem 0 0'
+                borderTop: '1px solid var(--danger-border)',
+                margin: '0 var(--space-4)',
+                borderRadius: 'var(--radius-sm)'
               }}>
                 <span>{chatError}</span>
-                <button onClick={clearChatError} style={{ color: '#ef4444', cursor: 'pointer', background: 'none', border: 'none' }}>
+                <button onClick={clearChatError} style={{ color: 'var(--danger)', cursor: 'pointer', background: 'none', border: 'none' }}>
                   <X size={14} />
                 </button>
               </div>
@@ -175,7 +175,7 @@ export function ChatPanel() {
                 onChange={(e) => setMessage(e.target.value)}
                 disabled={!activeConversation}
               />
-              <button type="submit" className={styles.sendBtn} disabled={!message.trim() || !activeConversation}>
+              <button type="submit" className={styles.sendBtn} disabled={!message.trim() || !activeConversation} aria-label="Send message">
                 <Send size={18} />
               </button>
             </form>

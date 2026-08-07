@@ -32,7 +32,7 @@ export const Avatar = React.forwardRef<HTMLDivElement, AvatarProps>(
             {fallback ? (
               <span className={styles.fallbackText}>{fallback}</span>
             ) : (
-              <User className={styles.icon} />
+              <User className={styles.icon} aria-hidden="true" />
             )}
           </div>
         )}

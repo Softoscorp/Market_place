@@ -45,6 +45,7 @@ export function GlobalNotification() {
                 e.stopPropagation();
                 clearNotification();
               }}
+              aria-label="Dismiss notification"
             >
               <X size={16} />
             </button>

@@ -116,7 +116,7 @@ function SearchResults() {
               </div>
             ) : properties.length === 0 ? (
               <div className={styles.emptyState}>
-                <Home size={48} strokeWidth={1.2} />
+                <Home size={48} strokeWidth={1.2} aria-hidden="true" />
                 <h2>{t('no_properties')}</h2>
                 <p>{t('no_properties_sub')}</p>
               </div>

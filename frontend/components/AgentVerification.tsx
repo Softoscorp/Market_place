@@ -60,7 +60,7 @@ export function AgentVerification({ verificationTier }: { verificationTier: stri
     <div className={styles.card}>
       <div className={styles.sectionHeader}>
         <h2 className={styles.title}>
-          <ShieldCheck size={24} color="#0f172a" />
+          <ShieldCheck size={24} color="var(--text-primary)" />
           Verification Center
         </h2>
         <p className={styles.subtitle}>Build trust by verifying your identity and business</p>
@@ -83,7 +83,7 @@ export function AgentVerification({ verificationTier }: { verificationTier: stri
             </div>
             <div>
               <div className={styles.verificationTitle}>Tier 1: Local</div>
-              <div style={{ fontSize: '0.75rem', fontWeight: 600, color: '#d97706', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Identity Verification</div>
+              <div style={{ fontSize: 'var(--text-xs)', fontWeight: 600, color: 'var(--warning-text)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Identity Verification</div>
             </div>
           </div>
           <p className={styles.verificationDesc}>
@@ -108,8 +108,8 @@ export function AgentVerification({ verificationTier }: { verificationTier: stri
               );
             } else if (app && app.status === 'rejected') {
               return (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                  <div className={`${styles.verificationStatus}`} style={{ color: '#ef4444', marginBottom: 0 }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
+                  <div className={`${styles.verificationStatus}`} style={{ color: 'var(--danger)', marginBottom: 0 }}>
                     <ShieldAlert size={18} /> Rejected: {app.reviewer_notes}
                   </div>
                   <button
@@ -143,7 +143,7 @@ export function AgentVerification({ verificationTier }: { verificationTier: stri
             </div>
             <div>
               <div className={styles.verificationTitle}>Tier 2: International</div>
-              <div style={{ fontSize: '0.75rem', fontWeight: 600, color: '#eab308', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Business Verification</div>
+              <div style={{ fontSize: 'var(--text-xs)', fontWeight: 600, color: 'var(--warning)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Business Verification</div>
             </div>
           </div>
           <p className={styles.verificationDesc}>
@@ -169,8 +169,8 @@ export function AgentVerification({ verificationTier }: { verificationTier: stri
               );
             } else if (app && app.status === 'rejected') {
               return (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                  <div className={`${styles.verificationStatus}`} style={{ color: '#ef4444', marginBottom: 0 }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
+                  <div className={`${styles.verificationStatus}`} style={{ color: 'var(--danger)', marginBottom: 0 }}>
                     <ShieldAlert size={18} /> Rejected: {app.reviewer_notes}
                   </div>
                   <button

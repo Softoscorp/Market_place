@@ -253,8 +253,8 @@ export default function AdminDashboard() {
                       <td>
                         {doc.status === 'pending' && (
                           <div className={styles.actionButtons}>
-                            <button className={styles.iconBtn} onClick={() => handleApproveKYC(doc.id)} title="Approve"><CheckCircle size={16} color="var(--success)" /></button>
-                            <button className={styles.iconBtn} onClick={() => handleRejectKYC(doc.id)} title="Reject"><XCircle size={16} color="var(--danger)" /></button>
+                            <button className={styles.iconBtn} onClick={() => handleApproveKYC(doc.id)} title="Approve" aria-label="Approve"><CheckCircle size={16} color="var(--success)" /></button>
+                            <button className={styles.iconBtn} onClick={() => handleRejectKYC(doc.id)} title="Reject" aria-label="Reject"><XCircle size={16} color="var(--danger)" /></button>
                           </div>
                         )}
                       </td>
@@ -287,8 +287,8 @@ export default function AdminDashboard() {
                       <td className={styles.fw500}>#{app.agent_id}</td>
                       <td>
                         <span className={styles.statusBadge} style={{ 
-                          background: app.tier === 'international' ? '#fef3c7' : '#f3f4f6',
-                          color: app.tier === 'international' ? '#b45309' : '#374151'
+                          background: app.tier === 'international' ? 'var(--warning-muted)' : 'var(--bg-hover)',
+                          color: app.tier === 'international' ? 'var(--warning-text)' : 'var(--text-secondary)'
                         }}>
                           {app.tier}
                         </span>
@@ -299,7 +299,7 @@ export default function AdminDashboard() {
                         </span>
                       </td>
                       <td>
-                        <div style={{ display: 'flex', gap: '8px' }}>
+                        <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
                           {app.status === 'pending' && (
                             <>
                               <button 
@@ -315,6 +315,7 @@ export default function AdminDashboard() {
                                   }
                                 }}
                                 title="Approve"
+                                aria-label="Approve verification"
                               >
                                 <CheckCircle size={16} color="var(--success)" />
                               </button>
@@ -332,14 +333,15 @@ export default function AdminDashboard() {
                                     alert('Failed to reject');
                                   }
                                 }}
-                                title="Reject"
-                              >
-                                <XCircle size={16} color="var(--danger)" />
-                              </button>
+title="Reject"
+                                    aria-label="Reject verification"
+                                  >
+                                    <XCircle size={16} color="var(--danger)" />
+                                  </button>
                             </>
                           )}
                           {app.proof_urls.map((url, idx) => (
-                            <a key={idx} href={url} target="_blank" rel="noreferrer" style={{ fontSize: '12px', color: 'var(--brand-blue)', textDecoration: 'underline' }}>
+                            <a key={idx} href={url} target="_blank" rel="noreferrer" style={{ fontSize: 'var(--text-xs)', color: 'var(--accent)', textDecoration: 'underline' }}>
                               Proof {idx + 1}
                             </a>
                           ))}
@@ -380,9 +382,9 @@ export default function AdminDashboard() {
                           const diffMin = u.last_seen_at ? Math.floor((Date.now() - new Date(u.last_seen_at.endsWith('Z') ? u.last_seen_at : u.last_seen_at + 'Z').getTime()) / 60000) : null;
                           const label = online ? 'Online now' : diffMin === null ? 'Never' : diffMin < 60 ? `${diffMin}m ago` : `${Math.floor(diffMin/60)}h ago`;
                           return (
-                            <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                              <span style={{ width: 8, height: 8, borderRadius: '50%', background: online ? '#22c55e' : '#9ca3af', display: 'inline-block', boxShadow: online ? '0 0 4px #22c55e' : 'none' }} />
-                              <span style={{ fontSize: '0.78rem', color: online ? '#22c55e' : '#9ca3af' }}>{label}</span>
+                            <span style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+                              <span style={{ width: 'var(--space-2)', height: 'var(--space-2)', borderRadius: '50%', background: online ? 'var(--success)' : 'var(--text-muted)', display: 'inline-block', boxShadow: online ? '0 0 4px var(--success)' : 'none' }} />
+                              <span style={{ fontSize: 'var(--text-sm)', color: online ? 'var(--success)' : 'var(--text-muted)' }}>{label}</span>
                             </span>
                           );
                         })()}
@@ -395,7 +397,7 @@ export default function AdminDashboard() {
                       <td>
                         <select 
                           className={styles.input} 
-                          style={{ padding: '0.25rem', width: 'auto' }}
+                          style={{ padding: 'var(--space-1)', width: 'auto' }}
                           value={u.role}
                           onChange={(e) => handleRoleChange(u.id, e.target.value)}
                         >
@@ -406,7 +408,7 @@ export default function AdminDashboard() {
                         
                         <select 
                           className={styles.input} 
-                          style={{ padding: '0.25rem', width: 'auto', marginLeft: '8px' }}
+                          style={{ padding: 'var(--space-1)', width: 'auto', marginLeft: 'var(--space-2)' }}
                           value={u.account_status || 'active'}
                           onChange={async (e) => {
                             const newStatus = e.target.value;
@@ -437,11 +439,12 @@ export default function AdminDashboard() {
                         
                         <button
                           className={styles.iconBtn}
-                          style={{ marginLeft: '8px' }}
+                          style={{ marginLeft: 'var(--space-2)' }}
                           title={u.is_verified ? 'Revoke Verification' : 'Verify User'}
+                          aria-label={u.is_verified ? 'Revoke verification' : 'Verify user'}
                           onClick={() => handleVerifyToggle(u.id, u.is_verified)}
                         >
-                          <ShieldCheck size={16} color={u.is_verified ? 'var(--success)' : '#aaa'} />
+                          <ShieldCheck size={16} color={u.is_verified ? 'var(--success)' : 'var(--text-muted)'} />
                         </button>
                       </td>
                     </tr>
@@ -458,39 +461,39 @@ export default function AdminDashboard() {
             <p>Customer Care agents can view and respond to platform conversations.</p>
             
             {selectedConversation ? (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', border: '1px solid #ddd', borderRadius: '12px', padding: '1.5rem', background: '#fff' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #eee', paddingBottom: '1rem' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)', border: '1px solid var(--border)', borderRadius: 'var(--radius-md)', padding: 'var(--space-6)', background: 'var(--bg-surface)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-subtle)', paddingBottom: 'var(--space-4)' }}>
                   <div>
                     <h4 style={{ margin: 0 }}>Conversation #{selectedConversation.id}</h4>
-                    <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.875rem', color: '#666' }}>
+                    <p style={{ margin: 'var(--space-1) 0 0 0', fontSize: 'var(--text-sm)', color: 'var(--text-secondary)' }}>
                       <strong>Renter:</strong> {selectedConversation.renter.name} &nbsp; | &nbsp; 
                       <strong>Agent:</strong> {selectedConversation.agent.name}
                     </p>
                   </div>
-                  <button onClick={() => setSelectedConversation(null)} className={styles.btnSecondary} style={{ padding: '0.5rem 1rem' }}>
+                  <button onClick={() => setSelectedConversation(null)} className={styles.btnSecondary} style={{ padding: 'var(--space-2) var(--space-4)' }}>
                     Back to List
                   </button>
                 </div>
                 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', maxHeight: '400px', overflowY: 'auto', padding: '1rem', background: '#fafafa', borderRadius: '8px' }}>
-                  {chatMessages.length === 0 && <p style={{ textAlign: 'center', color: '#888' }}>No messages yet.</p>}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)', maxHeight: '400px', overflowY: 'auto', padding: 'var(--space-4)', background: 'var(--bg-hover)', borderRadius: 'var(--radius-sm)' }}>
+                  {chatMessages.length === 0 && <p style={{ textAlign: 'center', color: 'var(--text-secondary)' }}>No messages yet.</p>}
                   {chatMessages.map(msg => {
                     const isRenter = msg.sender_id === selectedConversation.renter_id;
                     const senderName = isRenter ? selectedConversation.renter.name : selectedConversation.agent.name;
                     return (
                       <div key={msg.id} style={{
                         alignSelf: isRenter ? 'flex-start' : 'flex-end',
-                        background: isRenter ? '#fff' : '#1e1e1e',
-                        color: isRenter ? '#000' : '#fff',
-                        padding: '0.75rem 1rem',
-                        borderRadius: '12px',
+                        background: isRenter ? 'var(--bg-surface)' : 'var(--text-primary)',
+                        color: isRenter ? 'var(--text-primary)' : 'var(--text-inverse)',
+                        padding: 'var(--space-3) var(--space-4)',
+                        borderRadius: 'var(--radius-md)',
                         maxWidth: '70%',
-                        border: isRenter ? '1px solid #eee' : 'none',
-                        boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
+                        border: isRenter ? '1px solid var(--border-subtle)' : 'none',
+                        boxShadow: 'var(--shadow-sm)'
                       }}>
-                        <div style={{ fontSize: '0.75rem', opacity: 0.8, marginBottom: '0.25rem' }}>{senderName}</div>
+                        <div style={{ fontSize: 'var(--text-xs)', opacity: 0.8, marginBottom: 'var(--space-1)' }}>{senderName}</div>
                         <div>{msg.content}</div>
-                        <div style={{ fontSize: '0.7rem', opacity: 0.6, marginTop: '0.25rem', textAlign: 'right' }}>
+                        <div style={{ fontSize: 'var(--text-xs)', opacity: 0.6, marginTop: 'var(--space-1)', textAlign: 'right' }}>
                           {new Date(msg.created_at).toLocaleTimeString()}
                         </div>
                       </div>
@@ -506,10 +509,10 @@ export default function AdminDashboard() {
                     <div className={styles.crmHeader}>
                       <h4>{conv.renter.name} & {conv.agent.name}</h4>
                     </div>
-                    <p style={{ fontSize: '0.875rem', color: '#666' }}>Last message: {new Date(conv.last_message_at).toLocaleString()}</p>
+                    <p style={{ fontSize: 'var(--text-sm)', color: 'var(--text-secondary)' }}>Last message: {new Date(conv.last_message_at).toLocaleString()}</p>
                     <button 
                       className={styles.btnSecondary} 
-                      style={{ width: '100%', marginTop: '1rem' }}
+                      style={{ width: '100%', marginTop: 'var(--space-4)' }}
                       onClick={() => handleOpenChat(conv)}
                     >
                       <MessageSquare size={14} /> Open Support Chat
@@ -542,7 +545,7 @@ export default function AdminDashboard() {
             </tr>
           </thead>
           <tbody>
-            {reports.length === 0 && <tr><td colSpan={5} style={{ textAlign: 'center', color: '#888' }}>No reports found.</td></tr>}
+            {reports.length === 0 && <tr><td colSpan={5} style={{ textAlign: 'center', color: 'var(--text-secondary)' }}>No reports found.</td></tr>}
             {reports.map(r => (
               <tr key={r.id}>
                 <td className={styles.fw500}>{r.reporter.name}</td>
@@ -553,6 +556,7 @@ export default function AdminDashboard() {
                   <button
                     className={styles.iconBtn}
                     title={`Email ${r.reporter.name}`}
+                    aria-label={`Email ${r.reporter.name}`}
                     onClick={() => setEmailModal({ email: r.reporter.email, name: r.reporter.name })}
                   >
                     <Mail size={16} />
@@ -615,7 +619,7 @@ export default function AdminDashboard() {
             <PremiumIcon icon={MessageSquare} size={14} colorVariant="primary" containerSize={24} /> Support Chats
           </button>
           
-          <div style={{ marginTop: 'auto', paddingTop: '2rem' }}>
+          <div style={{ marginTop: 'auto', paddingTop: 'var(--space-8)' }}>
             <button 
               className={styles.navItem}
               onClick={() => {
@@ -650,26 +654,26 @@ export default function AdminDashboard() {
       {/* Email Modal */}
       {emailModal && (
         <div style={{
-          position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex',
+          position: 'fixed', inset: 0, background: 'var(--scrim)', display: 'flex',
           alignItems: 'center', justifyContent: 'center', zIndex: 1000
         }}>
           <div style={{
-            background: 'var(--bg-surface)', borderRadius: '16px', padding: '2rem',
+            background: 'var(--bg-surface)', borderRadius: 'var(--radius-lg)', padding: 'var(--space-8)',
             width: '100%', maxWidth: '480px', boxShadow: 'var(--shadow-xl)'
           }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-6)' }}>
               <h3 style={{ margin: 0 }}>Contact {emailModal.name}</h3>
               <button onClick={() => setEmailModal(null)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
                 <X size={20} />
               </button>
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
               <div>
-                <label style={{ fontSize: '0.875rem', fontWeight: 500, display: 'block', marginBottom: '0.5rem' }}>To</label>
+                <label style={{ fontSize: 'var(--text-sm)', fontWeight: 500, display: 'block', marginBottom: 'var(--space-2)' }}>To</label>
                 <input className={styles.input} value={emailModal.email} disabled style={{ opacity: 0.7 }} />
               </div>
               <div>
-                <label style={{ fontSize: '0.875rem', fontWeight: 500, display: 'block', marginBottom: '0.5rem' }}>Subject</label>
+                <label style={{ fontSize: 'var(--text-sm)', fontWeight: 500, display: 'block', marginBottom: 'var(--space-2)' }}>Subject</label>
                 <input
                   className={styles.input}
                   placeholder="Re: Your complaint"
@@ -678,7 +682,7 @@ export default function AdminDashboard() {
                 />
               </div>
               <div>
-                <label style={{ fontSize: '0.875rem', fontWeight: 500, display: 'block', marginBottom: '0.5rem' }}>Message</label>
+                <label style={{ fontSize: 'var(--text-sm)', fontWeight: 500, display: 'block', marginBottom: 'var(--space-2)' }}>Message</label>
                 <textarea
                   className={styles.input}
                   rows={5}
@@ -693,7 +697,7 @@ export default function AdminDashboard() {
                 onClick={handleSendEmail}
                 disabled={emailSending}
               >
-                <Mail size={16} style={{ marginRight: 8 }} />
+                <Mail size={16} style={{ marginRight: 'var(--space-2)' }} />
                 {emailSending ? 'Sending...' : 'Send Email'}
               </button>
             </div>

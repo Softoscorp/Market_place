@@ -65,7 +65,7 @@ export const DuplicateGroup: React.FC<DuplicateGroupProps> = ({
                     <Badge variant="verified" className={styles.verifiedBadge}>Local Verified</Badge>
                   )}
                   {offer.verificationTier === 'international' && (
-                    <Badge variant="verified" className={styles.verifiedBadge} style={{ background: '#f59e0b', color: '#fff', borderColor: '#f59e0b' }}>Int. Verified</Badge>
+                    <Badge variant="verified" className={styles.verifiedBadge} style={{ background: 'var(--warning)', color: 'var(--text-inverse)', borderColor: 'var(--warning)' }}>Int. Verified</Badge>
                   )}
                 </div>
                 <StarRating rating={offer.agentRating} size={12} showText />

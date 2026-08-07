@@ -123,7 +123,7 @@ export default function AgentDashboard() {
                   ))
                 ) : (
                   <div className={styles.activityItem}>
-                    <div className={styles.activityDot} style={{ background: '#cbd5e1' }}></div>
+                    <div className={styles.activityDot} style={{ background: 'var(--text-muted)' }}></div>
                     <div className={styles.activityText}>No recent activity yet. Post your first listing to start getting inquiries.</div>
                   </div>
                 )}
@@ -147,19 +147,19 @@ export default function AgentDashboard() {
             </div>
 
             {loadingListings ? (
-              <p style={{ padding: '2rem', color: '#64748b' }}>Loading listings...</p>
+              <p style={{ padding: 'var(--space-8)', color: 'var(--text-secondary)' }}>Loading listings...</p>
             ) : agentListings.length === 0 ? (
               <div style={{
                 textAlign: 'center',
-                padding: '3rem',
-                background: '#ffffff',
-                borderRadius: '16px',
-                border: '1px solid #e2e8f0',
-                marginTop: '1rem'
+                padding: 'var(--space-12)',
+                background: 'var(--bg-surface)',
+                borderRadius: 'var(--radius-lg)',
+                border: '1px solid var(--border)',
+                marginTop: 'var(--space-4)'
               }}>
-                <Building2 size={48} style={{ color: '#94a3b8', marginBottom: '1rem' }} />
-                <h4 style={{ margin: '0 0 0.5rem 0', color: '#0f172a' }}>No listings posted yet</h4>
-                <p style={{ color: '#64748b', marginBottom: '1.5rem', fontSize: '0.9rem' }}>
+                <Building2 size={48} style={{ color: 'var(--text-muted)', marginBottom: 'var(--space-4)' }} />
+                <h4 style={{ margin: '0 0 var(--space-2) 0', color: 'var(--text-primary)' }}>No listings posted yet</h4>
+                <p style={{ color: 'var(--text-secondary)', marginBottom: 'var(--space-6)', fontSize: 'var(--text-base)' }}>
                   Post your properties to showcase them to thousands of students and tenants in North Cyprus.
                 </p>
                 <Link href="/post-listing" className={styles.btnPrimary} style={{ display: 'inline-flex' }}>
@@ -190,7 +190,7 @@ export default function AgentDashboard() {
                           </span>
                         </td>
                         <td>
-                          <Link href={`/property/${listing.id}`} style={{ color: '#2563eb', fontSize: '0.85rem', fontWeight: 500 }}>
+                          <Link href={`/property/${listing.id}`} style={{ color: 'var(--accent)', fontSize: 'var(--text-sm)', fontWeight: 500 }}>
                             View Listing
                           </Link>
                         </td>
@@ -214,15 +214,15 @@ export default function AgentDashboard() {
             {conversationList.length === 0 ? (
               <div style={{
                 textAlign: 'center',
-                padding: '3rem',
-                background: '#ffffff',
-                borderRadius: '16px',
-                border: '1px solid #e2e8f0',
-                marginTop: '1rem'
+                padding: 'var(--space-12)',
+                background: 'var(--bg-surface)',
+                borderRadius: 'var(--radius-lg)',
+                border: '1px solid var(--border)',
+                marginTop: 'var(--space-4)'
               }}>
-                <Users size={48} style={{ color: '#94a3b8', marginBottom: '1rem' }} />
-                <h4 style={{ margin: '0 0 0.5rem 0', color: '#0f172a' }}>No client leads yet</h4>
-                <p style={{ color: '#64748b', fontSize: '0.9rem' }}>
+                <Users size={48} style={{ color: 'var(--text-muted)', marginBottom: 'var(--space-4)' }} />
+                <h4 style={{ margin: '0 0 var(--space-2) 0', color: 'var(--text-primary)' }}>No client leads yet</h4>
+                <p style={{ color: 'var(--text-secondary)', fontSize: 'var(--text-base)' }}>
                   Inquiries and messages from interested tenants will appear here.
                 </p>
               </div>
@@ -231,7 +231,7 @@ export default function AgentDashboard() {
                 {conversationList.map((conv) => (
                   <div key={conv.contact.id} className={styles.crmCard}>
                     <div className={styles.crmCardHeader}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
                         <ProtectedImage 
                           src={(conv.contact.avatarUrl ? mediaUrl(conv.contact.avatarUrl) : '') || ''}
                           fallbackSrc={`https://ui-avatars.com/api/?name=${encodeURIComponent(conv.contact.name || 'User')}&background=0F172A&color=fff&size=128&bold=true`}
@@ -273,7 +273,7 @@ export default function AgentDashboard() {
                   <label>Email Address</label>
                   <input type="email" defaultValue={user?.email || ''} className={styles.input} disabled />
                 </div>
-                <button className={styles.btnPrimary} style={{marginTop: '1rem'}}>Save Changes</button>
+                <button className={styles.btnPrimary} style={{marginTop: 'var(--space-4)'}}>Save Changes</button>
               </div>
 
               <div className={styles.settingsCard}>
@@ -292,9 +292,9 @@ export default function AgentDashboard() {
                 </div>
               </div>
 
-              <div className={styles.settingsCard} style={{ border: '1px solid #ef4444' }}>
-                <h3 style={{ color: '#ef4444' }}>{t('danger_zone')}</h3>
-                <p style={{ color: '#64748b', fontSize: '0.875rem', marginBottom: '1rem', lineHeight: 1.5 }}>
+              <div className={styles.settingsCard} style={{ border: '1px solid var(--danger)' }}>
+                <h3 style={{ color: 'var(--danger)' }}>{t('danger_zone')}</h3>
+                <p style={{ color: 'var(--text-primary)', fontSize: 'var(--text-sm)', marginBottom: 'var(--space-4)', lineHeight: 1.5 }}>
                   {t('deactivate_desc')}
                 </p>
                 <button 
@@ -320,20 +320,20 @@ export default function AgentDashboard() {
                     }
                   }}
                   style={{
-                    backgroundColor: '#ef4444',
-                    color: 'white',
-                    padding: '0.75rem 1.5rem',
-                    borderRadius: '0.5rem',
+                    backgroundColor: 'var(--danger)',
+                    color: 'var(--text-inverse)',
+                    padding: 'var(--space-3) var(--space-6)',
+                    borderRadius: 'var(--radius-sm)',
                     border: 'none',
                     fontWeight: 600,
                     cursor: 'pointer',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '0.5rem',
-                    transition: 'background-color 0.2s'
+                    gap: 'var(--space-2)',
+                    transition: 'background-color var(--duration-fast)'
                   }}
-                  onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#dc2626'}
-                  onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#ef4444'}
+                  onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'var(--danger-text)'}
+                  onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'var(--danger)'}
                 >
                   <ShieldAlert size={18} />
                   {t('deactivate_btn')}
@@ -396,7 +396,7 @@ export default function AgentDashboard() {
             <ShieldAlert size={18} /> Verification
           </button>
           
-          <div style={{ marginTop: 'auto', paddingTop: '2rem' }}>
+          <div style={{ marginTop: 'auto', paddingTop: 'var(--space-8)' }}>
             <button 
               className={styles.navItem}
               onClick={() => {
@@ -421,12 +421,12 @@ export default function AgentDashboard() {
               {activeTab === 'settings' && 'Account Settings'}
               {activeTab === 'verification' && 'Trust & Verification'}
             </h1>
-            <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+            <p style={{ margin: 'var(--space-1) 0 0 0', fontSize: 'var(--text-sm)', color: 'var(--text-secondary)' }}>
               {user?.name || user?.email}
             </p>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', fontWeight: 500, color: isOnline(user?.last_seen_at) ? 'var(--success)' : 'var(--text-secondary)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', fontSize: 'var(--text-sm)', fontWeight: 500, color: isOnline(user?.last_seen_at) ? 'var(--success)' : 'var(--text-secondary)' }}>
               <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: isOnline(user?.last_seen_at) ? 'var(--success)' : 'var(--text-secondary)' }} />
               {lastSeenText(user?.last_seen_at)}
             </div>
@@ -435,7 +435,7 @@ export default function AgentDashboard() {
               <div className={styles.verifiedBadge}>Local Verified</div>
             )}
             {user?.verification_tier === 'international' && (
-              <div className={styles.verifiedBadge} style={{ backgroundColor: 'rgba(245, 158, 11, 0.1)', color: '#b45309', borderColor: 'rgba(245, 158, 11, 0.2)' }}>
+              <div className={styles.verifiedBadge} style={{ backgroundColor: 'var(--warning-muted)', color: 'var(--warning-text)', borderColor: 'var(--warning-border)' }}>
                 Int. Verified
               </div>
             )}

@@ -129,14 +129,14 @@ export default function HomePage() {
               <p className={styles.sectionSubtitle}>{t('recently_added_sub')}</p>
             </div>
             <Link href="/search?sort=newest" className={styles.viewAll}>
-              {t('view_all')} <ArrowRight size={16} />
+              {t('view_all')} <ArrowRight size={16} aria-hidden="true" />
             </Link>
           </div>
           <div className={styles.grid}>
             {isLoading ? (
               Array.from({ length: 3 }).map((_, i) => (
-                <div key={i} style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                  <Skeleton width="100%" height={200} style={{ borderRadius: '12px' }} />
+                <div key={i} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
+                  <Skeleton width="100%" height={200} style={{ borderRadius: 'var(--radius-md)' }} />
                   <Skeleton width="80%" height={24} />
                   <Skeleton width="50%" height={20} />
                   <Skeleton width="100%" height={40} style={{ marginTop: 'auto' }} />
@@ -207,14 +207,14 @@ export default function HomePage() {
               <p className={styles.sectionSubtitle}>{t('trending_sub')}</p>
             </div>
             <Link href="/search?sort=popular" className={styles.viewAll}>
-              {t('view_all')} <ArrowRight size={16} />
+              {t('view_all')} <ArrowRight size={16} aria-hidden="true" />
             </Link>
           </div>
           <div className={styles.grid}>
             {isLoading ? (
               Array.from({ length: 3 }).map((_, i) => (
-                <div key={i} style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                  <Skeleton width="100%" height={200} style={{ borderRadius: '12px' }} />
+                <div key={i} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
+                  <Skeleton width="100%" height={200} style={{ borderRadius: 'var(--radius-md)' }} />
                   <Skeleton width="80%" height={24} />
                   <Skeleton width="50%" height={20} />
                   <Skeleton width="100%" height={40} style={{ marginTop: 'auto' }} />
@@ -260,21 +260,21 @@ export default function HomePage() {
               <p className={styles.sectionSubtitle}>{t('top_agents_sub')}</p>
             </div>
             <Link href="/agents" className={styles.viewAll}>
-              {t('view_all')} <ArrowRight size={16} />
+              {t('view_all')} <ArrowRight size={16} aria-hidden="true" />
             </Link>
           </div>
           <div className={styles.grid}>
             {isLoading ? (
               Array.from({ length: 3 }).map((_, i) => (
-                <div key={i} style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                <div key={i} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4)' }}>
                     <Skeleton circle width={50} height={50} />
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1 }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-1)', flex: 1 }}>
                       <Skeleton width="60%" height={20} />
                       <Skeleton width="40%" height={16} />
                     </div>
                   </div>
-                  <Skeleton width="100%" height={60} style={{ marginTop: '16px' }} />
+                  <Skeleton width="100%" height={60} style={{ marginTop: 'var(--space-4)' }} />
                 </div>
               ))
             ) : (
@@ -320,17 +320,17 @@ export default function HomePage() {
             <div className={styles.stepsGrid}>
               <div className={styles.step}>
                 <PremiumIcon icon={Search} size={32} colorVariant="primary" />
-                <h3 style={{ marginTop: '1rem' }}>{t('step1_title')}</h3>
+                <h3 style={{ marginTop: 'var(--space-4)' }}>{t('step1_title')}</h3>
                 <p className="text-muted">{t('step1_desc')}</p>
               </div>
               <div className={styles.step}>
                 <PremiumIcon icon={Users} size={32} colorVariant="accent" />
-                <h3 style={{ marginTop: '1rem' }}>{t('step2_title')}</h3>
+                <h3 style={{ marginTop: 'var(--space-4)' }}>{t('step2_title')}</h3>
                 <p className="text-muted">{t('step2_desc')}</p>
               </div>
               <div className={styles.step}>
                 <PremiumIcon icon={ShieldCheck} size={32} colorVariant="success" />
-                <h3 style={{ marginTop: '1rem' }}>{t('step3_title')}</h3>
+                <h3 style={{ marginTop: 'var(--space-4)' }}>{t('step3_title')}</h3>
                 <p className="text-muted">{t('step3_desc')}</p>
               </div>
             </div>

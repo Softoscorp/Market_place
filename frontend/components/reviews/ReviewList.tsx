@@ -14,25 +14,25 @@ interface ReviewListProps {
 
 export function ReviewList({ reviews }: ReviewListProps) {
   if (!reviews || reviews.length === 0) {
-    return <p style={{ color: '#6b7280', fontStyle: 'italic' }}>No reviews yet.</p>;
+    return <p style={{ color: 'var(--text-secondary)', fontStyle: 'italic' }}>No reviews yet.</p>;
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-6)' }}>
       {reviews.map((review) => (
-        <div key={review.id} style={{ borderBottom: '1px solid #e5e7eb', paddingBottom: '1rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+        <div key={review.id} style={{ borderBottom: '1px solid var(--border)', paddingBottom: 'var(--space-4)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', marginBottom: 'var(--space-2)' }}>
             <div style={{ display: 'flex', gap: '2px' }}>
               {[1, 2, 3, 4, 5].map((star) => (
                 <Star
                   key={star}
                   size={16}
-                  fill={review.stars >= star ? '#f59e0b' : 'none'}
-                  color={review.stars >= star ? '#f59e0b' : '#d1d5db'}
+                  fill={review.stars >= star ? 'var(--warning)' : 'none'}
+                  color={review.stars >= star ? 'var(--warning)' : 'var(--border)'}
                 />
               ))}
             </div>
-            <span style={{ fontSize: '0.85rem', color: '#6b7280' }}>
+            <span style={{ fontSize: 'var(--text-sm)', color: 'var(--text-secondary)' }}>
               {new Date(review.created_at).toLocaleDateString()}
             </span>
           </div>

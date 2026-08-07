@@ -107,7 +107,7 @@ export default function SavedPage() {
               </p>
               <Link href="/search">
                 <Button variant="primary" size="lg">
-                  <Search size={18} style={{ marginRight: '0.5rem' }} /> Explore Properties
+                  <Search size={18} aria-hidden="true" style={{ marginRight: 'var(--space-2)' }} /> Explore Properties
                 </Button>
               </Link>
             </div>
@@ -125,7 +125,7 @@ export default function SavedPage() {
             </p>
             <Link href="/roommates">
               <Button variant="primary" size="lg">
-                <Search size={18} style={{ marginRight: '0.5rem' }} /> Find Roommates
+                <Search size={18} aria-hidden="true" style={{ marginRight: 'var(--space-2)' }} /> Find Roommates
               </Button>
             </Link>
           </div>

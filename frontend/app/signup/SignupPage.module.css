@@ -31,7 +31,7 @@
   inset: 0;
   background: linear-gradient(145deg, rgba(10, 10, 12, 0.8) 0%, rgba(10, 10, 12, 0.4) 100%);
   backdrop-filter: blur(2px);
-  padding: 4rem;
+  padding: var(--space-16);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -40,10 +40,10 @@
 .brand {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  color: white;
+  gap: var(--space-3);
+  color: #fff;
   font-family: var(--font-heading);
-  font-size: 1.5rem;
+  font-size: var(--text-xl);
   font-weight: 700;
 }
 
@@ -52,22 +52,22 @@
 }
 
 .visualContent {
-  color: white;
+  color: #fff;
   max-width: 480px;
 }
 
 .visualContent h1 {
   font-family: var(--font-heading);
-  font-size: 3rem;
+  font-size: var(--text-4xl);
   line-height: 1.1;
   font-weight: 700;
-  margin-bottom: 1rem;
+  margin-bottom: var(--space-4);
 }
 
 .visualContent p {
-  font-size: 1.125rem;
+  font-size: var(--text-lg);
   color: rgba(255, 255, 255, 0.8);
-  margin-bottom: 3rem;
+  margin-bottom: var(--space-12);
   line-height: 1.6;
 }
 
@@ -75,26 +75,26 @@
   background: rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 1.5rem;
+  padding: var(--space-6);
   border-radius: var(--radius-xl);
 }
 
 .stars {
-  color: #FFB800;
+  color: var(--warning);
   letter-spacing: 2px;
-  margin-bottom: 0.75rem;
-  font-size: 1.25rem;
+  margin-bottom: var(--space-3);
+  font-size: var(--text-lg);
 }
 
 .testimonial p {
-  font-size: 1rem;
-  color: white;
-  margin-bottom: 1rem;
+  font-size: var(--text-base);
+  color: #fff;
+  margin-bottom: var(--space-4);
   font-style: italic;
 }
 
 .author {
-  font-size: 0.875rem;
+  font-size: var(--text-sm);
   color: rgba(255, 255, 255, 0.6);
   font-weight: 500;
 }
@@ -105,7 +105,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 2rem;
+  padding: var(--space-8);
   background-color: var(--bg-surface);
 }
 
@@ -121,29 +121,29 @@
 }
 
 .header {
-  margin-bottom: 2.5rem;
+  margin-bottom: var(--space-10);
 }
 
 .title {
   font-family: var(--font-heading);
-  font-size: 2rem;
+  font-size: var(--text-3xl);
   font-weight: 700;
   color: var(--text-primary);
-  margin: 0 0 0.5rem 0;
+  margin: 0 0 var(--space-2) 0;
   letter-spacing: -0.02em;
 }
 
 .subtitle {
   color: var(--text-secondary);
-  font-size: 1.125rem;
+  font-size: var(--text-lg);
   margin: 0;
 }
 
 .roleSelector {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 1rem;
-  margin-bottom: 2rem;
+  gap: var(--space-4);
+  margin-bottom: var(--space-8);
 }
 
 @media (min-width: 480px) {
@@ -156,8 +156,8 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 0.75rem;
-  padding: 1.25rem;
+  gap: var(--space-3);
+  padding: var(--space-5);
   background-color: var(--bg-input);
   border: 2px solid transparent;
   border-radius: var(--radius-xl);
@@ -210,33 +210,33 @@
 
 .roleTitle {
   font-weight: 700;
-  font-size: 1.125rem;
+  font-size: var(--text-lg);
 }
 
 .roleDesc {
-  font-size: 0.8125rem;
+  font-size: var(--text-sm);
   color: var(--text-muted);
   line-height: 1.4;
 }
 
 .rewardBoxWrapper {
   overflow: hidden;
-  margin-bottom: 2rem;
+  margin-bottom: var(--space-8);
 }
 
 .rewardBox {
-  padding: 1.25rem;
-  background: linear-gradient(135deg, rgba(255, 149, 0, 0.1) 0%, rgba(255, 149, 0, 0.05) 100%);
-  border: 1px solid rgba(255, 149, 0, 0.2);
+  padding: var(--space-5);
+  background: linear-gradient(135deg, var(--warning-muted) 0%, rgba(255, 149, 0, 0.05) 100%);
+  border: 1px solid var(--warning-border);
   border-radius: var(--radius-lg);
   display: flex;
   align-items: flex-start;
-  gap: 1rem;
-  color: #B26800;
+  gap: var(--space-4);
+  color: var(--warning-text);
 }
 
 :global(.dark) .rewardBox {
-  color: #FFB800;
+  color: var(--warning);
 }
 
 .rewardIcon {
@@ -246,12 +246,12 @@
 
 .rewardTitle {
   font-weight: 700;
-  margin-bottom: 4px;
-  font-size: 1rem;
+  margin-bottom: var(--space-1);
+  font-size: var(--text-base);
 }
 
 .rewardText {
-  font-size: 0.875rem;
+  font-size: var(--text-sm);
   line-height: 1.5;
   opacity: 0.9;
 }
@@ -259,28 +259,28 @@
 .form {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: var(--space-6);
 }
 
 .inputGroup {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: var(--space-2);
 }
 
 .label {
   font-weight: 500;
-  font-size: 0.875rem;
+  font-size: var(--text-sm);
   color: var(--text-secondary);
 }
 
 .input {
-  padding: 0.875rem 1rem;
+  padding: var(--space-3) var(--space-4);
   border-radius: var(--radius-md);
   border: 1px solid var(--border);
   background-color: var(--bg-input);
   color: var(--text-primary);
-  font-size: 1rem;
+  font-size: var(--text-base);
   transition: all 0.2s ease-out;
 }
 
@@ -292,21 +292,21 @@
 }
 
 .submitBtn {
-  margin-top: 1rem;
+  margin-top: var(--space-4);
   width: 100%;
-  padding: 1rem;
+  padding: var(--space-4);
   background-color: var(--accent);
-  color: white;
+  color: var(--text-inverse);
   border: none;
   border-radius: var(--radius-md);
-  font-size: 1.0625rem;
+  font-size: var(--text-base);
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
+  gap: var(--space-2);
 }
 
 .submitBtn:disabled {
@@ -323,9 +323,9 @@
 }
 
 .loginLink {
-  margin-top: 2rem;
+  margin-top: var(--space-8);
   text-align: center;
-  font-size: 0.9375rem;
+  font-size: var(--text-base);
   color: var(--text-secondary);
 }
 
@@ -344,23 +344,23 @@
   flex-direction: column;
   align-items: center;
   text-align: center;
-  padding: 3rem 0;
+  padding: var(--space-12) 0;
 }
 
 .successIconWrapper {
   width: 80px;
   height: 80px;
-  background: linear-gradient(135deg, var(--success), #2ECA7F);
+  background: linear-gradient(135deg, var(--success), var(--success-strong));
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 2rem;
+  margin-bottom: var(--space-8);
   box-shadow: 0 8px 24px rgba(46, 202, 127, 0.3);
 }
 
 .checkIcon {
-  color: white;
+  color: #fff;
 }
 
 .loader {
@@ -368,7 +368,7 @@
   height: 20px;
   border: 2px solid rgba(255, 255, 255, 0.3);
   border-radius: 50%;
-  border-top-color: white;
+  border-top-color: #fff;
   animation: spin 0.8s linear infinite;
 }
 
@@ -388,7 +388,7 @@
 
   .formSide {
     width: 100%;
-    padding: 1.5rem 1rem 2rem;
+    padding: var(--space-6) var(--space-4) var(--space-8);
   }
 
   .formWrapper {
@@ -396,28 +396,28 @@
   }
 
   .header {
-    margin-bottom: 2rem;
+    margin-bottom: var(--space-8);
   }
 }
 
 @media (max-width: 640px) {
   .visualOverlay {
-    padding: 2rem;
+    padding: var(--space-8);
   }
 
   .visualContent h1 {
-    font-size: 2.25rem;
+    font-size: var(--text-2xl);
   }
 
   .visualContent p {
-    margin-bottom: 1.5rem;
+    margin-bottom: var(--space-6);
   }
 
   .formSide {
-    padding: 1rem 0.75rem 1.5rem;
+    padding: var(--space-4) var(--space-3) var(--space-6);
   }
 
   .formWrapper {
-    padding: 1.5rem;
+    padding: var(--space-6);
   }
 }

@@ -49,7 +49,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
       {isVisible && (
         <div className={clsx(styles.tooltip, styles[position], className)} role="tooltip">
           {content}
-          <div className={clsx(styles.arrow, styles[`arrow-${position}`])} />
+          <div className={clsx(styles.arrow, styles[`arrow-${position}`])} aria-hidden="true" />
         </div>
       )}
     </div>

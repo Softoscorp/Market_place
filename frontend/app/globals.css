@@ -29,20 +29,39 @@
 
   /* Accent — Sleek monochrome or premium blue */
   --accent: #000000;
+  --accent-rgb: 0, 0, 0;
   --accent-hover: #333333;
   --accent-muted: rgba(0, 0, 0, 0.05);
   --accent-text: #1D1D1F;
+  --favorite: #E11D48;
+
+  /* Glassmorphism */
+  --bg-glass: rgba(245, 245, 247, 0.85);
 
   /* Semantic */
   --success: #34C759;
   --success-muted: rgba(52, 199, 89, 0.1);
+  --success-strong: #2ECA7F;
   --success-text: #248A3D;
+  --success-border: #bbf7d0;
   --warning: #FF9500;
   --warning-muted: rgba(255, 149, 0, 0.1);
   --warning-text: #B26800;
+  --warning-hover: #C09363;
+  --warning-border: rgba(255, 149, 0, 0.2);
   --danger: #FF3B30;
   --danger-muted: rgba(255, 59, 48, 0.1);
   --danger-text: #C92A22;
+  --danger-border: #fecaca;
+
+  /* Brand — blue */
+  --blue: #0a84ff;
+  --blue-muted: rgba(10, 132, 255, 0.1);
+  --blue-border: rgba(10, 132, 255, 0.2);
+
+  /* Scrims */
+  --scrim: rgba(0, 0, 0, 0.4);
+  --scrim-strong: rgba(0, 0, 0, 0.7);
 
   /* Borders — practically invisible */
   --border: rgba(0, 0, 0, 0.08);
@@ -124,6 +143,7 @@
   --text-inverse: #000000;
 
   --accent: #FFFFFF;
+  --accent-rgb: 255, 255, 255;
   --accent-hover: #E5E5E5;
   --accent-muted: rgba(255, 255, 255, 0.1);
   --accent-text: #FFFFFF;
@@ -132,6 +152,11 @@
   --border-subtle: rgba(255, 255, 255, 0.05);
   --border-hover: rgba(255, 255, 255, 0.2);
 
+  --success-border: rgba(52, 199, 89, 0.25);
+  --danger-border: rgba(255, 59, 48, 0.25);
+  --warning-border: rgba(255, 149, 0, 0.25);
+
+  --bg-glass: rgba(28, 28, 30, 0.85);
   --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.4);
   --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.6);
   --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.8);

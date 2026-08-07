@@ -100,7 +100,7 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
         <div className={styles.badges}>
           <Badge variant="accent">{type}</Badge>
           {verificationTier === 'local' && <Badge variant="verified">Local Verified</Badge>}
-          {verificationTier === 'international' && <Badge variant="verified" style={{ background: '#f59e0b', color: '#fff', borderColor: '#f59e0b' }}>Int. Verified</Badge>}
+          {verificationTier === 'international' && <Badge variant="verified" style={{ background: 'var(--warning)', color: 'var(--text-inverse)', borderColor: 'var(--warning)' }}>Int. Verified</Badge>}
         </div>
         
         <button 
@@ -136,17 +136,17 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
 
         <div className={styles.details}>
           <div className={styles.detailItem}>
-            <Bed size={16} />
+            <Bed size={16} aria-hidden="true" />
             <span>{bedrooms} Beds</span>
           </div>
           <div className={styles.detailItem}>
-            <Bath size={16} />
+            <Bath size={16} aria-hidden="true" />
             <span>{bathrooms} Baths</span>
           </div>
 
           {walkingDistanceMins && (
             <div className={styles.detailItem}>
-              <Clock size={16} />
+              <Clock size={16} aria-hidden="true" />
               <span>{walkingDistanceMins}m to uni</span>
             </div>
           )}
@@ -155,7 +155,7 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
         <div className={styles.moveInBadge}>
           <MoveInBadge cost={calculatedMoveInCost} />
           {(upfrontMonths !== undefined || moveInCost) && (
-            <span className={styles.termsText} style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block', marginTop: '0.25rem', textAlign: 'left' }}>
+            <span className={styles.termsText} style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)', display: 'block', marginTop: 'var(--space-1)', textAlign: 'left' }}>
               Terms: {termsString}
             </span>
           )}
@@ -169,7 +169,7 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
           {agentRating && agentRating > 0 ? (
             <StarRating rating={agentRating} size={14} showText />
           ) : (
-            <span style={{ fontSize: '0.75rem', color: '#6b7280', fontWeight: 500 }}>New Agent</span>
+            <span style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)', fontWeight: 500 }}>New Agent</span>
           )}
         </div>
       </div>

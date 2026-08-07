@@ -259,34 +259,34 @@ export default function ProfilePage() {
             style={{ display: 'none' }} 
             onChange={handleAvatarSelect} 
           />
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', marginBottom: '1.5rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-5)', marginBottom: 'var(--space-6)' }}>
             <div style={{ position: 'relative' }}>
               <ProtectedImage 
                 src={user?.avatar_url ? (mediaUrl(user.avatar_url) || '') : `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=0F172A&color=fff&size=128&bold=true`}
                 fallbackSrc={`https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=0F172A&color=fff&size=128&bold=true`}
                 alt={displayName} 
-                style={{ width: '72px', height: '72px', borderRadius: '50%', border: '2px solid #e2e8f0', objectFit: 'cover' }}
+                style={{ width: '72px', height: '72px', borderRadius: '50%', border: '2px solid var(--border)', objectFit: 'cover' }}
               />
             </div>
             <div>
-              <div style={{ fontWeight: 600, fontSize: '1rem', color: '#0f172a' }}>{displayName}</div>
-              <div style={{ fontSize: '0.85rem', color: '#64748b' }}>{user?.email}</div>
+              <div style={{ fontWeight: 600, fontSize: 'var(--text-base)', color: 'var(--text-primary)' }}>{displayName}</div>
+              <div style={{ fontSize: 'var(--text-sm)', color: 'var(--text-secondary)' }}>{user?.email}</div>
               <button 
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
                 disabled={uploadingAvatar}
                 style={{
-                  marginTop: '0.5rem',
+                  marginTop: 'var(--space-2)',
                   display: 'inline-flex',
                   alignItems: 'center',
-                  gap: '0.375rem',
-                  padding: '0.375rem 0.75rem',
-                  fontSize: '0.8125rem',
+                  gap: 'var(--space-2)',
+                  padding: 'var(--space-2) var(--space-3)',
+                  fontSize: 'var(--text-sm)',
                   fontWeight: 600,
-                  color: '#0f172a',
-                  backgroundColor: '#f1f5f9',
-                  border: '1px solid #cbd5e1',
-                  borderRadius: '0.5rem',
+                  color: 'var(--text-primary)',
+                  backgroundColor: 'var(--bg-hover)',
+                  border: '1px solid var(--border)',
+                  borderRadius: 'var(--radius-sm)',
                   cursor: 'pointer'
                 }}
               >
@@ -295,13 +295,13 @@ export default function ProfilePage() {
               </button>
               {uploadMessage && (
                 <div style={{
-                  marginTop: '0.5rem',
-                  padding: '0.375rem 0.75rem',
-                  fontSize: '0.8125rem',
-                  color: uploadMessage.type === 'success' ? '#15803d' : '#b91c1c',
-                  backgroundColor: uploadMessage.type === 'success' ? '#dcfce7' : '#fee2e2',
-                  borderRadius: '0.375rem',
-                  border: `1px solid ${uploadMessage.type === 'success' ? '#bbf7d0' : '#fecaca'}`
+                  marginTop: 'var(--space-2)',
+                  padding: 'var(--space-2) var(--space-3)',
+                  fontSize: 'var(--text-sm)',
+                  color: uploadMessage.type === 'success' ? 'var(--success-text)' : 'var(--danger-text)',
+                  backgroundColor: uploadMessage.type === 'success' ? 'var(--success-muted)' : 'var(--danger-muted)',
+                  borderRadius: 'var(--radius-sm)',
+                  border: `1px solid ${uploadMessage.type === 'success' ? 'var(--success-border)' : 'var(--danger-border)'}`
                 }}>
                   {uploadMessage.text}
                 </div>
@@ -330,7 +330,7 @@ export default function ProfilePage() {
               value={formData.phone !== undefined ? formData.phone : (user?.phone || '')}
               onChange={handleChange}
             />
-            <span style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '4px', display: 'block' }}>
+            <span style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)', marginTop: 'var(--space-1)', display: 'block' }}>
               Used for instant SMS lead notifications and identity verification.
             </span>
           </div>
@@ -343,7 +343,7 @@ export default function ProfilePage() {
               className={styles.input} 
               value={user?.role === 'agent' ? 'Real Estate Agent' : 'Student / Renter'}
               readOnly
-              style={{ backgroundColor: '#f8fafc', color: '#64748b', cursor: 'not-allowed' }}
+              style={{ backgroundColor: 'var(--bg-hover)', color: 'var(--text-secondary)', cursor: 'not-allowed' }}
             />
           </div>
         </div>
@@ -377,13 +377,13 @@ export default function ProfilePage() {
         </button>
         {saveMessage && (
           <div style={{
-            marginTop: '1rem',
-            padding: '0.75rem',
-            fontSize: '0.875rem',
-            color: saveMessage.type === 'success' ? '#15803d' : '#b91c1c',
-            backgroundColor: saveMessage.type === 'success' ? '#dcfce7' : '#fee2e2',
-            borderRadius: '0.5rem',
-            border: `1px solid ${saveMessage.type === 'success' ? '#bbf7d0' : '#fecaca'}`,
+            marginTop: 'var(--space-4)',
+            padding: 'var(--space-3)',
+            fontSize: 'var(--text-sm)',
+            color: saveMessage.type === 'success' ? 'var(--success-text)' : 'var(--danger-text)',
+            backgroundColor: saveMessage.type === 'success' ? 'var(--success-muted)' : 'var(--danger-muted)',
+            borderRadius: 'var(--radius-sm)',
+            border: `1px solid ${saveMessage.type === 'success' ? 'var(--success-border)' : 'var(--danger-border)'}`,
             textAlign: 'center'
           }}>
             {saveMessage.text}
@@ -395,8 +395,8 @@ export default function ProfilePage() {
       {user?.role === 'agent' && (
         <div className={styles.card}>
           <div className={styles.sectionHeader}>
-            <h2 className={styles.title} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <ShieldCheck size={24} color="#0f172a" />
+            <h2 className={styles.title} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+              <ShieldCheck size={24} color="var(--text-primary)" />
               Verification Center
             </h2>
             <p className={styles.subtitle}>Build trust by verifying your identity and business</p>
@@ -419,7 +419,7 @@ export default function ProfilePage() {
                 </div>
                 <div>
                   <div className={styles.verificationTitle}>Tier 1: Local</div>
-                  <div style={{ fontSize: '0.75rem', fontWeight: 600, color: '#d97706', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Identity Verification</div>
+                  <div style={{ fontSize: 'var(--text-xs)', fontWeight: 600, color: 'var(--warning-text)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Identity Verification</div>
                 </div>
               </div>
               <p className={styles.verificationDesc}>
@@ -464,7 +464,7 @@ export default function ProfilePage() {
                 </div>
                 <div>
                   <div className={styles.verificationTitle}>Tier 2: International</div>
-                  <div style={{ fontSize: '0.75rem', fontWeight: 600, color: '#eab308', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Business Verification</div>
+                  <div style={{ fontSize: 'var(--text-xs)', fontWeight: 600, color: 'var(--warning)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Business Verification</div>
                 </div>
               </div>
               <p className={styles.verificationDesc}>
@@ -554,7 +554,7 @@ export default function ProfilePage() {
                         {lastMessage ? (
                           <>{lastMessage.sender === 'user' ? 'You: ' : ''}{lastMessage.text}</>
                         ) : (
-                          <span style={{ fontStyle: 'italic', color: '#94a3b8' }}>New conversation...</span>
+                          <span style={{ fontStyle: 'italic', color: 'var(--text-muted)' }}>New conversation...</span>
                         )}
                       </span>
                       {conv.unreadCount > 0 && (
@@ -570,58 +570,51 @@ export default function ProfilePage() {
       </div>
       
       {/* Danger Zone */}
-      <div className={styles.card} style={{ border: '1px solid #ef4444', marginTop: '2rem' }}>
-        <div className={styles.sectionHeader}>
-          <h2 className={styles.title} style={{ color: '#ef4444' }}>{t('danger_zone')}</h2>
-          <p className={styles.subtitle}>{t('danger_zone_sub')}</p>
-        </div>
-        
-        <div style={{ padding: '1rem 0' }}>
-          <h3 style={{ fontSize: '1rem', fontWeight: 600, color: '#f8fafc', marginBottom: '0.5rem' }}>{t('deactivate_account')}</h3>
-          <p style={{ color: '#94a3b8', fontSize: '0.875rem', marginBottom: '1rem', lineHeight: 1.5 }}>
-            {t('deactivate_desc')}
-          </p>
-          <button 
-            onClick={async () => {
-              if (window.confirm(t('deactivate_confirm'))) {
-                try {
-                  const token = getToken() || user?.token;
-                  if (!token) return;
-                  await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/users/me/deactivate`, {
-                    method: 'POST',
-                    headers: {
-                      'Content-Type': 'application/json',
-                      'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify({ reason: "User self-deactivated" })
-                  });
-                  alert(t('deactivate_success'));
-                  logout();
-                } catch (e) {
-                  alert(t('deactivate_error'));
-                }
+      <div className={styles.card} style={{ border: '1px solid var(--danger)', marginTop: 'var(--space-8)' }}>
+        <h3 style={{ color: 'var(--danger)' }}>{t('danger_zone')}</h3>
+        <p style={{ color: 'var(--text-primary)', fontSize: 'var(--text-sm)', marginBottom: 'var(--space-4)', lineHeight: 1.5 }}>
+          {t('deactivate_desc')}
+        </p>
+        <button 
+          onClick={async () => {
+            if (window.confirm(t('deactivate_confirm'))) {
+              try {
+                const token = getToken() || user?.token;
+                if (!token) return;
+                await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/users/me/deactivate`, {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                  },
+                  body: JSON.stringify({ reason: "User self-deactivated" })
+                });
+                alert(t('deactivate_success'));
+                logout();
+              } catch (e) {
+                alert(t('deactivate_error'));
               }
-            }}
-            style={{
-              backgroundColor: '#ef4444',
-              color: 'white',
-              padding: '0.75rem 1.5rem',
-              borderRadius: '0.5rem',
-              border: 'none',
-              fontWeight: 600,
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.5rem',
-              transition: 'background-color 0.2s'
-            }}
-            onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#dc2626'}
-            onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#ef4444'}
-          >
-            <ShieldAlert size={18} />
-            {t('deactivate_btn')}
-          </button>
-        </div>
+            }
+          }}
+          style={{
+            backgroundColor: 'var(--danger)',
+            color: 'var(--text-inverse)',
+            padding: 'var(--space-3) var(--space-6)',
+            borderRadius: 'var(--radius-sm)',
+            border: 'none',
+            fontWeight: 600,
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 'var(--space-2)',
+            transition: 'background-color var(--duration-fast)'
+          }}
+          onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'var(--danger-text)'}
+          onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'var(--danger)'}
+        >
+          <ShieldAlert size={18} />
+          {t('deactivate_btn')}
+        </button>
       </div>
       </div>
     </motion.div>

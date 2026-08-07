@@ -78,9 +78,9 @@
   right: 2px;
   width: 12px;
   height: 12px;
-  background: #22c55e;
+  background: var(--success);
   border-radius: 50%;
-  border: 2px solid var(--bg-primary);
+  border: 2px solid var(--bg-elevated);
   box-shadow: 0 0 0 1px #fff, 0 0 6px #22c55e;
 }
 

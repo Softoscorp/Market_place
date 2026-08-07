@@ -219,7 +219,7 @@ export default function SignupPage() {
                     </p>
                   </div>
 
-                  {error && <div style={{ color: 'red', marginBottom: '1rem' }}>{error}</div>}
+                  {error && <div style={{ color: 'var(--danger)', marginBottom: 'var(--space-4)' }}>{error}</div>}
 
                   <form className={styles.form} onSubmit={handleNext}>
                     <div className={styles.inputGroup}>

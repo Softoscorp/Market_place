@@ -43,12 +43,12 @@ export function ReviewForm({ targetId, type, onSuccess, onCancel }: ReviewFormPr
   };
 
   return (
-    <form onSubmit={handleSubmit} style={{ marginTop: '1rem', padding: '1rem', background: '#f8f9fa', borderRadius: '8px' }}>
-      <h3 style={{ marginBottom: '1rem', fontSize: '1.1rem', fontWeight: 600 }}>Write a Review</h3>
+    <form onSubmit={handleSubmit} style={{ marginTop: 'var(--space-4)', padding: 'var(--space-4)', background: 'var(--bg-hover)', borderRadius: 'var(--radius-sm)' }}>
+      <h3 style={{ marginBottom: 'var(--space-4)', fontSize: '1.1rem', fontWeight: 600 }}>Write a Review</h3>
       
-      {error && <div style={{ color: 'red', marginBottom: '1rem', fontSize: '0.9rem' }}>{error}</div>}
+      {error && <div style={{ color: 'var(--danger)', marginBottom: 'var(--space-4)', fontSize: 'var(--text-base)' }}>{error}</div>}
       
-      <div style={{ display: 'flex', gap: '0.25rem', marginBottom: '1rem' }}>
+      <div style={{ display: 'flex', gap: 'var(--space-1)', marginBottom: 'var(--space-4)' }}>
         {[1, 2, 3, 4, 5].map((star) => (
           <button
             key={star}
@@ -56,26 +56,27 @@ export function ReviewForm({ targetId, type, onSuccess, onCancel }: ReviewFormPr
             onClick={() => setStars(star)}
             onMouseEnter={() => setHoverStars(star)}
             onMouseLeave={() => setHoverStars(0)}
+            aria-label={`Rate ${star} star${star === 1 ? '' : 's'}`}
             style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
           >
             <Star
               size={24}
-              fill={(hoverStars || stars) >= star ? '#f59e0b' : 'none'}
-              color={(hoverStars || stars) >= star ? '#f59e0b' : '#d1d5db'}
+              fill={(hoverStars || stars) >= star ? 'var(--warning)' : 'none'}
+              color={(hoverStars || stars) >= star ? 'var(--warning)' : 'var(--border)'}
             />
           </button>
         ))}
       </div>
 
-      <div style={{ marginBottom: '1rem' }}>
+      <div style={{ marginBottom: 'var(--space-4)' }}>
         <textarea
           value={comment}
           onChange={(e) => setComment(e.target.value)}
           placeholder="Write your review (optional)..."
-          style={{ width: '100%', padding: '0.75rem', borderRadius: '0.5rem', border: '1px solid #e5e7eb', minHeight: '80px' }}
+          style={{ width: '100%', padding: 'var(--space-3)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border)', minHeight: '80px' }}
         />
       </div>
-      <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end' }}>
+      <div style={{ display: 'flex', gap: 'var(--space-3)', justifyContent: 'flex-end' }}>
         <Button variant="ghost" onClick={onCancel} disabled={isSubmitting}>
           Cancel
         </Button>

@@ -110,7 +110,7 @@ export default function PostListingPage() {
                 <UploadCloud size={48} />
                 <div>
                   <strong>Click to upload</strong> or drag and drop<br/>
-                  <span style={{ fontSize: '0.875rem' }}>PNG, JPG, WEBP (max 10MB per image)</span>
+                  <span style={{ fontSize: 'var(--text-sm)' }}>PNG, JPG, WEBP (max 10MB per image)</span>
                 </div>
               </div>
 
@@ -127,6 +127,7 @@ export default function PostListingPage() {
                           e.stopPropagation();
                           removePhoto(idx);
                         }}
+                        aria-label="Remove photo"
                       >
                         <X size={12} />
                       </button>
@@ -155,7 +156,7 @@ export default function PostListingPage() {
             <div className={styles.row}>
               <div className={styles.inputGroup}>
                 <label className={styles.label}>Monthly Rent</label>
-                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
                   <select 
                     className={styles.input}
                     value={currency}
@@ -373,19 +374,19 @@ export default function PostListingPage() {
             </button>
             {publishMessage && (
               <div style={{
-                marginTop: '1rem',
-                padding: '0.75rem',
-                fontSize: '0.875rem',
-                color: publishMessage.type === 'success' ? '#15803d' : '#b91c1c',
-                backgroundColor: publishMessage.type === 'success' ? '#dcfce7' : '#fee2e2',
-                borderRadius: '0.5rem',
-                border: `1px solid ${publishMessage.type === 'success' ? '#bbf7d0' : '#fecaca'}`,
+                marginTop: 'var(--space-4)',
+                padding: 'var(--space-3)',
+                fontSize: 'var(--text-sm)',
+                color: publishMessage.type === 'success' ? 'var(--success-text)' : 'var(--danger-text)',
+                backgroundColor: publishMessage.type === 'success' ? 'var(--success-muted)' : 'var(--danger-muted)',
+                borderRadius: 'var(--radius-sm)',
+                border: `1px solid ${publishMessage.type === 'success' ? 'var(--success-border)' : 'var(--danger-border)'}`,
                 textAlign: 'center'
               }}>
                 {publishMessage.text}
               </div>
             )}
-            <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textAlign: 'center', marginTop: '1rem' }}>
+            <p style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)', textAlign: 'center', marginTop: 'var(--space-4)' }}>
               By publishing, you agree to our Verified Agent terms.
             </p>
           </div>

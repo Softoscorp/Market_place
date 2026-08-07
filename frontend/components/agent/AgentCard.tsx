@@ -53,8 +53,8 @@ export function AgentCard({
           <div
             className={styles.onlineDot}
             style={{
-              background: online ? '#22c55e' : '#9ca3af',
-              boxShadow: online ? '0 0 0 2px #fff, 0 0 6px #22c55e' : 'none',
+              background: online ? 'var(--success)' : 'var(--text-muted)',
+              boxShadow: online ? '0 0 0 2px var(--bg-surface), 0 0 6px var(--success)' : 'none',
             }}
             title={statusText}
           />
@@ -67,13 +67,13 @@ export function AgentCard({
           
           {verificationTier === 'local' && (
             <div className={`${styles.tierBadge} ${styles.tier1Badge}`}>
-              <Check size={14} strokeWidth={2.5} />
+              <Check size={14} strokeWidth={2.5} aria-hidden="true" />
               <span>Verified</span>
             </div>
           )}
           {verificationTier === 'international' && (
             <div className={`${styles.tierBadge} ${styles.tier2Badge}`}>
-              <Check size={14} strokeWidth={2.5} />
+              <Check size={14} strokeWidth={2.5} aria-hidden="true" />
               <span>Verified</span>
             </div>
           )}
@@ -85,7 +85,7 @@ export function AgentCard({
             </Tooltip>
           )}
           
-          <p className={styles.onlineStatus} style={{ color: online ? '#22c55e' : '#9ca3af', fontSize: '0.75rem', margin: '6px 0 0' }}>
+          <p className={styles.onlineStatus} style={{ color: online ? 'var(--success)' : 'var(--text-muted)', fontSize: 'var(--text-xs)', margin: 'var(--space-2) 0 0' }}>
             {statusText}
           </p>
         </div>
@@ -94,7 +94,7 @@ export function AgentCard({
       <div className={styles.stats}>
         <div className={styles.statItem}>
           <span className={styles.statValue}>
-            <Star size={12} fill="#D4A574" color="#D4A574" style={{ marginRight: 2 }} />
+            <Star size={12} fill="var(--warning)" color="var(--warning)" aria-hidden="true" style={{ marginRight: 2 }} />
             {rating}
           </span>
           <span className={styles.statLabel}>{reviews} {t('agent_reviews')}</span>

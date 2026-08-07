@@ -44,8 +44,8 @@ export const PropertyGallery: React.FC<PropertyGalleryProps> = ({
     <div className={clsx(styles.galleryContainer, className)}>
       <Swiper
         style={{
-          '--swiper-navigation-color': 'var(--color-accent)',
-          '--swiper-pagination-color': 'var(--color-accent)',
+          '--swiper-navigation-color': 'var(--accent)',
+          '--swiper-pagination-color': 'var(--accent)',
         } as React.CSSProperties}
         spaceBetween={10}
         navigation={true}

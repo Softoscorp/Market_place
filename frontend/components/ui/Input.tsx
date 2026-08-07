@@ -49,7 +49,7 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
           >
             {children}
           </select>
-          <ChevronDown className={styles.selectIcon} size={16} />
+          <ChevronDown className={styles.selectIcon} size={16} aria-hidden="true" />
         </div>
         {error && <span className={styles.errorMessage}>{error}</span>}
       </div>

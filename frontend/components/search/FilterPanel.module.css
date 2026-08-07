@@ -2,10 +2,10 @@
   background-color: var(--bg-surface);
   border-radius: var(--radius-xl);
   border: 1px solid var(--border-subtle);
-  padding: 24px;
+  padding: var(--space-6);
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: var(--space-6);
   width: 100%;
   box-shadow: var(--shadow-sm);
 }
@@ -15,12 +15,12 @@
   justify-content: space-between;
   align-items: center;
   border-bottom: 1px solid var(--border-subtle);
-  padding-bottom: 16px;
+  padding-bottom: var(--space-4);
 }
 
 .title {
   font-family: var(--font-heading);
-  font-size: 1.5rem;
+  font-size: var(--text-2xl);
   font-weight: 700;
   color: var(--text-primary);
   margin: 0;
@@ -31,7 +31,7 @@
   background: none;
   border: none;
   color: var(--text-secondary);
-  font-size: 0.875rem;
+  font-size: var(--text-sm);
   font-weight: 500;
   cursor: pointer;
   transition: color var(--duration-fast) var(--ease-out);
@@ -44,28 +44,28 @@
 .section {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: var(--space-3);
 }
 
 .sectionTitle {
   font-weight: 600;
   color: var(--text-primary);
-  font-size: 1rem;
+  font-size: var(--text-base);
   margin: 0;
 }
 
 .grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 8px;
+  gap: var(--space-2);
 }
 
 .checkboxLabel {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-2);
   color: var(--text-secondary);
-  font-size: 0.875rem;
+  font-size: var(--text-sm);
   cursor: pointer;
   font-weight: 500;
   transition: color var(--duration-fast) var(--ease-out);
@@ -90,10 +90,10 @@
   color: var(--text-inverse);
   border: none;
   border-radius: var(--radius-full);
-  padding: 12px;
+  padding: var(--space-3);
   font-weight: 600;
   cursor: pointer;
-  margin-top: 16px;
+  margin-top: var(--space-4);
   transition: transform var(--duration-fast) var(--ease-out), opacity var(--duration-fast) var(--ease-out);
 }
 
@@ -108,7 +108,7 @@
 
 .select {
   width: 100%;
-  padding: 10px 12px;
+  padding: 10px var(--space-3);
   border-radius: var(--radius-sm);
   background-color: var(--bg-input);
   border: 1px solid var(--border);
@@ -126,7 +126,7 @@
 .priceRange {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--space-3);
 }
 
 @media (max-width: 768px) {
@@ -142,7 +142,7 @@
 
 .priceInput {
   flex: 1;
-  padding: 8px 12px;
+  padding: var(--space-2) var(--space-3);
   border-radius: var(--radius-sm);
   background-color: var(--bg-input);
   border: 1px solid var(--border);

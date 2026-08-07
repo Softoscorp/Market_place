@@ -14,7 +14,7 @@ export const StarRating = React.forwardRef<HTMLDivElement, StarRatingProps>(
   ({ className, rating, max = 5, size = 16, showText = false, ...props }, ref) => {
     return (
       <div ref={ref} className={clsx(styles.wrapper, className)} {...props}>
-        <div className={styles.stars}>
+        <div className={styles.stars} aria-hidden="true">
           {Array.from({ length: max }).map((_, i) => (
             <Star
               key={i}

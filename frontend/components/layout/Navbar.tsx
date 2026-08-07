@@ -90,7 +90,7 @@ export function Navbar() {
             <button
               className={styles.langToggle}
               onClick={() => setShowInstallModal(true)}
-              style={{ fontWeight: 600, gap: '4px' }}
+              style={{ fontWeight: 600, gap: 'var(--space-1)' }}
               title="Install Mobile App"
             >
               <Smartphone size={14} />
@@ -111,8 +111,8 @@ export function Navbar() {
           )}
 
         {mounted && isAuthenticated ? (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            <Link href="/saved" className={styles.link} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 500 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4)' }}>
+            <Link href="/saved" className={styles.link} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', fontWeight: 500 }}>
               <Heart size={16} /> <span className={styles.hideOnMobile}>{t('nav_saved') || 'Saved'}</span>
             </Link>
             {/* Messages Icon with Badge */}
@@ -130,7 +130,7 @@ export function Navbar() {
           </div>
         ) : (
           <>
-            <Link href="/login" className={styles.link} style={{ marginRight: '1rem', fontWeight: 500 }}>{t('nav_login')}</Link>
+            <Link href="/login" className={styles.link} style={{ marginRight: 'var(--space-4)', fontWeight: 500 }}>{t('nav_login')}</Link>
             <Link href="/signup" className={styles.loginBtn}>{t('nav_signup')}</Link>
           </>
         )}
@@ -139,7 +139,7 @@ export function Navbar() {
           <Link href="/post-listing" className={styles.postBtn}>{t('nav_post_listing')}</Link>
         )}
         {mounted && isAuthenticated && (user?.role === 'admin' || user?.role === 'customer_care') && (
-          <Link href="/admin" className={styles.postBtn} style={{ backgroundColor: '#111' }}>{t('nav_dashboard')}</Link>
+          <Link href="/admin" className={styles.postBtn} style={{ backgroundColor: 'var(--text-primary)' }}>{t('nav_dashboard')}</Link>
         )}
       </div>
 
@@ -193,7 +193,7 @@ export function Navbar() {
                   <MessageSquare size={18} />
                   {t('tab_messages')}
                   {unreadCount > 0 && (
-                    <span className={styles.notifBadge} style={{ position: 'static', marginLeft: '4px' }}>
+                    <span className={styles.notifBadge} style={{ position: 'static', marginLeft: 'var(--space-1)' }}>
                       {unreadCount > 99 ? '99+' : unreadCount}
                     </span>
                   )}

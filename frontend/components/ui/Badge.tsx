@@ -22,7 +22,7 @@ export const Badge = React.forwardRef<HTMLSpanElement, BadgeProps>(
         )}
         {...props}
       >
-        {variant === 'verified' && <CheckCircle2 className={styles.icon} size={14} />}
+        {variant === 'verified' && <CheckCircle2 className={styles.icon} size={14} aria-hidden="true" />}
         {children}
       </span>
     );

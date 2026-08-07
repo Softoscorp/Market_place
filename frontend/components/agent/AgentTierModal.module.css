@@ -1,12 +1,12 @@
 .container {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: var(--space-6);
 }
 
 .intro {
   color: var(--text-secondary);
-  font-size: 0.95rem;
+  font-size: var(--text-base);
   line-height: 1.5;
   margin: 0;
 }
@@ -14,51 +14,51 @@
 .tierList {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: var(--space-4);
 }
 
 .tierItem {
-  background-color: var(--bg-surface-hover);
-  padding: 16px;
+  background-color: var(--bg-hover);
+  padding: var(--space-4);
   border-radius: var(--radius-lg);
   border: 1px solid var(--border-subtle);
 }
 
 .tierHeader {
-  margin-bottom: 8px;
+  margin-bottom: var(--space-2);
 }
 
 .tierBadge {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  font-size: 0.85rem;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
   font-weight: 600;
-  padding: 6px 12px;
+  padding: var(--space-2) var(--space-3);
   border-radius: var(--radius-full);
 }
 
 .tierGoldBadge {
-  background-color: rgba(234, 179, 8, 0.1);
-  color: #ca8a04;
-  border: 1px solid rgba(234, 179, 8, 0.2);
+  background-color: var(--warning-muted);
+  color: var(--warning-text);
+  border: 1px solid var(--warning-border);
 }
 
 .tierGreenBadge {
-  background-color: rgba(34, 197, 94, 0.1);
-  color: #16a34a;
-  border: 1px solid rgba(34, 197, 94, 0.2);
+  background-color: var(--success-muted);
+  color: var(--success-text);
+  border: 1px solid var(--success-border);
 }
 
 .tierNoneBadge {
-  background-color: rgba(156, 163, 175, 0.1);
-  color: #6b7280;
-  border: 1px solid rgba(156, 163, 175, 0.2);
+  background-color: var(--bg-hover);
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
 }
 
 .tierDesc {
   color: var(--text-primary);
-  font-size: 0.9rem;
+  font-size: var(--text-base);
   line-height: 1.5;
   margin: 0;
 }
@@ -68,17 +68,17 @@
 }
 
 .gotItBtn {
-  background-color: var(--primary);
-  color: white;
+  background-color: var(--accent);
+  color: var(--bg-surface);
   border: none;
   border-radius: var(--radius-lg);
-  padding: 14px 24px;
+  padding: var(--space-4) var(--space-6);
   font-weight: 600;
-  font-size: 1rem;
+  font-size: var(--text-base);
   cursor: pointer;
   transition: opacity 0.2s;
   width: 100%;
-  margin-top: 8px;
+  margin-top: var(--space-2);
 }
 
 .gotItBtn:hover {

@@ -184,13 +184,13 @@ export default function PropertyPage({ params }: PropertyPageProps) {
             left: '50%',
             transform: 'translateX(-50%)',
             zIndex: 9999,
-            padding: '1rem 1.5rem',
-            backgroundColor: notification.type === 'success' ? '#15803d' : '#b91c1c',
-            color: 'white',
-            borderRadius: '8px',
+            padding: 'var(--space-4) var(--space-6)',
+            backgroundColor: notification.type === 'success' ? 'var(--success-text)' : 'var(--danger-text)',
+            color: 'var(--bg-surface)',
+            borderRadius: 'var(--radius-sm)',
             boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
             fontWeight: 500,
-            fontSize: '0.875rem'
+            fontSize: 'var(--text-sm)'
           }}
         >
           {notification.text}
@@ -269,8 +269,8 @@ export default function PropertyPage({ params }: PropertyPageProps) {
 
 
 
-          <div className={styles.section} style={{ marginTop: '2rem', paddingTop: '2rem', borderTop: '1px solid #e5e7eb' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+          <div className={styles.section} style={{ marginTop: 'var(--space-8)', paddingTop: 'var(--space-8)', borderTop: '1px solid var(--border)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-6)' }}>
               <h2 className={styles.sectionTitle} style={{ margin: 0 }}>Property Reviews ({reviews.length})</h2>
               {!showReviewForm && user?.role !== 'agent' && (
                 <Button variant="secondary" onClick={() => setShowReviewForm(true)}>
@@ -280,7 +280,7 @@ export default function PropertyPage({ params }: PropertyPageProps) {
             </div>
 
             {showReviewForm && (
-              <div style={{ marginBottom: '2rem' }}>
+              <div style={{ marginBottom: 'var(--space-8)' }}>
                 <ReviewForm
                   targetId={Number(resolvedParams.id)}
                   type="apartment"
@@ -332,12 +332,12 @@ export default function PropertyPage({ params }: PropertyPageProps) {
               size="lg" 
               fullWidth
               onClick={() => setShowBookingModal(true)}
-              style={{ marginBottom: '0.5rem', backgroundColor: '#000', color: '#fff' }}
+              style={{ marginBottom: 'var(--space-2)', backgroundColor: 'var(--text-primary)', color: 'var(--text-inverse)' }}
             >
               Book Apartment
             </Button>
             <Button variant={isSaved ? "primary" : "secondary"} size="lg" fullWidth onClick={handleSave}>
-              <Heart size={18} style={{ marginRight: '0.5rem' }} /> {isSaved ? "Saved" : "Save to Wishlist"}
+              <Heart size={18} aria-hidden="true" style={{ marginRight: 'var(--space-2)' }} /> {isSaved ? "Saved" : "Save to Wishlist"}
             </Button>
           </div>
         </div>
@@ -380,9 +380,9 @@ export default function PropertyPage({ params }: PropertyPageProps) {
 
       {/* Booking Modal */}
       <Modal isOpen={showBookingModal} onClose={() => setShowBookingModal(false)} title="Book Apartment">
-        <div style={{ padding: '1rem' }}>
-          <p style={{ marginBottom: '1rem' }}>You are about to submit a booking request for <strong>{property.title}</strong>.</p>
-          <p style={{ marginBottom: '2rem', color: '#6b7280' }}>The agent will review your request and contact you to proceed with the contract.</p>
+        <div style={{ padding: 'var(--space-4)' }}>
+          <p style={{ marginBottom: 'var(--space-4)' }}>You are about to submit a booking request for <strong>{property.title}</strong>.</p>
+          <p style={{ marginBottom: 'var(--space-8)', color: 'var(--text-secondary)' }}>The agent will review your request and contact you to proceed with the contract.</p>
           <Button variant="primary" fullWidth onClick={handleBookingSubmit}>
             Confirm Booking Request
           </Button>
@@ -391,13 +391,13 @@ export default function PropertyPage({ params }: PropertyPageProps) {
 
       {/* Roommate Prompt Modal */}
       <Modal isOpen={showRoommatePrompt} onClose={() => setShowRoommatePrompt(false)} title="Looking for a Roommate?">
-        <div style={{ padding: '1rem', textAlign: 'center' }}>
-          <div style={{ marginBottom: '2rem' }}>
-            <Heart size={48} color="#e11d48" style={{ margin: '0 auto', marginBottom: '1rem' }} />
-            <h3 style={{ fontSize: '1.25rem', fontWeight: 600, marginBottom: '0.5rem' }}>Want to split the rent?</h3>
-            <p style={{ color: '#6b7280' }}>You can create a roommate request for this apartment. Other users will see it and can message you to team up!</p>
+        <div style={{ padding: 'var(--space-4)', textAlign: 'center' }}>
+          <div style={{ marginBottom: 'var(--space-8)' }}>
+            <Heart size={48} color="var(--favorite)" aria-hidden="true" style={{ margin: '0 auto', marginBottom: 'var(--space-4)' }} />
+            <h3 style={{ fontSize: '1.25rem', fontWeight: 600, marginBottom: 'var(--space-2)' }}>Want to split the rent?</h3>
+            <p style={{ color: 'var(--text-secondary)' }}>You can create a roommate request for this apartment. Other users will see it and can message you to team up!</p>
           </div>
-          <div style={{ display: 'flex', gap: '1rem' }}>
+          <div style={{ display: 'flex', gap: 'var(--space-4)' }}>
             <Button variant="secondary" fullWidth onClick={() => setShowRoommatePrompt(false)}>
               No, thanks
             </Button>
@@ -413,9 +413,9 @@ export default function PropertyPage({ params }: PropertyPageProps) {
 
       {/* Roommate Form Modal */}
       <Modal isOpen={showRoommateForm} onClose={() => setShowRoommateForm(false)} title="Create Roommate Profile">
-        <div style={{ padding: '1rem' }}>
-          <div style={{ marginBottom: '1.5rem' }}>
-            <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 500, marginBottom: '0.5rem' }}>What is your maximum budget for your share? (£)</label>
+        <div style={{ padding: 'var(--space-4)' }}>
+          <div style={{ marginBottom: 'var(--space-6)' }}>
+            <label style={{ display: 'block', fontSize: 'var(--text-sm)', fontWeight: 500, marginBottom: 'var(--space-2)' }}>What is your maximum budget for your share? (£)</label>
             <Input 
               type="number" 
               name="budget" 
@@ -424,14 +424,14 @@ export default function PropertyPage({ params }: PropertyPageProps) {
               onChange={handleRoommateChange} 
             />
           </div>
-          <div style={{ marginBottom: '2rem' }}>
-            <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: 500, marginBottom: '0.5rem' }}>Bio & Lifestyle</label>
+          <div style={{ marginBottom: 'var(--space-8)' }}>
+            <label style={{ display: 'block', fontSize: 'var(--text-sm)', fontWeight: 500, marginBottom: 'var(--space-2)' }}>Bio & Lifestyle</label>
             <textarea 
               name="bio" 
               placeholder="Describe yourself and what you're looking for in a roommate..." 
               value={roommateData.bio} 
               onChange={handleRoommateChange}
-              style={{ width: '100%', padding: '0.75rem', borderRadius: '0.5rem', border: '1px solid #e5e7eb', minHeight: '100px' }}
+              style={{ width: '100%', padding: 'var(--space-3)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border)', minHeight: '100px' }}
             />
           </div>
           <Button variant="primary" fullWidth onClick={handleRoommateSubmit}>

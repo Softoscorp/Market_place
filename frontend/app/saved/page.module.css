@@ -1,40 +1,40 @@
 .container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 2rem 1.5rem;
+  padding: var(--space-8) var(--space-6);
 }
 
 .header {
-  margin-bottom: 2.5rem;
+  margin-bottom: var(--space-10);
 }
 
 .title {
   font-family: var(--font-heading);
   font-size: 2.5rem;
   font-weight: 500;
-  color: var(--color-text-primary);
-  margin: 0 0 0.5rem 0;
+  color: var(--text-primary);
+  margin: 0 0 var(--space-2) 0;
 }
 
 .subtitle {
-  color: var(--color-text-secondary);
+  color: var(--text-secondary);
   font-size: 1.125rem;
   margin: 0;
 }
 
 .tabs {
   display: flex;
-  gap: 1rem;
-  margin-bottom: 2rem;
-  border-bottom: 1px solid var(--color-border);
-  padding-bottom: 0.5rem;
+  gap: var(--space-4);
+  margin-bottom: var(--space-8);
+  border-bottom: 1px solid var(--border);
+  padding-bottom: var(--space-2);
 }
 
 .tab {
   background: none;
   border: none;
-  padding: 0.5rem 1rem;
-  color: var(--color-text-secondary);
+  padding: var(--space-2) var(--space-4);
+  color: var(--text-secondary);
   font-size: 1.125rem;
   font-weight: 500;
   cursor: pointer;
@@ -43,32 +43,32 @@
 }
 
 .tab:hover {
-  color: var(--color-text-primary);
+  color: var(--text-primary);
 }
 
 .tabActive {
-  color: var(--color-accent);
+  color: var(--accent);
 }
 
 .tabActive::after {
   content: '';
   position: absolute;
-  bottom: -0.5rem;
+  bottom: calc(-1 * var(--space-2));
   left: 0;
   right: 0;
   height: 2px;
-  background-color: var(--color-accent);
+  background-color: var(--accent);
 }
 
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 2rem;
+  gap: var(--space-8);
 }
 
 @media (max-width: 768px) {
   .container {
-    padding: 2rem 1rem;
+    padding: var(--space-8) var(--space-4);
   }
 
   .tabs {
@@ -76,7 +76,7 @@
   }
 
   .grid {
-    gap: 1.25rem;
+    gap: var(--space-5);
   }
 }
 
@@ -86,25 +86,25 @@
   align-items: center;
   justify-content: center;
   text-align: center;
-  padding: 4rem 2rem;
-  background-color: var(--color-bg-surface);
-  border: 1px dashed var(--color-border);
-  border-radius: var(--radius-card);
-  gap: 1rem;
+  padding: var(--space-16) var(--space-8);
+  background-color: var(--bg-surface);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-lg);
+  gap: var(--space-4);
 }
 
 .emptyStateIcon {
-  color: var(--color-text-muted);
+  color: var(--text-muted);
 }
 
 .emptyStateTitle {
   font-family: var(--font-heading);
   font-size: 1.5rem;
-  color: var(--color-text-primary);
+  color: var(--text-primary);
   margin: 0;
 }
 
 .emptyStateDesc {
-  color: var(--color-text-secondary);
+  color: var(--text-secondary);
   max-width: 400px;
 }

@@ -45,9 +45,9 @@
   appearance: none;
   background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
   background-repeat: no-repeat;
-  background-position: right 1rem center;
+  background-position: right var(--space-4) center;
   background-size: 1em;
-  padding-right: 3rem;
+  padding-right: var(--space-12);
   transition: all var(--duration-fast) var(--ease-out);
   box-shadow: var(--shadow-sm);
 }
@@ -113,11 +113,11 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 80px 20px;
+  padding: var(--space-20) var(--space-5);
   color: var(--text-secondary);
-  gap: 12px;
+  gap: var(--space-3);
   text-align: center;
   width: 100%;
 }
-.emptyState h2 { font-size: 1.25rem; font-weight: 600; color: var(--text-primary); margin: 0; }
-.emptyState p { font-size: 0.9rem; margin: 0; }
+.emptyState h2 { font-size: var(--text-lg); font-weight: 600; color: var(--text-primary); margin: 0; }
+.emptyState p { font-size: var(--text-base); margin: 0; }

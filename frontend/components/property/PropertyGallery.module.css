@@ -3,16 +3,16 @@
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
-  background-color: var(--color-surface);
-  border-radius: var(--radius-card);
+  gap: var(--space-3);
+  background-color: var(--bg-surface);
+  border-radius: var(--radius-lg);
   overflow: hidden;
 }
 
 .mainSwiper {
   width: 100%;
   aspect-ratio: 5 / 3;
-  border-radius: var(--radius-card);
+  border-radius: var(--radius-lg);
   overflow: hidden;
 }
 
@@ -26,7 +26,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: var(--color-elevated);
+  background-color: var(--bg-elevated);
 }
 
 .mainImage {
@@ -45,7 +45,7 @@
   opacity: 0.58;
   cursor: pointer;
   transition: opacity 0.2s ease, border 0.2s ease;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   overflow: hidden;
   border: 2px solid transparent;
 }
@@ -63,7 +63,7 @@
 /* Swiper automatically adds this class to the active thumb */
 :global(.swiper-slide-thumb-active) .thumbSlide {
   opacity: 1 !important;
-  border: 2px solid var(--color-accent);
+  border: 2px solid var(--accent);
 }
 
 .thumbImage {

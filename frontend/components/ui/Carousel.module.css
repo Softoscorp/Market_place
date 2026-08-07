@@ -28,7 +28,7 @@
 
 :global(.swiper-button-next):after,
 :global(.swiper-button-prev):after {
-  font-size: 16px;
+  font-size: var(--text-base);
   font-weight: bold;
 }
 

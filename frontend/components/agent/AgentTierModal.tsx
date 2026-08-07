@@ -20,7 +20,7 @@ export function AgentTierModal({ isOpen, onClose }: AgentTierModalProps) {
           <div className={styles.tierItem}>
             <div className={styles.tierHeader}>
               <div className={`${styles.tierBadge} ${styles.tierGoldBadge}`}>
-                <Check size={16} strokeWidth={2.5} />
+                <Check size={16} strokeWidth={2.5} aria-hidden="true" />
                 <span>Verified</span>
               </div>
             </div>
@@ -32,7 +32,7 @@ export function AgentTierModal({ isOpen, onClose }: AgentTierModalProps) {
           <div className={styles.tierItem}>
             <div className={styles.tierHeader}>
               <div className={`${styles.tierBadge} ${styles.tierGreenBadge}`}>
-                <Check size={16} strokeWidth={2.5} />
+                <Check size={16} strokeWidth={2.5} aria-hidden="true" />
                 <span>Verified</span>
               </div>
             </div>
@@ -44,7 +44,7 @@ export function AgentTierModal({ isOpen, onClose }: AgentTierModalProps) {
           <div className={styles.tierItem}>
             <div className={styles.tierHeader}>
               <div className={`${styles.tierBadge} ${styles.tierNoneBadge}`}>
-                <ShieldAlert size={16} strokeWidth={2.5} />
+                <ShieldAlert size={16} strokeWidth={2.5} aria-hidden="true" />
                 <span>Not Verified Yet</span>
               </div>
             </div>

@@ -70,7 +70,7 @@ export function SearchHero() {
             alt="Luxury home in North Cyprus" 
             className={styles.heroImage}
           />
-          <div className={styles.imageOverlay} />
+          <div className={styles.imageOverlay} aria-hidden="true" />
         </motion.div>
       </div>
     </section>

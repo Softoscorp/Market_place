@@ -60,18 +60,18 @@ export function AgentProfile({
           <ProtectedImage src={imageUrl} alt={name} className={styles.avatar} />
           {verificationTier === 'local' && (
             <div className={styles.verifiedBadge}>
-              <Check size={16} strokeWidth={3} />
+              <Check size={16} strokeWidth={3} aria-hidden="true" />
             </div>
           )}
           {verificationTier === 'international' && (
             <div className={styles.internationalBadge}>
-              <Globe size={16} strokeWidth={3} />
+              <Globe size={16} strokeWidth={3} aria-hidden="true" />
             </div>
           )}
         </div>
         
         <div className={styles.info}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', marginBottom: 'var(--space-1)' }}>
             <h1 className={styles.name} style={{ margin: 0 }}>{name}</h1>
             {lastSeenAt && (
               <span className={isOnline(lastSeenAt) ? styles.statusOnline : styles.statusOffline}>
@@ -88,7 +88,7 @@ export function AgentProfile({
           <div className={styles.stats}>
             <div className={styles.statItem}>
               <span className={styles.statValue}>
-                {rating} <Star size={16} fill="#D4A574" color="#D4A574" />
+                {rating} <Star size={16} fill="var(--warning)" color="var(--warning)" aria-hidden="true" />
               </span>
               <span className={styles.statLabel}>{reviews} Reviews</span>
             </div>
@@ -139,8 +139,9 @@ export function AgentProfile({
                   onMouseEnter={() => setHoveredStar(star)}
                   onMouseLeave={() => setHoveredStar(0)}
                   onClick={() => setSelectedRating(star)}
+                  aria-label={`Rate ${star} star${star === 1 ? '' : 's'}`}
                 >
-                  <Star size={24} fill={(hoveredStar || selectedRating) >= star ? '#D4A574' : 'transparent'} color="#D4A574" />
+                  <Star size={24} fill={(hoveredStar || selectedRating) >= star ? 'var(--warning)' : 'transparent'} color="var(--warning)" />
                 </button>
               ))}
             </div>
@@ -157,7 +158,7 @@ export function AgentProfile({
 
       <div className={styles.section}>
         <h2 className={styles.sectionTitle}>About {name}</h2>
-        <p style={{ color: '#8B97A8', lineHeight: 1.6 }}>
+        <p style={{ color: 'var(--text-secondary)', lineHeight: 1.6 }}>
           As a top-rated agent specializing in student and professional housing across North Cyprus, I prioritize finding the perfect match for your lifestyle and budget. Whether you&apos;re looking for a quiet studio in Nicosia or a vibrant shared apartment in Kyrenia, I have the local expertise to guide you.
         </p>
       </div>

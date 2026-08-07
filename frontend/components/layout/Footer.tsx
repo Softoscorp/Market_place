@@ -32,18 +32,18 @@ export function Footer() {
               <PremiumIcon icon={Home} size={20} colorVariant="accent" />
               House Agent
             </h3>
-            <p style={{ color: '#8B97A8', fontSize: '0.875rem', lineHeight: 1.5 }}>
+            <p style={{ color: 'var(--text-secondary)', fontSize: 'var(--text-sm)', lineHeight: 1.5 }}>
               {t('footer_tagline')}
             </p>
           </div>
           <div className={styles.column}>
-            <h4 style={{ color: '#E2E8F0', margin: 0 }}>{t('footer_explore')}</h4>
+            <h4 style={{ color: 'var(--text-primary)', margin: 0 }}>{t('footer_explore')}</h4>
             <Link href="/search?location=Kyrenia" className={styles.link}>{t('footer_prop_kyrenia')}</Link>
             <Link href="/search?location=Famagusta" className={styles.link}>{t('footer_prop_famagusta')}</Link>
             <Link href="/search?type=Studio" className={styles.link}>{t('footer_student_dorms')}</Link>
           </div>
           <div className={styles.column}>
-            <h4 style={{ color: '#E2E8F0', margin: 0 }}>{t('footer_company')}</h4>
+            <h4 style={{ color: 'var(--text-primary)', margin: 0 }}>{t('footer_company')}</h4>
             <Link href="/about" className={styles.link}>{t('footer_about')}</Link>
             <Link href="/contact" className={styles.link}>{t('footer_contact')}</Link>
             <Link href="/terms" className={styles.link}>{t('footer_terms')}</Link>

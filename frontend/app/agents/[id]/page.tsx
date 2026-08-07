@@ -126,9 +126,9 @@ export default function AgentDetailPage({ params }: { params: Promise<{ id: stri
         initial={{ y: 30, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.8, delay: 0.3, ease: [0.2, 0.8, 0.2, 1] }}
-        style={{ marginTop: '3rem', padding: '2rem', background: '#ffffff', borderRadius: '12px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)' }}
+        style={{ marginTop: 'var(--space-12)', padding: 'var(--space-8)', background: 'var(--bg-surface)', borderRadius: 'var(--radius-md)', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)' }}
       >
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-6)' }}>
           <h2 className={styles.sectionTitle} style={{ margin: 0 }}>Reviews ({reviews.length})</h2>
           {!showReviewForm && (
             <Button variant="secondary" onClick={() => setShowReviewForm(true)}>
@@ -138,7 +138,7 @@ export default function AgentDetailPage({ params }: { params: Promise<{ id: stri
         </div>
 
         {showReviewForm && (
-          <div style={{ marginBottom: '2rem' }}>
+          <div style={{ marginBottom: 'var(--space-8)' }}>
             <ReviewForm
               targetId={Number(resolvedParams.id)}
               type="agent"

@@ -76,9 +76,9 @@ export function RoommateCard({
           <MessageCircle size={16} style={{ marginRight: 4 }} />
           Message
         </button>
-        <button className={styles.btnSecondary}>
-          <Heart size={16} />
-        </button>
+        <button className={styles.btnSecondary} aria-label="Save">
+            <Heart size={16} />
+          </button>
       </div>
     </div>
   );

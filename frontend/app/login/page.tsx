@@ -142,8 +142,8 @@ export default function LoginPage() {
                     <p className={styles.subtitle}>{t('auth_reset_sub')}</p>
                   </div>
 
-                  {resetError && <div style={{ color: '#ef4444', marginBottom: '1rem', fontSize: '0.9rem' }}>{resetError}</div>}
-                  {resetMessage && <div style={{ color: '#10b981', marginBottom: '1rem', fontSize: '0.9rem' }}>{resetMessage}</div>}
+                  {resetError && <div style={{ color: 'var(--danger)', marginBottom: 'var(--space-4)', fontSize: 'var(--text-base)' }}>{resetError}</div>}
+                  {resetMessage && <div style={{ color: 'var(--success)', marginBottom: 'var(--space-4)', fontSize: 'var(--text-base)' }}>{resetMessage}</div>}
 
                   <form className={styles.form} onSubmit={handleResetPassword}>
                     <div className={styles.inputGroup}>
@@ -185,11 +185,11 @@ export default function LoginPage() {
                       style={{
                         background: 'transparent',
                         border: 'none',
-                        color: '#64748b',
-                        marginTop: '1rem',
+                        color: 'var(--text-secondary)',
+                        marginTop: 'var(--space-4)',
                         cursor: 'pointer',
                         width: '100%',
-                        fontSize: '0.9rem',
+                        fontSize: 'var(--text-base)',
                         textAlign: 'center'
                       }}
                     >
@@ -211,7 +211,7 @@ export default function LoginPage() {
                     <p className={styles.subtitle}>{t('auth_signin_sub')}</p>
                   </div>
 
-                  {error && <div style={{ color: '#ef4444', marginBottom: '1rem', fontSize: '0.9rem' }}>{error}</div>}
+                  {error && <div style={{ color: 'var(--danger)', marginBottom: 'var(--space-4)', fontSize: 'var(--text-base)' }}>{error}</div>}
 
                   <form className={styles.form} onSubmit={handleSubmit}>
                     <div className={styles.inputGroup}>
@@ -238,11 +238,11 @@ export default function LoginPage() {
                           style={{
                             background: 'none',
                             border: 'none',
-                            color: '#2563eb',
-                            fontSize: '0.85rem',
+                            color: 'var(--accent)',
+                            fontSize: 'var(--text-sm)',
                             cursor: 'pointer',
                             padding: 0,
-                            marginBottom: '0.5rem'
+                            marginBottom: 'var(--space-2)'
                           }}
                         >
                           {t('auth_forgot_password')}

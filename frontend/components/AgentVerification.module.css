@@ -2,35 +2,35 @@
   background-color: var(--bg-surface);
   border-radius: var(--radius-xl);
   border: 1px solid var(--border-subtle);
-  padding: 1.5rem;
+  padding: var(--space-6);
   box-shadow: var(--shadow-sm);
 }
 
 .sectionHeader {
-  margin-bottom: 1.5rem;
+  margin-bottom: var(--space-6);
 }
 
 .title {
   font-family: var(--font-heading);
-  font-size: 1.25rem;
+  font-size: var(--text-lg);
   font-weight: 700;
   color: var(--text-primary);
   margin: 0;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: var(--space-2);
 }
 
 .subtitle {
   color: var(--text-secondary);
-  font-size: 0.875rem;
-  margin: 0.25rem 0 0 0;
+  font-size: var(--text-sm);
+  margin: var(--space-1) 0 0 0;
 }
 
 .verificationGrid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 1.5rem;
+  gap: var(--space-6);
 }
 
 @media (min-width: 768px) {
@@ -40,28 +40,28 @@
 }
 
 .verificationCard {
-  background: white;
-  border-radius: 12px;
-  padding: 1.5rem;
-  border: 1px solid #e2e8f0;
+  background: var(--bg-surface);
+  border-radius: var(--radius-md);
+  padding: var(--space-6);
+  border: 1px solid var(--border);
   display: flex;
   flex-direction: column;
   height: 100%;
 }
 
 .tier1 {
-  border-top: 4px solid #d97706; /* Bronze/Amber for Tier 1 */
+  border-top: 4px solid var(--warning-text);
 }
 
 .tier2 {
-  border-top: 4px solid #eab308; /* Gold for Tier 2 */
+  border-top: 4px solid var(--warning);
 }
 
 .verificationHeader {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  margin-bottom: 1rem;
+  gap: var(--space-4);
+  margin-bottom: var(--space-4);
 }
 
 .verificationIcon {
@@ -70,70 +70,70 @@
   justify-content: center;
   width: 48px;
   height: 48px;
-  border-radius: 12px;
+  border-radius: var(--radius-md);
 }
 .tier1Icon {
-  background-color: #fef3c7;
-  color: #d97706;
+  background-color: var(--warning-muted);
+  color: var(--warning-text);
 }
 
 .tier2Icon {
-  background-color: #fef08a;
-  color: #eab308;
+  background-color: var(--warning-muted);
+  color: var(--warning);
 }
 
 .verificationTitle {
-  font-size: 1.125rem;
+  font-size: var(--text-lg);
   font-weight: 600;
-  color: #0f172a;
+  color: var(--text-primary);
 }
 
 .verificationDesc {
-  font-size: 0.875rem;
-  color: #64748b;
-  margin-bottom: 1.5rem;
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  margin-bottom: var(--space-6);
   flex-grow: 1;
 }
 
 .verificationStatus {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: var(--space-2);
   font-weight: 500;
-  font-size: 0.875rem;
-  margin-bottom: 1rem;
+  font-size: var(--text-sm);
+  margin-bottom: var(--space-4);
 }
 
 .statusPending {
-  color: #f59e0b;
+  color: var(--warning);
 }
 
 .statusApproved {
-  color: #10b981;
+  color: var(--success);
 }
 
 .statusNone {
-  color: #94a3b8;
+  color: var(--text-muted);
 }
 
 .verificationBtn {
   width: 100%;
-  padding: 0.75rem;
-  border-radius: 8px;
+  padding: var(--space-3);
+  border-radius: var(--radius-sm);
   font-weight: 500;
   cursor: pointer;
   border: none;
-  background-color: #f1f5f9;
-  color: #0f172a;
+  background-color: var(--bg-hover);
+  color: var(--text-primary);
   transition: all 0.2s;
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 0.5rem;
+  gap: var(--space-2);
 }
 
 .verificationBtn:hover:not(:disabled) {
-  background-color: #e2e8f0;
+  background-color: var(--bg-active);
 }
 
 .verificationBtn:disabled {
@@ -142,10 +142,10 @@
 }
 
 .verificationBtn.active {
-  background-color: #0f172a;
-  color: white;
+  background-color: var(--text-primary);
+  color: var(--text-inverse);
 }
 
 .verificationBtn.active:hover:not(:disabled) {
-  background-color: #1e293b;
+  background-color: var(--accent-hover);
 }

@@ -73,7 +73,7 @@ export const MoveInCalculator: React.FC<MoveInCalculatorProps> = ({
 
       <div className={styles.totalSection}>
         <span className={styles.totalLabel}>Total Move-in</span>
-        <MoveInBadge cost={totalMoveIn} />
+        <MoveInBadge cost={totalMoveIn} className={styles.totalBadge} />
       </div>
     </div>
   );

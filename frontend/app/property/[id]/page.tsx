@@ -76,24 +76,28 @@ export default function PropertyPage({ params }: PropertyPageProps) {
   };
 
   useEffect(() => {
-    apiRequest(`/listings/${resolvedParams.id}`, { auth: false })
-      .then((data) => {
+    const listingId = resolvedParams.id;
+    const abort = new AbortController();
+
+    const loadProperty = apiRequest(`/listings/${listingId}`, { auth: false, signal: abort.signal });
+    const loadSimilar = apiRequest(`/listings?page_size=8&sort=newest`, { auth: false, signal: abort.signal });
+    const loadRatings = getApartmentRatings(Number(listingId));
+
+    Promise.all([loadProperty, loadSimilar, loadRatings])
+      .then(([data, listData, ratingData]) => {
         setProperty(data);
+        setReviews(Array.isArray(ratingData) ? ratingData : ratingData?.items || []);
+        const others = (listData.items || []).filter((p: PropertyData) => p.id !== data.id);
+        setSimilarProperties(others.slice(0, 6));
         setLoading(false);
-        // Fetch similar
-        apiRequest(`/listings`, { auth: false }).then((listData) => {
-          const others = (listData.items || []).filter((p: PropertyData) => p.id !== data.id);
-          setSimilarProperties(others.slice(0, 6));
-        });
       })
       .catch((err) => {
+        if (err?.name === 'AbortError') return;
         console.error(err);
         setLoading(false);
       });
 
-    getApartmentRatings(Number(resolvedParams.id))
-      .then(setReviews)
-      .catch(console.error);
+    return () => abort.abort();
   }, [resolvedParams.id]);
 
   const handleSave = async () => {

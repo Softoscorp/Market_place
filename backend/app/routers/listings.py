@@ -1,9 +1,10 @@
 import os
 import uuid
+from datetime import datetime, timedelta
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query, UploadFile, File
-from sqlalchemy import or_
+from sqlalchemy import or_, func
 from sqlalchemy.orm import Session
 
 from .. import models, schemas
@@ -15,21 +16,71 @@ from ..services.supabase_storage import upload_file, delete_file
 
 
 def _get_agent_metrics(db: Session, listings: list[models.Listing]) -> dict[int, dict[str, float | int]]:
+    """Batched agent metrics (ratings + 60-day respond rate) in a handful of queries."""
     metrics_by_agent_id: dict[int, dict[str, float | int]] = {}
     agent_ids = {listing.agent_id for listing in listings if getattr(listing, "agent_id", None) is not None}
+    if not agent_ids:
+        return metrics_by_agent_id
 
-    for agent_id in agent_ids:
-        agent = db.query(models.User).filter(models.User.id == agent_id).first()
-        if not agent:
+    # 1) Ratings summary for all agents in one grouped query.
+    rating_rows = (
+        db.query(
+            models.AgentRating.agent_id,
+            func.avg(models.AgentRating.stars),
+            func.count(models.AgentRating.id),
+        )
+        .filter(models.AgentRating.agent_id.in_(agent_ids))
+        .group_by(models.AgentRating.agent_id)
+        .all()
+    )
+    for agent_id, avg, count in rating_rows:
+        metrics_by_agent_id.setdefault(agent_id, {})["average_rating"] = round(float(avg), 2) if avg is not None else 0.0
+        metrics_by_agent_id.setdefault(agent_id, {})["rating_count"] = count or 0
+
+    # 2) Respond rate (last 60 days), batched: pull the relevant conversations
+    #    and all of their messages in exactly two queries instead of N+1.
+    cutoff = datetime.utcnow() - timedelta(days=60)
+    conversations = (
+        db.query(models.Conversation)
+        .filter(
+            models.Conversation.agent_id.in_(agent_ids),
+            models.Conversation.created_at >= cutoff,
+        )
+        .all()
+    )
+    conv_ids = [conv.id for conv in conversations]
+    messages_by_conv: dict[int, list[models.Message]] = {}
+    if conv_ids:
+        msgs = (
+            db.query(models.Message)
+            .filter(models.Message.conversation_id.in_(conv_ids))
+            .order_by(models.Message.created_at.asc())
+            .all()
+        )
+        for msg in msgs:
+            messages_by_conv.setdefault(msg.conversation_id, []).append(msg)
+
+    responded_by_agent: dict[int, int] = {}
+    measurable_by_agent: dict[int, int] = {}
+    for conv in conversations:
+        agent_id = conv.agent_id
+        conv_msgs = messages_by_conv.get(conv.id, [])
+        renter_msgs = [m for m in conv_msgs if m.sender_id != agent_id]
+        agent_msgs = [m for m in conv_msgs if m.sender_id == agent_id]
+
+        if not renter_msgs:
             continue
 
-        avg, count = agent.agent_rating_summary(db)
-        respond_rate = agent.agent_respond_rate(db)
-        metrics_by_agent_id[agent_id] = {
-            "average_rating": avg if avg is not None else 0.0,
-            "rating_count": count,
-            "respond_rate": respond_rate if respond_rate is not None else 0.0,
-        }
+        first_renter_msg = renter_msgs[0]
+        measurable_by_agent[agent_id] = measurable_by_agent.get(agent_id, 0) + 1
+        deadline = first_renter_msg.created_at + timedelta(hours=24)
+        if any(m.created_at <= deadline for m in agent_msgs):
+            responded_by_agent[agent_id] = responded_by_agent.get(agent_id, 0) + 1
+
+    for agent_id in agent_ids:
+        entry = metrics_by_agent_id.setdefault(agent_id, {"average_rating": 0.0, "rating_count": 0})
+        measurable = measurable_by_agent.get(agent_id, 0)
+        entry["respond_rate"] = round((responded_by_agent.get(agent_id, 0) / measurable) * 100, 1) if measurable else 100.0
 
     return metrics_by_agent_id
 

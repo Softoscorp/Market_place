@@ -92,6 +92,7 @@
   color: var(--color-text-primary);
   margin: 0;
   line-height: 1.1;
+  overflow-wrap: anywhere;
 }
 
 .location {
@@ -199,6 +200,7 @@
   line-height: 1.75;
   font-size: clamp(0.9rem, 1.9vw, 0.98rem);
   margin: 0;
+  overflow-wrap: anywhere;
 }
 
 .description strong,

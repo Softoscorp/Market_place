@@ -31,7 +31,7 @@ export class ApiError extends Error {
 
 export async function apiRequest(
   path: string,
-  { method = "GET", body, formData, auth = true }: { method?: string; body?: unknown; formData?: FormData; auth?: boolean } = {}
+  { method = "GET", body, formData, auth = true, signal }: { method?: string; body?: unknown; formData?: FormData; auth?: boolean; signal?: AbortSignal } = {}
 ) {
   const headers: Record<string, string> = {};
   let requestBody: unknown;
@@ -52,6 +52,7 @@ export async function apiRequest(
     method,
     headers,
     body: requestBody as BodyInit | null | undefined,
+    signal,
   });
 
   if (response.status === 204) return null;

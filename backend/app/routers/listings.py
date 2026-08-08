@@ -176,7 +176,12 @@ def browse_listings(
     if status_filter:
         query = query.filter(models.Listing.status == status_filter)
     if house_type:
-        query = query.filter(models.Listing.house_type == house_type)
+        # Normalize legacy/cosmetic labels to DB enum values (e.g. "Studio" -> "1+0")
+        normalized = house_type.strip().lower()
+        if normalized == "studio":
+            house_type = "1+0"
+        if house_type in {member.value for member in models.HouseType}:
+            query = query.filter(models.Listing.house_type == house_type)
     if min_price is not None:
         query = query.filter(models.Listing.price >= min_price)
     if max_price is not None:

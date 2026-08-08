@@ -37,7 +37,7 @@ function SearchResults() {
 
   useEffect(() => {
     const params = new URLSearchParams();
-    const type = searchParams.get('house_type') || searchParams.get('type');
+    const type = (searchParams.get('house_type') || searchParams.get('type') || '').replace(/^Studio$/i, '1+0');
     const q = searchParams.get('q') || searchParams.get('keyword');
     const location = searchParams.get('location');
     const minPrice = searchParams.get('min_price');

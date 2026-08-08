@@ -40,7 +40,7 @@ export function Footer() {
             <h4 style={{ color: 'var(--text-primary)', margin: 0 }}>{t('footer_explore')}</h4>
             <Link href="/search?location=Kyrenia" className={styles.link}>{t('footer_prop_kyrenia')}</Link>
             <Link href="/search?location=Famagusta" className={styles.link}>{t('footer_prop_famagusta')}</Link>
-            <Link href="/search?type=Studio" className={styles.link}>{t('footer_student_dorms')}</Link>
+            <Link href="/search?type=1%2B0" className={styles.link}>{t('footer_student_dorms')}</Link>
           </div>
           <div className={styles.column}>
             <h4 style={{ color: 'var(--text-primary)', margin: 0 }}>{t('footer_company')}</h4>

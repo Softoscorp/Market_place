@@ -119,14 +119,14 @@ export function FilterPanel() {
       <div className={styles.section}>
         <h3 className={styles.sectionTitle}>Property Type</h3>
         <div className={styles.grid}>
-          {['Studio', '1+1', '2+1', '3+1'].map((type) => (
-            <label key={type} className={styles.checkboxLabel}>
+          {[{ value: '1+0', label: 'Studio' }, { value: '1+1', label: '1+1' }, { value: '2+1', label: '2+1' }, { value: '3+1', label: '3+1' }].map((type) => (
+            <label key={type.value} className={styles.checkboxLabel}>
               <input 
                 type="radio" 
                 name="houseType"
-                checked={houseType === type}
-                onChange={() => setHouseType(houseType === type ? '' : type)}
-              /> {type}
+                checked={houseType === type.value}
+                onChange={() => setHouseType(houseType === type.value ? '' : type.value)}
+              /> {type.label}
             </label>
           ))}
         </div>

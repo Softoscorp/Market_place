@@ -57,7 +57,7 @@ export function Navbar() {
           <div className={styles.navItem}>
             <Link href="/search" className={styles.link}>{t('nav_properties')} <ChevronDown size={14} /></Link>
             <div className={styles.dropdown}>
-              <Link href="/search?type=Studio" className={styles.dropdownItem}>{t('nav_studios')}</Link>
+              <Link href="/search?type=1%2B0" className={styles.dropdownItem}>{t('nav_studios')}</Link>
               <Link href="/search?type=1%2B1" className={styles.dropdownItem}>{t('nav_1plus1')}</Link>
               <Link href="/search?type=2%2B1" className={styles.dropdownItem}>{t('nav_2plus1')}</Link>
               <Link href="/search" className={styles.dropdownItem}>{t('nav_all_properties')}</Link>

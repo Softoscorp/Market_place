@@ -5,7 +5,7 @@ from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query, UploadFile, File
 from sqlalchemy import or_, func
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 
 from .. import models, schemas
 from ..config import settings
@@ -13,6 +13,7 @@ from ..contact_filter import find_external_contact_info
 from ..database import get_db
 from ..dependencies import get_current_user, require_agent
 from ..services.supabase_storage import upload_file, delete_file
+from ..services.ttl_cache import ttl_cache
 
 
 def _get_agent_metrics(db: Session, listings: list[models.Listing]) -> dict[int, dict[str, float | int]]:
@@ -152,6 +153,7 @@ def create_listing(
 
 
 @router.get("", response_model=schemas.PaginatedListings)
+@ttl_cache(ttl_seconds=15)
 def browse_listings(
     house_type: Optional[str] = None,
     min_price: Optional[float] = None,
@@ -216,7 +218,12 @@ def browse_listings(
         query = query.order_by(models.Listing.created_at.desc())
 
     total = query.count()
-    items = query.offset((page - 1) * page_size).limit(page_size).all()
+    items = (
+        query.options(selectinload(models.Listing.agent), selectinload(models.Listing.photos))
+        .offset((page - 1) * page_size)
+        .limit(page_size)
+        .all()
+    )
     agent_metrics = _get_agent_metrics(db, items)
     serialized = [_serialize_listing(listing_obj, db, agent_metrics) for listing_obj in items]
 
@@ -225,7 +232,12 @@ def browse_listings(
 
 @router.get("/{listing_id}", response_model=schemas.ListingOut)
 def get_listing(listing_id: int, db: Session = Depends(get_db)):
-    listing = db.query(models.Listing).filter(models.Listing.id == listing_id).first()
+    listing = (
+        db.query(models.Listing)
+        .options(selectinload(models.Listing.agent), selectinload(models.Listing.photos))
+        .filter(models.Listing.id == listing_id)
+        .first()
+    )
     if not listing:
         raise HTTPException(status_code=404, detail="Listing not found")
     return _serialize_listing(listing, db, _get_agent_metrics(db, [listing]))

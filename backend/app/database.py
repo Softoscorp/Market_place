@@ -7,7 +7,16 @@ connect_args = {}
 if settings.database_url.startswith("sqlite"):
     connect_args = {"check_same_thread": False}
 
-engine = create_engine(settings.database_url, connect_args=connect_args)
+# Pooled connections + pre-ping: avoids reconnecting to the remote
+# Supabase Postgres on every request (the biggest source of per-request latency).
+engine = create_engine(
+    settings.database_url,
+    connect_args=connect_args,
+    pool_size=10,
+    max_overflow=20,
+    pool_timeout=30,
+    pool_pre_ping=True,
+)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 Base = declarative_base()

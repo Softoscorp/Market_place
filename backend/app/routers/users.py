@@ -3,13 +3,15 @@ import uuid
 import logging
 from fastapi import APIRouter, Depends, HTTPException, status, File, UploadFile
 from sqlalchemy import func
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 
 from .. import models, schemas
 from ..database import get_db
 from ..dependencies import get_current_user
 from ..config import settings
 from ..services.supabase_storage import upload_file, delete_file
+from ..services.agent_metrics import batch_respond_rates
+from ..services.ttl_cache import ttl_cache
 
 logger = logging.getLogger(__name__)
 
@@ -208,10 +210,14 @@ def get_agent_profile(agent_id: int, db: Session = Depends(get_db)):
     avg, count = agent.agent_rating_summary(db)
 
     agent_out = schemas.PublicUserOut.model_validate(agent)
-    agent_out.respond_rate = agent.agent_respond_rate(db)
+    agent_out.respond_rate = batch_respond_rates(db, [agent_id]).get(agent_id)
 
     listings = (
         db.query(models.Listing)
+        .options(
+            selectinload(models.Listing.agent),
+            selectinload(models.Listing.photos),
+        )
         .filter(
             models.Listing.agent_id == agent_id,
             models.Listing.status == models.ListingStatus.active,
@@ -235,6 +241,7 @@ def get_agent_profile(agent_id: int, db: Session = Depends(get_db)):
 
 
 @router.get("/agents", response_model=list[schemas.PublicUserOut])
+@ttl_cache(ttl_seconds=15)
 def list_agents(db: Session = Depends(get_db)):
     agents = db.query(models.User).filter(models.User.role == models.UserRole.agent).limit(10).all()
     results = []
@@ -248,9 +255,10 @@ def list_agents(db: Session = Depends(get_db)):
         )
         .group_by(models.Listing.agent_id)
     }
+    respond_rates = batch_respond_rates(db, agent_ids)
     for agent in agents:
         out = schemas.PublicUserOut.model_validate(agent)
-        out.respond_rate = agent.agent_respond_rate(db)
+        out.respond_rate = respond_rates.get(agent.id)
         out.active_listings = active_listing_counts.get(agent.id, 0)
         results.append(out)
     return results

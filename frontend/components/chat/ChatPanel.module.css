@@ -119,6 +119,11 @@
   border-bottom-right-radius: 4px;
 }
 
+.textMessage {
+  display: block;
+  word-break: break-word;
+}
+
 .inputArea {
   padding: var(--space-6);
   border-top: 1px solid var(--border-subtle);

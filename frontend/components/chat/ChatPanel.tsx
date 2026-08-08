@@ -8,6 +8,7 @@ import { mediaUrl } from '@/lib/api';
 
 import styles from './ChatPanel.module.css';
 import { ProtectedImage } from '@/components/ui/ProtectedImage';
+import { PropertyLinkCard } from '@/components/chat/PropertyLinkCard';
 import { isOnline } from '@/lib/timeAgo';
 import { useLanguageStore } from '@/lib/store/useLanguageStore';
 
@@ -236,7 +237,12 @@ export function ChatPanel() {
           <span className={styles.mediaPending}>{t('chat_sending_voice')}</span>
         );
       default:
-        return <span>{msg.text}</span>;
+        return (
+          <span className={styles.textMessage}>
+            {msg.text}
+            <PropertyLinkCard text={msg.text} />
+          </span>
+        );
     }
   };
 
@@ -433,7 +439,7 @@ export function ChatPanel() {
                   <Mic size={18} />
                 </button>
               )}
-              <button type="submit" className={styles.sendBtn} disabled={!message.trim() || !activeConversation} aria-label="Send message">
+              <button type="submit" className={styles.sendBtn} disabled={!activeConversation} aria-label="Send message">
                 <Send size={18} />
               </button>
             </form>

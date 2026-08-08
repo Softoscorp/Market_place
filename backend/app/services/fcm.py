@@ -91,5 +91,11 @@ def send_fcm_notification(token: str, title: str, body: str, data: dict | None =
         logger.info(f"[FCM] Sent: {response}")
         return True
     except Exception as e:
-        logger.error(f"[FCM] Send failed for token {token[:20]}…: {e}")
+        # A "NotRegistered" error means the token is stale (app uninstalled /
+        # token rotated) — log at info level to avoid Sentry noise, since the
+        # caller prunes dead tokens.
+        if "NotRegistered" in str(e):
+            logger.info(f"[FCM] Token not registered, skipping {token[:20]}…")
+        else:
+            logger.error(f"[FCM] Send failed for token {token[:20]}…: {e}")
         return False

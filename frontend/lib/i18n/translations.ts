@@ -153,6 +153,8 @@ export const translations = {
     chat_send: 'Send',
     chat_voice_error: 'Voice recording is not supported in this browser.',
     chat_voice_recording: 'Recording...',
+    chat_listing_price: '{currency}{price}',
+    chat_listing_view: 'View Apartment',
 
     // Profile & Dashboard
     messages_hub: 'Messages Hub',
@@ -325,6 +327,8 @@ export const translations = {
     chat_send: 'Gönder',
     chat_voice_error: 'Ses kaydı bu tarayıcıda desteklenmiyor.',
     chat_voice_recording: 'Kaydediliyor...',
+    chat_listing_price: '{currency}{price}',
+    chat_listing_view: 'Daireyi Görüntüle',
 
     // Profile & Dashboard
     messages_hub: 'Mesaj Merkezi',

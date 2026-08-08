@@ -1,0 +1,106 @@
+'use client';
+
+import React, { useEffect, useState } from 'react';
+import Link from 'next/link';
+import { Building2 } from 'lucide-react';
+import { apiRequest, mediaUrl } from '@/lib/api';
+import { ProtectedImage } from '@/components/ui/ProtectedImage';
+import { useLanguageStore } from '@/lib/store/useLanguageStore';
+
+import styles from './PropertyLinkCard.module.css';
+
+const PROPERTY_LINK_RE = /(?:https?:\/\/[^\s]*)?\/property\/(\d+)/i;
+
+interface ListingPreview {
+  id: number;
+  title: string;
+  price: number;
+  currency: string;
+  location: string;
+  photo_url?: string | null;
+}
+
+export function PropertyLinkCard({ text }: { text?: string | null }) {
+  const { t } = useLanguageStore();
+  const [listing, setListing] = useState<ListingPreview | null>(null);
+  const [error, setError] = useState(false);
+
+  const match = text ? PROPERTY_LINK_RE.exec(text) : null;
+  const listingId = match ? match[1] : null;
+
+  useEffect(() => {
+    if (!listingId) return;
+    let active = true;
+    setError(false);
+    setListing(null);
+
+    apiRequest(`/listings/${listingId}`, { auth: false })
+      .then((l: any) => {
+        if (!active) return;
+        setListing({
+          id: l.id,
+          title: l.title,
+          price: l.price,
+          currency: l.currency || '£',
+          location: l.location,
+          photo_url: l.photos?.[0]?.url || null,
+        });
+      })
+      .catch(() => {
+        if (active) setError(true);
+      });
+
+    return () => { active = false; };
+  }, [listingId]);
+
+  if (!listingId) return null;
+
+  if (error) {
+    return (
+      <div className={styles.fallback}>
+        <a href={`/property/${listingId}`} className={styles.fallbackLink}>
+          {text}
+        </a>
+      </div>
+    );
+  }
+
+  if (!listing) {
+    return (
+      <div className={styles.loadingCard}>
+        <div className={styles.thumbSkeleton} />
+        <div className={styles.infoSkeleton}>
+          <div className={styles.lineSkeleton} />
+          <div className={styles.lineSkeletonShort} />
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <Link href={`/property/${listing.id}`} className={styles.card}>
+      <div className={styles.thumb}>
+        {listing.photo_url ? (
+          <ProtectedImage
+            src={mediaUrl(listing.photo_url) || ''}
+            fallbackSrc={listing.photo_url}
+            alt={listing.title}
+            className={styles.thumbImg}
+          />
+        ) : (
+          <div className={styles.thumbFallback}>
+            <Building2 size={20} />
+          </div>
+        )}
+      </div>
+      <div className={styles.info}>
+        <div className={styles.title}>{listing.title}</div>
+        <div className={styles.price}>
+          {t('chat_listing_price').replace('{currency}', listing.currency).replace('{price}', String(listing.price))}
+        </div>
+        {listing.location && <div className={styles.location}>{listing.location}</div>}
+        <span className={styles.viewBtn}>{t('chat_listing_view')}</span>
+      </div>
+    </Link>
+  );
+}

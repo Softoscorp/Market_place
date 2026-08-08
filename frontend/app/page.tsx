@@ -121,7 +121,7 @@ export default function HomePage() {
       <main className="container section">
         {/* Recently Added Section */}
         <motion.section 
-          className={styles.section}
+          className={`${styles.section} section`}
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-100px" }}

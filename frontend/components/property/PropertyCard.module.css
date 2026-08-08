@@ -233,3 +233,47 @@
   font-weight: 700;
   color: var(--text-primary);
 }
+
+/* Narrow (2-column phone grid): stack text vertically so nothing overlaps */
+@media (max-width: 560px) {
+  .info {
+    padding: var(--space-2) var(--space-2) var(--space-3);
+  }
+
+  .infoRow {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-1);
+  }
+
+  .side {
+    text-align: left;
+    width: 100%;
+  }
+
+  .loc,
+  .campus {
+    justify-content: flex-start;
+  }
+
+  .title {
+    -webkit-line-clamp: 2;
+  }
+
+  .footer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-1);
+    padding: var(--space-2) var(--space-2) var(--space-3);
+  }
+
+  .term {
+    flex-direction: row;
+    align-items: baseline;
+    gap: var(--space-1);
+  }
+
+  .termValue {
+    font-size: var(--text-sm);
+  }
+}

@@ -9,16 +9,51 @@ interface VerifiedBadgeProps {
   label?: boolean;
 }
 
+const WAVY_HOUSE_PATH =
+  'M4 10.6 L12 3.4 L20 10.6 ' +
+  'c-0.9 0.55 -0.9 1.18 0 1.733 ' +
+  'c0.9 0.55 0.9 1.18 0 1.733 ' +
+  'c-0.9 0.55 -0.9 1.18 0 1.733 ' +
+  'c0.9 0.55 0.9 1.18 0 1.733 ' +
+  'c-0.9 0.55 -0.9 1.18 0 1.733 ' +
+  'c0.9 0.55 0.9 1.18 0 1.733 ' +
+  'c-0.67 1.0 -2.0 1.0 -2.667 0 ' +
+  'c-0.67 -1.0 -2.0 -1.0 -2.667 0 ' +
+  'c-0.67 1.0 -2.0 1.0 -2.667 0 ' +
+  'c-0.67 -1.0 -2.0 -1.0 -2.667 0 ' +
+  'c-0.67 1.0 -2.0 1.0 -2.667 0 ' +
+  'c-0.67 -1.0 -2.0 -1.0 -2.667 0 ' +
+  'c-0.9 -0.55 -0.9 -1.18 0 -1.733 ' +
+  'c0.9 -0.55 0.9 -1.18 0 -1.733 ' +
+  'c-0.9 -0.55 -0.9 -1.18 0 -1.733 ' +
+  'c0.9 -0.55 0.9 -1.18 0 -1.733 ' +
+  'c-0.9 -0.55 -0.9 -1.18 0 -1.733 ' +
+  'c0.9 -0.55 0.9 -1.18 0 -1.733 Z';
+
 const HouseMark = ({ size = 'md' }: { size?: 'sm' | 'md' }) => {
-  const sw = size === 'sm' ? 3 : 2.6;
   const check = size === 'sm'
-    ? <polyline points="10.2 12.4 11.6 13.8 14 11.4" />
-    : <polyline points="10.1 12.4 11.6 13.9 14.2 11.2" />;
+    ? <polyline points="10 15.1 11.7 16.8 14.1 13.2" />
+    : <polyline points="9.9 15.2 11.7 17 14.3 13" />;
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M3 10.5L12 3l9 7.5" />
-      <path d="M5 9.5V21h5v-6h4v6h5V9.5" />
-      {check}
+    <svg viewBox="0 0 24 24" aria-hidden="true" className={styles.mark}>
+      <path
+        d={WAVY_HOUSE_PATH}
+        fill="currentColor"
+        stroke="currentColor"
+        strokeWidth={1.2}
+        strokeLinejoin="round"
+        strokeLinecap="round"
+      />
+      {check && (
+        <polyline
+          points={size === 'sm' ? '10 15.1 11.7 16.8 14.1 13.2' : '9.9 15.2 11.7 17 14.3 13'}
+          fill="none"
+          stroke="#fff"
+          strokeWidth={size === 'sm' ? 2.2 : 2.4}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      )}
     </svg>
   );
 };

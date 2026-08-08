@@ -80,15 +80,45 @@ export default function PropertyPage({ params }: PropertyPageProps) {
     const abort = new AbortController();
 
     const loadProperty = apiRequest(`/listings/${listingId}`, { auth: false, signal: abort.signal });
-    const loadSimilar = apiRequest(`/listings?page_size=8&sort=newest`, { auth: false, signal: abort.signal });
     const loadRatings = getApartmentRatings(Number(listingId));
 
-    Promise.all([loadProperty, loadSimilar, loadRatings])
-      .then(([data, listData, ratingData]) => {
+    Promise.all([loadProperty, loadRatings])
+      .then(async ([data, ratingData]) => {
         setProperty(data);
         setReviews(Array.isArray(ratingData) ? ratingData : ratingData?.items || []);
-        const others = (listData.items || []).filter((p: PropertyData) => p.id !== data.id);
-        setSimilarProperties(others.slice(0, 6));
+
+        const unique = (list: PropertyData[]) =>
+          Array.from(new Map(list.map((p) => [p.id, p])).values()).filter((p) => p.id !== data.id);
+
+        if (data?.house_type && typeof data.price === 'number') {
+          const band = data.price * 0.2;
+          const q = new URLSearchParams({
+            house_type: data.house_type,
+            min_price: String(Math.max(0, Math.round(data.price - band))),
+            max_price: String(Math.round(data.price + band)),
+            page_size: '10',
+          });
+
+          try {
+            const bandRes = await apiRequest(`/listings?${q.toString()}`, { auth: false, signal: abort.signal });
+            let matches = unique(bandRes.items || []);
+            if (matches.length < 3) {
+              const typeRes = await apiRequest(`/listings?house_type=${encodeURIComponent(data.house_type)}&page_size=10`, { auth: false, signal: abort.signal });
+              matches = unique([...matches, ...(typeRes.items || [])]);
+            }
+            if (matches.length < 3) {
+              const newestRes = await apiRequest(`/listings?page_size=10&sort=newest`, { auth: false, signal: abort.signal });
+              matches = unique([...matches, ...(newestRes.items || [])]);
+            }
+            setSimilarProperties(matches.slice(0, 6));
+          } catch (err) {
+            if (err && typeof err === 'object' && 'name' in err && (err as { name?: string }).name === 'AbortError') return;
+            console.error(err);
+            setSimilarProperties([]);
+          }
+        } else {
+          setSimilarProperties([]);
+        }
         setLoading(false);
       })
       .catch((err) => {

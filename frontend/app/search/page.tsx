@@ -8,6 +8,7 @@ import { FilterPanel } from '@/components/search/FilterPanel';
 import { PropertyCard } from '@/components/property/PropertyCard';
 import { useLanguageStore } from '@/lib/store/useLanguageStore';
 import { apiRequest, mediaUrl } from '@/lib/api';
+import { useScrollRestoration } from '@/lib/useScrollRestoration';
 import styles from './page.module.css';
 
 interface Property {
@@ -34,6 +35,8 @@ function SearchResults() {
   const [loading, setLoading] = useState(true);
   const [sort, setSort] = useState('recommended');
   const [showFilters, setShowFilters] = useState(false);
+
+  useScrollRestoration();
 
   useEffect(() => {
     const params = new URLSearchParams();

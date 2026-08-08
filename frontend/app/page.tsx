@@ -17,6 +17,8 @@ import { Skeleton } from "@/components/ui/Skeleton";
 
 import { useLanguageStore } from "@/lib/store/useLanguageStore";
 
+import { useScrollRestoration } from "@/lib/useScrollRestoration";
+
 import { isOnline } from "@/lib/timeAgo";
 
 // Locations to replace universities
@@ -62,6 +64,8 @@ export default function HomePage() {
   const [featuredProperties, setFeaturedProperties] = useState<PropertyData[]>([]);
   const [topAgents, setTopAgents] = useState<AgentData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  useScrollRestoration();
 
   useEffect(() => {
     let propertiesLoaded = false;

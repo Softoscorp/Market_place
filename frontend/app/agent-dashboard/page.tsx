@@ -21,6 +21,7 @@ import { useChatStore } from '@/lib/store/useChatStore';
 import { useLanguageStore } from '@/lib/store/useLanguageStore';
 import { apiRequest, mediaUrl } from '@/lib/api';
 import { ProtectedImage } from '@/components/ui/ProtectedImage';
+import { VerifiedBadge } from '@/components/ui/VerifiedBadge';
 import { AgentVerification } from '@/components/AgentVerification';
 import { isOnline, lastSeenText } from '@/lib/timeAgo';
 import Link from 'next/link';
@@ -431,14 +432,7 @@ export default function AgentDashboard() {
               {lastSeenText(user?.last_seen_at)}
             </div>
             
-            {user?.verification_tier === 'local' && (
-              <div className={styles.verifiedBadge}>Local Verified</div>
-            )}
-            {user?.verification_tier === 'international' && (
-              <div className={styles.verifiedBadge} style={{ backgroundColor: 'var(--warning-muted)', color: 'var(--warning-text)', borderColor: 'var(--warning-border)' }}>
-                Int. Verified
-              </div>
-            )}
+            <VerifiedBadge tier={user?.verification_tier || 'none'} label />
           </div>
         </div>
         <div className={styles.contentArea}>

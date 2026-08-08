@@ -1,13 +1,13 @@
 import React from 'react';
 import Link from 'next/link';
-import { Check, Star, Globe } from 'lucide-react';
+import { Star } from 'lucide-react';
 import { useLanguageStore } from '@/lib/store/useLanguageStore';
 import { mediaUrl } from '@/lib/api';
 import { isOnline, lastSeenText } from '@/lib/timeAgo';
 import styles from './AgentCard.module.css';
 
 import { ProtectedImage } from '@/components/ui/ProtectedImage';
-import { Tooltip } from '@/components/ui/Tooltip';
+import { VerifiedBadge } from '@/components/ui/VerifiedBadge';
 
 interface AgentCardProps {
   agentId: number | string;
@@ -61,30 +61,13 @@ export function AgentCard({
         </div>
         <div className={styles.info}>
           <Link href={`/agent/${agentId}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-            <h3 className={styles.name} style={{ cursor: 'pointer' }}>{name}</h3>
+            <h3 className={styles.name} style={{ cursor: 'pointer' }}>
+              {name}
+              <VerifiedBadge tier={verificationTier} />
+            </h3>
           </Link>
           <p className={styles.agency}>{agency}</p>
-          
-          {verificationTier === 'local' && (
-            <div className={`${styles.tierBadge} ${styles.tier1Badge}`}>
-              <Check size={14} strokeWidth={2.5} aria-hidden="true" />
-              <span>Verified</span>
-            </div>
-          )}
-          {verificationTier === 'international' && (
-            <div className={`${styles.tierBadge} ${styles.tier2Badge}`}>
-              <Check size={14} strokeWidth={2.5} aria-hidden="true" />
-              <span>Verified</span>
-            </div>
-          )}
-          {(!verificationTier || verificationTier === 'none') && (
-            <Tooltip content="You can still rent through them but it will be at your own risk." position="bottom">
-              <div className={`${styles.tierBadge} ${styles.tierNoneBadge}`}>
-                <span>Not Verified Yet</span>
-              </div>
-            </Tooltip>
-          )}
-          
+
           <p className={styles.onlineStatus} style={{ color: online ? 'var(--success)' : 'var(--text-muted)', fontSize: 'var(--text-xs)', margin: 'var(--space-2) 0 0' }}>
             {statusText}
           </p>

@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Agent Badge — Simple Verified Badge (Twitter/Facebook Style)</title>
+<style>
+  :root {
+    --bg: #eef0f3;
+    --surface: #ffffff;
+    --border: #e5e7eb;
+    --border-hover: #cbd5e1;
+    --text: #111827;
+    --text-2: #4b5563;
+    --text-3: #9ca3af;
+    --success: #16a34a;
+    --success-soft: #ecfdf5;
+    --warning: #d97706;
+    --shadow-sm: 0 1px 3px rgba(16,24,40,.08);
+    --shadow-md: 0 6px 16px rgba(16,24,40,.10);
+    --radius-lg: 14px;
+    --radius-md: 10px;
+    --radius-full: 999px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: var(--bg); color: var(--text); padding: 40px 20px 80px; }
+  .page-head { max-width: 900px; margin: 0 auto 8px; }
+  .page-head h1 { font-size: 26px; letter-spacing: -.02em; }
+  .page-head p { color: var(--text-2); margin-top: 6px; font-size: 15px; max-width: 760px; line-height: 1.5; }
+  .note { color: var(--text-3); font-size: 13px; margin-top: 8px; }
+
+  .shell { max-width: 900px; margin: 48px auto 0; }
+  .shell .head { margin-bottom: 16px; }
+  .shell .head .t { font-size: 18px; font-weight: 800; }
+  .shell .head .chip { background: var(--success-soft); color: var(--success); border-radius: var(--radius-full); padding: 3px 12px; font-size: 11.5px; font-weight: 700; }
+  .shell .head .d { color: var(--text-2); font-size: 13px; margin-top: 5px; max-width: 760px; line-height: 1.5; }
+
+  .avatar { border-radius: 50%; background: linear-gradient(135deg,#2563eb,#7c3aed); color: #fff; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; box-shadow: var(--shadow-md); padding: 20px; margin-bottom: 20px; }
+
+  /* ====== THE BADGE ====== */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--success);
+    color: #fff;
+    margin-left: 6px;
+    vertical-align: middle;
+    flex-shrink: 0;
+    box-shadow: 0 0 0 2px var(--surface);
+  }
+  .badge svg { width: 11px; height: 11px; }
+  .badge.sm { width: 15px; height: 15px; margin-left: 4px; }
+  .badge.sm svg { width: 9px; height: 9px; }
+  .badge.int { background: var(--warning); }
+  .name { font-weight: 800; font-size: 17px; display: flex; align-items: center; }
+
+  /* states */
+  .states { display: flex; gap: 14px; flex-wrap: wrap; }
+  .state { border: 1px solid var(--border); border-radius: var(--radius-md); padding: 14px 18px; flex: 1; min-width: 220px; background: var(--surface); }
+  .state .lbl { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--text-3); margin-bottom: 10px; }
+  .state .lbl b { color: var(--success); }
+  .state .lbl .int b { color: var(--warning); }
+  .state .lbl .none b { color: var(--text-3); }
+
+  /* where it shows */
+  .row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px dashed var(--border); }
+  .row:last-child { border-bottom: none; }
+  .row .nm { font-weight: 700; font-size: 14px; display: flex; align-items: center; }
+  .row .prev { font-size: 12px; color: var(--text-2); }
+  .row .time { margin-left: auto; font-size: 11px; color: var(--text-3); }
+  .foot { display: flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 600; color: var(--text); }
+  .foot .nm { display: flex; align-items: center; }
+  .star { color: #f59e0b; font-size: 12px; }
+  .rate { color: var(--text-2); font-size: 12px; font-weight: 600; }
+
+  .phone { width: 375px; height: 640px; background: var(--surface); border-radius: 30px; border: 7px solid #1f2937; box-shadow: var(--shadow-md); overflow: hidden; margin: 24px auto 0; display: flex; flex-direction: column; }
+  .phone .notch { height: 22px; flex-shrink: 0; background: #1f2937; position: relative; }
+  .phone .notch::after { content: ""; position: absolute; top: 5px; left: 50%; transform: translateX(-50%); width: 80px; height: 12px; background: #111827; border-radius: var(--radius-full); }
+  .phone .screen { flex: 1; overflow-y: auto; scrollbar-width: none; padding: 16px; }
+  .phone .screen::-webkit-scrollbar { display: none; }
+</style>
+</head>
+<body>
+
+<header class="page-head">
+  <h1>Agent Badge — Simple Verified Badge</h1>
+  <p>A single, familiar badge next to the agent's name — exactly like Twitter/Facebook. Green checkmark circle. No gold seals, no gray "not verified" pills. Verified agents get it; that's it.</p>
+  <p class="note">Static mockup. The badge maps to your existing <code>verification_tier</code>: green = verified (local or international), amber = international. Non-verified agents simply have no badge.</p>
+</header>
+
+<div class="shell">
+  <div class="head">
+    <div class="t">The Badge <span class="chip">✓ Green checkmark after name</span></div>
+    <div class="d">A small filled circle with a white checkmark, placed directly after the agent's name in every spot the name appears.</div>
+  </div>
+
+  <div class="states">
+    <div class="state">
+      <div class="lbl">Local verified</div>
+      <div class="name">Jane Doe <span class="badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></span></div>
+      <div style="font-size:12px;color:var(--text-2);margin-top:4px;">Government ID verified</div>
+    </div>
+    <div class="state">
+      <div class="lbl">International verified</div>
+      <div class="name">House Agent <span class="badge int"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></span></div>
+      <div style="font-size:12px;color:var(--text-2);margin-top:4px;">Business / license verified</div>
+    </div>
+    <div class="state">
+      <div class="lbl">Not verified</div>
+      <div class="name">New Agent</div>
+      <div style="font-size:12px;color:var(--text-3);margin-top:4px;">No badge — nothing shown</div>
+    </div>
+  </div>
+
+  <div class="head" style="margin-top:40px;">
+    <div class="t">Where the badge appears</div>
+  </div>
+
+  <div class="card">
+    <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3);margin-bottom:10px;">Property card footer</div>
+    <div class="foot">
+      <div class="avatar" style="width:24px;height:24px;font-size:10px;">HA</div>
+      <div class="nm">House Agent <span class="badge sm int"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></span></div>
+      <span class="star">★</span><span class="rate">4.8</span>
+    </div>
+    <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);">
+      <div class="foot">
+        <div class="avatar" style="width:24px;height:24px;font-size:10px;">JD</div>
+        <div class="nm">Jane Doe <span class="badge sm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></span></div>
+        <span class="star">★</span><span class="rate">4.5</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3);margin-bottom:10px;">Agent card (detail sidebar / profile / dashboard)</div>
+    <div class="row">
+      <div class="avatar" style="width:44px;height:44px;font-size:15px;">HA</div>
+      <div>
+        <div class="nm">House Agent <span class="badge int"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></span></div>
+        <div style="font-size:12px;color:var(--text-2);margin-top:2px;">Independent agent · ★ 4.8 (24)</div>
+      </div>
+      <div class="time">Online</div>
+    </div>
+    <div class="row">
+      <div class="avatar" style="width:44px;height:44px;font-size:15px;">JD</div>
+      <div>
+        <div class="nm">Jane Doe <span class="badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></span></div>
+        <div style="font-size:12px;color:var(--text-2);margin-top:2px;">Agency · ★ 4.5 (12)</div>
+      </div>
+      <div class="time">2m ago</div>
+    </div>
+    <div class="row">
+      <div class="avatar" style="width:44px;height:44px;font-size:15px;">NA</div>
+      <div>
+        <div class="nm">New Agent</div>
+        <div style="font-size:12px;color:var(--text-2);margin-top:2px;">Agency · ★ 0.0 (0)</div>
+      </div>
+      <div class="time">1h ago</div>
+    </div>
+  </div>
+
+  <div class="head" style="margin-top:40px;">
+    <div class="t">Phone</div>
+  </div>
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="screen">
+      <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3);margin-bottom:12px;">Property card footer</div>
+      <div style="border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px;margin-bottom:20px;">
+        <div style="height:90px;border-radius:var(--radius-md);background:linear-gradient(135deg,#93c5fd,#1e40af);margin-bottom:10px;"></div>
+        <div class="foot">
+          <div class="avatar" style="width:22px;height:22px;font-size:9px;">HA</div>
+          <div class="nm" style="font-size:12.5px;">House Agent <span class="badge sm int"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></span></div>
+          <span class="star">★</span><span class="rate">4.8</span>
+        </div>
+      </div>
+      <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3);margin-bottom:12px;">Agent card</div>
+      <div style="border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px;">
+        <div class="row" style="padding:6px 0;">
+          <div class="avatar" style="width:44px;height:44px;font-size:15px;">HA</div>
+          <div>
+            <div class="nm" style="font-size:15px;">House Agent <span class="badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg></span></div>
+            <div style="font-size:12px;color:var(--text-2);margin-top:2px;">★ 4.8 (24) · Online</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:12px;">
+          <div style="flex:1;text-align:center;border:1px solid var(--border);border-radius:var(--radius-md);padding:8px;"><div style="font-weight:800;font-size:15px;">6</div><div style="font-size:10px;color:var(--text-2);">Listings</div></div>
+          <div style="flex:1;text-align:center;border:1px solid var(--border);border-radius:var(--radius-md);padding:8px;"><div style="font-weight:800;font-size:15px;">92%</div><div style="font-size:10px;color:var(--text-2);">Respond</div></div>
+          <div style="flex:1;text-align:center;border:1px solid var(--border);border-radius:var(--radius-md);padding:8px;"><div style="font-weight:800;font-size:15px;">4.8</div><div style="font-size:10px;color:var(--text-2);">Rating</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

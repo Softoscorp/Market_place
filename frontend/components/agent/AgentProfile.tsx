@@ -1,9 +1,10 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Check, Star, Phone, Mail, MapPin, MessageSquareHeart, Globe } from 'lucide-react';
+import { Star, Phone, Mail, MapPin, MessageSquareHeart } from 'lucide-react';
 import { useChatStore } from '@/lib/store/useChatStore';
 import { PremiumIcon } from '@/components/ui/PremiumIcon';
+import { VerifiedBadge } from '@/components/ui/VerifiedBadge';
 import { isOnline, lastSeenText } from '@/lib/timeAgo';
 import styles from './AgentProfile.module.css';
 
@@ -58,21 +59,11 @@ export function AgentProfile({
       <div className={styles.header}>
         <div className={styles.avatarWrapper}>
           <ProtectedImage src={imageUrl} alt={name} className={styles.avatar} />
-          {verificationTier === 'local' && (
-            <div className={styles.verifiedBadge}>
-              <Check size={16} strokeWidth={3} aria-hidden="true" />
-            </div>
-          )}
-          {verificationTier === 'international' && (
-            <div className={styles.internationalBadge}>
-              <Globe size={16} strokeWidth={3} aria-hidden="true" />
-            </div>
-          )}
         </div>
         
         <div className={styles.info}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', marginBottom: 'var(--space-1)' }}>
-            <h1 className={styles.name} style={{ margin: 0 }}>{name}</h1>
+            <h1 className={styles.name} style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>{name}<VerifiedBadge tier={verificationTier} /></h1>
             {lastSeenAt && (
               <span className={isOnline(lastSeenAt) ? styles.statusOnline : styles.statusOffline}>
                 <span className={styles.statusDot} />

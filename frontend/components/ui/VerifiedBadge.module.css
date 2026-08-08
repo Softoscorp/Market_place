@@ -1,0 +1,50 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  vertical-align: middle;
+}
+
+.badge.sm {
+  width: 15px;
+  height: 15px;
+}
+
+.local {
+  background-color: var(--success);
+  color: var(--bg-surface);
+  box-shadow: 0 0 0 2px var(--bg-surface);
+}
+
+.international {
+  background-color: var(--warning);
+  color: var(--bg-surface);
+  box-shadow: 0 0 0 2px var(--bg-surface);
+}
+
+.withLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.text {
+  font-size: var(--text-xs);
+  font-weight: 600;
+}
+
+.textSm {
+  font-size: 0.68rem;
+}
+
+.textLocal {
+  color: var(--success-text);
+}
+
+.textInt {
+  color: var(--warning-text);
+}

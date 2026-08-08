@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Agent Dashboard — 3 Concepts (Web + Mobile)</title>
+<style>
+  :root {
+    --bg: #eef0f3;
+    --surface: #ffffff;
+    --border: #e5e7eb;
+    --border-hover: #cbd5e1;
+    --text: #111827;
+    --text-2: #4b5563;
+    --text-3: #9ca3af;
+    --accent: #2563eb;
+    --accent-soft: #eff6ff;
+    --success: #16a34a;
+    --success-soft: #ecfdf5;
+    --warning: #d97706;
+    --warning-soft: #fffbeb;
+    --danger: #dc2626;
+    --danger-soft: #fef2f2;
+    --shadow-sm: 0 1px 3px rgba(16,24,40,.08);
+    --shadow-md: 0 6px 16px rgba(16,24,40,.10);
+    --shadow-xl: 0 18px 40px rgba(16,24,40,.16);
+    --radius-lg: 14px;
+    --radius-md: 10px;
+    --radius-sm: 8px;
+    --radius-full: 999px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: var(--bg); color: var(--text); padding: 40px 20px 80px; }
+  .page-head { max-width: 1400px; margin: 0 auto 8px; }
+  .page-head h1 { font-size: 26px; letter-spacing: -.02em; }
+  .page-head p { color: var(--text-2); margin-top: 6px; font-size: 15px; max-width: 820px; line-height: 1.5; }
+  .note { color: var(--text-3); font-size: 13px; margin-top: 8px; }
+  .jump { max-width: 1400px; margin: 24px auto 0; display: flex; gap: 10px; flex-wrap: wrap; }
+  .jump a { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-full); padding: 8px 16px; font-size: 13px; font-weight: 600; text-decoration: none; color: var(--text); box-shadow: var(--shadow-sm); }
+
+  .shell { max-width: 1400px; margin: 48px auto 0; }
+  .shell .head { margin-bottom: 16px; }
+  .shell .head .t { font-size: 18px; font-weight: 800; }
+  .shell .head .chip { background: var(--accent-soft); color: var(--accent); border-radius: var(--radius-full); padding: 3px 12px; font-size: 11.5px; font-weight: 700; }
+  .shell .head .d { color: var(--text-2); font-size: 13px; margin-top: 5px; max-width: 800px; line-height: 1.5; }
+  .duo { display: grid; grid-template-columns: 1fr 390px; gap: 20px; align-items: start; }
+  .duo .lab { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--text-3); margin-bottom: 10px; }
+  .frame { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; box-shadow: var(--shadow-md); overflow: hidden; }
+
+  .avatar { border-radius: 50%; background: linear-gradient(135deg,#2563eb,#7c3aed); color: #fff; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .star { color: #f59e0b; }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 7px; border: none; border-radius: var(--radius-md); font-size: 13px; font-weight: 700; padding: 10px 16px; cursor: pointer; font-family: inherit; }
+  .btn.primary { background: var(--text); color: #fff; }
+  .btn.accent { background: var(--accent); color: #fff; }
+  .btn.outline { background: var(--surface); border: 1px solid var(--border); color: var(--text); }
+  .btn.ghost { background: var(--bg); color: var(--text-2); }
+  .chip-mini { display: inline-block; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: var(--radius-full); }
+  .chip-green { background: var(--success-soft); color: var(--success); }
+  .chip-amber { background: var(--warning-soft); color: var(--warning); }
+  .chip-blue { background: var(--accent-soft); color: var(--accent); }
+
+  .phone { width: 375px; height: 640px; background: var(--surface); border-radius: 30px; border: 7px solid #1f2937; box-shadow: var(--shadow-xl); overflow: hidden; margin: 0 auto; display: flex; flex-direction: column; }
+  .phone .notch { height: 22px; flex-shrink: 0; background: #1f2937; position: relative; }
+  .phone .notch::after { content: ""; position: absolute; top: 5px; left: 50%; transform: translateX(-50%); width: 80px; height: 12px; background: #111827; border-radius: var(--radius-full); }
+  .phone .screen { flex: 1; overflow-y: auto; scrollbar-width: none; }
+  .phone .screen::-webkit-scrollbar { display: none; }
+
+  /* ==========================================================
+     AGENT CONCEPT A — SIDEBAR + METRIC CARDS + TABLE
+     ========================================================== */
+  .a { font-size: 13px; display: grid; grid-template-columns: 210px 1fr; min-height: 600px; }
+  .a-side { border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 16px 12px; background: var(--surface); }
+  .a-side .brand { font-weight: 800; font-size: 15px; padding: 0 10px 14px; border-bottom: 1px solid var(--border); margin-bottom: 12px; }
+  .a-side a { display: flex; align-items: center; gap: 10px; padding: 10px 11px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 600; color: var(--text-2); text-decoration: none; }
+  .a-side a.on { background: var(--accent-soft); color: var(--accent); }
+  .a-side a.logout { color: var(--danger); margin-top: auto; }
+  .a-main { padding: 20px 24px; }
+  .a-topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
+  .a-topbar h2 { font-size: 20px; font-weight: 800; }
+  .a-topbar .sub { font-size: 12.5px; color: var(--text-2); margin-top: 2px; }
+  .a-topbar .right { display: flex; align-items: center; gap: 10px; }
+  .a-metrics { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; margin-bottom: 18px; }
+  .a-metric { border: 1px solid var(--border); border-radius: var(--radius-md); padding: 14px; }
+  .a-metric .lbl { font-size: 12px; color: var(--text-2); font-weight: 600; }
+  .a-metric .val { font-size: 24px; font-weight: 800; margin-top: 4px; }
+  .a-metric .chg { font-size: 11.5px; color: var(--success); font-weight: 600; margin-top: 2px; }
+  .a-panel { border: 1px solid var(--border); border-radius: var(--radius-lg); margin-bottom: 16px; overflow: hidden; }
+  .a-panel .hd { display: flex; justify-content: space-between; align-items: center; padding: 13px 16px; border-bottom: 1px solid var(--border); }
+  .a-panel .hd h3 { font-size: 14px; font-weight: 700; }
+  .a-table { width: 100%; border-collapse: collapse; }
+  .a-table th { text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--text-3); padding: 10px 16px; border-bottom: 1px solid var(--border); }
+  .a-table td { padding: 12px 16px; border-bottom: 1px solid var(--border); font-size: 13px; }
+  .a-table tr:last-child td { border-bottom: none; }
+  .a-table .tt { font-weight: 600; }
+  .a-table .st { font-size: 11px; font-weight: 700; }
+  .a-activity { padding: 6px 16px 12px; }
+  .a-act { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-bottom: 1px dashed var(--border); }
+  .a-act .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .a-act .txt { font-size: 13px; color: var(--text-2); flex: 1; }
+  .a-act .txt b { color: var(--text); }
+  .a-act .tm { font-size: 11px; color: var(--text-3); }
+
+  /* phone A */
+  .a-p .top { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+  .a-p .top .brand { font-weight: 800; font-size: 15px; }
+  .a-p .stats { display: grid; grid-template-columns: repeat(2,1fr); gap: 8px; padding: 12px 16px; }
+  .a-p .stat { border: 1px solid var(--border); border-radius: var(--radius-md); padding: 11px; }
+  .a-p .stat .lbl { font-size: 11px; color: var(--text-2); }
+  .a-p .stat .val { font-size: 20px; font-weight: 800; }
+  .a-p .sec { padding: 0 16px 12px; }
+  .a-p .sec h3 { font-size: 14px; font-weight: 700; margin-bottom: 8px; }
+  .a-p .row { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px dashed var(--border); }
+  .a-p .row .tt { font-weight: 600; font-size: 13px; flex: 1; }
+  .a-p .row .pr { font-weight: 700; font-size: 13px; }
+  .a-p .fab { position: sticky; bottom: 0; background: var(--surface); border-top: 1px solid var(--border); padding: 10px 16px; }
+  .a-p .fab .btn { width: 100%; }
+
+  /* ==========================================================
+     AGENT CONCEPT B — PROFILE HERO + CARDS, CHART, CARD LISTINGS
+     ========================================================== */
+  .b { font-size: 13px; }
+  .b-hero { background: linear-gradient(135deg,#111827,#1e3a8a); color: #fff; padding: 22px 26px; display: flex; align-items: center; gap: 16px; }
+  .b-hero .nm { font-size: 18px; font-weight: 800; }
+  .b-hero .em { font-size: 12.5px; opacity: .75; }
+  .b-hero .meta { display: flex; gap: 18px; margin-top: 10px; }
+  .b-hero .meta .m .v { font-size: 16px; font-weight: 800; }
+  .b-hero .meta .m .l { font-size: 10.5px; opacity: .7; text-transform: uppercase; letter-spacing: .06em; }
+  .b-hero .acts { margin-left: auto; display: flex; gap: 8px; }
+  .b-hero .btn { background: rgba(255,255,255,.15); color: #fff; border: 1px solid rgba(255,255,255,.3); }
+  .b-body { display: grid; grid-template-columns: 300px 1fr; gap: 16px; padding: 18px 26px 26px; }
+  .b-metrics { display: grid; grid-template-columns: repeat(2,1fr); gap: 10px; margin-bottom: 16px; }
+  .b-metric { border: 1px solid var(--border); border-radius: var(--radius-md); padding: 12px; }
+  .b-metric .lbl { font-size: 11px; color: var(--text-2); }
+  .b-metric .val { font-size: 20px; font-weight: 800; }
+  .b-card { border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 16px; margin-bottom: 14px; }
+  .b-card h3 { font-size: 14px; font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; }
+  .b-bar { display: flex; gap: 2px; height: 90px; align-items: flex-end; margin-bottom: 8px; }
+  .b-bar .seg { flex: 1; border-radius: 4px 4px 0 0; background: var(--accent-soft); }
+  .b-bar .seg.on { background: var(--accent); }
+  .b-chart-legend { display: flex; justify-content: space-between; font-size: 10.5px; color: var(--text-3); }
+  .b-list { display: flex; flex-direction: column; gap: 10px; }
+  .b-item { display: flex; gap: 12px; border: 1px solid var(--border); border-radius: var(--radius-md); padding: 10px; }
+  .b-item .ph { width: 64px; aspect-ratio: 4/3; border-radius: 8px; flex-shrink: 0; }
+  .b-item .tt { font-weight: 700; font-size: 13px; }
+  .b-item .meta2 { font-size: 11.5px; color: var(--text-2); margin-top: 2px; }
+  .b-item .pr { font-weight: 800; font-size: 14px; margin-left: auto; }
+  .b-item .st { align-self: flex-start; }
+  .b-activity { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-bottom: 1px dashed var(--border); }
+  .b-activity .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .b-activity .txt { font-size: 12.5px; color: var(--text-2); flex: 1; }
+  .b-activity .tm { font-size: 11px; color: var(--text-3); }
+
+  /* phone B */
+  .b-p .hero { background: linear-gradient(135deg,#111827,#1e3a8a); color: #fff; padding: 16px; display: flex; align-items: center; gap: 12px; }
+  .b-p .hero .nm { font-weight: 800; font-size: 16px; }
+  .b-p .hero .em { font-size: 12px; opacity: .75; }
+  .b-p .hero .chip { margin-left: auto; }
+  .b-p .metrics { display: grid; grid-template-columns: repeat(2,1fr); gap: 8px; padding: 12px 16px; }
+  .b-p .metric { border: 1px solid var(--border); border-radius: var(--radius-md); padding: 11px; }
+  .b-p .metric .lbl { font-size: 11px; color: var(--text-2); }
+  .b-p .metric .val { font-size: 19px; font-weight: 800; }
+  .b-p .sec { padding: 0 16px 14px; }
+  .b-p .sec h3 { font-size: 14px; font-weight: 700; margin-bottom: 8px; }
+  .b-p .item { display: flex; gap: 10px; border: 1px solid var(--border); border-radius: var(--radius-md); padding: 9px; margin-bottom: 8px; }
+  .b-p .item .ph { width: 52px; aspect-ratio: 4/3; border-radius: 7px; flex-shrink: 0; }
+  .b-p .item .tt { font-weight: 700; font-size: 12.5px; }
+  .b-p .item .pr { font-weight: 800; font-size: 13px; margin-left: auto; }
+  .b-p .add { position: sticky; bottom: 0; background: var(--surface); border-top: 1px solid var(--border); padding: 10px 16px; }
+  .b-p .add .btn { width: 100%; }
+
+  /* ==========================================================
+     AGENT CONCEPT C (v2) — PIPELINE / KANBAN BOARD
+     ========================================================== */
+  .c { font-size: 13px; }
+  .c-top { display: flex; justify-content: space-between; align-items: center; padding: 14px 22px; border-bottom: 1px solid var(--border); }
+  .c-top .brand { font-weight: 800; font-size: 15px; }
+  .c-top .right { display: flex; gap: 10px; align-items: center; }
+  .c-metrics { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; padding: 16px 22px; border-bottom: 1px solid var(--border); }
+  .c-metric { border: 1px solid var(--border); border-radius: var(--radius-md); padding: 12px 14px; }
+  .c-metric .lbl { font-size: 11.5px; color: var(--text-2); font-weight: 600; }
+  .c-metric .val { font-size: 21px; font-weight: 800; margin-top: 2px; }
+  .c-board { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; padding: 18px 22px 26px; align-items: start; }
+  .c-col { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 10px; }
+  .c-col .hd { display: flex; align-items: center; gap: 7px; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; padding: 4px 6px 10px; }
+  .c-col .hd .dot { width: 8px; height: 8px; border-radius: 50%; }
+  .c-col .hd .cnt { margin-left: auto; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-full); font-size: 10.5px; padding: 1px 8px; color: var(--text-2); }
+  .c-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 11px; margin-bottom: 8px; box-shadow: var(--shadow-sm); }
+  .c-card .ph { height: 56px; border-radius: 7px; margin-bottom: 9px; }
+  .c-card .tt { font-weight: 700; font-size: 12.5px; line-height: 1.25; }
+  .c-card .dd { font-size: 11px; color: var(--text-2); margin-top: 2px; }
+  .c-card .foot { display: flex; align-items: center; gap: 6px; margin-top: 9px; }
+  .c-card .price { font-weight: 800; font-size: 12.5px; }
+  .c-card .who { font-size: 11px; color: var(--text-3); }
+  .c-card .btn { margin-left: auto; padding: 5px 10px; font-size: 11px; }
+  .c-add { border: 1px dashed var(--border-hover); color: var(--text-2); border-radius: var(--radius-md); padding: 10px; text-align: center; font-size: 12px; font-weight: 600; }
+
+  /* phone C */
+  .c-p .top { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+  .c-p .top .brand { font-weight: 800; font-size: 15px; }
+  .c-p .stats { display: grid; grid-template-columns: repeat(2,1fr); gap: 8px; padding: 12px 16px; }
+  .c-p .stat { border: 1px solid var(--border); border-radius: var(--radius-md); padding: 10px; }
+  .c-p .stat .lbl { font-size: 11px; color: var(--text-2); }
+  .c-p .stat .val { font-size: 18px; font-weight: 800; }
+  .c-p .stage { padding: 10px 16px; }
+  .c-p .stage .hd { display: flex; align-items: center; gap: 7px; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; padding: 4px 0 8px; }
+  .c-p .stage .hd .dot { width: 8px; height: 8px; border-radius: 50%; }
+  .c-p .stage .hd .cnt { margin-left: auto; font-size: 10.5px; color: var(--text-2); background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-full); padding: 1px 8px; }
+  .c-p .card { display: flex; gap: 10px; border: 1px solid var(--border); border-radius: var(--radius-md); padding: 9px; margin-bottom: 8px; background: var(--surface); box-shadow: var(--shadow-sm); }
+  .c-p .card .ph { width: 56px; aspect-ratio: 4/3; border-radius: 7px; flex-shrink: 0; }
+  .c-p .card .tt { font-weight: 700; font-size: 12.5px; }
+  .c-p .card .dd { font-size: 11px; color: var(--text-2); margin-top: 1px; }
+  .c-p .card .pr { font-weight: 800; font-size: 12.5px; margin-left: auto; align-self: center; }
+  .c-p .add { position: sticky; bottom: 0; background: var(--surface); border-top: 1px solid var(--border); padding: 10px 16px; }
+  .c-p .add .btn { width: 100%; }
+
+  @media (max-width: 1000px) {
+    .duo { grid-template-columns: 1fr; }
+    .phone { margin: 0 auto; }
+    .b-body { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header class="page-head">
+  <h1>Agent Dashboard — 3 Concepts (Web + Mobile)</h1>
+  <p>Three directions for the agent's dashboard. Each shows desktop + phone. Scroll down or jump to a concept.</p>
+  <p class="note">Static mockups — buttons/links are decorative. Pick the structure you like; this file gets deleted after.</p>
+</header>
+
+<div class="jump">
+  <a href="#A">Concept A · Sidebar + Table</a>
+  <a href="#B">Concept B · Profile Hero + Cards</a>
+  <a href="#C">Concept C · Pipeline Kanban</a>
+</div>
+
+<!-- ================= AGENT A ================= -->
+<div class="shell" id="A">
+  <div class="head">
+    <div class="t">Concept A <span class="chip">Sidebar + Metric Cards + Table</span></div>
+    <div class="d">Classic admin panel: permanent left sidebar (Overview / Listings / Leads / Settings / Verification), KPI cards on top, and a clean listings table. Most familiar for power users.</div>
+  </div>
+  <div class="duo">
+    <div>
+      <div class="lab">Desktop</div>
+      <div class="frame a">
+        <div class="a-side">
+          <div class="brand">House Agent</div>
+          <a class="on">📊 Overview</a>
+          <a>📋 My Listings</a>
+          <a>👥 Client CRM</a>
+          <a>🛡 Verification</a>
+          <a>⚙ Settings</a>
+          <a class="logout">↩ Sign out</a>
+        </div>
+        <div class="a-main">
+          <div class="a-topbar">
+            <div>
+              <h2>Dashboard Overview</h2>
+              <div class="sub">Welcome back, House Agent 👋</div>
+            </div>
+            <div class="right">
+              <span class="chip-mini chip-green">● Online</span>
+              <button class="btn primary">+ New Listing</button>
+            </div>
+          </div>
+          <div class="a-metrics">
+            <div class="a-metric"><div class="lbl">Total Views</div><div class="val">1,284</div><div class="chg">▲ 12%</div></div>
+            <div class="a-metric"><div class="lbl">Active Listings</div><div class="val">6</div><div class="chg">▲ 2 this week</div></div>
+            <div class="a-metric"><div class="lbl">Messages</div><div class="val">14</div><div class="chg">▲ 3 today</div></div>
+            <div class="a-metric"><div class="lbl">Respond Rate</div><div class="val">92%</div><div class="chg">▲ 5%</div></div>
+          </div>
+          <div class="a-panel">
+            <div class="hd"><h3>My Listings</h3><span style="font-size:12px;color:var(--accent);font-weight:600;">Manage →</span></div>
+            <table class="a-table">
+              <thead><tr><th>Property</th><th>Type</th><th>Price</th><th>Status</th></tr></thead>
+              <tbody>
+                <tr><td class="tt">Cozy 2+1 Near Campus</td><td>2+1</td><td>£650/mo</td><td><span class="chip-mini chip-green st">Active</span></td></tr>
+                <tr><td class="tt">Sunny 1+1 with Balcony</td><td>1+1</td><td>£450/mo</td><td><span class="chip-mini chip-green st">Active</span></td></tr>
+                <tr><td class="tt">Modern Studio, City Centre</td><td>1+0</td><td>£400/mo</td><td><span class="chip-mini chip-amber st">Pending</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="a-panel">
+            <div class="hd"><h3>Recent Activity</h3></div>
+            <div class="a-activity">
+              <div class="a-act"><span class="dot" style="background:var(--success);"></span><div class="txt"><b>Jane D.</b> messaged about Cozy 2+1 Near Campus</div><div class="tm">2m</div></div>
+              <div class="a-act"><span class="dot" style="background:var(--accent);"></span><div class="txt">Your listing <b>Sunny 1+1</b> received 34 views</div><div class="tm">1h</div></div>
+              <div class="a-act"><span class="dot" style="background:var(--warning);"></span><div class="txt"><b>Mehmet K.</b> requested a booking</div><div class="tm">3h</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="lab">Phone</div>
+      <div class="phone a-p">
+        <div class="notch"></div>
+        <div class="screen">
+          <div class="top">
+            <span class="brand">House Agent</span>
+            <span class="chip-mini chip-green">● Online</span>
+          </div>
+          <div class="stats">
+            <div class="stat"><div class="lbl">Total Views</div><div class="val">1,284</div></div>
+            <div class="stat"><div class="lbl">Active Listings</div><div class="val">6</div></div>
+            <div class="stat"><div class="lbl">Messages</div><div class="val">14</div></div>
+            <div class="stat"><div class="lbl">Respond Rate</div><div class="val">92%</div></div>
+          </div>
+          <div class="sec">
+            <h3>My Listings</h3>
+            <div class="row"><div class="tt">Cozy 2+1 Near Campus</div><div class="pr">£650</div><span class="chip-mini chip-green">Active</span></div>
+            <div class="row"><div class="tt">Sunny 1+1 with Balcony</div><div class="pr">£450</div><span class="chip-mini chip-green">Active</span></div>
+            <div class="row"><div class="tt">Modern Studio, City Centre</div><div class="pr">£400</div><span class="chip-mini chip-amber">Pending</span></div>
+          </div>
+          <div class="sec">
+            <h3>Recent Activity</h3>
+            <div class="row"><span class="dot" style="width:8px;height:8px;border-radius:50%;background:var(--success);flex-shrink:0;"></span><div style="font-size:12.5px;color:var(--text-2);flex:1;">Jane D. messaged about Cozy 2+1</div></div>
+            <div class="row"><span class="dot" style="width:8px;height:8px;border-radius:50%;background:var(--accent);flex-shrink:0;"></span><div style="font-size:12.5px;color:var(--text-2);flex:1;">Sunny 1+1 received 34 views</div></div>
+          </div>
+        </div>
+        <div class="fab"><button class="btn primary">+ New Listing</button></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= AGENT B ================= -->
+<div class="shell" id="B">
+  <div class="head">
+    <div class="t">Concept B <span class="chip">Profile Hero + Visual Cards</span></div>
+    <div class="d">Bold dark agency header (name, verified badge, stats), then a visual overview: metric tiles, a mini weekly-views bar chart, listings as photo cards instead of a table, and a leads/activity feed.</div>
+  </div>
+  <div class="duo">
+    <div>
+      <div class="lab">Desktop</div>
+      <div class="frame b">
+        <div class="b-hero">
+          <div class="avatar" style="width:64px;height:64px;font-size:24px;">HA</div>
+          <div>
+            <div class="nm">House Agent <span class="chip-mini chip-green" style="margin-left:6px;">✓ Local Verified</span></div>
+            <div class="em">agency@mail.com · Nicosia</div>
+            <div class="meta">
+              <div class="m"><div class="v">4.8</div><div class="l">Rating</div></div>
+              <div class="m"><div class="v">6</div><div class="l">Listings</div></div>
+              <div class="m"><div class="v">92%</div><div class="l">Respond</div></div>
+            </div>
+          </div>
+          <div class="acts">
+            <button class="btn">+ New Listing</button>
+            <button class="btn">⚙</button>
+          </div>
+        </div>
+        <div class="b-body">
+          <div class="b-left">
+            <div class="b-metrics">
+              <div class="b-metric"><div class="lbl">Views</div><div class="val">1,284</div></div>
+              <div class="b-metric"><div class="lbl">Messages</div><div class="val">14</div></div>
+              <div class="b-metric"><div class="lbl">Bookings</div><div class="val">3</div></div>
+              <div class="b-metric"><div class="lbl">Leads</div><div class="val">8</div></div>
+            </div>
+            <div class="b-card">
+              <h3>Views this week <span class="chip-mini chip-green">▲ 12%</span></h3>
+              <div class="b-bar">
+                <div class="seg" style="height:35%;"></div>
+                <div class="seg" style="height:55%;"></div>
+                <div class="seg on" style="height:45%;"></div>
+                <div class="seg" style="height:70%;"></div>
+                <div class="seg on" style="height:85%;"></div>
+                <div class="seg" style="height:60%;"></div>
+                <div class="seg on" style="height:100%;"></div>
+              </div>
+              <div class="b-chart-legend"><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span></div>
+            </div>
+            <div class="b-card">
+              <h3>My Listings <span style="font-size:12px;color:var(--accent);font-weight:600;">Manage →</span></h3>
+              <div class="b-list">
+                <div class="b-item">
+                  <div class="ph" style="background:linear-gradient(135deg,#93c5fd,#1e40af);"></div>
+                  <div><div class="tt">Cozy 2+1 Near Campus</div><div class="meta2">2+1 · £650/mo</div></div>
+                  <span class="st chip-mini chip-green">Active</span>
+                </div>
+                <div class="b-item">
+                  <div class="ph" style="background:linear-gradient(135deg,#fde68a,#b45309);"></div>
+                  <div><div class="tt">Sunny 1+1 with Balcony</div><div class="meta2">1+1 · £450/mo</div></div>
+                  <span class="st chip-mini chip-green">Active</span>
+                </div>
+                <div class="b-item">
+                  <div class="ph" style="background:linear-gradient(135deg,#a7f3d0,#065f46);"></div>
+                  <div><div class="tt">Modern Studio, City Centre</div><div class="meta2">1+0 · £400/mo</div></div>
+                  <span class="st chip-mini chip-amber">Pending</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="b-right">
+            <div class="b-card">
+              <h3>Recent Activity</h3>
+              <div class="b-activity"><span class="dot" style="background:var(--success);"></span><div class="txt"><b>Jane D.</b> messaged about Cozy 2+1</div><div class="tm">2m</div></div>
+              <div class="b-activity"><span class="dot" style="background:var(--accent);"></span><div class="txt">Sunny 1+1 got <b>34 views</b></div><div class="tm">1h</div></div>
+              <div class="b-activity"><span class="dot" style="background:var(--warning);"></span><div class="txt"><b>Mehmet K.</b> requested a booking</div><div class="tm">3h</div></div>
+            </div>
+            <div class="b-card">
+              <h3>Verification <span class="chip-mini chip-green">✓</span></h3>
+              <div style="font-size:12.5px;color:var(--text-2);">Tier 1 · Local — <b style="color:var(--text);">Verified</b></div>
+              <div class="b-bar" style="height:6px;margin:10px 0 0;background:var(--border);border-radius:999px;overflow:hidden;"><div class="fill" style="height:100%;width:50%;background:var(--accent);"></div></div>
+              <div style="font-size:11px;color:var(--text-3);margin-top:6px;">Apply for Tier 2 · International</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="lab">Phone</div>
+      <div class="phone b-p">
+        <div class="notch"></div>
+        <div class="screen">
+          <div class="hero">
+            <div class="avatar" style="width:52px;height:52px;font-size:19px;">HA</div>
+            <div>
+              <div class="nm">House Agent</div>
+              <div class="em">agency@mail.com</div>
+            </div>
+            <span class="chip-mini chip-green" style="margin-left:auto;">✓ Verified</span>
+          </div>
+          <div class="metrics">
+            <div class="metric"><div class="lbl">Views</div><div class="val">1,284</div></div>
+            <div class="metric"><div class="lbl">Messages</div><div class="val">14</div></div>
+            <div class="metric"><div class="lbl">Listings</div><div class="val">6</div></div>
+            <div class="metric"><div class="lbl">Respond</div><div class="val">92%</div></div>
+          </div>
+          <div class="sec">
+            <h3>My Listings</h3>
+            <div class="item">
+              <div class="ph" style="background:linear-gradient(135deg,#93c5fd,#1e40af);"></div>
+              <div><div class="tt">Cozy 2+1 Near Campus</div><div style="font-size:11px;color:var(--text-2);">2+1</div></div>
+              <div class="pr">£650</div>
+              <span class="chip-mini chip-green">Active</span>
+            </div>
+            <div class="item">
+              <div class="ph" style="background:linear-gradient(135deg,#fde68a,#b45309);"></div>
+              <div><div class="tt">Sunny 1+1 with Balcony</div><div style="font-size:11px;color:var(--text-2);">1+1</div></div>
+              <div class="pr">£450</div>
+              <span class="chip-mini chip-green">Active</span>
+            </div>
+          </div>
+          <div class="sec">
+            <h3>Activity</h3>
+            <div style="display:flex;gap:9px;align-items:center;padding:7px 0;font-size:12.5px;color:var(--text-2);"><span style="width:8px;height:8px;border-radius:50%;background:var(--success);flex-shrink:0;"></span>Jane D. messaged about Cozy 2+1</div>
+            <div style="display:flex;gap:9px;align-items:center;padding:7px 0;font-size:12.5px;color:var(--text-2);"><span style="width:8px;height:8px;border-radius:50%;background:var(--warning);flex-shrink:0;"></span>Mehmet K. requested a booking</div>
+          </div>
+        </div>
+        <div class="add"><button class="btn primary">+ New Listing</button></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= AGENT C (v2) ================= -->
+<div class="shell" id="C">
+  <div class="head">
+    <div class="t">Concept C <span class="chip">Pipeline / Kanban Board</span></div>
+    <div class="d">A sales-pipeline board instead of lists: columns for each stage (New Leads → Contacted → Viewing → Booked) with property cards you drag between stages. Very visual, great for agents juggling many clients at once.</div>
+  </div>
+  <div class="duo">
+    <div>
+      <div class="lab">Desktop</div>
+      <div class="frame c">
+        <div class="c-top">
+          <span class="brand">House Agent</span>
+          <div class="right">
+            <span class="chip-mini chip-green">● Online</span>
+            <button class="btn primary">+ New Listing</button>
+          </div>
+        </div>
+        <div class="c-metrics">
+          <div class="c-metric"><div class="lbl">Active Leads</div><div class="val">8</div></div>
+          <div class="c-metric"><div class="lbl">Unread Messages</div><div class="val">3</div></div>
+          <div class="c-metric"><div class="lbl">Active Listings</div><div class="val">6</div></div>
+          <div class="c-metric"><div class="lbl">Respond Rate</div><div class="val">92%</div></div>
+        </div>
+        <div class="c-board">
+          <div class="c-col">
+            <div class="hd"><span class="dot" style="background:var(--accent);"></span> New Leads <span class="cnt">3</span></div>
+            <div class="c-card">
+              <div class="ph" style="background:linear-gradient(135deg,#93c5fd,#1e40af);"></div>
+              <div class="tt">Cozy 2+1 Near Campus</div>
+              <div class="dd">Jane D. · asked for details</div>
+              <div class="foot"><span class="price">£650</span><span class="who">2m ago</span><button class="btn primary">Contact</button></div>
+            </div>
+            <div class="c-card">
+              <div class="ph" style="background:linear-gradient(135deg,#fde68a,#b45309);"></div>
+              <div class="tt">Sunny 1+1 Balcony</div>
+              <div class="dd">Sema Z. · saved the listing</div>
+              <div class="foot"><span class="price">£450</span><span class="who">1h ago</span><button class="btn primary">Contact</button></div>
+            </div>
+            <div class="c-add">+ Add lead</div>
+          </div>
+          <div class="c-col">
+            <div class="hd"><span class="dot" style="background:var(--warning);"></span> Contacted <span class="cnt">2</span></div>
+            <div class="c-card">
+              <div class="ph" style="background:linear-gradient(135deg,#a7f3d0,#065f46);"></div>
+              <div class="tt">Modern Studio, Centre</div>
+              <div class="dd">Mehmet K. · replied</div>
+              <div class="foot"><span class="price">£400</span><span class="who">3h ago</span><button class="btn outline">Message</button></div>
+            </div>
+            <div class="c-add">+ Add lead</div>
+          </div>
+          <div class="c-col">
+            <div class="hd"><span class="dot" style="background:var(--success);"></span> Viewing <span class="cnt">2</span></div>
+            <div class="c-card">
+              <div class="ph" style="background:linear-gradient(135deg,#93c5fd,#1e40af);"></div>
+              <div class="tt">Cozy 2+1 Near Campus</div>
+              <div class="dd">Ali R. · viewing Sat 3pm</div>
+              <div class="foot"><span class="price">£650</span><span class="who">today</span><span class="chip-mini chip-green">Scheduled</span></div>
+            </div>
+            <div class="c-add">+ Add lead</div>
+          </div>
+          <div class="c-col">
+            <div class="hd"><span class="dot" style="background:var(--text-3);"></span> Booked <span class="cnt">1</span></div>
+            <div class="c-card">
+              <div class="ph" style="background:linear-gradient(135deg,#fde68a,#b45309);"></div>
+              <div class="tt">Sunny 1+1 Balcony</div>
+              <div class="dd">Zeynep A. · deposit paid</div>
+              <div class="foot"><span class="price">£450</span><span class="who">yesterday</span><span class="chip-mini chip-blue">Closed</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="lab">Phone</div>
+      <div class="phone c-p">
+        <div class="notch"></div>
+        <div class="screen">
+          <div class="top">
+            <span class="brand">House Agent</span>
+            <span class="chip-mini chip-green">● Online</span>
+          </div>
+          <div class="stats">
+            <div class="stat"><div class="lbl">Active Leads</div><div class="val">8</div></div>
+            <div class="stat"><div class="lbl">Unread</div><div class="val">3</div></div>
+            <div class="stat"><div class="lbl">Listings</div><div class="val">6</div></div>
+            <div class="stat"><div class="lbl">Respond</div><div class="val">92%</div></div>
+          </div>
+          <div class="stage">
+            <div class="hd"><span class="dot" style="background:var(--accent);"></span> New Leads <span class="cnt">3</span></div>
+            <div class="card">
+              <div class="ph" style="background:linear-gradient(135deg,#93c5fd,#1e40af);"></div>
+              <div><div class="tt">Cozy 2+1 Near Campus</div><div class="dd">Jane D. · 2m ago</div></div>
+              <div class="pr">£650</div>
+            </div>
+            <div class="card">
+              <div class="ph" style="background:linear-gradient(135deg,#fde68a,#b45309);"></div>
+              <div><div class="tt">Sunny 1+1 Balcony</div><div class="dd">Sema Z. · 1h ago</div></div>
+              <div class="pr">£450</div>
+            </div>
+          </div>
+          <div class="stage">
+            <div class="hd"><span class="dot" style="background:var(--success);"></span> Viewing <span class="cnt">2</span></div>
+            <div class="card">
+              <div class="ph" style="background:linear-gradient(135deg,#93c5fd,#1e40af);"></div>
+              <div><div class="tt">Cozy 2+1 Near Campus</div><div class="dd">Ali R. · Sat 3pm</div></div>
+              <div class="pr">£650</div>
+            </div>
+          </div>
+          <div class="stage">
+            <div class="hd"><span class="dot" style="background:var(--text-3);"></span> Booked <span class="cnt">1</span></div>
+            <div class="card">
+              <div class="ph" style="background:linear-gradient(135deg,#fde68a,#b45309);"></div>
+              <div><div class="tt">Sunny 1+1 Balcony</div><div class="dd">Zeynep A. · deposit paid</div></div>
+              <div class="pr">£450</div>
+            </div>
+          </div>
+        </div>
+        <div class="add"><button class="btn primary">+ New Listing</button></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

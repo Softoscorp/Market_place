@@ -9,6 +9,7 @@ import { PremiumIcon } from '@/components/ui/PremiumIcon';
 import { Avatar } from '@/components/ui/Avatar';
 import { StarRating } from '@/components/ui/StarRating';
 import { ProtectedImage } from '@/components/ui/ProtectedImage';
+import { VerifiedBadge } from '@/components/ui/VerifiedBadge';
 import styles from './PropertyCard.module.css';
 
 export interface PropertyCardProps {
@@ -99,8 +100,6 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
         <div className={styles.topBar}>
           <div className={styles.badges}>
             <Badge variant="accent">{type}</Badge>
-            {verificationTier === 'local' && <Badge variant="verified">Local Verified</Badge>}
-            {verificationTier === 'international' && <Badge variant="verified" style={{ background: 'var(--warning)', color: 'var(--text-inverse)', borderColor: 'var(--warning)' }}>Int. Verified</Badge>}
           </div>
           <button
             className={clsx(styles.saveButton, saved && styles.saved)}
@@ -141,7 +140,7 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
       <div className={styles.footer}>
         <div className={styles.agent}>
           <Avatar src={agentAvatar} fallback={agentName} size="sm" />
-          <span>{agentName}</span>
+          <span className={styles.agentName}>{agentName}<VerifiedBadge tier={verificationTier} size="sm" /></span>
           {agentRating && agentRating > 0 ? (
             <StarRating rating={agentRating} size={13} showText />
           ) : (

@@ -52,6 +52,16 @@ def auto_migrate_columns():
                 except Exception:
                     pass
             try:
+                conn.execute(text("ALTER TABLE messages ADD COLUMN image_url VARCHAR;"))
+                conn.commit()
+            except Exception:
+                pass
+            try:
+                conn.execute(text("ALTER TABLE messages ADD COLUMN listing_id INTEGER;"))
+                conn.commit()
+            except Exception:
+                pass
+            try:
                 conn.execute(text("ALTER TABLE users ADD COLUMN last_seen_at TIMESTAMP WITH TIME ZONE;"))
                 conn.commit()
             except Exception:

@@ -49,6 +49,8 @@ class ListingStatus(str, enum.Enum):
 class MessageType(str, enum.Enum):
     text = "text"
     voice = "voice"
+    image = "image"
+    listing = "listing"
 
 
 class ReportTargetType(str, enum.Enum):
@@ -292,6 +294,12 @@ class Message(Base):
     # Voice messages
     audio_url = Column(String, nullable=True)
     audio_duration_seconds = Column(Float, nullable=True)
+
+    # Image messages
+    image_url = Column(String, nullable=True)
+
+    # Listing card messages (share an apartment inside chat)
+    listing_id = Column(Integer, ForeignKey("listings.id"), nullable=True)
 
     is_read = Column(Boolean, default=False)
     created_at = Column(DateTime, default=datetime.utcnow)

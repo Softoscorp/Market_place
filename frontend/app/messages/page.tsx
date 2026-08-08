@@ -2,12 +2,19 @@
 
 import React, { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useChatStore } from '@/lib/store/useChatStore';
+import { useChatStore, type Message } from '@/lib/store/useChatStore';
 import { useAuthStore } from '@/lib/store/useAuthStore';
 import { ProtectedImage } from '@/components/ui/ProtectedImage';
 import { mediaUrl } from '@/lib/api';
 import { isOnline, lastSeenText } from '@/lib/timeAgo';
 import styles from './MessagesPage.module.css';
+
+function previewText(msg: Message): string {
+  if (msg.message_type === 'image') return '[Image]';
+  if (msg.message_type === 'voice') return '[Voice message]';
+  if (msg.message_type === 'listing') return msg.listing ? `[Apartment: ${msg.listing.title}]` : '[Apartment]';
+  return msg.text || '';
+}
 
 export default function MessagesPage() {
   const router = useRouter();
@@ -23,8 +30,8 @@ export default function MessagesPage() {
   }, [isAuthenticated, fetchConversations, router]);
 
   const convList = Object.values(conversations).sort((a, b) => {
-    const aTime = a.messages[a.messages.length - 1]?.timestamp ?? 0;
-    const bTime = b.messages[b.messages.length - 1]?.timestamp ?? 0;
+    const aTime = a.lastMessageAt ?? a.messages[a.messages.length - 1]?.timestamp ?? 0;
+    const bTime = b.lastMessageAt ?? b.messages[b.messages.length - 1]?.timestamp ?? 0;
     return bTime - aTime;
   });
 
@@ -75,7 +82,7 @@ export default function MessagesPage() {
                   </div>
                   <div className={styles.previewRow}>
                     <span className={styles.preview}>
-                      {lastMsg ? (lastMsg.sender === 'user' ? `You: ${lastMsg.text}` : lastMsg.text) : 'No messages yet'}
+                      {lastMsg ? (lastMsg.sender === 'user' ? `You: ${previewText(lastMsg)}` : previewText(lastMsg)) : 'No messages yet'}
                     </span>
                     {conv.unreadCount > 0 && (
                       <span className={styles.badge}>{conv.unreadCount > 99 ? '99+' : conv.unreadCount}</span>

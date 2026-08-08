@@ -210,8 +210,15 @@ class MessageOut(BaseModel):
     was_translated: bool = False
     audio_url: Optional[str] = None
     audio_duration_seconds: Optional[float] = None
+    image_url: Optional[str] = None
+    listing_id: Optional[int] = None
+    listing: Optional[ListingOut] = None
     is_read: bool
     created_at: datetime
+
+
+class SendListingMessageRequest(BaseModel):
+    listing_id: int
 
 
 class ConversationOut(BaseModel):

@@ -9,11 +9,26 @@ export interface Agent {
   lastSeenAt?: string | null;
 }
 
+export interface ListingCard {
+  id: number;
+  title: string;
+  price: number;
+  currency?: string;
+  house_type?: string;
+  location?: string;
+  photo_url?: string | null;
+}
+
 export interface Message {
   id: number;
-  text: string;
+  text?: string | null;
   sender: 'user' | 'agent';
   timestamp: number;
+  message_type?: 'text' | 'voice' | 'image' | 'listing';
+  audioUrl?: string | null;
+  audioDurationSeconds?: number | null;
+  imageUrl?: string | null;
+  listing?: ListingCard | null;
 }
 
 export interface Conversation {
@@ -21,6 +36,7 @@ export interface Conversation {
   contact: Agent;
   messages: Message[];
   unreadCount: number;
+  lastMessageAt: number;
 }
 
 // Raw shapes returned by the FastAPI backend
@@ -44,13 +60,27 @@ interface RawApiConversation {
   renter: RawApiUser;
   last_message: RawApiLastMessage | null;
   unread_count: number;
+  created_at: string;
 }
 
 interface RawApiMessage {
   id: number;
-  text: string;
+  text: string | null;
   sender_id: number;
   created_at: string;
+  message_type?: 'text' | 'voice' | 'image' | 'listing';
+  audio_url?: string | null;
+  audio_duration_seconds?: number | null;
+  image_url?: string | null;
+  listing?: {
+    id: number;
+    title: string;
+    price: number;
+    currency?: string;
+    house_type?: string;
+    location?: string;
+    photos?: { url: string }[];
+  } | null;
 }
 
 interface ChatState {
@@ -66,6 +96,9 @@ interface ChatState {
   openChat: (agent: Agent, listingId?: number) => void;
   closeChat: () => void;
   sendMessage: (text: string) => Promise<void>;
+  sendImage: (file: File) => Promise<void>;
+  sendVoice: (blob: Blob, durationSeconds: number) => Promise<void>;
+  sendListing: (listingId: number) => Promise<void>;
   fetchConversations: () => Promise<void>;
   fetchMessages: (conversationId: number) => Promise<void>;
   clearNotification: () => void;
@@ -118,7 +151,10 @@ export const useChatStore = create<ChatState>((set, get) => ({
               lastSeenAt: contactUser.last_seen_at
             },
             messages,
-            unreadCount: c.unread_count
+            unreadCount: c.unread_count,
+            lastMessageAt: c.last_message
+              ? new Date(c.last_message.created_at.endsWith('Z') ? c.last_message.created_at : c.last_message.created_at + 'Z').getTime()
+              : new Date(c.created_at.endsWith('Z') ? c.created_at : c.created_at + 'Z').getTime()
           };
         });
 
@@ -144,9 +180,22 @@ export const useChatStore = create<ChatState>((set, get) => ({
           // Map all server messages
           const serverMessages: Message[] = msgs.map((m: RawApiMessage) => ({
             id: m.id,
-            text: m.text,
+            text: m.text ?? undefined,
             sender: (currentUser && m.sender_id.toString() === currentUser.id.toString()) ? 'user' as const : 'agent' as const,
-            timestamp: new Date(m.created_at.endsWith('Z') ? m.created_at : m.created_at + 'Z').getTime()
+            timestamp: new Date(m.created_at.endsWith('Z') ? m.created_at : m.created_at + 'Z').getTime(),
+            message_type: m.message_type || 'text',
+            audioUrl: m.audio_url,
+            audioDurationSeconds: m.audio_duration_seconds,
+            imageUrl: m.image_url,
+            listing: m.listing ? {
+              id: m.listing.id,
+              title: m.listing.title,
+              price: m.listing.price,
+              currency: m.listing.currency,
+              house_type: m.listing.house_type,
+              location: m.listing.location,
+              photo_url: m.listing.photos?.[0]?.url || null
+            } : null
           }));
 
           const serverIds = new Set(serverMessages.map(m => m.id));
@@ -303,6 +352,255 @@ export const useChatStore = create<ChatState>((set, get) => ({
           set({ chatError: 'Failed to send message. Please try again.' });
         }
       }
+    }
+  },
+
+  sendImage: async (file: File) => {
+    const { activeConversationId, activeAgentId } = get();
+    if (!activeConversationId || !activeAgentId) return;
+
+    set({ chatError: null });
+
+    const tempId = Date.now() + 1;
+    const newMsg: Message = {
+      id: tempId,
+      text: 'Sending image...',
+      sender: 'user',
+      timestamp: tempId,
+      message_type: 'image',
+      imageUrl: URL.createObjectURL(file)
+    };
+
+    set((state) => {
+      const conv = state.conversations[activeAgentId];
+      if (!conv) return state;
+      return {
+        conversations: {
+          ...state.conversations,
+          [activeAgentId]: {
+            ...conv,
+            messages: [...(conv.messages || []), newMsg]
+          }
+        }
+      };
+    });
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const rawSentMsg = await apiRequest(`/messages/conversations/${activeConversationId}/image`, {
+        method: 'POST',
+        formData: formData
+      });
+
+      const currentUser = useAuthStore.getState().user;
+      const sentMsg: Message = {
+        id: rawSentMsg.id,
+        text: rawSentMsg.text,
+        sender: 'user',
+        timestamp: new Date(rawSentMsg.created_at?.endsWith('Z') ? rawSentMsg.created_at : (rawSentMsg.created_at + 'Z')).getTime() || tempId,
+        message_type: 'image',
+        imageUrl: rawSentMsg.image_url
+      };
+
+      set((state) => {
+        const conv = state.conversations[activeAgentId];
+        if (!conv) return state;
+        return {
+          conversations: {
+            ...state.conversations,
+            [activeAgentId]: {
+              ...conv,
+              messages: conv.messages.map(m => m.id === tempId ? sentMsg : m)
+            }
+          }
+        };
+      });
+    } catch (e: unknown) {
+      set((state) => {
+        const conv = state.conversations[activeAgentId];
+        if (!conv) return state;
+        return {
+          conversations: {
+            ...state.conversations,
+            [activeAgentId]: {
+              ...conv,
+              messages: conv.messages.filter(m => m.id !== tempId)
+            }
+          }
+        };
+      });
+      console.error('Failed to send image', e);
+      set({ chatError: 'Failed to send image. Please try again.' });
+    }
+  },
+
+  sendVoice: async (blob: Blob, durationSeconds: number) => {
+    const { activeConversationId, activeAgentId } = get();
+    if (!activeConversationId || !activeAgentId) return;
+
+    set({ chatError: null });
+
+    const tempId = Date.now() + 2;
+    const tempUrl = URL.createObjectURL(blob);
+    const newMsg: Message = {
+      id: tempId,
+      text: 'Sending voice note...',
+      sender: 'user',
+      timestamp: tempId,
+      message_type: 'voice',
+      audioUrl: tempUrl,
+      audioDurationSeconds: durationSeconds
+    };
+
+    set((state) => {
+      const conv = state.conversations[activeAgentId];
+      if (!conv) return state;
+      return {
+        conversations: {
+          ...state.conversations,
+          [activeAgentId]: {
+            ...conv,
+            messages: [...(conv.messages || []), newMsg]
+          }
+        }
+      };
+    });
+
+    try {
+      const formData = new FormData();
+      formData.append('file', blob, 'voice_note.webm');
+      formData.append('duration_seconds', String(durationSeconds));
+      const rawSentMsg = await apiRequest(`/messages/conversations/${activeConversationId}/voice`, {
+        method: 'POST',
+        formData: formData
+      });
+
+      const currentUser = useAuthStore.getState().user;
+      const sentMsg: Message = {
+        id: rawSentMsg.id,
+        text: rawSentMsg.text,
+        sender: 'user',
+        timestamp: new Date(rawSentMsg.created_at?.endsWith('Z') ? rawSentMsg.created_at : (rawSentMsg.created_at + 'Z')).getTime() || tempId,
+        message_type: 'voice',
+        audioUrl: rawSentMsg.audio_url,
+        audioDurationSeconds: durationSeconds
+      };
+
+      set((state) => {
+        const conv = state.conversations[activeAgentId];
+        if (!conv) return state;
+        return {
+          conversations: {
+            ...state.conversations,
+            [activeAgentId]: {
+              ...conv,
+              messages: conv.messages.map(m => m.id === tempId ? sentMsg : m)
+            }
+          }
+        };
+      });
+    } catch (e: unknown) {
+      set((state) => {
+        const conv = state.conversations[activeAgentId];
+        if (!conv) return state;
+        return {
+          conversations: {
+            ...state.conversations,
+            [activeAgentId]: {
+              ...conv,
+              messages: conv.messages.filter(m => m.id !== tempId)
+            }
+          }
+        };
+      });
+      console.error('Failed to send voice note', e);
+      set({ chatError: 'Failed to send voice note. Please try again.' });
+    }
+  },
+
+  sendListing: async (listingId: number) => {
+    const { activeConversationId, activeAgentId } = get();
+    if (!activeConversationId || !activeAgentId) return;
+
+    set({ chatError: null });
+
+    const tempId = Date.now() + 3;
+    const newMsg: Message = {
+      id: tempId,
+      text: 'Sending apartment...',
+      sender: 'user',
+      timestamp: tempId,
+      message_type: 'listing'
+    };
+
+    set((state) => {
+      const conv = state.conversations[activeAgentId];
+      if (!conv) return state;
+      return {
+        conversations: {
+          ...state.conversations,
+          [activeAgentId]: {
+            ...conv,
+            messages: [...(conv.messages || []), newMsg]
+          }
+        }
+      };
+    });
+
+    try {
+      const rawSentMsg = await apiRequest(`/messages/conversations/${activeConversationId}/listing`, {
+        method: 'POST',
+        body: { listing_id: listingId }
+      });
+
+      const currentUser = useAuthStore.getState().user;
+      const sentMsg: Message = {
+        id: rawSentMsg.id,
+        text: rawSentMsg.text,
+        sender: 'user',
+        timestamp: new Date(rawSentMsg.created_at?.endsWith('Z') ? rawSentMsg.created_at : (rawSentMsg.created_at + 'Z')).getTime() || tempId,
+        message_type: 'listing',
+        listing: rawSentMsg.listing ? {
+          id: rawSentMsg.listing.id,
+          title: rawSentMsg.listing.title,
+          price: rawSentMsg.listing.price,
+          currency: rawSentMsg.listing.currency,
+          house_type: rawSentMsg.listing.house_type,
+          location: rawSentMsg.listing.location,
+          photo_url: rawSentMsg.listing.photos?.[0]?.url || null
+        } : null
+      };
+
+      set((state) => {
+        const conv = state.conversations[activeAgentId];
+        if (!conv) return state;
+        return {
+          conversations: {
+            ...state.conversations,
+            [activeAgentId]: {
+              ...conv,
+              messages: conv.messages.map(m => m.id === tempId ? sentMsg : m)
+            }
+          }
+        };
+      });
+    } catch (e: unknown) {
+      set((state) => {
+        const conv = state.conversations[activeAgentId];
+        if (!conv) return state;
+        return {
+          conversations: {
+            ...state.conversations,
+            [activeAgentId]: {
+              ...conv,
+              messages: conv.messages.filter(m => m.id !== tempId)
+            }
+          }
+        };
+      });
+      console.error('Failed to send listing', e);
+      set({ chatError: 'Failed to send apartment. Please try again.' });
     }
   }
 }));

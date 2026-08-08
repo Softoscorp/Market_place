@@ -9,12 +9,13 @@ class Settings(BaseSettings):
     )
     secret_key: str = os.getenv("SECRET_KEY", "dev-secret-change-me")
     algorithm: str = "HS256"
-    access_token_expire_minutes: int = 60 * 24 * 7  # 7 days
+    access_token_expire_minutes: int = 60 * 24 * 30  # 30 days
     media_root: str = os.path.join(os.path.dirname(os.path.dirname(__file__)), "media")
     cors_origins: list[str] = ["*"]
 
     max_listing_photos: int = 8
     max_voice_message_seconds: int = 120
+    max_chat_image_mb: int = 10
 
     # Translation: if this is unset, the app falls back to a mock translator
     # (clearly marked as such) instead of failing outright. See translation.py.

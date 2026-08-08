@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Building2, Check } from 'lucide-react';
+import { Building2, Check, Fingerprint } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/lib/store/useAuthStore';
@@ -53,7 +53,11 @@ export default function LoginPage() {
       const token = getToken() || '';
 
       setSuccess(true);
-      
+
+      // Save credentials for biometric sign-in on the native app
+      const { saveBiometricCredentials } = await import('@/lib/biometrics');
+      saveBiometricCredentials(formData.email, formData.password).catch(() => {});
+
       setTimeout(() => {
         setAuthUser({
           id: user.id.toString(),
@@ -70,6 +74,66 @@ export default function LoginPage() {
       setIsSubmitting(false);
     }
   };
+
+  const handleBiometricLogin = async () => {
+    setError('');
+    setIsSubmitting(true);
+    try {
+      const { getBiometricCredentials, deleteBiometricCredentials } = await import('@/lib/biometrics');
+      const creds = await getBiometricCredentials();
+      if (!creds) {
+        setError('Biometric sign-in unavailable. Please sign in with your email and password.');
+        setIsSubmitting(false);
+        return;
+      }
+
+      await apiLogin(creds.username, creds.password);
+      const user = await getUser();
+      const { getToken } = await import('@/lib/api');
+      const token = getToken() || '';
+
+      setSuccess(true);
+      setTimeout(() => {
+        setAuthUser({
+          id: user.id.toString(),
+          name: user.name,
+          email: user.email,
+          role: user.role === 'renter' ? 'student' : user.role,
+          token,
+        });
+      }, 1500);
+    } catch (err: unknown) {
+      const error = err as Error;
+      console.error(error);
+      // If the stored password is stale (backend rejects it), clear it so the user signs in manually.
+      const { deleteBiometricCredentials } = await import('@/lib/biometrics');
+      deleteBiometricCredentials().catch(() => {});
+      setError(error.message || 'Biometric sign-in failed. Please sign in with your email and password.');
+      setIsSubmitting(false);
+    }
+  };
+
+  const [hasBiometrics, setHasBiometrics] = React.useState(false);
+  const autoPromptedRef = React.useRef(false);
+
+  React.useEffect(() => {
+    let active = true;
+    (async () => {
+      const { isBiometricAvailable, hasBiometricCredentials } = await import('@/lib/biometrics');
+      const [available, saved] = await Promise.all([
+        isBiometricAvailable().catch(() => false),
+        hasBiometricCredentials().catch(() => false),
+      ]);
+      if (active) setHasBiometrics(available && saved);
+      // Auto-prompt once on native when credentials exist but no session is active
+      if (active && available && saved && !autoPromptedRef.current) {
+        autoPromptedRef.current = true;
+        handleBiometricLogin();
+      }
+    })();
+    return () => { active = false; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -274,6 +338,25 @@ export default function LoginPage() {
                   <div className={styles.loginLink}>
                     {t('auth_no_account')} <Link href="/signup">{t('nav_signup')}</Link>
                   </div>
+
+                  {hasBiometrics && (
+                    <>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', margin: 'var(--space-5) 0' }}>
+                        <span style={{ flex: 1, height: '1px', background: 'var(--border)' }} />
+                        <span style={{ fontSize: 'var(--text-sm)', color: 'var(--text-muted)' }}>or</span>
+                        <span style={{ flex: 1, height: '1px', background: 'var(--border)' }} />
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handleBiometricLogin}
+                        disabled={isSubmitting}
+                        className={styles.biometricBtn}
+                      >
+                        <Fingerprint size={20} />
+                        {isSubmitting ? t('auth_signin_btn') : 'Sign in with Face ID / Fingerprint'}
+                      </button>
+                    </>
+                  )}
                 </motion.div>
               ) : (
                 <motion.div

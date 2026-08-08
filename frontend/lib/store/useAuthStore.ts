@@ -36,8 +36,6 @@ interface AuthState {
 const API_BASE =
   process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
 
-const FOUR_HOURS_MS = 4 * 60 * 60 * 1000;
-
 export const useAuthStore = create<AuthState>()(
   persist(
     (set, get) => ({
@@ -93,25 +91,18 @@ export const useAuthStore = create<AuthState>()(
             : null,
         })),
 
-      // Checks if the 4-hour session window has expired
+      // Sessions persist until the backend token expires (validated server-side).
+      // No client-side timeout forces logout.
       checkSessionExpiration: () => {
-        const { user, isAuthenticated } = get();
+        const { isAuthenticated, user } = get();
         if (!isAuthenticated || !user) return false;
-        
-        if (user.loginTimestamp && Date.now() - user.loginTimestamp > FOUR_HOURS_MS) {
-          set({ user: null, isAuthenticated: false });
-          return true; // Expired
-        }
-        return false; // Still valid
+        return false; // Never force-logout client-side
       },
 
-      // Validates stored JWT & checks 4-hour session timeout
+      // Validates stored JWT against the backend
       validateToken: async () => {
-        const { user, checkSessionExpiration } = get();
+        const { user } = get();
         if (!user?.token) return;
-
-        // Automatically log out if session is older than 4 hours
-        if (checkSessionExpiration()) return;
 
         try {
           const res = await fetch(`${API_BASE}/users/me`, {

@@ -339,6 +339,34 @@
   text-decoration: underline;
 }
 
+.biometricBtn {
+  width: 100%;
+  padding: var(--space-4);
+  background-color: var(--bg-surface);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  font-size: var(--text-base);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+}
+
+.biometricBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.biometricBtn:not(:disabled):hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--text-primary);
+}
+
 .successState {
   display: flex;
   flex-direction: column;

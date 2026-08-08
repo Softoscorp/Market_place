@@ -4,7 +4,7 @@ import React, { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import styles from './ProfilePage.module.css';
 import { MessageSquare, LogOut, LayoutDashboard, Camera, ShieldCheck, ShieldAlert, Upload, Bookmark, User, Star, Settings } from 'lucide-react';
-import { useChatStore } from '@/lib/store/useChatStore';
+import { useChatStore, type Message } from '@/lib/store/useChatStore';
 import { useAuthStore } from '@/lib/store/useAuthStore';
 import Link from 'next/link';
 import { BackButton } from '@/components/ui/BackButton';
@@ -14,6 +14,13 @@ import { apiRequest, mediaUrl, getToken, getSavedProperties, getAgentProfile } f
 import { useLanguageStore } from '@/lib/store/useLanguageStore';
 
 import { ProtectedImage } from '@/components/ui/ProtectedImage';
+
+function previewText(msg: Message): string {
+  if (msg.message_type === 'image') return '[Image]';
+  if (msg.message_type === 'voice') return '[Voice message]';
+  if (msg.message_type === 'listing') return msg.listing ? `[Apartment: ${msg.listing.title}]` : '[Apartment]';
+  return msg.text || '';
+}
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -204,8 +211,8 @@ export default function ProfilePage() {
   }, [isAuthenticated, fetchConversations]);
 
   const conversationList = Object.values(conversations).sort((a, b) => {
-    const lastMsgA = a.messages[a.messages.length - 1]?.timestamp || 0;
-    const lastMsgB = b.messages[b.messages.length - 1]?.timestamp || 0;
+    const lastMsgA = (a.lastMessageAt ?? a.messages[a.messages.length - 1]?.timestamp) || 0;
+    const lastMsgB = (b.lastMessageAt ?? b.messages[b.messages.length - 1]?.timestamp) || 0;
     return lastMsgB - lastMsgA;
   });
 
@@ -579,7 +586,7 @@ export default function ProfilePage() {
                         <div className={styles.messagePreview}>
                           <span className={styles.lastText}>
                             {lastMessage ? (
-                              <>{lastMessage.sender === 'user' ? 'You: ' : ''}{lastMessage.text}</>
+                              <>{lastMessage.sender === 'user' ? 'You: ' : ''}{previewText(lastMessage)}</>
                             ) : (
                               <span style={{ fontStyle: 'italic', color: 'var(--text-muted)' }}>New conversation...</span>
                             )}

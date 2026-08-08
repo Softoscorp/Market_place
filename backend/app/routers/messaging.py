@@ -51,6 +51,11 @@ def _serialize_message(message: models.Message, reader: models.User, db: Session
     out = schemas.MessageOut.model_validate(message)
     out.text = text
     out.was_translated = was_translated
+
+    if message.message_type == models.MessageType.listing and message.listing_id:
+        listing = db.query(models.Listing).filter(models.Listing.id == message.listing_id).first()
+        if listing:
+            out.listing = schemas.ListingOut.model_validate(listing)
     return out
 
 
@@ -74,6 +79,62 @@ def _serialize_conversation(conv: models.Conversation, current_user: models.User
     out.last_message = _serialize_message(last_message_row, current_user, db) if last_message_row else None
     out.unread_count = unread_count
     return out
+
+
+def _dispatch_message_notifications(
+    recipient_id: int,
+    conversation_id: int,
+    sender_name: str,
+    sender_id: int,
+    title: str,
+    body: str,
+) -> None:
+    """Sends web-push (PWA) + FCM (Android APK) notifications in a background thread."""
+    def _dispatch() -> None:
+        notification_db = SessionLocal()
+        try:
+            subscriptions = notification_db.query(models.PushSubscription).filter(models.PushSubscription.user_id == recipient_id).all()
+            if subscriptions:
+                from ..services.push import send_push_notification
+                for sub in subscriptions:
+                    sub_info = {
+                        "endpoint": sub.endpoint,
+                        "keys": {
+                            "p256dh": sub.p256dh,
+                            "auth": sub.auth
+                        }
+                    }
+                    payload = {
+                        "title": title,
+                        "body": body,
+                        "url": "/chat"
+                    }
+                    success = send_push_notification(sub_info, payload)
+                    if success == "EXPIRED":
+                        notification_db.delete(sub)
+                        notification_db.commit()
+
+            fcm_tokens = notification_db.query(models.FcmToken).filter(models.FcmToken.user_id == recipient_id).all()
+            if fcm_tokens:
+                from ..services.fcm import send_fcm_notification
+                for fcm in fcm_tokens:
+                    ok = send_fcm_notification(
+                        token=fcm.token,
+                        title=title,
+                        body=body[:100],
+                        data={
+                            "conversation_id": str(conversation_id),
+                            "sender_id": str(sender_id),
+                            "sender_name": sender_name,
+                        },
+                    )
+                    if not ok:
+                        notification_db.delete(fcm)
+                        notification_db.commit()
+        finally:
+            notification_db.close()
+
+    _notification_executor.submit(_dispatch)
 
 
 @router.post("/conversations", response_model=schemas.ConversationOut, status_code=201)
@@ -209,48 +270,14 @@ def send_text_message(
     db.refresh(message)
 
     recipient_id = conv.agent_id if current_user.id == conv.renter_id else conv.renter_id
-
-    def _dispatch_notifications() -> None:
-        notification_db = SessionLocal()
-        try:
-            subscriptions = notification_db.query(models.PushSubscription).filter(models.PushSubscription.user_id == recipient_id).all()
-            if subscriptions:
-                from ..services.push import send_push_notification
-                for sub in subscriptions:
-                    sub_info = {
-                        "endpoint": sub.endpoint,
-                        "keys": {
-                            "p256dh": sub.p256dh,
-                            "auth": sub.auth
-                        }
-                    }
-                    payload = {
-                        "title": f"New message from {current_user.name}",
-                        "body": body,
-                        "url": "/chat"
-                    }
-                    success = send_push_notification(sub_info, payload)
-                    if success == "EXPIRED":
-                        notification_db.delete(sub)
-                        notification_db.commit()
-
-            fcm_tokens = notification_db.query(models.FcmToken).filter(models.FcmToken.user_id == recipient_id).all()
-            if fcm_tokens:
-                from ..services.fcm import send_fcm_notification
-                for fcm in fcm_tokens:
-                    ok = send_fcm_notification(
-                        token=fcm.token,
-                        title=f"New message from {current_user.name}",
-                        body=body[:100],
-                        data={"conversation_id": str(conv.id), "sender_id": str(current_user.id)},
-                    )
-                    if not ok:
-                        notification_db.delete(fcm)
-                        notification_db.commit()
-        finally:
-            notification_db.close()
-
-    _notification_executor.submit(_dispatch_notifications)
+    _dispatch_message_notifications(
+        recipient_id=recipient_id,
+        conversation_id=conv.id,
+        sender_name=current_user.name,
+        sender_id=current_user.id,
+        title=f"New message from {current_user.name}",
+        body=body,
+    )
 
     return _serialize_message(message, current_user, db)
 
@@ -291,25 +318,97 @@ def send_voice_message(
 
     # Send push notification
     recipient_id = conv.agent_id if current_user.id == conv.renter_id else conv.renter_id
-    subscriptions = db.query(models.PushSubscription).filter(models.PushSubscription.user_id == recipient_id).all()
-    if subscriptions:
-        from ..services.push import send_push_notification
-        for sub in subscriptions:
-            sub_info = {
-                "endpoint": sub.endpoint,
-                "keys": {
-                    "p256dh": sub.p256dh,
-                    "auth": sub.auth
-                }
-            }
-            payload = {
-                "title": f"New voice message from {current_user.name}",
-                "body": "🎤 Voice Message",
-                "url": f"/chat"
-            }
-            success = send_push_notification(sub_info, payload)
-            if success == "EXPIRED":
-                db.delete(sub)
-                db.commit()
+    _dispatch_message_notifications(
+        recipient_id=recipient_id,
+        conversation_id=conv.id,
+        sender_name=current_user.name,
+        sender_id=current_user.id,
+        title=f"New voice message from {current_user.name}",
+        body="🎤 Voice Message",
+    )
+
+    return _serialize_message(message, current_user, db)
+
+
+@router.post("/conversations/{conversation_id}/image", response_model=schemas.MessageOut, status_code=201)
+def send_image_message(
+    conversation_id: int,
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user),
+):
+    conv = _get_conversation_for_user(conversation_id, db, current_user)
+
+    file_bytes = file.file.read()
+    max_bytes = settings.max_chat_image_mb * 1024 * 1024
+    if len(file_bytes) > max_bytes:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Image can't be larger than {settings.max_chat_image_mb} MB",
+        )
+
+    ext = os.path.splitext(file.filename or "")[1] or ".jpg"
+    filename = f"{uuid.uuid4().hex}{ext}"
+    path = f"message_images/{filename}"
+
+    url = upload_file(file_bytes, "rental-media", path, file.content_type or "image/jpeg")
+
+    message = models.Message(
+        conversation_id=conv.id,
+        sender_id=current_user.id,
+        message_type=models.MessageType.image,
+        image_url=url,
+    )
+    db.add(message)
+    db.commit()
+    db.refresh(message)
+
+    # Send push notification
+    recipient_id = conv.agent_id if current_user.id == conv.renter_id else conv.renter_id
+    _dispatch_message_notifications(
+        recipient_id=recipient_id,
+        conversation_id=conv.id,
+        sender_name=current_user.name,
+        sender_id=current_user.id,
+        title=f"New photo from {current_user.name}",
+        body="📷 Photo Message",
+    )
+
+    return _serialize_message(message, current_user, db)
+
+
+@router.post("/conversations/{conversation_id}/listing", response_model=schemas.MessageOut, status_code=201)
+def send_listing_message(
+    conversation_id: int,
+    payload: schemas.SendListingMessageRequest,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user),
+):
+    conv = _get_conversation_for_user(conversation_id, db, current_user)
+
+    listing = db.query(models.Listing).filter(models.Listing.id == payload.listing_id).first()
+    if not listing:
+        raise HTTPException(status_code=404, detail="Listing not found")
+
+    message = models.Message(
+        conversation_id=conv.id,
+        sender_id=current_user.id,
+        message_type=models.MessageType.listing,
+        listing_id=listing.id,
+    )
+    db.add(message)
+    db.commit()
+    db.refresh(message)
+
+    # Send push notification
+    recipient_id = conv.agent_id if current_user.id == conv.renter_id else conv.renter_id
+    _dispatch_message_notifications(
+        recipient_id=recipient_id,
+        conversation_id=conv.id,
+        sender_name=current_user.name,
+        sender_id=current_user.id,
+        title=f"New apartment shared by {current_user.name}",
+        body=f"🏠 {listing.title[:80]}",
+    )
 
     return _serialize_message(message, current_user, db)

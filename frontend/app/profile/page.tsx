@@ -3,14 +3,14 @@
 import React, { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import styles from './ProfilePage.module.css';
-import { MessageSquare, LogOut, LayoutDashboard, Camera, ShieldCheck, ShieldAlert, BadgeCheck, FileText, Upload, ChevronRight } from 'lucide-react';
+import { MessageSquare, LogOut, LayoutDashboard, Camera, ShieldCheck, ShieldAlert, BadgeCheck, Upload, Bookmark, Users, Star, Settings } from 'lucide-react';
 import { useChatStore } from '@/lib/store/useChatStore';
 import { useAuthStore } from '@/lib/store/useAuthStore';
 import Link from 'next/link';
 import { BackButton } from '@/components/ui/BackButton';
 
 import { useRouter } from 'next/navigation';
-import { apiRequest, mediaUrl, getToken } from '@/lib/api';
+import { apiRequest, mediaUrl, getToken, getSavedProperties, listRoommates, getAgentProfile } from '@/lib/api';
 import { useLanguageStore } from '@/lib/store/useLanguageStore';
 
 import { ProtectedImage } from '@/components/ui/ProtectedImage';
@@ -30,6 +30,11 @@ export default function ProfilePage() {
   const [uploadMessage, setUploadMessage] = useState<{text: string, type: 'success' | 'error'} | null>(null);
 
   const [saveMessage, setSaveMessage] = useState<{text: string, type: 'success' | 'error'} | null>(null);
+
+  // Stat tile data
+  const [savedCount, setSavedCount] = useState(0);
+  const [roommateCount, setRoommateCount] = useState(0);
+  const [avgRating, setAvgRating] = useState<string>('—');
 
   // Verification states
   const [verifications, setVerifications] = useState<any[]>([]);
@@ -205,11 +210,54 @@ export default function ProfilePage() {
     return lastMsgB - lastMsgA;
   });
 
+  const unreadCount = conversationList.reduce((sum, c) => sum + (c.unreadCount || 0), 0);
+
+  // Load stat tile data (saved, roommates, rating)
+  React.useEffect(() => {
+    if (!isAuthenticated || !user) return;
+
+    getSavedProperties()
+      .then((data) => setSavedCount((data || []).length))
+      .catch(() => {});
+
+    listRoommates()
+      .then((data: any[]) => {
+        const mine = (data || []).filter(
+          (rm) => String(rm.user_id) === String(user.id)
+        );
+        setRoommateCount(mine.length);
+      })
+      .catch(() => {});
+
+    if (user.role === 'agent') {
+      getAgentProfile(user.id)
+        .then((profile: any) => {
+          if (profile?.average_rating != null && profile.average_rating > 0) {
+            setAvgRating(Number(profile.average_rating).toFixed(1));
+          }
+        })
+        .catch(() => {});
+    }
+  }, [isAuthenticated, user]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   if (!mounted) return null;
+
+  const roleLabel =
+    user?.role === 'agent'
+      ? 'Real Estate Agent'
+      : user?.role === 'admin'
+      ? 'Administrator'
+      : user?.role === 'customer_care'
+      ? 'Customer Care'
+      : 'Student / Renter';
+
+  const scrollTo = (id: string) => {
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
 
   return (
     <motion.div 
@@ -247,375 +295,349 @@ export default function ProfilePage() {
         </div>
       </div>
 
-      <div className={styles.grid}>
-        <div className={styles.card}>
-        <div className={styles.section}>
-          <h2 className={styles.sectionTitle}>Personal Details</h2>
-          
-          <input 
-            type="file" 
-            ref={fileInputRef} 
-            accept="image/*" 
-            style={{ display: 'none' }} 
-            onChange={handleAvatarSelect} 
+      {/* Identity row */}
+      <div className={styles.me}>
+        <div className={styles.meAvatar}>
+          <ProtectedImage 
+            src={user?.avatar_url ? (mediaUrl(user.avatar_url) || '') : `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=0F172A&color=fff&size=128&bold=true`}
+            fallbackSrc={`https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=0F172A&color=fff&size=128&bold=true`}
+            alt={displayName} 
           />
-          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-5)', marginBottom: 'var(--space-6)' }}>
-            <div style={{ position: 'relative' }}>
-              <ProtectedImage 
-                src={user?.avatar_url ? (mediaUrl(user.avatar_url) || '') : `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=0F172A&color=fff&size=128&bold=true`}
-                fallbackSrc={`https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=0F172A&color=fff&size=128&bold=true`}
-                alt={displayName} 
-                style={{ width: '72px', height: '72px', borderRadius: '50%', border: '2px solid var(--border)', objectFit: 'cover' }}
-              />
-            </div>
-            <div>
-              <div style={{ fontWeight: 600, fontSize: 'var(--text-base)', color: 'var(--text-primary)' }}>{displayName}</div>
-              <div style={{ fontSize: 'var(--text-sm)', color: 'var(--text-secondary)' }}>{user?.email}</div>
-              <button 
-                type="button"
-                onClick={() => fileInputRef.current?.click()}
-                disabled={uploadingAvatar}
-                style={{
-                  marginTop: 'var(--space-2)',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: 'var(--space-2)',
-                  padding: 'var(--space-2) var(--space-3)',
-                  fontSize: 'var(--text-sm)',
-                  fontWeight: 600,
-                  color: 'var(--text-primary)',
-                  backgroundColor: 'var(--bg-hover)',
-                  border: '1px solid var(--border)',
-                  borderRadius: 'var(--radius-sm)',
-                  cursor: 'pointer'
-                }}
-              >
-                <Camera size={14} />
-                {uploadingAvatar ? 'Uploading...' : 'Upload Photo'}
-              </button>
-              {uploadMessage && (
-                <div style={{
-                  marginTop: 'var(--space-2)',
-                  padding: 'var(--space-2) var(--space-3)',
-                  fontSize: 'var(--text-sm)',
-                  color: uploadMessage.type === 'success' ? 'var(--success-text)' : 'var(--danger-text)',
-                  backgroundColor: uploadMessage.type === 'success' ? 'var(--success-muted)' : 'var(--danger-muted)',
-                  borderRadius: 'var(--radius-sm)',
-                  border: `1px solid ${uploadMessage.type === 'success' ? 'var(--success-border)' : 'var(--danger-border)'}`
-                }}>
-                  {uploadMessage.text}
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div className={styles.inputGroup}>
-            <label className={styles.label}>Full Name</label>
-            <input 
-              type="text" 
-              name="name"
-              className={styles.input} 
-              value={formData.name !== undefined ? formData.name : (user?.name || '')}
-              onChange={handleChange}
-            />
-          </div>
-
-          <div className={styles.inputGroup}>
-            <label className={styles.label}>Phone Number (SMS & Alerts)</label>
-            <input 
-              type="tel" 
-              name="phone"
-              placeholder="+90 533 800 0000"
-              className={styles.input} 
-              value={formData.phone !== undefined ? formData.phone : (user?.phone || '')}
-              onChange={handleChange}
-            />
-            <span style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)', marginTop: 'var(--space-1)', display: 'block' }}>
-              Used for instant SMS lead notifications and identity verification.
-            </span>
-          </div>
-          
-          <div className={styles.inputGroup}>
-            <label className={styles.label}>Occupation / University</label>
-            <input 
-              type="text" 
-              name="occupation"
-              className={styles.input} 
-              value={user?.role === 'agent' ? 'Real Estate Agent' : 'Student / Renter'}
-              readOnly
-              style={{ backgroundColor: 'var(--bg-hover)', color: 'var(--text-secondary)', cursor: 'not-allowed' }}
-            />
-          </div>
+          <button 
+            type="button"
+            className={styles.cameraBtn}
+            onClick={() => fileInputRef.current?.click()}
+            disabled={uploadingAvatar}
+            title="Change profile photo"
+          >
+            <Camera size={14} />
+          </button>
         </div>
-
-        <button 
-          className={styles.saveBtn}
-          onClick={async () => {
-            try {
-              const updatedUser = await apiRequest('/users/me', {
-                method: 'PATCH',
-                body: {
-                  name: formData.name || user?.name,
-                  phone: formData.phone !== undefined ? formData.phone : user?.phone
-                }
-              });
-              if (user) {
-                updateUser({
-                  name: updatedUser.name || formData.name || user.name,
-                  phone: updatedUser.phone || formData.phone || user.phone,
-                });
-              }
-              setSaveMessage({ text: 'Profile changes saved successfully!', type: 'success' });
-              setTimeout(() => setSaveMessage(null), 3000);
-            } catch (err) {
-              console.error('Failed to update profile:', err);
-              setSaveMessage({ text: 'Failed to update profile.', type: 'error' });
-            }
-          }}
-        >
-          Save Profile Changes
-        </button>
-        {saveMessage && (
-          <div style={{
-            marginTop: 'var(--space-4)',
-            padding: 'var(--space-3)',
-            fontSize: 'var(--text-sm)',
-            color: saveMessage.type === 'success' ? 'var(--success-text)' : 'var(--danger-text)',
-            backgroundColor: saveMessage.type === 'success' ? 'var(--success-muted)' : 'var(--danger-muted)',
-            borderRadius: 'var(--radius-sm)',
-            border: `1px solid ${saveMessage.type === 'success' ? 'var(--success-border)' : 'var(--danger-border)'}`,
-            textAlign: 'center'
-          }}>
-            {saveMessage.text}
-          </div>
-        )}
+        <div className={styles.meInfo}>
+          <div className={styles.meName}>{displayName}</div>
+          <div className={styles.meEmail}>{user?.email} · {roleLabel}</div>
+        </div>
+        <div className={styles.meActs}>
+          <button className={styles.btnGhost} onClick={() => scrollTo('account')}>
+            <Settings size={16} /> Settings
+          </button>
+          <button className={styles.btnPrimary} onClick={() => scrollTo('details')}>
+            Edit Profile
+          </button>
+        </div>
       </div>
 
-      {/* Verification Center (Agents Only) */}
-      {user?.role === 'agent' && (
-        <div className={styles.card}>
-          <div className={styles.sectionHeader}>
-            <h2 className={styles.title} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
-              <ShieldCheck size={24} color="var(--text-primary)" />
-              Verification Center
-            </h2>
-            <p className={styles.subtitle}>Build trust by verifying your identity and business</p>
-          </div>
-          
-          <input 
-            type="file" 
-            ref={proofInputRef} 
-            accept="image/*,.pdf" 
-            style={{ display: 'none' }} 
-            onChange={handleProofUpload} 
-          />
+      {/* Stat tiles */}
+      <div className={styles.stats}>
+        <Link href="/saved" className={styles.tile}>
+          <div className={styles.tileIcon}><Bookmark size={20} /></div>
+          <div><div className={styles.tileValue}>{savedCount}</div><div className={styles.tileLabel}>Saved properties</div></div>
+        </Link>
+        <Link href="/roommates" className={styles.tile}>
+          <div className={styles.tileIcon}><Users size={20} /></div>
+          <div><div className={styles.tileValue}>{roommateCount}</div><div className={styles.tileLabel}>Roommate posts</div></div>
+        </Link>
+        <div className={styles.tile}>
+          <div className={styles.tileIcon}><MessageSquare size={20} /></div>
+          <div><div className={styles.tileValue}>{unreadCount}</div><div className={styles.tileLabel}>Unread messages</div></div>
+        </div>
+        <div className={styles.tile}>
+          <div className={styles.tileIcon}><Star size={20} /></div>
+          <div><div className={styles.tileValue}>{avgRating}</div><div className={styles.tileLabel}>Average rating</div></div>
+        </div>
+      </div>
 
-          <div className={styles.verificationGrid}>
-            {/* Tier 1 Card */}
-            <div className={`${styles.verificationCard} ${styles.tier1}`}>
-              <div className={styles.verificationHeader}>
-                <div className={`${styles.verificationIcon} ${styles.tier1Icon}`}>
-                  <ShieldCheck size={24} />
-                </div>
-                <div>
-                  <div className={styles.verificationTitle}>Tier 1: Local</div>
-                  <div style={{ fontSize: 'var(--text-xs)', fontWeight: 600, color: 'var(--warning-text)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Identity Verification</div>
-                </div>
+      {/* Two-column workspace */}
+      <div className={styles.main}>
+        <div className={styles.col}>
+          {/* Personal Details */}
+          <div className={styles.card} id="details">
+            <div className={styles.cardTitleRow}>
+              <h3 className={styles.cardTitle}>👤 Personal Details</h3>
+              {uploadMessage && (
+                <span className={`${styles.statusChip} ${uploadMessage.type === 'success' ? styles.chipGreen : styles.chipRed}`}>
+                  {uploadMessage.text}
+                </span>
+              )}
+            </div>
+            
+            <input 
+              type="file" 
+              ref={fileInputRef} 
+              accept="image/*" 
+              style={{ display: 'none' }} 
+              onChange={handleAvatarSelect} 
+            />
+
+            <div className={styles.pair}>
+              <div className={styles.field}>
+                <label className={styles.label}>Full Name</label>
+                <input 
+                  type="text" 
+                  name="name"
+                  className={styles.input} 
+                  value={formData.name !== undefined ? formData.name : (user?.name || '')}
+                  onChange={handleChange}
+                />
               </div>
-              <p className={styles.verificationDesc}>
-                Upload a Government-issued ID Card, Driver's License, or Passport to prove your identity.
-              </p>
-              
+              <div className={styles.field}>
+                <label className={styles.label}>Phone (SMS & Alerts)</label>
+                <input 
+                  type="tel" 
+                  name="phone"
+                  placeholder="+90 533 800 0000"
+                  className={styles.input} 
+                  value={formData.phone !== undefined ? formData.phone : (user?.phone || '')}
+                  onChange={handleChange}
+                />
+                <span className={styles.hint}>
+                  Used for instant SMS lead notifications and identity verification.
+                </span>
+              </div>
+            </div>
+
+            <div className={styles.field}>
+              <label className={styles.label}>Email</label>
+              <input 
+                type="email" 
+                className={styles.input} 
+                value={user?.email || ''}
+                disabled
+                style={{ backgroundColor: 'var(--bg-hover)', color: 'var(--text-secondary)', cursor: 'not-allowed' }}
+              />
+            </div>
+
+            <div className={styles.field}>
+              <label className={styles.label}>Occupation / University</label>
+              <input 
+                type="text" 
+                name="occupation"
+                className={styles.input} 
+                value={user?.role === 'agent' ? 'Real Estate Agent' : 'Student / Renter'}
+                readOnly
+                style={{ backgroundColor: 'var(--bg-hover)', color: 'var(--text-secondary)', cursor: 'not-allowed' }}
+              />
+            </div>
+
+            <button 
+              className={styles.saveBtn}
+              onClick={async () => {
+                try {
+                  const updatedUser = await apiRequest('/users/me', {
+                    method: 'PATCH',
+                    body: {
+                      name: formData.name || user?.name,
+                      phone: formData.phone !== undefined ? formData.phone : user?.phone
+                    }
+                  });
+                  if (user) {
+                    updateUser({
+                      name: updatedUser.name || formData.name || user.name,
+                      phone: updatedUser.phone || formData.phone || user.phone,
+                    });
+                  }
+                  setSaveMessage({ text: 'Profile changes saved successfully!', type: 'success' });
+                  setTimeout(() => setSaveMessage(null), 3000);
+                } catch (err) {
+                  console.error('Failed to update profile:', err);
+                  setSaveMessage({ text: 'Failed to update profile.', type: 'error' });
+                }
+              }}
+            >
+              Save Profile Changes
+            </button>
+            {saveMessage && (
+              <div className={`${styles.statusChip} ${styles.statusBlock} ${saveMessage.type === 'success' ? styles.chipGreen : styles.chipRed}`}>
+                {saveMessage.text}
+              </div>
+            )}
+          </div>
+
+          {/* Verification Progress (Agents Only) */}
+          {user?.role === 'agent' && (
+            <div className={styles.card}>
+              <div className={styles.cardTitleRow}>
+                <h3 className={styles.cardTitle}>🛡 Verification Progress</h3>
+              </div>
+
+              <input 
+                type="file" 
+                ref={proofInputRef} 
+                accept="image/*,.pdf" 
+                style={{ display: 'none' }} 
+                onChange={handleProofUpload} 
+              />
+
+              {/* Tier 1 */}
               {(() => {
                 const app = verifications.find(v => v.tier === 'local');
                 const isApproved = user?.verification_tier === 'local' || user?.verification_tier === 'international';
-                
-                if (isApproved) {
-                  return (
-                    <div className={`${styles.verificationStatus} ${styles.statusApproved}`}>
-                      <BadgeCheck size={18} /> Verified
-                    </div>
-                  );
-                } else if (app && app.status === 'pending') {
-                  return (
-                    <div className={`${styles.verificationStatus} ${styles.statusPending}`}>
-                      <ShieldAlert size={18} /> Review Pending
-                    </div>
-                  );
-                } else {
-                  return (
-                    <button 
-                      className={styles.verificationBtn} 
-                      onClick={() => { setTargetTier('local'); proofInputRef.current?.click(); }}
-                      disabled={uploadingProof === 'local'}
-                    >
-                      {uploadingProof === 'local' ? 'Uploading...' : <><Upload size={16} /> Apply for Tier 1</>}
-                    </button>
-                  );
-                }
-              })()}
-            </div>
+                const isPending = app && app.status === 'pending';
 
-            {/* Tier 2 Card */}
-            <div className={`${styles.verificationCard} ${styles.tier2}`}>
-              <div className={styles.verificationHeader}>
-                <div className={`${styles.verificationIcon} ${styles.tier2Icon}`}>
-                  <BadgeCheck size={24} />
-                </div>
-                <div>
-                  <div className={styles.verificationTitle}>Tier 2: International</div>
-                  <div style={{ fontSize: 'var(--text-xs)', fontWeight: 600, color: 'var(--warning)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Business Verification</div>
-                </div>
-              </div>
-              <p className={styles.verificationDesc}>
-                Upload your registered Business Certificate or Professional Real Estate License for premium visibility.
-              </p>
-              
+                return (
+                  <div className={styles.verifyRow}>
+                    <div className={styles.verifyTop}>
+                      <span className={styles.verifyTitle}>🪪 Tier 1 · Local</span>
+                      {isApproved ? (
+                        <span className={`${styles.chipMini} ${styles.chipGreen}`}>✓ Verified</span>
+                      ) : isPending ? (
+                        <span className={`${styles.chipMini} ${styles.chipAmber}`}><ShieldAlert size={12} /> Review Pending</span>
+                      ) : (
+                        <button 
+                          className={styles.applyBtn}
+                          onClick={() => { setTargetTier('local'); proofInputRef.current?.click(); }}
+                          disabled={uploadingProof === 'local'}
+                        >
+                          {uploadingProof === 'local' ? 'Uploading...' : <><Upload size={14} /> Apply</>}
+                        </button>
+                      )}
+                    </div>
+                    <div className={styles.bar}>
+                      <div className={`${styles.fill} ${isApproved ? styles.fillFull : isPending ? styles.fillHalf : ''}`}></div>
+                    </div>
+                  </div>
+                );
+              })()}
+
+              {/* Tier 2 */}
               {(() => {
                 const app = verifications.find(v => v.tier === 'international');
                 const isLocalApproved = user?.verification_tier === 'local' || user?.verification_tier === 'international';
                 const isInternationalApproved = user?.verification_tier === 'international';
-                
-                if (isInternationalApproved) {
-                  return (
-                    <div className={`${styles.verificationStatus} ${styles.statusApproved}`}>
-                      <BadgeCheck size={18} /> Premium Verified
-                    </div>
-                  );
-                } else if (app && app.status === 'pending') {
-                  return (
-                    <div className={`${styles.verificationStatus} ${styles.statusPending}`}>
-                      <ShieldAlert size={18} /> Review Pending
-                    </div>
-                  );
-                } else if (!isLocalApproved) {
-                  return (
-                    <button className={styles.verificationBtn} disabled title="Requires Tier 1 Verification first">
-                      Complete Tier 1 First
-                    </button>
-                  );
-                } else {
-                  return (
-                    <button 
-                      className={`${styles.verificationBtn} ${styles.active}`} 
-                      onClick={() => { setTargetTier('international'); proofInputRef.current?.click(); }}
-                      disabled={uploadingProof === 'international'}
-                    >
-                      {uploadingProof === 'international' ? 'Uploading...' : <><Upload size={16} /> Apply for Tier 2</>}
-                    </button>
-                  );
-                }
-              })()}
-            </div>
-          </div>
-        </div>
-      )}
+                const isPending = app && app.status === 'pending';
 
-      <div className={styles.card}>
-        <div className={styles.sectionHeader}>
-          <h2 className={styles.title}>{t('messages_hub')}</h2>
-          <p className={styles.subtitle}>{t('messages_hub_sub')}</p>
-        </div>
-
-        {conversationList.length === 0 ? (
-          <div className={styles.emptyState}>
-            <MessageSquare size={48} className={styles.emptyIcon} />
-            <h3>{t('no_messages_yet')}</h3>
-            <p>{t('no_messages_sub')}</p>
-          </div>
-        ) : (
-          <div className={styles.conversationList}>
-            {conversationList.map((conv) => {
-              const lastMessage = conv.messages[conv.messages.length - 1];
-              return (
-                <div 
-                  key={conv.contact.id} 
-                  className={styles.conversationItem}
-                  onClick={() => openChat(conv.contact)}
-                >
-                  <ProtectedImage 
-                    src={(conv.contact.avatarUrl ? mediaUrl(conv.contact.avatarUrl) : '') || ''}
-                    fallbackSrc={`https://ui-avatars.com/api/?name=${encodeURIComponent(conv.contact.name || 'User')}&background=0F172A&color=fff&size=128&bold=true`}
-                    alt={conv.contact.name || 'User'} 
-                    className={styles.avatar}
-                    style={{ width: '48px', height: '48px', borderRadius: '50%', objectFit: 'cover' }}
-                  />
-                  <div className={styles.conversationInfo}>
-                    <div className={styles.conversationHeader}>
-                      <h4 className={styles.contactName}>{conv.contact.name}</h4>
-                      {lastMessage && (
-                        <span className={styles.time}>
-                          {new Date(lastMessage.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                        </span>
+                return (
+                  <div className={styles.verifyRow}>
+                    <div className={styles.verifyTop}>
+                      <span className={styles.verifyTitle}>🏅 Tier 2 · International</span>
+                      {isInternationalApproved ? (
+                        <span className={`${styles.chipMini} ${styles.chipGreen}`}>✓ Premium Verified</span>
+                      ) : isPending ? (
+                        <span className={`${styles.chipMini} ${styles.chipAmber}`}><ShieldAlert size={12} /> Review Pending</span>
+                      ) : !isLocalApproved ? (
+                        <span className={`${styles.chipMini} ${styles.chipGrey}`}>Complete Tier 1 First</span>
+                      ) : (
+                        <button 
+                          className={styles.applyBtn}
+                          onClick={() => { setTargetTier('international'); proofInputRef.current?.click(); }}
+                          disabled={uploadingProof === 'international'}
+                        >
+                          {uploadingProof === 'international' ? 'Uploading...' : <><Upload size={14} /> Apply</>}
+                        </button>
                       )}
                     </div>
-                    <div className={styles.messagePreview}>
-                      <span className={styles.lastText}>
-                        {lastMessage ? (
-                          <>{lastMessage.sender === 'user' ? 'You: ' : ''}{lastMessage.text}</>
-                        ) : (
-                          <span style={{ fontStyle: 'italic', color: 'var(--text-muted)' }}>New conversation...</span>
-                        )}
-                      </span>
-                      {conv.unreadCount > 0 && (
-                        <span className={styles.unreadBadge}>{conv.unreadCount}</span>
-                      )}
+                    <div className={styles.bar}>
+                      <div className={`${styles.fill} ${isInternationalApproved ? styles.fillFull : isPending ? styles.fillHalf : isLocalApproved ? styles.fillHalf : ''}`}></div>
                     </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })()}
+
+              <p className={styles.verifyNote}>
+                Tier 1 unlocks the verified badge on your listings. Tier 2 adds premium visibility for agents.
+              </p>
+            </div>
+          )}
+        </div>
+
+        <div className={styles.col}>
+          {/* Messages */}
+          <div className={styles.card}>
+            <div className={styles.cardTitleRow}>
+              <h3 className={styles.cardTitle}>💬 {t('messages_hub')}</h3>
+              {unreadCount > 0 && (
+                <span className={`${styles.chipMini} ${styles.chipGreen}`}>{unreadCount} new</span>
+              )}
+            </div>
+
+            {conversationList.length === 0 ? (
+              <div className={styles.emptyState}>
+                <MessageSquare size={40} className={styles.emptyIcon} />
+                <h4>{t('no_messages_yet')}</h4>
+                <p>{t('no_messages_sub')}</p>
+              </div>
+            ) : (
+              <div className={styles.conversationList}>
+                {conversationList.map((conv) => {
+                  const lastMessage = conv.messages[conv.messages.length - 1];
+                  return (
+                    <div 
+                      key={conv.contact.id} 
+                      className={styles.conversationItem}
+                      onClick={() => openChat(conv.contact)}
+                    >
+                      <ProtectedImage 
+                        src={(conv.contact.avatarUrl ? mediaUrl(conv.contact.avatarUrl) : '') || ''}
+                        fallbackSrc={`https://ui-avatars.com/api/?name=${encodeURIComponent(conv.contact.name || 'User')}&background=0F172A&color=fff&size=128&bold=true`}
+                        alt={conv.contact.name || 'User'} 
+                        className={styles.avatar}
+                      />
+                      <div className={styles.conversationInfo}>
+                        <div className={styles.conversationHeader}>
+                          <h4 className={styles.contactName}>{conv.contact.name}</h4>
+                          {lastMessage && (
+                            <span className={styles.time}>
+                              {new Date(lastMessage.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            </span>
+                          )}
+                        </div>
+                        <div className={styles.messagePreview}>
+                          <span className={styles.lastText}>
+                            {lastMessage ? (
+                              <>{lastMessage.sender === 'user' ? 'You: ' : ''}{lastMessage.text}</>
+                            ) : (
+                              <span style={{ fontStyle: 'italic', color: 'var(--text-muted)' }}>New conversation...</span>
+                            )}
+                          </span>
+                          {conv.unreadCount > 0 && (
+                            <span className={styles.unreadBadge}>{conv.unreadCount}</span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
-        )}
-      </div>
-      
-      {/* Danger Zone */}
-      <div className={styles.card} style={{ border: '1px solid var(--danger)', marginTop: 'var(--space-8)' }}>
-        <h3 style={{ color: 'var(--danger)' }}>{t('danger_zone')}</h3>
-        <p style={{ color: 'var(--text-primary)', fontSize: 'var(--text-sm)', marginBottom: 'var(--space-4)', lineHeight: 1.5 }}>
-          {t('deactivate_desc')}
-        </p>
-        <button 
-          onClick={async () => {
-            if (window.confirm(t('deactivate_confirm'))) {
-              try {
-                const token = getToken() || user?.token;
-                if (!token) return;
-                await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/users/me/deactivate`, {
-                  method: 'POST',
-                  headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                  },
-                  body: JSON.stringify({ reason: "User self-deactivated" })
-                });
-                alert(t('deactivate_success'));
-                logout();
-              } catch (e) {
-                alert(t('deactivate_error'));
-              }
-            }
-          }}
-          style={{
-            backgroundColor: 'var(--danger)',
-            color: 'var(--text-inverse)',
-            padding: 'var(--space-3) var(--space-6)',
-            borderRadius: 'var(--radius-sm)',
-            border: 'none',
-            fontWeight: 600,
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 'var(--space-2)',
-            transition: 'background-color var(--duration-fast)'
-          }}
-          onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'var(--danger-text)'}
-          onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'var(--danger)'}
-        >
-          <ShieldAlert size={18} />
-          {t('deactivate_btn')}
-        </button>
-      </div>
+
+          {/* Account */}
+          <div className={styles.card} id="account">
+            <h3 className={styles.cardTitle}>⚙ Account</h3>
+            <Link href="/saved" className={styles.accountBtn}>
+              <Bookmark size={16} /> Saved properties
+            </Link>
+            <Link href="/messages" className={styles.accountBtn}>
+              <MessageSquare size={16} /> Messages hub
+            </Link>
+            <button 
+              className={`${styles.accountBtn} ${styles.dangerBtn}`}
+              onClick={async () => {
+                if (window.confirm(t('deactivate_confirm'))) {
+                  try {
+                    const token = getToken() || user?.token;
+                    if (!token) return;
+                    await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/users/me/deactivate`, {
+                      method: 'POST',
+                      headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                      },
+                      body: JSON.stringify({ reason: "User self-deactivated" })
+                    });
+                    alert(t('deactivate_success'));
+                    logout();
+                  } catch (e) {
+                    alert(t('deactivate_error'));
+                  }
+                }
+              }}
+            >
+              <ShieldAlert size={16} />
+              {t('deactivate_btn')}
+            </button>
+          </div>
+        </div>
       </div>
     </motion.div>
   );

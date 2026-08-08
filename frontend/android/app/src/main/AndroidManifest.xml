@@ -46,4 +46,8 @@
     <!-- Allow vibration for message notifications -->
     <uses-permission android:name="android.permission.VIBRATE" />
 
+    <!-- Required for voice notes / voice recording in the chat (MediaRecorder via getUserMedia) -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+
 </manifest>

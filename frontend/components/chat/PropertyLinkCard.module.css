@@ -2,8 +2,9 @@
   display: flex;
   gap: var(--space-3);
   align-items: flex-start;
-  min-width: 230px;
-  max-width: 280px;
+  width: 100%;
+  min-width: 0;
+  max-width: min(280px, 100%);
   background-color: var(--bg-surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
@@ -94,8 +95,9 @@
   display: flex;
   gap: var(--space-3);
   align-items: center;
-  min-width: 230px;
-  max-width: 280px;
+  width: 100%;
+  min-width: 0;
+  max-width: min(280px, 100%);
   padding: var(--space-3);
   background-color: var(--bg-surface);
   border: 1px solid var(--border);

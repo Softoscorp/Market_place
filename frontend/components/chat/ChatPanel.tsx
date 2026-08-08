@@ -20,8 +20,9 @@ export function ChatPanel() {
   } = useChatStore();
   const { t } = useLanguageStore();
   const [message, setMessage] = useState('');
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const chatAreaRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [userAtBottom, setUserAtBottom] = useState(true);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [playingUrl, setPlayingUrl] = useState<string | null>(null);
@@ -56,10 +57,20 @@ export function ChatPanel() {
     return t('chat_offline');
   };
 
-  // Auto-scroll to bottom when messages change or conversation opens
+  // Auto-scroll to bottom when messages change, but only if the user is already
+  // near the bottom (so polling every 5s doesn't yank the user up while reading).
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: activeAgentId ? 'auto' : 'smooth' });
-  }, [activeConversation?.messages, activeAgentId, isLoadingMessages]);
+    if (!userAtBottom) return;
+    const el = chatAreaRef.current;
+    if (el) {
+      el.scrollTop = el.scrollHeight;
+    }
+  }, [activeConversation?.messages, activeAgentId, isLoadingMessages, userAtBottom]);
+
+  // Reset scroll tracking when switching conversations
+  useEffect(() => {
+    setUserAtBottom(true);
+  }, [activeAgentId]);
 
   // Reset transient state when chat closes or switches conversation
   useEffect(() => {
@@ -254,6 +265,12 @@ export function ChatPanel() {
 
   if (!isOpen) return null;
 
+  const handleChatScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const el = e.currentTarget;
+    const distanceFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
+    setUserAtBottom(distanceFromBottom < 80);
+  };
+
   const handleSend = (e: React.FormEvent) => {
     e.preventDefault();
     if (!message.trim()) return;
@@ -314,7 +331,7 @@ export function ChatPanel() {
               </button>
             </div>
 
-            <div className={styles.chatArea}>
+            <div className={styles.chatArea} onScroll={handleChatScroll} ref={chatAreaRef}>
               {isLoadingMessages && (
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', flexDirection: 'column', gap: 'var(--space-4)', color: 'var(--text-secondary)' }}>
                   <div style={{ width: '28px', height: '28px', border: '3px solid var(--border)', borderTopColor: 'var(--text-primary)', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
@@ -337,7 +354,6 @@ export function ChatPanel() {
                   </div>
                 </div>
               ))}
-              <div ref={messagesEndRef} />
             </div>
 
             {chatError && (

@@ -44,10 +44,10 @@
   border: 1px solid var(--warning-border);
 }
 
-.tierGreenBadge {
-  background-color: var(--success-muted);
-  color: var(--success-text);
-  border: 1px solid var(--success-border);
+.tierBlueBadge {
+  background-color: var(--blue-muted);
+  color: var(--blue);
+  border: 1px solid var(--blue-border);
 }
 
 .tierNoneBadge {

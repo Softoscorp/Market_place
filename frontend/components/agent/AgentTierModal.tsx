@@ -1,6 +1,7 @@
 import React from 'react';
-import { Check, ShieldAlert } from 'lucide-react';
+import { ShieldAlert } from 'lucide-react';
 import { Modal } from '@/components/ui/Modal';
+import { VerifiedBadge } from '@/components/ui/VerifiedBadge';
 import styles from './AgentTierModal.module.css';
 
 interface AgentTierModalProps {
@@ -19,22 +20,22 @@ export function AgentTierModal({ isOpen, onClose }: AgentTierModalProps) {
         <div className={styles.tierList}>
           <div className={styles.tierItem}>
             <div className={styles.tierHeader}>
-              <div className={`${styles.tierBadge} ${styles.tierGoldBadge}`}>
-                <Check size={16} strokeWidth={2.5} aria-hidden="true" />
+              <span className={`${styles.tierBadge} ${styles.tierGoldBadge}`}>
+                <VerifiedBadge tier="international" size="sm" />
                 <span>International</span>
-              </div>
+              </span>
             </div>
             <p className={styles.tierDesc}>
-              These agents have completed the highest level of verification, including international background checks. Highly trusted.
+              These agents have completed the highest level of verification, including international background checks. You can deal with them internationally. Highly trusted.
             </p>
           </div>
 
           <div className={styles.tierItem}>
             <div className={styles.tierHeader}>
-              <div className={`${styles.tierBadge} ${styles.tierGreenBadge}`}>
-                <Check size={16} strokeWidth={2.5} aria-hidden="true" />
+              <span className={`${styles.tierBadge} ${styles.tierBlueBadge}`}>
+                <VerifiedBadge tier="local" size="sm" />
                 <span>Local</span>
-              </div>
+              </span>
             </div>
             <p className={styles.tierDesc}>
               These agents have completed local identity verification and are trusted members of our platform.
@@ -43,10 +44,10 @@ export function AgentTierModal({ isOpen, onClose }: AgentTierModalProps) {
 
           <div className={styles.tierItem}>
             <div className={styles.tierHeader}>
-              <div className={`${styles.tierBadge} ${styles.tierNoneBadge}`}>
-                <ShieldAlert size={16} strokeWidth={2.5} aria-hidden="true" />
-                <span>Not Verified Yet</span>
-              </div>
+              <span className={`${styles.tierBadge} ${styles.tierNoneBadge}`}>
+                <VerifiedBadge tier="none" size="sm" />
+                <span>Not Verified</span>
+              </span>
             </div>
             <p className={styles.tierDesc}>
               These agents have not completed their verification. <strong>You can still rent through them, but it will be at your own risk.</strong>

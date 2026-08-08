@@ -3,14 +3,14 @@
 import React, { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import styles from './ProfilePage.module.css';
-import { MessageSquare, LogOut, LayoutDashboard, Camera, ShieldCheck, ShieldAlert, BadgeCheck, Upload, Bookmark, Users, Star, Settings } from 'lucide-react';
+import { MessageSquare, LogOut, LayoutDashboard, Camera, ShieldCheck, ShieldAlert, Upload, Bookmark, User, Star, Settings } from 'lucide-react';
 import { useChatStore } from '@/lib/store/useChatStore';
 import { useAuthStore } from '@/lib/store/useAuthStore';
 import Link from 'next/link';
 import { BackButton } from '@/components/ui/BackButton';
 
 import { useRouter } from 'next/navigation';
-import { apiRequest, mediaUrl, getToken, getSavedProperties, listRoommates, getAgentProfile } from '@/lib/api';
+import { apiRequest, mediaUrl, getToken, getSavedProperties, getAgentProfile } from '@/lib/api';
 import { useLanguageStore } from '@/lib/store/useLanguageStore';
 
 import { ProtectedImage } from '@/components/ui/ProtectedImage';
@@ -33,7 +33,6 @@ export default function ProfilePage() {
 
   // Stat tile data
   const [savedCount, setSavedCount] = useState(0);
-  const [roommateCount, setRoommateCount] = useState(0);
   const [avgRating, setAvgRating] = useState<string>('—');
 
   // Verification states
@@ -220,15 +219,6 @@ export default function ProfilePage() {
       .then((data) => setSavedCount((data || []).length))
       .catch(() => {});
 
-    listRoommates()
-      .then((data: any[]) => {
-        const mine = (data || []).filter(
-          (rm) => String(rm.user_id) === String(user.id)
-        );
-        setRoommateCount(mine.length);
-      })
-      .catch(() => {});
-
     if (user.role === 'agent') {
       getAgentProfile(user.id)
         .then((profile: any) => {
@@ -333,10 +323,6 @@ export default function ProfilePage() {
           <div className={styles.tileIcon}><Bookmark size={20} /></div>
           <div><div className={styles.tileValue}>{savedCount}</div><div className={styles.tileLabel}>Saved properties</div></div>
         </Link>
-        <Link href="/roommates" className={styles.tile}>
-          <div className={styles.tileIcon}><Users size={20} /></div>
-          <div><div className={styles.tileValue}>{roommateCount}</div><div className={styles.tileLabel}>Roommate posts</div></div>
-        </Link>
         <div className={styles.tile}>
           <div className={styles.tileIcon}><MessageSquare size={20} /></div>
           <div><div className={styles.tileValue}>{unreadCount}</div><div className={styles.tileLabel}>Unread messages</div></div>
@@ -352,14 +338,17 @@ export default function ProfilePage() {
         <div className={styles.col}>
           {/* Personal Details */}
           <div className={styles.card} id="details">
-            <div className={styles.cardTitleRow}>
-              <h3 className={styles.cardTitle}>👤 Personal Details</h3>
-              {uploadMessage && (
-                <span className={`${styles.statusChip} ${uploadMessage.type === 'success' ? styles.chipGreen : styles.chipRed}`}>
-                  {uploadMessage.text}
-                </span>
-              )}
+          <div className={styles.cardTitleRow}>
+            <div className={styles.cardTitleLead}>
+              <span className={styles.cardTitleIcon}><User size={18} /></span>
+              <h3 className={styles.cardTitle}>Personal Details</h3>
             </div>
+            {uploadMessage && (
+              <span className={`${styles.statusChip} ${uploadMessage.type === 'success' ? styles.chipGreen : styles.chipRed}`}>
+                {uploadMessage.text}
+              </span>
+            )}
+          </div>
             
             <input 
               type="file" 
@@ -457,7 +446,10 @@ export default function ProfilePage() {
           {user?.role === 'agent' && (
             <div className={styles.card}>
               <div className={styles.cardTitleRow}>
-                <h3 className={styles.cardTitle}>🛡 Verification Progress</h3>
+                <div className={styles.cardTitleLead}>
+                  <span className={styles.cardTitleIcon}><ShieldCheck size={18} /></span>
+                  <h3 className={styles.cardTitle}>Verification Progress</h3>
+                </div>
               </div>
 
               <input 
@@ -542,9 +534,12 @@ export default function ProfilePage() {
 
         <div className={styles.col}>
           {/* Messages */}
-          <div className={styles.card}>
+            <div className={styles.card}>
             <div className={styles.cardTitleRow}>
-              <h3 className={styles.cardTitle}>💬 {t('messages_hub')}</h3>
+              <div className={styles.cardTitleLead}>
+                <span className={styles.cardTitleIcon}><MessageSquare size={18} /></span>
+                <h3 className={styles.cardTitle}>{t('messages_hub')}</h3>
+              </div>
               {unreadCount > 0 && (
                 <span className={`${styles.chipMini} ${styles.chipGreen}`}>{unreadCount} new</span>
               )}
@@ -603,7 +598,12 @@ export default function ProfilePage() {
 
           {/* Account */}
           <div className={styles.card} id="account">
-            <h3 className={styles.cardTitle}>⚙ Account</h3>
+            <div className={styles.cardTitleRow}>
+              <div className={styles.cardTitleLead}>
+                <span className={styles.cardTitleIcon}><Settings size={18} /></span>
+                <h3 className={styles.cardTitle}>Account</h3>
+              </div>
+            </div>
             <Link href="/saved" className={styles.accountBtn}>
               <Bookmark size={16} /> Saved properties
             </Link>

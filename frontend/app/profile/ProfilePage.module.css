@@ -234,7 +234,7 @@
 /* ---------- Stat tiles ---------- */
 .stats {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: var(--space-4);
   margin-bottom: var(--space-6);
 }
@@ -331,7 +331,7 @@ a.tile:hover {
   background-color: var(--bg-surface);
   border-radius: var(--radius-xl);
   border: 1px solid var(--border-subtle);
-  padding: var(--space-7);
+  padding: var(--space-8);
   box-shadow: var(--shadow-sm);
   display: flex;
   flex-direction: column;
@@ -350,6 +350,25 @@ a.tile:hover {
   align-items: center;
   justify-content: space-between;
   gap: var(--space-3);
+}
+
+.cardTitleLead {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.cardTitleIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  background-color: var(--bg-hover);
+  color: var(--accent);
+  flex-shrink: 0;
 }
 
 .cardTitle {

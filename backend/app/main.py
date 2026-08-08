@@ -71,6 +71,18 @@ def auto_migrate_columns():
                 conn.commit()
             except Exception:
                 pass
+
+            # Extend the native Postgres enum 'messagetype' with new message values.
+            # SQLAlchemy's Enum() uses a native PG enum type, so adding values to the
+            # Python enum does NOT update the DB type. ALTER TYPE ... ADD VALUE must
+            # run outside an explicit transaction on PG < 12, so use AUTOCOMMIT.
+            try:
+                aconn = engine.connect().execution_options(isolation_level="AUTOCOMMIT")
+                aconn.execute(text("ALTER TYPE messagetype ADD VALUE IF NOT EXISTS 'image';"))
+                aconn.execute(text("ALTER TYPE messagetype ADD VALUE IF NOT EXISTS 'listing';"))
+                aconn.close()
+            except Exception as e:
+                print("Enum migration notice:", e)
     except Exception as e:
         print("Column migration notice:", e)
 

@@ -119,7 +119,7 @@ export function FilterPanel() {
       <div className={styles.section}>
         <h3 className={styles.sectionTitle}>Property Type</h3>
         <div className={styles.grid}>
-          {[{ value: '1+0', label: 'Studio' }, { value: '1+1', label: '1+1' }, { value: '2+1', label: '2+1' }, { value: '3+1', label: '3+1' }].map((type) => (
+          {[{ value: '1+0', label: 'Studio' }, { value: '1+1', label: '1+1' }, { value: '2+1', label: '2+1' }, { value: '3+1', label: '3+1' }, { value: '4+1', label: '4+1' }, { value: '5+1', label: '5+1' }, { value: '6+1', label: '6+1' }].map((type) => (
             <label key={type.value} className={styles.checkboxLabel}>
               <input 
                 type="radio" 

@@ -188,6 +188,8 @@ export default function PostListingPage() {
                   <option value="2+1">2+1</option>
                   <option value="3+1">3+1</option>
                   <option value="4+1">4+1</option>
+                  <option value="5+1">5+1</option>
+                  <option value="6+1">6+1</option>
                 </select>
               </div>
             </div>

@@ -37,12 +37,6 @@ export function Footer() {
             </p>
           </div>
           <div className={styles.column}>
-            <h4 style={{ color: 'var(--text-primary)', margin: 0 }}>{t('footer_explore')}</h4>
-            <Link href="/search?location=Kyrenia" className={styles.link}>{t('footer_prop_kyrenia')}</Link>
-            <Link href="/search?location=Famagusta" className={styles.link}>{t('footer_prop_famagusta')}</Link>
-            <Link href="/search?type=1%2B0" className={styles.link}>{t('footer_student_dorms')}</Link>
-          </div>
-          <div className={styles.column}>
             <h4 style={{ color: 'var(--text-primary)', margin: 0 }}>{t('footer_company')}</h4>
             <Link href="/about" className={styles.link}>{t('footer_about')}</Link>
             <Link href="/contact" className={styles.link}>{t('footer_contact')}</Link>

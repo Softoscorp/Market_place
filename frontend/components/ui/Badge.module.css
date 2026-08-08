@@ -41,8 +41,8 @@
 }
 
 .variant-verified {
-  background-color: var(--success-muted);
-  color: var(--success);
+  background-color: var(--blue-muted);
+  color: var(--blue);
   padding-left: var(--space-1); /* slightly less padding on left to accommodate icon visually */
 }
 

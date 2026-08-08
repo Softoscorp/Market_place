@@ -20,7 +20,7 @@
 }
 
 .local {
-  color: #22c55e;
+  color: var(--blue);
 }
 
 .international {
@@ -47,7 +47,7 @@
 }
 
 .textLocal {
-  color: var(--success-text);
+  color: var(--blue);
 }
 
 .textInt {

@@ -2,12 +2,11 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Home, User, ChevronDown, Globe, Smartphone, Heart, Menu, X, MessageSquare } from 'lucide-react';
+import { Home, User, ChevronDown, Globe, Heart, Menu, X, MessageSquare } from 'lucide-react';
 import { useAuthStore } from '@/lib/store/useAuthStore';
 import { useLanguageStore } from '@/lib/store/useLanguageStore';
 import { useChatStore } from '@/lib/store/useChatStore';
 import { PremiumIcon } from '@/components/ui/PremiumIcon';
-import { InstallAppModal } from '@/components/ui/InstallAppModal';
 import styles from './Navbar.module.css';
 
 export function Navbar() {
@@ -15,7 +14,6 @@ export function Navbar() {
   const { lang, setLang, t } = useLanguageStore();
   const { conversations, fetchConversations } = useChatStore();
   const [mounted, setMounted] = useState(false);
-  const [showInstallModal, setShowInstallModal] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
@@ -85,19 +83,6 @@ export function Navbar() {
         </div>
 
         <div className={styles.actions}>
-          {/* Install App button */}
-          {mounted && (
-            <button
-              className={styles.langToggle}
-              onClick={() => setShowInstallModal(true)}
-              style={{ fontWeight: 600, gap: 'var(--space-1)' }}
-              title="Install Mobile App"
-            >
-              <Smartphone size={14} />
-              App
-            </button>
-          )}
-
           {/* Language toggle */}
           {mounted && (
             <button
@@ -160,18 +145,8 @@ export function Navbar() {
             <Link href="/agents" className={styles.mobileLink} onClick={() => setMobileMenuOpen(false)}>{t('nav_agents')}</Link>
             <Link href="/roommates" className={styles.mobileLink} onClick={() => setMobileMenuOpen(false)}>{t('nav_roommates')}</Link>
             
-            <div className={styles.mobileDivider} />
-            
-            <button
-              className={styles.mobileActionBtn}
-              onClick={() => {
-                setShowInstallModal(true);
-                setMobileMenuOpen(false);
-              }}
-            >
-              <Smartphone size={18} /> {t('nav_install_app')}
-            </button>
-            
+<div className={styles.mobileDivider} />
+
             <button
               className={styles.mobileActionBtn}
               onClick={() => {
@@ -222,7 +197,6 @@ export function Navbar() {
         </div>
       )}
     </nav>
-    <InstallAppModal isOpen={showInstallModal} onClose={() => setShowInstallModal(false)} />
-    </>
+    </>  
   );
 }

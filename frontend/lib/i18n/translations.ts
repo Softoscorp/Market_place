@@ -119,9 +119,12 @@ export const translations = {
     browse_by_location: 'Browse by Location',
     browse_location_sub: 'Discover properties in top cities and regions.',
 
+    // Search filters
+    show_filters: 'Filters',
+    hide_filters: 'Hide Filters',
+
     // New additions
     tab_messages: 'Messages',
-    nav_install_app: 'Install Mobile App',
     nav_saved_properties: 'Saved Properties',
 
     // Chat
@@ -275,9 +278,12 @@ export const translations = {
     browse_by_location: 'Konuma Göre Gözat',
     browse_location_sub: 'En iyi şehir ve bölgelerdeki mülkleri keşfedin.',
 
+    // Search filters
+    show_filters: 'Filtreler',
+    hide_filters: 'Filtreleri Gizle',
+
     // New additions
     tab_messages: 'Mesajlar',
-    nav_install_app: 'Mobil Uygulamayı Yükle',
     nav_saved_properties: 'Kaydedilen Mülkler',
 
     // Chat

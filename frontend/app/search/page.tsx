@@ -3,7 +3,7 @@
 import React, { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { Home } from 'lucide-react';
+import { Home, SlidersHorizontal } from 'lucide-react';
 import { FilterPanel } from '@/components/search/FilterPanel';
 import { PropertyCard } from '@/components/property/PropertyCard';
 import { useLanguageStore } from '@/lib/store/useLanguageStore';
@@ -33,6 +33,7 @@ function SearchResults() {
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
   const [sort, setSort] = useState('recommended');
+  const [showFilters, setShowFilters] = useState(false);
 
   useEffect(() => {
     const params = new URLSearchParams();
@@ -105,11 +106,24 @@ function SearchResults() {
         transition={{ duration: 0.8, delay: 0.2, ease: [0.2, 0.8, 0.2, 1] }}
       >
         <div className={styles.content}>
-          <aside className={styles.sidebar}>
-            <FilterPanel />
-          </aside>
+          {showFilters && (
+            <aside className={styles.sidebar}>
+              <FilterPanel />
+            </aside>
+          )}
 
           <div className={styles.results}>
+            <div className={styles.filterBar}>
+              <button
+                type="button"
+                className={styles.filterToggle}
+                onClick={() => setShowFilters(!showFilters)}
+                aria-expanded={showFilters}
+              >
+                <SlidersHorizontal size={16} aria-hidden="true" />
+                {showFilters ? t('hide_filters') : t('show_filters')}
+              </button>
+            </div>
             {loading ? (
               <div className={styles.emptyState}>
                 <p>{t('loading')}</p>

@@ -98,7 +98,6 @@ interface ChatState {
   sendMessage: (text: string) => Promise<void>;
   sendImage: (file: File) => Promise<void>;
   sendVoice: (blob: Blob, durationSeconds: number) => Promise<void>;
-  sendListing: (listingId: number) => Promise<void>;
   fetchConversations: () => Promise<void>;
   fetchMessages: (conversationId: number) => Promise<void>;
   clearNotification: () => void;
@@ -518,89 +517,4 @@ export const useChatStore = create<ChatState>((set, get) => ({
       set({ chatError: 'Failed to send voice note. Please try again.' });
     }
   },
-
-  sendListing: async (listingId: number) => {
-    const { activeConversationId, activeAgentId } = get();
-    if (!activeConversationId || !activeAgentId) return;
-
-    set({ chatError: null });
-
-    const tempId = Date.now() + 3;
-    const newMsg: Message = {
-      id: tempId,
-      text: 'Sending apartment...',
-      sender: 'user',
-      timestamp: tempId,
-      message_type: 'listing'
-    };
-
-    set((state) => {
-      const conv = state.conversations[activeAgentId];
-      if (!conv) return state;
-      return {
-        conversations: {
-          ...state.conversations,
-          [activeAgentId]: {
-            ...conv,
-            messages: [...(conv.messages || []), newMsg]
-          }
-        }
-      };
-    });
-
-    try {
-      const rawSentMsg = await apiRequest(`/messages/conversations/${activeConversationId}/listing`, {
-        method: 'POST',
-        body: { listing_id: listingId }
-      });
-
-      const currentUser = useAuthStore.getState().user;
-      const sentMsg: Message = {
-        id: rawSentMsg.id,
-        text: rawSentMsg.text,
-        sender: 'user',
-        timestamp: new Date(rawSentMsg.created_at?.endsWith('Z') ? rawSentMsg.created_at : (rawSentMsg.created_at + 'Z')).getTime() || tempId,
-        message_type: 'listing',
-        listing: rawSentMsg.listing ? {
-          id: rawSentMsg.listing.id,
-          title: rawSentMsg.listing.title,
-          price: rawSentMsg.listing.price,
-          currency: rawSentMsg.listing.currency,
-          house_type: rawSentMsg.listing.house_type,
-          location: rawSentMsg.listing.location,
-          photo_url: rawSentMsg.listing.photos?.[0]?.url || null
-        } : null
-      };
-
-      set((state) => {
-        const conv = state.conversations[activeAgentId];
-        if (!conv) return state;
-        return {
-          conversations: {
-            ...state.conversations,
-            [activeAgentId]: {
-              ...conv,
-              messages: conv.messages.map(m => m.id === tempId ? sentMsg : m)
-            }
-          }
-        };
-      });
-    } catch (e: unknown) {
-      set((state) => {
-        const conv = state.conversations[activeAgentId];
-        if (!conv) return state;
-        return {
-          conversations: {
-            ...state.conversations,
-            [activeAgentId]: {
-              ...conv,
-              messages: conv.messages.filter(m => m.id !== tempId)
-            }
-          }
-        };
-      });
-      console.error('Failed to send listing', e);
-      set({ chatError: 'Failed to send apartment. Please try again.' });
-    }
-  }
 }));

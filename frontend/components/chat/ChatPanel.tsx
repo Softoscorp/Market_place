@@ -1,30 +1,20 @@
 'use client';
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Send, Paperclip, Image as ImageIcon, Mic, Square, Phone, Building2, Play, Pause, ArrowLeft, Search } from 'lucide-react';
+import { X, Send, Paperclip, Mic, Square, Play, Pause } from 'lucide-react';
 import { useChatStore, type Message } from '@/lib/store/useChatStore';
-import { apiRequest, mediaUrl } from '@/lib/api';
+import { mediaUrl } from '@/lib/api';
 
 import styles from './ChatPanel.module.css';
 import { ProtectedImage } from '@/components/ui/ProtectedImage';
 import { isOnline } from '@/lib/timeAgo';
 import { useLanguageStore } from '@/lib/store/useLanguageStore';
 
-interface ListingOption {
-  id: number;
-  title: string;
-  price: number;
-  currency: string;
-  house_type?: string;
-  location: string;
-  photo_url?: string | null;
-}
-
 export function ChatPanel() {
   const {
     isOpen, activeAgentId, activeConversationId, conversations, closeChat,
-    sendMessage, sendImage, sendVoice, sendListing,
+    sendMessage, sendImage, sendVoice,
     chatError, clearChatError, isLoadingMessages,
   } = useChatStore();
   const { t } = useLanguageStore();
@@ -33,10 +23,6 @@ export function ChatPanel() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
-  const [showListingPicker, setShowListingPicker] = useState(false);
-  const [listings, setListings] = useState<ListingOption[]>([]);
-  const [listingSearch, setListingSearch] = useState('');
-  const [listingsLoading, setListingsLoading] = useState(false);
   const [playingUrl, setPlayingUrl] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [isRecording, setIsRecording] = useState(false);
@@ -80,8 +66,6 @@ export function ChatPanel() {
       setMessage('');
       setImagePreview(null);
       setImageFile(null);
-      setShowListingPicker(false);
-      setListingSearch('');
       setPlayingUrl(null);
       if (audioRef.current) {
         audioRef.current.pause();
@@ -105,38 +89,6 @@ export function ChatPanel() {
     };
   }, [isOpen, activeConversationId]);
 
-  // Load listings for the picker
-  const loadListings = useCallback(async () => {
-    setListingsLoading(true);
-    try {
-      const params = new URLSearchParams();
-      params.set('page_size', '50');
-      if (listingSearch.trim()) params.set('keyword', listingSearch.trim());
-      const data = await apiRequest(`/listings?${params.toString()}`, { auth: false });
-      const items: any[] = data.items || [];
-      setListings(items.map((l) => ({
-        id: l.id,
-        title: l.title,
-        price: l.price,
-        currency: l.currency || '£',
-        house_type: l.house_type,
-        location: l.location,
-        photo_url: l.photos?.[0]?.url || null,
-      })));
-    } catch (e) {
-      console.error('Failed to load listings', e);
-      setListings([]);
-    } finally {
-      setListingsLoading(false);
-    }
-  }, [listingSearch]);
-
-  useEffect(() => {
-    if (showListingPicker) {
-      loadListings();
-    }
-  }, [showListingPicker, loadListings]);
-
   const handleImagePick = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -150,11 +102,6 @@ export function ChatPanel() {
     sendImage(imageFile);
     setImagePreview(null);
     setImageFile(null);
-  };
-
-  const handleSendListing = (listingId: number) => {
-    sendListing(listingId);
-    setShowListingPicker(false);
   };
 
   const togglePlay = (url: string) => {
@@ -287,36 +234,6 @@ export function ChatPanel() {
           </div>
         ) : (
           <span className={styles.mediaPending}>{t('chat_sending_voice')}</span>
-        );
-      case 'listing':
-        return msg.listing ? (
-          <div className={styles.listingCard}>
-            <div className={styles.listingThumb}>
-              {msg.listing.photo_url ? (
-                <ProtectedImage
-                  src={mediaUrl(msg.listing.photo_url) || ''}
-                  fallbackSrc={msg.listing.photo_url}
-                  alt={msg.listing.title}
-                  className={styles.listingImg}
-                />
-              ) : (
-                <div className={styles.listingThumbFallback}>
-                  <Building2 size={22} />
-                </div>
-              )}
-            </div>
-            <div className={styles.listingInfo}>
-              <div className={styles.listingTitle}>{msg.listing.title}</div>
-              <div className={styles.listingPrice}>
-                {t('chat_listing_price').replace('{currency}', msg.listing.currency || '£').replace('{price}', String(msg.listing.price))}
-              </div>
-              {msg.listing.location && (
-                <div className={styles.listingMeta}>{msg.listing.location}</div>
-              )}
-            </div>
-          </div>
-        ) : (
-          <span className={styles.mediaPending}>{t('chat_sending_listing')}</span>
         );
       default:
         return <span>{msg.text}</span>;
@@ -492,16 +409,6 @@ export function ChatPanel() {
               >
                 <Paperclip size={18} />
               </button>
-              <button
-                type="button"
-                className={styles.toolBtn}
-                onClick={() => setShowListingPicker(true)}
-                disabled={!activeConversation}
-                aria-label={t('chat_send_listing')}
-                title={t('chat_send_listing')}
-              >
-                <Building2 size={18} />
-              </button>
               <input
                 type="text"
                 className={styles.input}
@@ -530,76 +437,6 @@ export function ChatPanel() {
                 <Send size={18} />
               </button>
             </form>
-
-            {/* Listing picker overlay */}
-            <AnimatePresence>
-              {showListingPicker && (
-                <motion.div
-                  className={styles.listingPicker}
-                  initial={{ y: '100%' }}
-                  animate={{ y: 0 }}
-                  exit={{ y: '100%' }}
-                  transition={{ type: 'spring', damping: 28, stiffness: 220 }}
-                >
-                  <div className={styles.listingPickerHeader}>
-                    <div>
-                      <h4 className={styles.listingPickerTitle}>{t('chat_pick_listing_title')}</h4>
-                      <p className={styles.listingPickerSub}>{t('chat_pick_listing_sub')}</p>
-                    </div>
-                    <button className={styles.closeBtn} onClick={() => setShowListingPicker(false)} aria-label="Close">
-                      <X size={18} />
-                    </button>
-                  </div>
-                  <div className={styles.listingSearchRow}>
-                    <Search size={16} style={{ color: 'var(--text-muted)' }} />
-                    <input
-                      className={styles.listingSearchInput}
-                      placeholder={t('chat_pick_listing_search')}
-                      value={listingSearch}
-                      onChange={(e) => setListingSearch(e.target.value)}
-                    />
-                  </div>
-                  <div className={styles.listingPickerList}>
-                    {listingsLoading ? (
-                      <div className={styles.listingPickerEmpty}>{t('chat_pick_listing_loading')}</div>
-                    ) : listings.length === 0 ? (
-                      <div className={styles.listingPickerEmpty}>{t('chat_pick_listing_empty')}</div>
-                    ) : (
-                      listings.map((l) => (
-                        <button
-                          key={l.id}
-                          type="button"
-                          className={styles.listingOption}
-                          onClick={() => handleSendListing(l.id)}
-                        >
-                          <div className={styles.listingOptionThumb}>
-                            {l.photo_url ? (
-                              <ProtectedImage
-                                src={mediaUrl(l.photo_url) || ''}
-                                fallbackSrc={l.photo_url}
-                                alt={l.title}
-                                className={styles.listingOptionImg}
-                              />
-                            ) : (
-                              <div className={styles.listingThumbFallback}>
-                                <Building2 size={18} />
-                              </div>
-                            )}
-                          </div>
-                          <div className={styles.listingOptionInfo}>
-                            <div className={styles.listingOptionTitle}>{l.title}</div>
-                            <div className={styles.listingOptionPrice}>
-                              {t('chat_listing_price').replace('{currency}', l.currency).replace('{price}', String(l.price))}
-                            </div>
-                            <div className={styles.listingOptionMeta}>{l.location}</div>
-                          </div>
-                        </button>
-                      ))
-                    )}
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
           </motion.div>
         </>
       )}

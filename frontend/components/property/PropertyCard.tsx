@@ -2,14 +2,12 @@
 
 import React, { useState } from 'react';
 import { clsx } from 'clsx';
-import { Heart, MapPin, Bed, Bath, Clock } from 'lucide-react';
+import { Heart, MapPin, GraduationCap, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import { Badge } from '@/components/ui/Badge';
 import { PremiumIcon } from '@/components/ui/PremiumIcon';
-// Removed Carousel to allow Link clicks to propagate properly
-import { MoveInBadge } from '@/components/ui/MoveInBadge';
-import { StarRating } from '@/components/ui/StarRating';
 import { Avatar } from '@/components/ui/Avatar';
+import { StarRating } from '@/components/ui/StarRating';
 import { ProtectedImage } from '@/components/ui/ProtectedImage';
 import styles from './PropertyCard.module.css';
 
@@ -46,7 +44,6 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
   currency = '£',
   images,
   type,
-
   bedrooms,
   bathrooms,
   walkingDistanceMins,
@@ -79,8 +76,7 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
     maximumFractionDigits: 0
   }).format(price).replace('£', currency);
 
-  // Calculate move in cost dynamically if terms are provided
-  const calculatedMoveInCost = (upfrontMonths !== undefined && depositMonths !== undefined && commissionMonths !== undefined) 
+  const calculatedMoveInCost = (upfrontMonths !== undefined && depositMonths !== undefined && commissionMonths !== undefined)
     ? price * (upfrontMonths + depositMonths + commissionMonths)
     : (moveInCost || price * 3);
 
@@ -90,87 +86,71 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
     maximumFractionDigits: 0
   }).format(calculatedMoveInCost).replace('£', currency);
 
-  const termsString = (upfrontMonths !== undefined && depositMonths !== undefined && commissionMonths !== undefined) 
-    ? `${upfrontMonths}+${depositMonths}+${commissionMonths}`
-    : '1+1+1';
-
   return (
     <Link href={`/property/${id}`} className={clsx(styles.card, className)}>
-      <div className={styles.gallery}>
-        <div className={styles.badges}>
-          <Badge variant="accent">{type}</Badge>
-          {verificationTier === 'local' && <Badge variant="verified">Local Verified</Badge>}
-          {verificationTier === 'international' && <Badge variant="verified" style={{ background: 'var(--warning)', color: 'var(--text-inverse)', borderColor: 'var(--warning)' }}>Int. Verified</Badge>}
+      <div className={styles.hero}>
+        <ProtectedImage
+          src={images[0] || '/images/placeholder-studio.jpg'}
+          alt={title}
+          className={styles.image}
+        />
+        <div className={styles.scrim} />
+
+        <div className={styles.topBar}>
+          <div className={styles.badges}>
+            <Badge variant="accent">{type}</Badge>
+            {verificationTier === 'local' && <Badge variant="verified">Local Verified</Badge>}
+            {verificationTier === 'international' && <Badge variant="verified" style={{ background: 'var(--warning)', color: 'var(--text-inverse)', borderColor: 'var(--warning)' }}>Int. Verified</Badge>}
+          </div>
+          <button
+            className={clsx(styles.saveButton, saved && styles.saved)}
+            onClick={handleSave}
+            aria-label={saved ? "Remove from saved" : "Save property"}
+          >
+            <Heart size={16} aria-hidden="true" />
+          </button>
         </div>
-        
-        <button 
-          className={clsx(styles.saveButton, saved && styles.saved)}
-          onClick={handleSave}
-          aria-label={saved ? "Remove from saved" : "Save property"}
-        >
-          <PremiumIcon icon={Heart} size={18} colorVariant="glass" />
-        </button>
 
-        <div style={{ position: 'relative', width: '100%', height: '100%' }}>
-          <ProtectedImage 
-            src={images[0] || '/images/placeholder-studio.jpg'} 
-            alt={title} 
-            className={styles.image}
-          />
+        <div className={styles.pricePill}>
+          <span className={styles.priceAmount}>{formattedPrice}</span>
+          <span className={styles.pricePer}>/mo</span>
         </div>
-
-
       </div>
 
-      <div className={styles.content}>
-        <div className={styles.header}>
-          <div>
-            <h3 className={styles.title}>{title}</h3>
-            <div className={styles.location}>
-              <PremiumIcon icon={MapPin} size={12} containerSize={24} colorVariant="primary" />
+      <div className={styles.info}>
+        <div className={styles.infoRow}>
+          <h3 className={styles.title}>{title}</h3>
+          <div className={styles.side}>
+            <div className={styles.loc}>
+              <MapPin size={13} aria-hidden="true" />
               <span>{location}</span>
             </div>
-          </div>
-          <div className={styles.price}>{formattedPrice}/mo</div>
-        </div>
-
-        <div className={styles.details}>
-          <div className={styles.detailItem}>
-            <Bed size={16} aria-hidden="true" />
-            <span>{bedrooms} Beds</span>
-          </div>
-          <div className={styles.detailItem}>
-            <Bath size={16} aria-hidden="true" />
-            <span>{bathrooms} Baths</span>
-          </div>
-
-          {walkingDistanceMins && (
-            <div className={styles.detailItem}>
-              <Clock size={16} aria-hidden="true" />
-              <span>{walkingDistanceMins}m to uni</span>
+            {walkingDistanceMins && (
+              <div className={styles.campus}>
+                <GraduationCap size={13} aria-hidden="true" />
+                <span>{walkingDistanceMins}m to uni</span>
+              </div>
+            )}
+            <div className={styles.rooms}>
+              {bedrooms} Beds · {bathrooms} Baths
             </div>
-          )}
-        </div>
-
-        <div className={styles.moveInBadge}>
-          <MoveInBadge cost={calculatedMoveInCost} />
-          {(upfrontMonths !== undefined || moveInCost) && (
-            <span className={styles.termsText} style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)', display: 'block', marginTop: 'var(--space-1)', textAlign: 'left' }}>
-              Terms: {termsString}
-            </span>
-          )}
-        </div>
-
-        <div className={styles.footer}>
-          <div className={styles.agent}>
-            <Avatar src={agentAvatar} fallback={agentName} size="sm" />
-            <span>{agentName}</span>
           </div>
+        </div>
+      </div>
+
+      <div className={styles.footer}>
+        <div className={styles.agent}>
+          <Avatar src={agentAvatar} fallback={agentName} size="sm" />
+          <span>{agentName}</span>
           {agentRating && agentRating > 0 ? (
-            <StarRating rating={agentRating} size={14} showText />
+            <StarRating rating={agentRating} size={13} showText />
           ) : (
-            <span style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)', fontWeight: 500 }}>New Agent</span>
+            <span className={styles.newAgent}>New</span>
           )}
+        </div>
+        <div className={styles.term}>
+          <span className={styles.termLabel}>Move-in</span>
+          <span className={styles.termValue}>{formattedMoveInCost}</span>
         </div>
       </div>
     </Link>

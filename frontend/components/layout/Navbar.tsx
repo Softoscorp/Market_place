@@ -101,7 +101,7 @@ export function Navbar() {
               <Heart size={16} /> <span className={styles.hideOnMobile}>{t('nav_saved') || 'Saved'}</span>
             </Link>
             {/* Messages Icon with Badge */}
-            <Link href="/profile?tab=messages" className={styles.link} style={{ position: 'relative', display: 'flex', alignItems: 'center' }} title={t('tab_messages')}>
+            <Link href="/messages" className={styles.link} style={{ position: 'relative', display: 'flex', alignItems: 'center' }} title={t('tab_messages')}>
               <MessageSquare size={20} />
               {unreadCount > 0 && (
                 <span className={styles.notifBadge}>
@@ -164,7 +164,7 @@ export function Navbar() {
                 <Link href="/saved" className={styles.mobileLink} onClick={() => setMobileMenuOpen(false)}>
                   <Heart size={18} /> {t('nav_saved') || 'Saved Properties'}
                 </Link>
-                <Link href="/profile?tab=messages" className={styles.mobileLink} onClick={() => setMobileMenuOpen(false)} style={{ position: 'relative' }}>
+                <Link href="/messages" className={styles.mobileLink} onClick={() => setMobileMenuOpen(false)} style={{ position: 'relative' }}>
                   <MessageSquare size={18} />
                   {t('tab_messages')}
                   {unreadCount > 0 && (

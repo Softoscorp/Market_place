@@ -332,8 +332,6 @@
   padding: var(--space-4);
   background: var(--bg-surface);
   box-shadow: var(--shadow-sm);
-  position: sticky;
-  top: 68px;
 }
 
 .sideBtns {

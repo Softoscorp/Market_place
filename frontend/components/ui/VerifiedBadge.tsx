@@ -93,7 +93,7 @@ export function VerifiedBadge({ tier = 'none', size = 'md', label = false }: Ver
     <span className={styles.withLabel}>
       {badge}
       <span className={clsx(styles.text, isNone ? styles.textNone : isInternational ? styles.textInt : styles.textLocal, size === 'sm' && styles.textSm)}>
-        {isNone ? 'Agent' : 'Verified'}
+        {isNone ? 'Not Verified' : isInternational ? 'International' : 'Local'}
       </span>
     </span>
   );

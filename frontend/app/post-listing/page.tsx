@@ -6,8 +6,10 @@ import { UploadCloud, MapPin, Calculator, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/lib/store/useAuthStore';
 import { BackButton } from '@/components/ui/BackButton';
+import { VerifiedBadge } from '@/components/ui/VerifiedBadge';
+import { ProtectedImage } from '@/components/ui/ProtectedImage';
 import styles from './PostListingPage.module.css';
-import { apiRequest } from '@/lib/api';
+import { apiRequest, mediaUrl } from '@/lib/api';
 
 export default function PostListingPage() {
   const router = useRouter();
@@ -15,8 +17,10 @@ export default function PostListingPage() {
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const [isPublishing, setIsPublishing] = useState(false);
   
+  const [title, setTitle] = useState('');
   const [price, setPrice] = useState(500);
   const [currency, setCurrency] = useState("£");
+  const [houseType, setHouseType] = useState('1+1');
   const [upfrontMonths, setUpfrontMonths] = useState(1);
   const [depositMonths, setDepositMonths] = useState(2);
   const [commissionMonths, setCommissionMonths] = useState(1);
@@ -139,7 +143,7 @@ export default function PostListingPage() {
 
             <div className={styles.inputGroup}>
               <label className={styles.label}>Listing Title</label>
-              <input id="listingTitle" type="text" className={styles.input} placeholder="e.g. Modern 2+1 near EMU" />
+              <input id="listingTitle" type="text" className={styles.input} placeholder="e.g. Modern 2+1 near EMU" value={title} onChange={(e) => setTitle(e.target.value)} />
             </div>
 
             <div className={styles.inputGroup}>
@@ -178,7 +182,7 @@ export default function PostListingPage() {
               </div>
               <div className={styles.inputGroup}>
                 <label className={styles.label}>Type</label>
-                <select id="listingType" className={styles.input}>
+                <select id="listingType" className={styles.input} value={houseType} onChange={(e) => setHouseType(e.target.value)}>
                   <option value="1+0">Studio (1+0)</option>
                   <option value="1+1">1+1</option>
                   <option value="2+1">2+1</option>
@@ -294,6 +298,75 @@ export default function PostListingPage() {
           </div>
 
           <div className={styles.previewSidebar}>
+            {(() => {
+              const agentFallbackAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name || 'Agent')}&background=0F172A&color=fff&bold=true`;
+              const agentAvatarSrc = user?.avatar_url ? (mediaUrl(user.avatar_url) || agentFallbackAvatar) : agentFallbackAvatar;
+              return (
+                <>
+            <div className={styles.agentHeader}>
+              <div className={styles.agentAvatar}>
+                <ProtectedImage
+                  src={agentAvatarSrc}
+                  fallbackSrc={agentFallbackAvatar}
+                  alt={user?.name || 'Agent'}
+                  style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }}
+                />
+              </div>
+              <div className={styles.agentInfo}>
+                <div className={styles.agentName}>
+                  {user?.name || 'Agent'}
+                  <VerifiedBadge tier={user?.verification_tier || 'none'} />
+                </div>
+                <div className={styles.agentSub}>Posting as agent</div>
+              </div>
+            </div>
+
+            <div className={styles.previewCard}>
+              <div className={styles.previewCardImg}>
+                {previewUrls.length > 0 ? (
+                  <img src={previewUrls[0]} alt="Listing preview" className={styles.previewCardImgEl} />
+                ) : (
+                  <ProtectedImage
+                    src="/images/placeholder-studio.jpg"
+                    fallbackSrc="/images/placeholder-studio.jpg"
+                    alt="Listing preview"
+                    className={styles.previewCardImgEl}
+                  />
+                )}
+                <div className={styles.previewCardScrim} />
+                <span className={styles.previewType}>{houseType}</span>
+                <div className={styles.previewPrice}>
+                  <span className={styles.previewPriceAmt}>{currency}{price}</span>
+                  <span className={styles.previewPricePer}>/mo</span>
+                </div>
+              </div>
+              <div className={styles.previewCardInfo}>
+                <div className={styles.previewCardTitle}>{title || 'Your listing title'}</div>
+                <div className={styles.previewCardLoc}>
+                  <MapPin size={13} /> {location}
+                  {distanceToUni > 0 && <span> · {distanceToUni}km to uni</span>}
+                </div>
+                <div className={styles.previewCardFooter}>
+                  <div className={styles.previewAgent}>
+                    <div className={styles.previewAgentAvatar}>
+                      <ProtectedImage
+                        src={agentAvatarSrc}
+                        fallbackSrc={agentFallbackAvatar}
+                        alt=""
+                        style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }}
+                      />
+                    </div>
+                    <span>{user?.name?.split(' ')[0] || 'Agent'}</span>
+                    <VerifiedBadge tier={user?.verification_tier || 'none'} size="sm" />
+                  </div>
+                  <div className={styles.previewTerm}>
+                    <span className={styles.previewTermLabel}>Move-in</span>
+                    <span className={styles.previewTermValue}>{currency}{totalMoveIn}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <div className={styles.previewTitle}>
               <Calculator size={20} style={{ display: 'inline', marginRight: 8, verticalAlign: 'middle' }}/>
               Move-in Cost Preview
@@ -324,14 +397,13 @@ export default function PostListingPage() {
                 try {
                   setIsPublishing(true);
                   const title = (document.getElementById('listingTitle') as HTMLInputElement).value || 'New Property';
-                  const house_type = (document.getElementById('listingType') as HTMLSelectElement).value;
 
                   const payload = {
                     title,
                     description,
                     price,
                     currency,
-                    house_type,
+                    house_type: houseType,
                     location,
                     upfront_rent_months: upfrontMonths,
                     deposit_months: depositMonths,
@@ -389,6 +461,9 @@ export default function PostListingPage() {
             <p style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)', textAlign: 'center', marginTop: 'var(--space-4)' }}>
               By publishing, you agree to our Verified Agent terms.
             </p>
+                </>
+              );
+            })()}
           </div>
         </div>
       </motion.div>

@@ -2,11 +2,10 @@ import React from 'react';
 import Link from 'next/link';
 import { Star } from 'lucide-react';
 import { useLanguageStore } from '@/lib/store/useLanguageStore';
-import { mediaUrl } from '@/lib/api';
 import { isOnline, lastSeenText } from '@/lib/timeAgo';
 import styles from './AgentCard.module.css';
 
-import { ProtectedImage } from '@/components/ui/ProtectedImage';
+import { BrandedAvatar } from '@/components/ui/BrandedAvatar';
 import { VerifiedBadge } from '@/components/ui/VerifiedBadge';
 
 interface AgentCardProps {
@@ -39,10 +38,7 @@ export function AgentCard({
   compact = false
 }: AgentCardProps) {
   const { t } = useLanguageStore();
-  const defaultAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=0F172A&color=fff&bold=true`;
-  const avatarSrc = imageUrl && !imageUrl.includes('placeholder')
-    ? (mediaUrl(imageUrl) || defaultAvatar)
-    : defaultAvatar;
+  const avatarSrc = imageUrl && !imageUrl.includes('placeholder') ? imageUrl : null;
 
   const online = isOnline(lastSeenAt);
   const statusText = lastSeenText(lastSeenAt);
@@ -51,7 +47,7 @@ export function AgentCard({
     <div className={`${styles.card} ${compact ? styles.compact : ''}`}>
       <div className={styles.header}>
         <div className={styles.avatarWrapper}>
-          <ProtectedImage src={avatarSrc} fallbackSrc={defaultAvatar} alt={name} className={styles.avatar} />
+          <BrandedAvatar src={avatarSrc} name={name} className={styles.avatar} />
           <div
             className={styles.onlineDot}
             style={{

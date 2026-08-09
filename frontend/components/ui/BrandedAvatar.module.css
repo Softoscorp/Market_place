@@ -1,0 +1,12 @@
+.fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f2f0ea;
+  border: 2px solid #08192f;
+  overflow: hidden;
+}
+
+.fallback svg {
+  opacity: 0.95;
+}

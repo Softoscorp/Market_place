@@ -296,10 +296,10 @@ export default function ProfilePage() {
       {/* Identity row */}
       <div className={styles.me}>
         <div className={styles.meAvatar}>
-          <BrandedAvatar 
-            src={user?.avatar_url ? mediaUrl(user.avatar_url) : null}
-            name={displayName}
-            size={64}
+          <ProtectedImage 
+            src={user?.avatar_url ? (mediaUrl(user.avatar_url) || '') : `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=0F172A&color=fff&size=128&bold=true`}
+            fallbackSrc={`https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=0F172A&color=fff&size=128&bold=true`}
+            alt={displayName} 
           />
           <button 
             type="button"

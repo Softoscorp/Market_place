@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, Suspense } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Building2, Check, Fingerprint } from 'lucide-react';
 import Link from 'next/link';
@@ -8,9 +8,10 @@ import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/lib/store/useAuthStore';
 import { useLanguageStore } from '@/lib/store/useLanguageStore';
 import styles from '../signup/SignupPage.module.css';
-import { login as apiLogin, getUser, resetPassword } from '@/lib/api';
+import { login as apiLogin, getUser, forgotPassword, resetPassword } from '@/lib/api';
+import { useSearchParams } from 'next/navigation';
 
-export default function LoginPage() {
+function LoginContent() {
   const router = useRouter();
   const { user, isAuthenticated, login: setAuthUser } = useAuthStore();
   const { t } = useLanguageStore();
@@ -39,6 +40,17 @@ export default function LoginPage() {
   const [resetMessage, setResetMessage] = useState('');
   const [resetError, setResetError] = useState('');
   const [isResetting, setIsResetting] = useState(false);
+  const searchParams = useSearchParams();
+  const resetToken = searchParams.get('reset_token') || '';
+  const resetEmail = searchParams.get('email') || '';
+  const isPasswordReset = Boolean(resetToken && resetEmail);
+
+  React.useEffect(() => {
+    if (isPasswordReset) {
+      setShowForgot(true);
+      setForgotEmail(resetEmail);
+    }
+  }, [isPasswordReset, resetEmail]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -142,17 +154,25 @@ export default function LoginPage() {
     setResetMessage('');
 
     try {
-      const res = await resetPassword({
-        email: forgotEmail,
-        new_password: newPassword,
-      });
-      setResetMessage(res.message || 'Password reset successfully! You can now sign in.');
-      setIsResetting(false);
-      setFormData({ email: forgotEmail, password: newPassword });
-      setTimeout(() => {
-        setShowForgot(false);
-        setResetMessage('');
-      }, 2000);
+      if (isPasswordReset) {
+        const res = await resetPassword({
+          email: forgotEmail,
+          token: resetToken,
+          new_password: newPassword,
+        });
+        setResetMessage(res.message || 'Password updated! You can now sign in.');
+        setIsResetting(false);
+        setFormData({ email: forgotEmail, password: newPassword });
+        setTimeout(() => {
+          setShowForgot(false);
+          setResetMessage('');
+          router.replace('/login');
+        }, 2000);
+      } else {
+        const res = await forgotPassword({ email: forgotEmail });
+        setResetMessage(res.message || 'If an account exists, a reset link has been emailed to you.');
+        setIsResetting(false);
+      }
     } catch (err: unknown) {
       const error = err as Error;
       setResetError(error.message || 'Failed to reset password');
@@ -219,33 +239,40 @@ export default function LoginPage() {
                         placeholder="john@example.com"
                         value={forgotEmail}
                         onChange={(e) => setForgotEmail(e.target.value)}
+                        disabled={isPasswordReset}
                       />
                     </div>
 
-                    <div className={styles.inputGroup}>
-                      <label className={styles.label}>{t('auth_new_password')}</label>
-                      <input 
-                        type="password" 
-                        className={styles.input} 
-                        required 
-                        minLength={6}
-                        placeholder="••••••••"
-                        value={newPassword}
-                        onChange={(e) => setNewPassword(e.target.value)}
-                      />
-                    </div>
+                    {isPasswordReset && (
+                      <div className={styles.inputGroup}>
+                        <label className={styles.label}>{t('auth_new_password')}</label>
+                        <input 
+                          type="password" 
+                          className={styles.input} 
+                          required 
+                          minLength={6}
+                          placeholder="••••••••"
+                          value={newPassword}
+                          onChange={(e) => setNewPassword(e.target.value)}
+                        />
+                      </div>
+                    )}
 
                     <button 
                       type="submit" 
                       className={styles.submitBtn} 
                       disabled={isResetting}
                     >
-                      {isResetting ? <span className={styles.loader}></span> : t('auth_reset_btn')}
+                      {isResetting ? <span className={styles.loader}></span> : isPasswordReset ? t('auth_reset_btn') : t('auth_send_link')}
                     </button>
 
                     <button 
                       type="button" 
-                      onClick={() => setShowForgot(false)}
+                      onClick={() => {
+                        setShowForgot(false);
+                        setResetMessage('');
+                        if (isPasswordReset) router.replace('/login');
+                      }}
                       style={{
                         background: 'transparent',
                         border: 'none',
@@ -384,5 +411,13 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginContent />
+    </Suspense>
   );
 }

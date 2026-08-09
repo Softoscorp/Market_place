@@ -340,11 +340,18 @@ title="Reject"
                                   </button>
                             </>
                           )}
-                          {app.proof_urls.map((url, idx) => (
-                            <a key={idx} href={url} target="_blank" rel="noreferrer" style={{ fontSize: 'var(--text-xs)', color: 'var(--accent)', textDecoration: 'underline' }}>
-                              Proof {idx + 1}
-                            </a>
-                          ))}
+                          {app.proof_urls.map((url, idx) => {
+                            const safe = typeof url === 'string' && /^https?:\/\//i.test(url);
+                            return safe ? (
+                              <a key={idx} href={url} target="_blank" rel="noreferrer" style={{ fontSize: 'var(--text-xs)', color: 'var(--accent)', textDecoration: 'underline' }}>
+                                Proof {idx + 1}
+                              </a>
+                            ) : (
+                              <span key={idx} style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)' }}>
+                                Proof {idx + 1} (invalid)
+                              </span>
+                            );
+                          })}
                         </div>
                       </td>
                     </tr>

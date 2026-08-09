@@ -220,4 +220,4 @@ def send_email_to_user(
         return {"message": "Email sent successfully"}
     except Exception as e:
         logger.error(f"Failed to send email via Resend: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to send email: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to send email. Please try again later.")

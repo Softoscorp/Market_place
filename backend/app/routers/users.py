@@ -10,6 +10,7 @@ from ..database import get_db
 from ..dependencies import get_current_user
 from ..config import settings
 from ..services.supabase_storage import upload_file, delete_file
+from ..services.file_validation import validate_image
 from ..services.agent_metrics import batch_respond_rates
 from ..services.ttl_cache import ttl_cache
 
@@ -60,9 +61,10 @@ async def upload_avatar(
     if not file.content_type or not file.content_type.startswith("image/"):
         raise HTTPException(status_code=400, detail="File must be an image")
 
-    ext = os.path.splitext(file.filename or "")[1] or ".jpg"
+    ext = os.path.splitext(file.filename or "")[1].lower()
+    ext = ext if ext in {".jpg", ".jpeg", ".png", ".webp", ".gif"} else ".jpg"
     storage_path = f"avatars/avatar_{current_user.id}_{uuid.uuid4().hex[:8]}{ext}"
-    contents = await file.read()
+    contents = validate_image(file)
 
     # Delete old avatar from Supabase (or local disk for legacy uploads)
     old_url: str | None = current_user.avatar_url  # type: ignore
@@ -109,7 +111,10 @@ def save_push_token(
     ).first()
 
     if existing:
-        existing.user_id = current_user.id
+        # Only allow the current user to claim their own token — never reassign
+        # someone else's subscription to us (push-token takeover).
+        if existing.user_id != current_user.id:
+            raise HTTPException(status_code=409, detail="This subscription is already registered to another account")
         existing.p256dh = payload.p256dh
         existing.auth = payload.auth
     else:

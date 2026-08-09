@@ -1,10 +1,12 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request
 from pydantic import ValidationError
 from sqlalchemy.orm import Session
+from datetime import datetime, timedelta
+import secrets
 
 from .. import models, schemas
 from ..database import get_db
-from ..security import create_access_token, hash_password, verify_password
+from ..security import create_access_token, hash_password, verify_password, create_password_reset_token, decode_password_reset_token
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -15,8 +17,35 @@ EMAIL_REGEX = re.compile(r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$")
 PHONE_REGEX = re.compile(r"^\+?[0-9\s\-]{7,15}$")
 
 
+# Simple in-memory rate limiter (per-IP). Production should use Redis.
+_RATE_LIMIT_MAX = 20
+_RATE_LIMIT_WINDOW_SECONDS = 300
+_rate_attempts: dict[str, list[datetime]] = {}
+
+
+def _rate_limit(ip: str):
+    now = datetime.utcnow()
+    attempts = [t for t in _rate_attempts.get(ip, []) if now - t < timedelta(seconds=_RATE_LIMIT_WINDOW_SECONDS)]
+    if len(attempts) >= _RATE_LIMIT_MAX:
+        raise HTTPException(
+            status_code=429,
+            detail="Too many attempts. Please try again later.",
+        )
+    attempts.append(now)
+    _rate_attempts[ip] = attempts
+
+
+def _client_ip(request: Request) -> str:
+    forwarded = request.headers.get("x-forwarded-for")
+    if forwarded:
+        return forwarded.split(",")[0].strip()
+    return request.client.host if request.client else "unknown"
+
+
 @router.post("/register", response_model=schemas.TokenResponse, status_code=status.HTTP_201_CREATED)
-def register(payload: schemas.RegisterRequest, db: Session = Depends(get_db)):
+def register(payload: schemas.RegisterRequest, request: Request, db: Session = Depends(get_db)):
+    _rate_limit(_client_ip(request))
+
     if not payload.email or not EMAIL_REGEX.match(payload.email.strip()):
         raise HTTPException(
             status_code=400,
@@ -33,7 +62,7 @@ def register(payload: schemas.RegisterRequest, db: Session = Depends(get_db)):
 
     existing = db.query(models.User).filter(models.User.email == payload.email).first()
     if existing:
-        raise HTTPException(status_code=400, detail="Email already registered")
+        raise HTTPException(status_code=400, detail="An account with this email already exists. Please log in.")
         
     if payload.device_id:
         existing_device = db.query(models.User).filter(models.User.device_id == payload.device_id).first()
@@ -61,7 +90,9 @@ def register(payload: schemas.RegisterRequest, db: Session = Depends(get_db)):
 
 
 @router.post("/login", response_model=schemas.TokenResponse)
-def login(payload: schemas.LoginRequest, db: Session = Depends(get_db)):
+def login(payload: schemas.LoginRequest, request: Request, db: Session = Depends(get_db)):
+    _rate_limit(_client_ip(request))
+
     user = db.query(models.User).filter(models.User.email == payload.email).first()
     if not user or not verify_password(payload.password, user.password_hash):
         raise HTTPException(status_code=401, detail="Incorrect email or password")
@@ -77,11 +108,53 @@ def login(payload: schemas.LoginRequest, db: Session = Depends(get_db)):
     return schemas.TokenResponse(access_token=token, user=user)
 
 
-@router.post("/reset-password")
-def reset_password(payload: schemas.ResetPasswordRequest, db: Session = Depends(get_db)):
+@router.post("/forgot-password")
+def forgot_password(payload: schemas.ForgotPasswordRequest, request: Request, db: Session = Depends(get_db)):
+    _rate_limit(_client_ip(request))
+
     user = db.query(models.User).filter(models.User.email == payload.email).first()
-    if not user:
-        raise HTTPException(status_code=404, detail="No account found with this email address")
+    # Always return the same message whether or not the email exists (anti-enumeration).
+    if user is None:
+        return {"message": "If an account exists for this email, a reset link has been sent."}
+
+    token = create_password_reset_token(user.email)
+    reset_link = f"https://market-place-chi-lime.vercel.app/login?reset_token={token}&email={user.email}"
+
+    try:
+        from ..config import settings
+        import resend
+        resend.api_key = settings.resend_api_key
+        if not resend.api_key:
+            return {"message": "If an account exists for this email, a reset link has been sent."}
+        params: resend.Emails.SendParams = {
+            "from": settings.resend_from_email or "noreply@houseagent.co",
+            "to": [user.email],
+            "subject": "Reset your House Agent password",
+            "html": (
+                f"<p>Hello {user.name},</p>"
+                f"<p>We received a request to reset your password. Click the link below to set a new one:</p>"
+                f"<p><a href=\"{reset_link}\">Reset my password</a></p>"
+                f"<p>This link expires in 30 minutes. If you didn't request this, you can safely ignore this email.</p>"
+            ),
+        }
+        resend.Emails.send(params)
+    except Exception:
+        pass
+
+    return {"message": "If an account exists for this email, a reset link has been sent."}
+
+
+@router.post("/reset-password")
+def reset_password(payload: schemas.ResetPasswordRequest, request: Request, db: Session = Depends(get_db)):
+    _rate_limit(_client_ip(request))
+
+    email = decode_password_reset_token(payload.token)
+    if email is None or email.lower() != payload.email.strip().lower():
+        raise HTTPException(status_code=400, detail="Invalid or expired reset link. Please request a new one.")
+
+    user = db.query(models.User).filter(models.User.email == payload.email).first()
+    if user is None:
+        raise HTTPException(status_code=400, detail="Invalid or expired reset link. Please request a new one.")
 
     user.password_hash = hash_password(payload.new_password)
     db.commit()

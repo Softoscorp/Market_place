@@ -11,7 +11,14 @@ class Settings(BaseSettings):
     algorithm: str = "HS256"
     access_token_expire_minutes: int = 60 * 24 * 30  # 30 days
     media_root: str = os.path.join(os.path.dirname(os.path.dirname(__file__)), "media")
-    cors_origins: list[str] = ["*"]
+    cors_origins: list[str] = [
+        o.strip()
+        for o in os.getenv(
+            "CORS_ORIGINS",
+            "https://market-place-chi-lime.vercel.app,http://localhost:3000,http://localhost:8100",
+        ).split(",")
+        if o.strip()
+    ]
 
     max_listing_photos: int = 8
     max_voice_message_seconds: int = 120

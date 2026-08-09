@@ -52,6 +52,11 @@ def auto_migrate_columns():
                 except Exception:
                     pass
             try:
+                conn.execute(text("ALTER TABLE listings ADD COLUMN view_count INTEGER DEFAULT 0;"))
+                conn.commit()
+            except Exception:
+                pass
+            try:
                 conn.execute(text("ALTER TABLE messages ADD COLUMN image_url VARCHAR;"))
                 conn.commit()
             except Exception:
@@ -98,6 +103,27 @@ if sentry_dsn:
         profiles_sample_rate=1.0,
     )
 
+from starlette.middleware.base import BaseHTTPMiddleware
+
+
+class SecurityHeadersMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request, call_next):
+        response = await call_next(request)
+        response.headers.setdefault("X-Content-Type-Options", "nosniff")
+        response.headers.setdefault("X-Frame-Options", "DENY")
+        response.headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
+        response.headers.setdefault("Permissions-Policy", "camera=(), microphone=(), geolocation=()")
+        response.headers.setdefault(
+            "Content-Security-Policy",
+            "default-src 'self'; img-src 'self' data: blob: https:; media-src 'self' blob: https:; "
+            "style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; "
+            "frame-ancestors 'none'; connect-src 'self' https:; base-uri 'self'",
+        )
+        return response
+
+
+app.add_middleware(SecurityHeadersMiddleware)
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins,
@@ -119,71 +145,6 @@ app.include_router(reports.router)
 app.include_router(roommates.router)
 app.include_router(verifications.router)
 app.include_router(notifications.router)
-
-
-def seed_admin_users():
-    try:
-        from .database import SessionLocal
-        from .models import User
-        from .security import hash_password
-
-        db = SessionLocal()
-        users_to_seed = [
-            {
-                "email": "admin@test.com",
-                "password": "adminpass123",
-                "name": "Platform Admin",
-                "phone": "1234567890",
-                "role": "admin",
-                "is_verified": True
-            },
-            {
-                "email": "agent.demo@test.com",
-                "password": "demo123",
-                "name": "Demo Agent",
-                "phone": "1234567890",
-                "role": "agent",
-                "is_verified": True
-            },
-            {
-                "email": "renter.demo@test.com",
-                "password": "demo123",
-                "name": "Demo Renter",
-                "phone": "1234567890",
-                "role": "renter",
-                "is_verified": True
-            },
-            {
-                "email": "care.demo@test.com",
-                "password": "demo123",
-                "name": "Customer Care",
-                "phone": "1234567890",
-                "role": "customer_care",
-                "is_verified": True
-            }
-        ]
-
-        for user_data in users_to_seed:
-            user = db.query(User).filter_by(email=user_data["email"]).first()
-            if user:
-                user.password_hash = hash_password(user_data["password"])  # type: ignore
-                user.role = user_data["role"]  # type: ignore
-            else:
-                new_user = User(
-                    email=user_data["email"],
-                    password_hash=hash_password(user_data["password"]),
-                    name=user_data["name"],
-                    phone=user_data["phone"],
-                    role=user_data["role"],
-                    is_verified=user_data["is_verified"]
-                )
-                db.add(new_user)
-        db.commit()
-        db.close()
-    except Exception as e:
-        print("Error seeding admin users:", e)
-
-seed_admin_users()
 
 
 @app.get("/")

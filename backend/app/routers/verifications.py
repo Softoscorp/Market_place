@@ -123,6 +123,7 @@ def reject_verification(
 
 from fastapi import UploadFile, File
 from ..services.supabase_storage import upload_file
+from ..services.file_validation import validate_proof
 import uuid
 
 @router.post("/upload-proof")
@@ -133,15 +134,17 @@ async def upload_verification_proof(
     if current_user.role != models.UserRole.agent:
         raise HTTPException(status_code=403, detail="Only agents can upload proof")
 
-    file_bytes = await file.read()
-    ext = file.filename.split(".")[-1] if "." in file.filename else "jpg"
+    file_bytes = validate_proof(file)
+    ext = file.filename.split(".")[-1].lower() if "." in file.filename else "jpg"
+    if ext not in {"jpg", "jpeg", "png", "webp", "gif", "pdf"}:
+        ext = "jpg"
     path = f"verifications/{current_user.id}/{uuid.uuid4()}.{ext}"
     
     url = upload_file(
         file_bytes, 
         "rental-media", 
         path, 
-        file.content_type or "image/jpeg"
+        file.content_type or "application/octet-stream"
     )
     
     return {"url": url}

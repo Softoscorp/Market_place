@@ -115,7 +115,15 @@ export function register(payload: Record<string, unknown>) {
   });
 }
 
-export function resetPassword(payload: { email: string; new_password: string }) {
+export function forgotPassword(payload: { email: string }) {
+  return apiRequest("/auth/forgot-password", {
+    method: "POST",
+    body: payload,
+    auth: false
+  });
+}
+
+export function resetPassword(payload: { email: string; token: string; new_password: string }) {
   return apiRequest("/auth/reset-password", {
     method: "POST",
     body: payload,

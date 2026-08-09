@@ -56,6 +56,7 @@ interface AgentData {
 export default function HomePage() {
   const { t } = useLanguageStore();
   const [featuredProperties, setFeaturedProperties] = useState<PropertyData[]>([]);
+  const [mostViewedProperties, setMostViewedProperties] = useState<PropertyData[]>([]);
   const [topAgents, setTopAgents] = useState<AgentData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -63,10 +64,11 @@ export default function HomePage() {
 
   useEffect(() => {
     let propertiesLoaded = false;
+    let mostViewedLoaded = false;
     let agentsLoaded = false;
 
     const checkLoading = () => {
-      if (propertiesLoaded && agentsLoaded) {
+      if (propertiesLoaded && mostViewedLoaded && agentsLoaded) {
         setIsLoading(false);
       }
     };
@@ -80,6 +82,18 @@ export default function HomePage() {
       .catch((err) => {
         console.error(err);
         propertiesLoaded = true;
+        checkLoading();
+      });
+
+    apiRequest("/listings?sort=most_viewed&page_size=6", { auth: false })
+      .then((data) => {
+        setMostViewedProperties(data.items || []);
+        mostViewedLoaded = true;
+        checkLoading();
+      })
+      .catch((err) => {
+        console.error(err);
+        mostViewedLoaded = true;
         checkLoading();
       });
 
@@ -204,7 +218,7 @@ export default function HomePage() {
               <h2 className={styles.sectionTitle}>{t('trending')}</h2>
               <p className={styles.sectionSubtitle}>{t('trending_sub')}</p>
             </div>
-            <Link href="/search?sort=popular" className={styles.viewAll}>
+            <Link href="/search?sort=most_viewed" className={styles.viewAll}>
               {t('view_all')} <ArrowRight size={16} aria-hidden="true" />
             </Link>
           </div>
@@ -219,7 +233,7 @@ export default function HomePage() {
                 </div>
               ))
             ) : (
-              featuredProperties.slice(3, 6).map((prop) => (
+              mostViewedProperties.slice(0, 3).map((prop) => (
                 <PropertyCard
                   key={prop.id}
                   id={prop.id.toString()}

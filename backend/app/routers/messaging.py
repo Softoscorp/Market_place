@@ -13,6 +13,7 @@ from ..database import SessionLocal, get_db
 from ..dependencies import get_current_user, require_renter
 from ..translation import translate_with_cache
 from ..services.supabase_storage import upload_file
+from ..services.file_validation import validate_image, validate_voice
 
 router = APIRouter(prefix="/messages", tags=["messages"])
 
@@ -298,12 +299,13 @@ def send_voice_message(
             detail=f"Voice messages can't be longer than {settings.max_voice_message_seconds} seconds",
         )
 
-    ext = os.path.splitext(file.filename or "")[1] or ".webm"
+    ext = os.path.splitext(file.filename or "")[1].lower() or ".webm"
+    ext = ext if ext in {".webm", ".ogg", ".mp3", ".m4a", ".opus", ".wav"} else ".webm"
     filename = f"{uuid.uuid4().hex}{ext}"
     path = f"voice_messages/{filename}"
 
-    file_bytes = file.file.read()
-    url = upload_file(file_bytes, "rental-media", path, file.content_type or "audio/webm")
+    file_bytes = validate_voice(file)
+    url = upload_file(file_bytes, "rental-media", path, "audio/webm")
 
     message = models.Message(
         conversation_id=conv.id,
@@ -339,7 +341,7 @@ def send_image_message(
 ):
     conv = _get_conversation_for_user(conversation_id, db, current_user)
 
-    file_bytes = file.file.read()
+    file_bytes = validate_image(file)
     max_bytes = settings.max_chat_image_mb * 1024 * 1024
     if len(file_bytes) > max_bytes:
         raise HTTPException(
@@ -347,11 +349,12 @@ def send_image_message(
             detail=f"Image can't be larger than {settings.max_chat_image_mb} MB",
         )
 
-    ext = os.path.splitext(file.filename or "")[1] or ".jpg"
+    ext = os.path.splitext(file.filename or "")[1].lower()
+    ext = ext if ext in {".jpg", ".jpeg", ".png", ".webp", ".gif"} else ".jpg"
     filename = f"{uuid.uuid4().hex}{ext}"
     path = f"message_images/{filename}"
 
-    url = upload_file(file_bytes, "rental-media", path, file.content_type or "image/jpeg")
+    url = upload_file(file_bytes, "rental-media", path, "image/jpeg")
 
     message = models.Message(
         conversation_id=conv.id,

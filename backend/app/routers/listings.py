@@ -13,6 +13,7 @@ from ..contact_filter import find_external_contact_info
 from ..database import get_db
 from ..dependencies import get_current_user, require_agent
 from ..services.supabase_storage import upload_file, delete_file
+from ..services.file_validation import validate_image
 from ..services.ttl_cache import ttl_cache
 
 
@@ -166,7 +167,7 @@ def browse_listings(
     generator: Optional[bool] = None,
     pool: Optional[bool] = None,
     gym: Optional[bool] = None,
-    sort: str = Query("newest", pattern="^(newest|price_asc|price_desc)$"),
+    sort: str = Query("newest", pattern="^(newest|price_asc|price_desc|most_viewed)$"),
     status_filter: Optional[str] = Query("active", alias="status"),
     agent_id: Optional[int] = None,
     page: int = Query(1, ge=1),
@@ -214,6 +215,8 @@ def browse_listings(
         query = query.order_by(models.Listing.price.asc())
     elif sort == "price_desc":
         query = query.order_by(models.Listing.price.desc())
+    elif sort == "most_viewed":
+        query = query.order_by(models.Listing.view_count.desc())
     else:
         query = query.order_by(models.Listing.created_at.desc())
 
@@ -240,6 +243,8 @@ def get_listing(listing_id: int, db: Session = Depends(get_db)):
     )
     if not listing:
         raise HTTPException(status_code=404, detail="Listing not found")
+    listing.view_count = (listing.view_count or 0) + 1
+    db.commit()
     return _serialize_listing(listing, db, _get_agent_metrics(db, [listing]))
 
 
@@ -307,13 +312,14 @@ def upload_photo(
         )
 
     ext = os.path.splitext(file.filename or "")[1] or ".jpg"
+    ext = ext.lower() if ext in {".jpg", ".jpeg", ".png", ".webp", ".gif"} else ".jpg"
     filename = f"{uuid.uuid4().hex}{ext}"
     path = f"listings/{filename}"
     
-    file_bytes = file.file.read()
+    file_bytes = validate_image(file)
     
     # Supabase or local URL is returned
-    url = upload_file(file_bytes, "rental-media", path, file.content_type or "image/jpeg")
+    url = upload_file(file_bytes, "rental-media", path, "image/jpeg" if ext == ".jpg" else ("image/png" if ext == ".png" else ("image/webp" if ext == ".webp" else "image/gif")))
 
     photo = models.ListingPhoto(
         listing_id=listing.id, url=url, order=len(listing.photos)

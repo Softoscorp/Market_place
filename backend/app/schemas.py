@@ -30,8 +30,8 @@ class RegisterRequest(BaseModel):
     @field_validator("role")
     @classmethod
     def reject_admin_registration(cls, value: UserRole) -> UserRole:
-        if value == UserRole.admin:
-            raise ValueError("Admin accounts can't be self-registered")
+        if value in (UserRole.admin, UserRole.customer_care):
+            raise ValueError("Admin and customer-care accounts can't be self-registered")
         return value
 
 
@@ -40,8 +40,13 @@ class LoginRequest(BaseModel):
     password: str
 
 
+class ForgotPasswordRequest(BaseModel):
+    email: EmailStr
+
+
 class ResetPasswordRequest(BaseModel):
     email: EmailStr
+    token: str
     new_password: str = Field(min_length=6)
 
 
@@ -172,6 +177,7 @@ class ListingOut(BaseModel):
     gym: bool = False
     status: ListingStatus
     currency: str
+    view_count: int = 0
     agent: PublicUserOut
     photos: list[ListingPhotoOut] = []
     agent_average_rating: Optional[float] = None
@@ -431,6 +437,17 @@ class KYCDocumentOut(BaseModel):
 class VerificationApplicationCreate(BaseModel):
     proof_urls: list[str]
     tier: VerificationTier
+
+    @field_validator("proof_urls")
+    @classmethod
+    def validate_proof_urls(cls, value: list[str]) -> list[str]:
+        allowed = ("http://", "https://")
+        cleaned = []
+        for url in value:
+            if not isinstance(url, str) or not url.startswith(allowed):
+                raise ValueError("Proof URLs must be valid http(s) links")
+            cleaned.append(url)
+        return cleaned
 
 
 class VerificationApplicationOut(BaseModel):

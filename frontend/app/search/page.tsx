@@ -97,6 +97,7 @@ function SearchResults() {
               <option value="price_asc">{t('price_low')}</option>
               <option value="price_desc">{t('price_high')}</option>
               <option value="newest">{t('newest')}</option>
+              <option value="most_viewed">{t('most_viewed')}</option>
             </select>
           </div>
         </div>

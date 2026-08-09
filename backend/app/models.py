@@ -220,6 +220,8 @@ class Listing(Base):
 
     status = Column(Enum(ListingStatus), nullable=False, default=ListingStatus.active)
 
+    view_count = Column(Integer, nullable=False, default=0)
+
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 

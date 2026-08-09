@@ -31,8 +31,8 @@ export const translations = {
     recently_added_sub: 'Discover the newest properties on the market.',
     view_all: 'View All',
     by_university: 'Browse by University',
-    trending: 'Trending Properties',
-    trending_sub: 'Properties that are getting the most attention right now.',
+    trending: 'Most Viewed Properties',
+    trending_sub: 'Properties that other users are viewing the most.',
     top_agents: 'Top Verified Agents',
     top_agents_sub: 'Work with the best real estate professionals in North Cyprus.',
     how_it_works: 'How It Works',
@@ -51,6 +51,7 @@ export const translations = {
     price_low: 'Price: Low to High',
     price_high: 'Price: High to Low',
     newest: 'Newest First',
+    most_viewed: 'Most Viewed',
     no_properties: 'No properties found yet.',
     no_properties_sub: 'Be the first to list a property or check back soon.',
 
@@ -95,6 +96,8 @@ export const translations = {
     auth_new_password: 'New Password',
     auth_reset_btn: 'Update Password',
     auth_cancel: 'Cancel',
+    auth_send_link: 'Send Reset Link',
+    auth_reset_email_sent: 'If an account exists for this email, a reset link has been emailed to you.',
 
     // Signup
     auth_create_account: 'Let\'s get started. Create your account.',
@@ -205,8 +208,8 @@ export const translations = {
     recently_added_sub: 'Piyasadaki en yeni mülkleri keşfedin.',
     view_all: 'Tümünü Gör',
     by_university: 'Üniversiteye Göre',
-    trending: 'Trend Mülkler',
-    trending_sub: 'Şu anda en çok ilgi gören mülkler.',
+    trending: 'En Çok Görüntülenen Mülkler',
+    trending_sub: 'Diğer kullanıcıların en çok görüntülediği mülkler.',
     top_agents: 'En İyi Onaylı Emlakçılar',
     top_agents_sub: 'Kuzey Kıbrıs konut piyasasını en iyi bilen profesyonellerle çalışın.',
     how_it_works: 'Nasıl Çalışır',
@@ -225,6 +228,7 @@ export const translations = {
     price_low: 'Fiyat: Düşükten Yükseğe',
     price_high: 'Fiyat: Yüksekten Düşüğe',
     newest: 'En Yeni',
+    most_viewed: 'En Çok Görüntülenen',
     no_properties: 'Henüz mülk bulunamadı.',
     no_properties_sub: 'İlk ilanı siz verin veya daha sonra tekrar kontrol edin.',
 
@@ -269,6 +273,8 @@ export const translations = {
     auth_new_password: 'Yeni Şifre',
     auth_reset_btn: 'Şifreyi Güncelle',
     auth_cancel: 'İptal',
+    auth_send_link: 'Sıfırlama Bağlantısı Gönder',
+    auth_reset_email_sent: 'Bu e-posta ile bir hesap varsa, sıfırlama bağlantısı gönderildi.',
 
     // Signup
     auth_create_account: 'Hadi başlayalım. Hesabınızı oluşturun.',

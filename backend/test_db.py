@@ -1,5 +1,12 @@
+import os
 from sqlalchemy import create_engine, text
-engine = create_engine("postgresql://postgres.ynmayegniskfjjrzirxk:75K1R85Mnu9f8S3m@aws-0-ap-southeast-1.pooler.supabase.com:5432/postgres")
+
+DATABASE_URL = os.getenv("DATABASE_URL", "")
+if not DATABASE_URL:
+    print("DATABASE_URL is not set — nothing to test.")
+    raise SystemExit(0)
+
+engine = create_engine(DATABASE_URL)
 try:
     with engine.connect() as conn:
         conn.execute(text("SELECT * FROM fcm_tokens LIMIT 1"))

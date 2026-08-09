@@ -1,5 +1,6 @@
 import os
 import uuid
+from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timedelta
 from typing import Optional
 
@@ -16,17 +17,51 @@ from ..services.supabase_storage import upload_file, delete_file
 from ..services.file_validation import validate_image
 from ..services.ttl_cache import ttl_cache
 
+_view_executor = ThreadPoolExecutor(max_workers=2)
+
+
+def _increment_view_count_async(listing_id: int):
+    """Bump a listing's view_count without delaying the API response.
+
+    Runs a single UPDATE in its own connection/thread so the request can return
+    immediately; a failure here is never fatal.
+    """
+    def _bump():
+        try:
+            from ..database import SessionLocal
+            from sqlalchemy import text
+            with SessionLocal() as s:
+                s.execute(
+                    text("UPDATE listings SET view_count = COALESCE(view_count, 0) + 1 WHERE id = :id"),
+                    {"id": listing_id},
+                )
+                s.commit()
+        except Exception:
+            pass
+
+    _view_executor.submit(_bump)
+
 
 def _get_agent_metrics(db: Session, listings: list[models.Listing]) -> dict[int, dict[str, float | int]]:
-    """Batched agent metrics (ratings + 60-day respond rate) in a handful of queries."""
-    metrics_by_agent_id: dict[int, dict[str, float | int]] = {}
+    """Batched agent metrics (ratings + 60-day respond rate) in a handful of queries.
+
+    The DB work is cached for 60s keyed on the agent IDs, so repeat views of
+    listings for the same agent are served from memory instead of re-running
+    three queries every time.
+    """
     agent_ids = {listing.agent_id for listing in listings if getattr(listing, "agent_id", None) is not None}
     if not agent_ids:
-        return metrics_by_agent_id
+        return {}
+    return _agent_metrics_db(tuple(sorted(agent_ids)), db)
+
+
+@ttl_cache(ttl_seconds=60)
+def _agent_metrics_db(agent_ids: tuple[int, ...], _db: Session) -> dict[int, dict[str, float | int]]:
+    metrics_by_agent_id: dict[int, dict[str, float | int]] = {}
 
     # 1) Ratings summary for all agents in one grouped query.
     rating_rows = (
-        db.query(
+        _db.query(
             models.AgentRating.agent_id,
             func.avg(models.AgentRating.stars),
             func.count(models.AgentRating.id),
@@ -43,7 +78,7 @@ def _get_agent_metrics(db: Session, listings: list[models.Listing]) -> dict[int,
     #    and all of their messages in exactly two queries instead of N+1.
     cutoff = datetime.utcnow() - timedelta(days=60)
     conversations = (
-        db.query(models.Conversation)
+        _db.query(models.Conversation)
         .filter(
             models.Conversation.agent_id.in_(agent_ids),
             models.Conversation.created_at >= cutoff,
@@ -54,7 +89,7 @@ def _get_agent_metrics(db: Session, listings: list[models.Listing]) -> dict[int,
     messages_by_conv: dict[int, list[models.Message]] = {}
     if conv_ids:
         msgs = (
-            db.query(models.Message)
+            _db.query(models.Message)
             .filter(models.Message.conversation_id.in_(conv_ids))
             .order_by(models.Message.created_at.asc())
             .all()
@@ -233,19 +268,26 @@ def browse_listings(
     return schemas.PaginatedListings(items=serialized, total=total, page=page, page_size=page_size)
 
 
-@router.get("/{listing_id}", response_model=schemas.ListingOut)
-def get_listing(listing_id: int, db: Session = Depends(get_db)):
+@ttl_cache(ttl_seconds=10)
+def _get_listing_serialized(listing_id: int, _db: Session) -> schemas.ListingOut | None:
     listing = (
-        db.query(models.Listing)
+        _db.query(models.Listing)
         .options(selectinload(models.Listing.agent), selectinload(models.Listing.photos))
         .filter(models.Listing.id == listing_id)
         .first()
     )
     if not listing:
+        return None
+    return _serialize_listing(listing, _db, _get_agent_metrics(_db, [listing]))
+
+
+@router.get("/{listing_id}", response_model=schemas.ListingOut)
+def get_listing(listing_id: int, db: Session = Depends(get_db)):
+    _increment_view_count_async(listing_id)
+    result = _get_listing_serialized(listing_id, db)
+    if result is None:
         raise HTTPException(status_code=404, detail="Listing not found")
-    listing.view_count = (listing.view_count or 0) + 1
-    db.commit()
-    return _serialize_listing(listing, db, _get_agent_metrics(db, [listing]))
+    return result
 
 
 @router.patch("/{listing_id}", response_model=schemas.ListingOut)

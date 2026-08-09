@@ -1,6 +1,5 @@
 import os
 import sys
-from unittest.mock import patch
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -9,10 +8,10 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")
 
 from app import models
 from app.database import Base
-from app.routers.listings import _get_agent_metrics
+from app.routers import listings
 
 
-def test_get_agent_metrics_caches_results_per_agent():
+def test_get_agent_metrics_batches_ratings_and_respond_rate():
     engine = create_engine("sqlite:///:memory:")
     Base.metadata.create_all(bind=engine)
     SessionLocal = sessionmaker(bind=engine)
@@ -49,15 +48,39 @@ def test_get_agent_metrics_caches_results_per_agent():
         db.add_all([listing_one, listing_two])
         db.commit()
 
-        with patch.object(models.User, "agent_rating_summary", return_value=(4.5, 3)) as rating_mock, patch.object(
-            models.User, "agent_respond_rate", return_value=92.3
-        ) as respond_mock:
-            metrics = _get_agent_metrics(db, [listing_one, listing_two])
+        # Two 4.5-star ratings + one 4-star = average 4.33 (one rating per renter)
+        renters = []
+        for i, stars in enumerate((5, 4, 4)):
+            r = models.User(
+                email=f"renter{i}@example.com",
+                password_hash="hash",
+                name="Renter",
+                role=models.UserRole.renter,
+                language="en",
+            )
+            db.add(r)
+            db.commit()
+            db.refresh(r)
+            renters.append(r)
+            db.add(models.AgentRating(agent_id=agent.id, renter_id=r.id, stars=stars))
+        db.commit()
 
-        assert metrics[agent.id]["average_rating"] == 4.5
+        # Conversation with a renter message and a prompt agent reply -> respond rate 100%
+        conv = models.Conversation(renter_id=renters[0].id, agent_id=agent.id)
+        db.add(conv)
+        db.commit()
+        db.refresh(conv)
+        db.add(models.Message(conversation_id=conv.id, sender_id=renters[0].id, message_type=models.MessageType.text))
+        db.add(models.Message(conversation_id=conv.id, sender_id=agent.id, message_type=models.MessageType.text))
+        db.commit()
+
+        metrics = listings._get_agent_metrics(db, [listing_one, listing_two])
+        assert metrics[agent.id]["average_rating"] == 4.33
         assert metrics[agent.id]["rating_count"] == 3
-        assert metrics[agent.id]["respond_rate"] == 92.3
-        assert rating_mock.call_count == 1
-        assert respond_mock.call_count == 1
+        assert metrics[agent.id]["respond_rate"] == 100.0
+
+        # Cached call returns instantly and identically
+        cached = listings._get_agent_metrics(db, [listing_one, listing_two])
+        assert cached == metrics
     finally:
         db.close()

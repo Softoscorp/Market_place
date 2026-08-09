@@ -3,16 +3,23 @@ import threading
 import time
 from functools import wraps
 
+from sqlalchemy.orm import Session
+
 
 def _primitive(value):
     """Reduce an arg to a hashable primitive; drop unhashable ones (Sessions, ORM)."""
+    if isinstance(value, Session):
+        # SQLAlchemy sessions ARE hashable (by identity), so we must explicitly
+        # exclude them — otherwise the cache key changes on every request and
+        # the cache never hits.
+        return f"<{type(value).__name__}>"
     if value is None or isinstance(value, (str, int, float, bool)):
         return value
     if isinstance(value, (list, tuple)):
         return tuple(_primitive(v) for v in value)
     if isinstance(value, dict):
         return tuple(sorted((k, _primitive(v)) for k, v in value.items()))
-    # Unhashable objects (db Session, dependency results) — skip from the key.
+    # Unhashable objects (dependency results) — skip from the key.
     try:
         hash(value)
         return f"<{type(value).__name__}:{id(value)}>"

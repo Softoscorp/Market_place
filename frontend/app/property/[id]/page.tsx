@@ -98,6 +98,7 @@ export default function PropertyPage({ params }: PropertyPageProps) {
       .then(async ([data, ratingData]) => {
         setProperty(data);
         setReviews(Array.isArray(ratingData) ? ratingData : ratingData?.items || []);
+        setLoading(false);
 
         const unique = (list: PropertyData[]) =>
           Array.from(new Map(list.map((p) => [p.id, p])).values()).filter((p) => p.id !== data.id);
@@ -131,7 +132,6 @@ export default function PropertyPage({ params }: PropertyPageProps) {
         } else {
           setSimilarProperties([]);
         }
-        setLoading(false);
       })
       .catch((err) => {
         if (err?.name === 'AbortError') return;

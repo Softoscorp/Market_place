@@ -124,6 +124,11 @@
   border: 2px solid var(--border);
 }
 
+.meAvatar > div {
+  border-radius: 50%;
+  border: 2px solid var(--border);
+}
+
 .cameraBtn {
   position: absolute;
   bottom: 0;
@@ -528,6 +533,8 @@ a.tile:hover {
   font-weight: 700;
   font-size: var(--text-sm);
   color: var(--text-primary);
+  display: inline-flex;
+  align-items: center;
 }
 
 .applyBtn {
@@ -646,6 +653,10 @@ a.tile:hover {
   border-radius: var(--radius-full);
   object-fit: cover;
   flex-shrink: 0;
+}
+
+.conversationItem .avatar {
+  border-radius: var(--radius-full);
 }
 
 .conversationInfo {

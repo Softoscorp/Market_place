@@ -20,7 +20,7 @@ import { useAuthStore } from '@/lib/store/useAuthStore';
 import { useChatStore } from '@/lib/store/useChatStore';
 import { useLanguageStore } from '@/lib/store/useLanguageStore';
 import { apiRequest, mediaUrl } from '@/lib/api';
-import { ProtectedImage } from '@/components/ui/ProtectedImage';
+import { BrandedAvatar } from '@/components/ui/BrandedAvatar';
 import { VerifiedBadge } from '@/components/ui/VerifiedBadge';
 import { AgentVerification } from '@/components/AgentVerification';
 import { isOnline, lastSeenText } from '@/lib/timeAgo';
@@ -233,11 +233,11 @@ export default function AgentDashboard() {
                   <div key={conv.contact.id} className={styles.crmCard}>
                     <div className={styles.crmCardHeader}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
-                        <ProtectedImage 
-                          src={(conv.contact.avatarUrl ? mediaUrl(conv.contact.avatarUrl) : '') || ''}
-                          fallbackSrc={`https://ui-avatars.com/api/?name=${encodeURIComponent(conv.contact.name || 'User')}&background=0F172A&color=fff&size=128&bold=true`}
-                          alt={conv.contact.name || 'User'} 
-                          style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover' }}
+                        <BrandedAvatar 
+                          src={conv.contact.avatarUrl ? mediaUrl(conv.contact.avatarUrl) : null}
+                          name={conv.contact.name || 'User'} 
+                          size={40}
+                          style={{ borderRadius: '50%' }}
                         />
                         <span className={styles.clientName}>{conv.contact.name}</span>
                       </div>

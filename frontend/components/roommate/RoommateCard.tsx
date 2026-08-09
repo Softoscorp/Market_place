@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { MessageCircle, Heart } from 'lucide-react';
+import { MessageCircle, Heart, Home, Users, BedDouble, Sofa } from 'lucide-react';
 import { useChatStore } from '@/lib/store/useChatStore';
 import { ProtectedImage } from '@/components/ui/ProtectedImage';
 import styles from './RoommateCard.module.css';
@@ -44,13 +44,16 @@ export function RoommateCard({
           <ProtectedImage src={imageUrl} fallbackSrc={imageUrl} alt={name} className={styles.photo} />
         ) : (
           <div className={`${styles.photo} ${styles.photoFallback}`}>
-            <span className={styles.photoIcon}>{profileType === 'housemate' ? '🛏️' : '🛋️'}</span>
+            <span className={styles.photoIcon}>
+              {profileType === 'housemate' ? <BedDouble size={42} /> : <Sofa size={42} />}
+            </span>
           </div>
         )}
         <div className={styles.overlay} />
         <div className={styles.matchPill}>{matchScore}% Match</div>
         <div className={`${styles.typePill} ${profileType === 'housemate' ? styles.typeHousemate : styles.typeRoommate}`}>
-          {profileType === 'housemate' ? '🏠 Housemate' : '🤝 Roommate'}
+          {profileType === 'housemate' ? <Home size={12} style={{ marginRight: 4 }} /> : <Users size={12} style={{ marginRight: 4 }} />}
+          {profileType === 'housemate' ? 'Housemate' : 'Roommate'}
         </div>
         <div className={styles.pricePill}>{budget} / mo</div>
       </div>

@@ -71,6 +71,8 @@
   cursor: pointer;
   user-select: none;
   transition: all var(--duration-fast) var(--ease-out);
+  display: inline-flex;
+  align-items: center;
 }
 
 .chip:hover {

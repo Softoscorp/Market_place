@@ -8,6 +8,7 @@ import { mediaUrl } from '@/lib/api';
 
 import styles from './ChatPanel.module.css';
 import { ProtectedImage } from '@/components/ui/ProtectedImage';
+import { BrandedAvatar } from '@/components/ui/BrandedAvatar';
 import { PropertyLinkCard } from '@/components/chat/PropertyLinkCard';
 import { isOnline } from '@/lib/timeAgo';
 import { useLanguageStore } from '@/lib/store/useLanguageStore';
@@ -301,12 +302,12 @@ export function ChatPanel() {
               <div className={styles.agentInfo}>
                 {activeConversation ? (
                   <>
-                    <ProtectedImage
-                      src={(activeConversation.contact.avatarUrl ? mediaUrl(activeConversation.contact.avatarUrl) : '') || ''}
-                      fallbackSrc={`https://ui-avatars.com/api/?name=${encodeURIComponent(activeConversation.contact.name || 'User')}&background=0F172A&color=fff&size=128&bold=true`}
-                      alt={activeConversation.contact.name || t('chat_user')}
+                    <BrandedAvatar
+                      src={activeConversation.contact.avatarUrl ? mediaUrl(activeConversation.contact.avatarUrl) : null}
+                      name={activeConversation.contact.name || t('chat_user')}
+                      size={40}
                       className={styles.avatar}
-                      style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover' }}
+                      style={{ borderRadius: '50%' }}
                     />
                     <div>
                       <h3 className={styles.agentName}>{activeConversation.contact.name}</h3>

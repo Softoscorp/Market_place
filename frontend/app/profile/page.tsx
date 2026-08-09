@@ -3,7 +3,7 @@
 import React, { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import styles from './ProfilePage.module.css';
-import { MessageSquare, LogOut, LayoutDashboard, Camera, ShieldCheck, ShieldAlert, Upload, Bookmark, User, Star, Settings } from 'lucide-react';
+import { MessageSquare, LogOut, LayoutDashboard, Camera, ShieldCheck, ShieldAlert, Upload, Bookmark, User, Star, Settings, IdCard, Award } from 'lucide-react';
 import { useChatStore, type Message } from '@/lib/store/useChatStore';
 import { useAuthStore } from '@/lib/store/useAuthStore';
 import Link from 'next/link';
@@ -14,6 +14,7 @@ import { apiRequest, mediaUrl, getToken, getSavedProperties, getAgentProfile } f
 import { useLanguageStore } from '@/lib/store/useLanguageStore';
 
 import { ProtectedImage } from '@/components/ui/ProtectedImage';
+import { BrandedAvatar } from '@/components/ui/BrandedAvatar';
 
 function previewText(msg: Message): string {
   if (msg.message_type === 'image') return '[Image]';
@@ -295,10 +296,10 @@ export default function ProfilePage() {
       {/* Identity row */}
       <div className={styles.me}>
         <div className={styles.meAvatar}>
-          <ProtectedImage 
-            src={user?.avatar_url ? (mediaUrl(user.avatar_url) || '') : `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=0F172A&color=fff&size=128&bold=true`}
-            fallbackSrc={`https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=0F172A&color=fff&size=128&bold=true`}
-            alt={displayName} 
+          <BrandedAvatar 
+            src={user?.avatar_url ? mediaUrl(user.avatar_url) : null}
+            name={displayName}
+            size={64}
           />
           <button 
             type="button"
@@ -476,7 +477,7 @@ export default function ProfilePage() {
                 return (
                   <div className={styles.verifyRow}>
                     <div className={styles.verifyTop}>
-                      <span className={styles.verifyTitle}>🪪 Tier 1 · Local</span>
+                      <span className={styles.verifyTitle}><IdCard size={15} style={{ marginRight: 6 }} /> Tier 1 · Local</span>
                       {isApproved ? (
                         <span className={`${styles.chipMini} ${styles.chipGreen}`}>✓ Verified</span>
                       ) : isPending ? (
@@ -508,7 +509,7 @@ export default function ProfilePage() {
                 return (
                   <div className={styles.verifyRow}>
                     <div className={styles.verifyTop}>
-                      <span className={styles.verifyTitle}>🏅 Tier 2 · International</span>
+                      <span className={styles.verifyTitle}><Award size={15} style={{ marginRight: 6 }} /> Tier 2 · International</span>
                       {isInternationalApproved ? (
                         <span className={`${styles.chipMini} ${styles.chipGreen}`}>✓ Premium Verified</span>
                       ) : isPending ? (
@@ -568,10 +569,10 @@ export default function ProfilePage() {
                       className={styles.conversationItem}
                       onClick={() => openChat(conv.contact)}
                     >
-                      <ProtectedImage 
-                        src={(conv.contact.avatarUrl ? mediaUrl(conv.contact.avatarUrl) : '') || ''}
-                        fallbackSrc={`https://ui-avatars.com/api/?name=${encodeURIComponent(conv.contact.name || 'User')}&background=0F172A&color=fff&size=128&bold=true`}
-                        alt={conv.contact.name || 'User'} 
+                      <BrandedAvatar 
+                        src={conv.contact.avatarUrl ? mediaUrl(conv.contact.avatarUrl) : null}
+                        name={conv.contact.name || 'User'} 
+                        size={40}
                         className={styles.avatar}
                       />
                       <div className={styles.conversationInfo}>

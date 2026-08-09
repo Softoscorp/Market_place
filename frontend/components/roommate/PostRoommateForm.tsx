@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useRef, useState } from 'react';
-import { X, Camera } from 'lucide-react';
+import { X, Camera, Home, Users } from 'lucide-react';
 import { apiRequest, mediaUrl } from '@/lib/api';
 import { useAuthStore } from '@/lib/store/useAuthStore';
 import styles from './PostRoommateForm.module.css';
@@ -144,14 +144,16 @@ export function PostRoommateForm({ onClose, onPosted }: PostRoommateFormProps) {
             className={`${styles.typeBtn} ${profileType === 'housemate' ? styles.typeBtnActive : ''}`}
             onClick={() => setProfileType('housemate')}
           >
-            🏠 Housemate
+            <Home size={18} style={{ marginBottom: 6 }} />
+            Housemate
             <span className={styles.typeHint}>I have a flat, one room is free</span>
           </button>
           <button
             className={`${styles.typeBtn} ${profileType === 'roommate' ? styles.typeBtnActive : ''}`}
             onClick={() => setProfileType('roommate')}
           >
-            🤝 Roommate
+            <Users size={18} style={{ marginBottom: 6 }} />
+            Roommate
             <span className={styles.typeHint}>I want to share a room</span>
           </button>
         </div>

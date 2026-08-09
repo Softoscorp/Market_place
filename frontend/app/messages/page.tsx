@@ -4,7 +4,7 @@ import React, { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useChatStore, type Message } from '@/lib/store/useChatStore';
 import { useAuthStore } from '@/lib/store/useAuthStore';
-import { ProtectedImage } from '@/components/ui/ProtectedImage';
+import { BrandedAvatar } from '@/components/ui/BrandedAvatar';
 import { mediaUrl } from '@/lib/api';
 import { isOnline, lastSeenText } from '@/lib/timeAgo';
 import styles from './MessagesPage.module.css';
@@ -54,7 +54,6 @@ export default function MessagesPage() {
           {convList.map((conv) => {
             const lastMsg = conv.messages[conv.messages.length - 1];
             const avatarSrc = conv.contact.avatarUrl ? mediaUrl(conv.contact.avatarUrl) : '';
-            const fallbackAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(conv.contact.name || 'User')}&background=0F172A&color=fff&size=128&bold=true`;
 
             return (
               <button
@@ -63,10 +62,9 @@ export default function MessagesPage() {
                 onClick={() => openChat(conv.contact)}
               >
                 <div className={styles.avatarWrap}>
-                  <ProtectedImage
-                    src={avatarSrc || fallbackAvatar}
-                    fallbackSrc={fallbackAvatar}
-                    alt={conv.contact.name}
+                  <BrandedAvatar
+                    src={avatarSrc || null}
+                    name={conv.contact.name}
                     className={styles.avatar}
                   />
                   {isOnline(conv.contact.lastSeenAt) && (

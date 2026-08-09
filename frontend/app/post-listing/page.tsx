@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/lib/store/useAuthStore';
 import { BackButton } from '@/components/ui/BackButton';
 import { VerifiedBadge } from '@/components/ui/VerifiedBadge';
-import { ProtectedImage } from '@/components/ui/ProtectedImage';
+import { BrandedAvatar } from '@/components/ui/BrandedAvatar';
 import styles from './PostListingPage.module.css';
 import { apiRequest, mediaUrl } from '@/lib/api';
 
@@ -301,17 +301,15 @@ export default function PostListingPage() {
 
           <div className={styles.previewSidebar}>
             {(() => {
-              const agentFallbackAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name || 'Agent')}&background=0F172A&color=fff&bold=true`;
-              const agentAvatarSrc = user?.avatar_url ? (mediaUrl(user.avatar_url) || agentFallbackAvatar) : agentFallbackAvatar;
+              const agentAvatarSrc = user?.avatar_url ? mediaUrl(user.avatar_url) : null;
               return (
                 <>
             <div className={styles.agentHeader}>
               <div className={styles.agentAvatar}>
-                <ProtectedImage
+                <BrandedAvatar
                   src={agentAvatarSrc}
-                  fallbackSrc={agentFallbackAvatar}
-                  alt={user?.name || 'Agent'}
-                  style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }}
+                  name={user?.name || 'Agent'}
+                  style={{ width: '100%', height: '100%', borderRadius: '50%' }}
                 />
               </div>
               <div className={styles.agentInfo}>
@@ -328,12 +326,8 @@ export default function PostListingPage() {
                 {previewUrls.length > 0 ? (
                   <img src={previewUrls[0]} alt="Listing preview" className={styles.previewCardImgEl} />
                 ) : (
-                  <ProtectedImage
-                    src="/images/placeholder-studio.jpg"
-                    fallbackSrc="/images/placeholder-studio.jpg"
-                    alt="Listing preview"
-                    className={styles.previewCardImgEl}
-                  />
+                  /* eslint-disable-next-line @next/next/no-img-element */
+                  <img src="/images/placeholder-studio.jpg" alt="Listing preview" className={styles.previewCardImgEl} />
                 )}
                 <div className={styles.previewCardScrim} />
                 <span className={styles.previewType}>{houseType}</span>
@@ -351,11 +345,10 @@ export default function PostListingPage() {
                 <div className={styles.previewCardFooter}>
                   <div className={styles.previewAgent}>
                     <div className={styles.previewAgentAvatar}>
-                      <ProtectedImage
+                      <BrandedAvatar
                         src={agentAvatarSrc}
-                        fallbackSrc={agentFallbackAvatar}
-                        alt=""
-                        style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }}
+                        name={user?.name || 'Agent'}
+                        style={{ width: '100%', height: '100%', borderRadius: '50%' }}
                       />
                     </div>
                     <span>{user?.name?.split(' ')[0] || 'Agent'}</span>

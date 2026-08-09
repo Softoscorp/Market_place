@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { RoommateCard } from '@/components/roommate/RoommateCard';
 import { PostRoommateForm } from '@/components/roommate/PostRoommateForm';
-import { Plus } from 'lucide-react';
+import { Plus, Home, Users, Banknote } from 'lucide-react';
 import { useLanguageStore } from '@/lib/store/useLanguageStore';
 import styles from './RoommatesPage.module.css';
 import { apiRequest, mediaUrl } from '@/lib/api';
@@ -31,6 +31,12 @@ interface Roommate {
 
 const CITY_CHIPS = ['Famagusta (EMU)', 'Nicosia (CIU/NEU)', 'Kyrenia (GAU)'];
 
+const BUDGET_RANGES = [
+  { label: 'Under £300', min: 0, max: 299 },
+  { label: '£300 – £500', min: 300, max: 500 },
+  { label: '£500+', min: 501, max: Infinity },
+];
+
 export default function RoommatesPage() {
   const { t } = useLanguageStore();
   const [showPostForm, setShowPostForm] = useState(false);
@@ -38,7 +44,7 @@ export default function RoommatesPage() {
   const [mounted, setMounted] = useState(false);
   const [typeFilter, setTypeFilter] = useState<'all' | 'housemate' | 'roommate'>('all');
   const [cityFilter, setCityFilter] = useState<string | null>(null);
-  const [budgetFilter, setBudgetFilter] = useState(false);
+  const [budgetRange, setBudgetRange] = useState<number | null>(null);
 
   useEffect(() => {
     const timer = setTimeout(() => setMounted(true), 0);
@@ -60,7 +66,10 @@ export default function RoommatesPage() {
   const filteredRoommates = roommates.filter((rm: Roommate) => {
     if (typeFilter !== 'all' && (rm.profile_type || 'roommate') !== typeFilter) return false;
     if (cityFilter && !(rm.looking_for_city || []).some(c => c.includes(cityFilter))) return false;
-    if (budgetFilter && rm.budget >= 300) return false;
+    if (budgetRange !== null) {
+      const range = BUDGET_RANGES[budgetRange];
+      if (rm.budget < range.min || rm.budget > range.max) return false;
+    }
     return true;
   });
 
@@ -91,10 +100,12 @@ export default function RoommatesPage() {
           All
         </span>
         <span className={`${styles.chip} ${typeFilter === 'housemate' ? styles.chipActive : ''}`} onClick={() => toggleChip('housemate')}>
-          🏠 Housemates
+          <Home size={14} style={{ marginRight: 6 }} />
+          Housemates
         </span>
         <span className={`${styles.chip} ${typeFilter === 'roommate' ? styles.chipActive : ''}`} onClick={() => toggleChip('roommate')}>
-          🤝 Roommates
+          <Users size={14} style={{ marginRight: 6 }} />
+          Roommates
         </span>
         {CITY_CHIPS.map((city) => {
           const key = city.split(' ')[0];
@@ -108,9 +119,16 @@ export default function RoommatesPage() {
             </span>
           );
         })}
-        <span className={`${styles.chip} ${budgetFilter ? styles.chipActive : ''}`} onClick={() => setBudgetFilter(!budgetFilter)}>
-          Budget &lt; £300
-        </span>
+        {BUDGET_RANGES.map((range, idx) => (
+          <span
+            key={range.label}
+            className={`${styles.chip} ${budgetRange === idx ? styles.chipActive : ''}`}
+            onClick={() => setBudgetRange(budgetRange === idx ? null : idx)}
+          >
+            <Banknote size={14} style={{ marginRight: 6 }} />
+            {range.label}
+          </span>
+        ))}
       </div>
 
       <div className={styles.resultsSection}>

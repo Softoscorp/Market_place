@@ -11,9 +11,10 @@ type BrandedAvatarProps = {
   name: string;
   size?: number;
   className?: string;
+  style?: React.CSSProperties;
 };
 
-export function BrandedAvatar({ src, name, size = 64, className }: BrandedAvatarProps) {
+export function BrandedAvatar({ src, name, size = 64, className, style }: BrandedAvatarProps) {
   const imageUrl = src
     ? src.startsWith('http')
       ? src
@@ -27,6 +28,7 @@ export function BrandedAvatar({ src, name, size = 64, className }: BrandedAvatar
         fallbackSrc={imageUrl}
         alt={name}
         className={className}
+        style={style}
       />
     );
   }
@@ -34,7 +36,7 @@ export function BrandedAvatar({ src, name, size = 64, className }: BrandedAvatar
   return (
     <div
       className={`${styles.fallback} ${className || ''}`}
-      style={{ width: size, height: size }}
+      style={{ width: size, height: size, ...style }}
       aria-label={name}
       role="img"
     >

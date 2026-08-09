@@ -2,11 +2,11 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Home, User, ChevronDown, Globe, Heart, Menu, X, MessageSquare } from 'lucide-react';
+import { User, ChevronDown, Globe, Heart, Menu, X, MessageSquare } from 'lucide-react';
 import { useAuthStore } from '@/lib/store/useAuthStore';
 import { useLanguageStore } from '@/lib/store/useLanguageStore';
 import { useChatStore } from '@/lib/store/useChatStore';
-import { PremiumIcon } from '@/components/ui/PremiumIcon';
+import { Logo } from '@/components/layout/Logo';
 import styles from './Navbar.module.css';
 
 export function Navbar() {
@@ -49,8 +49,11 @@ export function Navbar() {
     <>
       <nav className={styles.navbar}>
         <Link href="/" className={styles.logo}>
-          <PremiumIcon icon={Home} size={18} colorVariant="accent" />
-          House Agent
+          <Logo height={30} />
+          <span className={styles.wordmark}>
+            <span>HOUSE</span>
+            <span className={styles.wordAccent}>AGENT</span>
+          </span>
         </Link>
 
         <div className={styles.links}>

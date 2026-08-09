@@ -24,8 +24,22 @@
   font-weight: 700;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   letter-spacing: -0.02em;
+}
+
+.wordmark {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 2px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: #08192f;
+  line-height: 1;
+}
+
+.wordAccent {
+  color: #b18842;
 }
 
 .links {

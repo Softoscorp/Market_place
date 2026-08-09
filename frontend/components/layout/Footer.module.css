@@ -46,20 +46,12 @@
   bottom: 0;
   left: 0;
   right: 0;
-  background-color: var(--bg-glass);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
+  background-color: var(--bg-surface);
   border-top: 1px solid var(--border-subtle);
   padding: var(--space-3) var(--space-6);
   justify-content: space-between;
   z-index: 50;
-  padding-bottom: env(safe-area-inset-bottom, 12px);
-}
-
-@media (prefers-color-scheme: dark) {
-  .bottomBar {
-    background-color: var(--bg-glass);
-  }
+  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + var(--space-3));
 }
 
 .tabBtn {

@@ -194,11 +194,7 @@
     justify-content: center;
   }
   .imageContainer {
-    height: 350px;
-    transform: none;
-  }
-  .imageContainer:hover {
-    transform: none;
+    display: none;
   }
 }
 

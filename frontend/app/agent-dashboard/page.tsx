@@ -432,7 +432,7 @@ export default function AgentDashboard() {
               {lastSeenText(user?.last_seen_at)}
             </div>
             
-            <VerifiedBadge tier={user?.verification_tier || 'none'} label />
+            <VerifiedBadge tier={user?.verification_tier || 'none'} />
           </div>
         </div>
         <div className={styles.contentArea}>

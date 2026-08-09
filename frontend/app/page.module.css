@@ -70,6 +70,17 @@
   gap: var(--space-4); /* reduced from 6 */
 }
 
+/* Browse-by-Location: show on laptop, hide on phone (phone users want apartments) */
+.locationsSection {
+  display: block;
+}
+
+@media (max-width: 768px) {
+  .locationsSection {
+    display: none;
+  }
+}
+
 .uniCard {
   background: var(--bg-surface);
   border: 1px solid var(--border-subtle);

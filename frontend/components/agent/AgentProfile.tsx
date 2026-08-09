@@ -63,7 +63,7 @@ export function AgentProfile({
         
         <div className={styles.info}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', marginBottom: 'var(--space-1)' }}>
-            <h1 className={styles.name} style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>{name}<VerifiedBadge tier={verificationTier} label /></h1>
+            <h1 className={styles.name} style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>{name}<VerifiedBadge tier={verificationTier} /></h1>
             {lastSeenAt && (
               <span className={isOnline(lastSeenAt) ? styles.statusOnline : styles.statusOffline}>
                 <span className={styles.statusDot} />

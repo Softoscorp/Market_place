@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { Search, ArrowRight, Users, ShieldCheck } from "lucide-react";
 import { motion } from "framer-motion";
 import { PremiumIcon } from "@/components/ui/PremiumIcon";
@@ -11,8 +10,6 @@ import { PropertyCard } from "@/components/property/PropertyCard";
 import { AgentCard } from "@/components/agent/AgentCard";
 import styles from "./page.module.css";
 import { apiRequest, mediaUrl } from "@/lib/api";
-import { useAuthStore } from "@/lib/store/useAuthStore";
-import { useChatStore } from "@/lib/store/useChatStore";
 import { Skeleton } from "@/components/ui/Skeleton";
 
 import { useLanguageStore } from "@/lib/store/useLanguageStore";
@@ -57,10 +54,7 @@ interface AgentData {
 }
 
 export default function HomePage() {
-  const router = useRouter();
   const { t } = useLanguageStore();
-  const { isAuthenticated } = useAuthStore();
-  const { openChat } = useChatStore();
   const [featuredProperties, setFeaturedProperties] = useState<PropertyData[]>([]);
   const [topAgents, setTopAgents] = useState<AgentData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -91,8 +85,8 @@ export default function HomePage() {
 
     apiRequest("/agents", { auth: false })
       .then((data) => {
-        // Filter out Demo Agent
-        const filteredAgents = (data || []).filter((agent: AgentData) => agent.name !== 'Demo Agent');
+        // Filter out Demo Agent and placeholder/test agents
+        const filteredAgents = (data || []).filter((agent: AgentData) => agent.name !== 'Demo Agent' && agent.name !== 'Unverified Agent');
 
         // Sort by online status (online first)
         filteredAgents.sort((a: AgentData, b: AgentData) => {
@@ -174,7 +168,7 @@ export default function HomePage() {
 
         {/* Locations Section */}
         <motion.section 
-          className={`${styles.section} section`}
+          className={`${styles.locationsSection} section`}
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-100px" }}
@@ -295,13 +289,7 @@ export default function HomePage() {
                   respondRate={agent.respond_rate}
                   lastSeenAt={agent.last_seen_at}
                   verificationTier={agent.verification_tier}
-                  onContact={() => {
-                    if (!isAuthenticated) {
-                      router.push('/login');
-                      return;
-                    }
-                    openChat({ id: String(agent.id), name: agent.name, avatarUrl: agent.avatar_url ? mediaUrl(agent.avatar_url) || '' : '' });
-                  }}
+                  compact
                 />
               ))
             )}

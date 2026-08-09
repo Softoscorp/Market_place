@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { Info, Users } from 'lucide-react';
+import { Info, Users, ChevronLeft, ChevronRight } from 'lucide-react';
 import { AgentCard } from '@/components/agent/AgentCard';
 import { AgentTierModal } from '@/components/agent/AgentTierModal';
 import { useLanguageStore } from '@/lib/store/useLanguageStore';
@@ -34,6 +34,8 @@ export default function AgentsPage() {
   const [agents, setAgents] = useState<Agent[]>([]);
   const [loading, setLoading] = useState(true);
   const [showTierModal, setShowTierModal] = useState(false);
+  const [page, setPage] = useState(1);
+  const AGENTS_PER_PAGE = 6;
 
   useEffect(() => {
     // Show tier modal once per browser
@@ -115,13 +117,16 @@ export default function AgentsPage() {
           <p>{t('no_agents_sub')}</p>
         </div>
       ) : (
+        <>
         <motion.div
           className={styles.grid}
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.1, ease: [0.2, 0.8, 0.2, 1] }}
         >
-          {agents.map((agent) => (
+          {agents
+            .slice((page - 1) * AGENTS_PER_PAGE, page * AGENTS_PER_PAGE)
+            .map((agent) => (
               <AgentCard
                 key={agent.id}
                 agentId={agent.id}
@@ -144,6 +149,38 @@ export default function AgentsPage() {
               />
           ))}
         </motion.div>
+
+        {agents.length > AGENTS_PER_PAGE && (
+          <nav className={styles.pagination} aria-label="Agents pagination">
+            <button
+              className={styles.pageBtn}
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={page === 1}
+              aria-label="Previous page"
+            >
+              <ChevronLeft size={16} />
+            </button>
+            {Array.from({ length: Math.ceil(agents.length / AGENTS_PER_PAGE) }).map((_, i) => (
+              <button
+                key={i}
+                className={`${styles.pageBtn} ${page === i + 1 ? styles.active : ''}`}
+                onClick={() => setPage(i + 1)}
+                aria-label={`Page ${i + 1}`}
+              >
+                {i + 1}
+              </button>
+            ))}
+            <button
+              className={styles.pageBtn}
+              onClick={() => setPage((p) => Math.min(Math.ceil(agents.length / AGENTS_PER_PAGE), p + 1))}
+              disabled={page === Math.ceil(agents.length / AGENTS_PER_PAGE)}
+              aria-label="Next page"
+            >
+              <ChevronRight size={16} />
+            </button>
+          </nav>
+        )}
+        </>
       )}
 
       <AgentTierModal 

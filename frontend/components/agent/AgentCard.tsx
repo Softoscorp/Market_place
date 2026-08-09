@@ -21,6 +21,7 @@ interface AgentCardProps {
   lastSeenAt?: string | null;
   verificationTier?: 'none' | 'local' | 'international';
   onContact?: () => void;
+  compact?: boolean;
 }
 
 export function AgentCard({
@@ -34,7 +35,8 @@ export function AgentCard({
   respondRate,
   lastSeenAt,
   verificationTier = 'none',
-  onContact
+  onContact,
+  compact = false
 }: AgentCardProps) {
   const { t } = useLanguageStore();
   const defaultAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=0F172A&color=fff&bold=true`;
@@ -46,7 +48,7 @@ export function AgentCard({
   const statusText = lastSeenText(lastSeenAt);
 
   return (
-    <div className={styles.card}>
+    <div className={`${styles.card} ${compact ? styles.compact : ''}`}>
       <div className={styles.header}>
         <div className={styles.avatarWrapper}>
           <ProtectedImage src={avatarSrc} fallbackSrc={defaultAvatar} alt={name} className={styles.avatar} />
@@ -62,7 +64,7 @@ export function AgentCard({
         <div className={styles.info}>
           <Link href={`/agent/${agentId}`} style={{ textDecoration: 'none', color: 'inherit' }}>
             <h3 className={styles.name} style={{ cursor: 'pointer' }}>
-              {name}
+              <span className={styles.nameText}>{name}</span>
               <VerifiedBadge tier={verificationTier} />
             </h3>
           </Link>
@@ -96,9 +98,11 @@ export function AgentCard({
         )}
       </div>
 
-      <button className={styles.contactBtn} onClick={onContact}>
-        {t('contact_agent')}
-      </button>
+      {!compact && onContact && (
+        <button className={styles.contactBtn} onClick={onContact}>
+          {t('contact_agent')}
+        </button>
+      )}
     </div>
   );
 }

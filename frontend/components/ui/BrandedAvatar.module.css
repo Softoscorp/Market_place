@@ -2,11 +2,15 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #f2f0ea;
+  background: #08192f;
   border: 2px solid #08192f;
   overflow: hidden;
 }
 
-.fallback svg {
-  opacity: 0.95;
+.initials {
+  font-family: var(--font-heading);
+  font-weight: 800;
+  color: #b18842;
+  letter-spacing: 0.02em;
+  line-height: 1;
 }

@@ -60,7 +60,7 @@ export function AgentCard({
         <div className={styles.info}>
           <Link href={`/agent/${agentId}`} style={{ textDecoration: 'none', color: 'inherit' }}>
             <h3 className={styles.name} style={{ cursor: 'pointer' }}>
-              <span className={styles.nameText}>{name}</span>
+              <span className={styles.nameText}>{name.trim()}</span>
               <VerifiedBadge tier={verificationTier} />
             </h3>
           </Link>

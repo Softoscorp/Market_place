@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { ProtectedImage } from '@/components/ui/ProtectedImage';
 import { mediaUrl } from '@/lib/api';
 import styles from './BrandedAvatar.module.css';
@@ -14,22 +14,23 @@ type BrandedAvatarProps = {
 };
 
 function initialsOf(name: string): string {
-  const words = name
-    .trim()
-    .split(/\s+/)
-    .filter(Boolean)
-    .map(w => w[0].toUpperCase());
-  return words.slice(0, 2).join('');
+  const trimmed = name.trim();
+  if (!trimmed) return '?';
+  const words = trimmed.split(/\s+/);
+  if (words.length >= 2) return (words[0][0] + words[1][0]).toUpperCase();
+  return trimmed.slice(0, 2).toUpperCase();
 }
 
 export function BrandedAvatar({ src, name, size = 64, className, style }: BrandedAvatarProps) {
+  const [imageFailed, setImageFailed] = useState(false);
+
   const imageUrl = src
     ? src.startsWith('http')
       ? src
       : mediaUrl(src) || null
     : null;
 
-  if (imageUrl) {
+  if (imageUrl && !imageFailed) {
     return (
       <ProtectedImage
         src={imageUrl}
@@ -37,6 +38,7 @@ export function BrandedAvatar({ src, name, size = 64, className, style }: Brande
         alt={name}
         className={className}
         style={style}
+        onError={() => setImageFailed(true)}
       />
     );
   }

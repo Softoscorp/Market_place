@@ -143,9 +143,7 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
           <span className={styles.agentName}>{agentName}<VerifiedBadge tier={verificationTier} size="sm" /></span>
           {agentRating && agentRating > 0 ? (
             <StarRating rating={agentRating} size={13} showText />
-          ) : (
-            <span className={styles.newAgent}>New</span>
-          )}
+          ) : null}
         </div>
         <div className={styles.term}>
           <span className={styles.termLabel}>Move-in</span>

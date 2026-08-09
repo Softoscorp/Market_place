@@ -209,12 +209,6 @@
   text-overflow: ellipsis;
 }
 
-.newAgent {
-  font-size: var(--text-xs);
-  color: var(--text-secondary);
-  font-weight: 600;
-}
-
 .term {
   display: flex;
   flex-direction: column;

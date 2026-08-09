@@ -173,7 +173,8 @@
     gap: var(--space-6);
   }
   .heroImage {
-    display: none;
+    width: 100%;
+    max-width: none;
   }
 }
 

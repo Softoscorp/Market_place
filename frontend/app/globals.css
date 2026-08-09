@@ -181,8 +181,15 @@ body {
     radial-gradient(at 100% 100%, rgba(0, 0, 0, 0.02) 0px, transparent 50%);
   background-attachment: fixed;
   min-height: 100vh;
+  display: flex;
+  flex-direction: column;
   overflow-x: hidden;
   letter-spacing: -0.01em;
+}
+
+main {
+  flex: 1 0 auto;
+  width: 100%;
 }
 
 /* ── Typography ────────────────────────────────────────────── */

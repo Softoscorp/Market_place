@@ -1,17 +1,42 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+import os
+import uuid
+
+from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File
 from sqlalchemy.orm import Session
 from typing import List
 
 from ..database import get_db
 from .. import models, schemas
 from ..dependencies import get_current_user
+from ..services.supabase_storage import upload_file
+from ..services.file_validation import validate_image
 
 router = APIRouter(prefix="/roommates", tags=["Roommates"])
 
 @router.get("", response_model=List[schemas.RoommateProfileOut])
 def list_roommates(db: Session = Depends(get_db)):
-    profiles = db.query(models.RoommateProfile).all()
+    profiles = db.query(models.RoommateProfile).order_by(models.RoommateProfile.created_at.desc()).all()
     return profiles
+
+@router.post("/photo", response_model=schemas.PhotoUploadOut, status_code=status.HTTP_201_CREATED)
+def upload_roommate_photo(
+    file: UploadFile = File(...),
+    current_user: models.User = Depends(get_current_user),
+):
+    ext = os.path.splitext(file.filename or "")[1] or ".jpg"
+    ext = ext.lower() if ext in {".jpg", ".jpeg", ".png", ".webp", ".gif"} else ".jpg"
+    filename = f"{uuid.uuid4().hex}{ext}"
+    path = f"roommates/{filename}"
+
+    file_bytes = validate_image(file)
+
+    url = upload_file(
+        file_bytes,
+        "rental-media",
+        path,
+        "image/jpeg" if ext == ".jpg" else ("image/png" if ext == ".png" else ("image/webp" if ext == ".webp" else "image/gif")),
+    )
+    return {"url": url}
 
 @router.post("", response_model=schemas.RoommateProfileOut, status_code=status.HTTP_201_CREATED)
 def create_roommate_profile(

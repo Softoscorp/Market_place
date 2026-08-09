@@ -2,7 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { RoommateCard } from '@/components/roommate/RoommateCard';
-import { Search, MapPin, DollarSign, User } from 'lucide-react';
+import { PostRoommateForm } from '@/components/roommate/PostRoommateForm';
+import { Search, MapPin, DollarSign, User, Plus } from 'lucide-react';
 import { PremiumIcon } from '@/components/ui/PremiumIcon';
 import { useLanguageStore } from '@/lib/store/useLanguageStore';
 import styles from './RoommatesPage.module.css';
@@ -16,6 +17,7 @@ interface Roommate {
   profile_type?: string;
   house_type?: string;
   nationality?: string;
+  avatar_url?: string | null;
   user: {
     name: string;
     avatar_url?: string;
@@ -26,6 +28,7 @@ interface Roommate {
 export default function RoommatesPage() {
   const { t } = useLanguageStore();
   const [showMatchForm, setShowMatchForm] = useState(false);
+  const [showPostForm, setShowPostForm] = useState(false);
   const [roommates, setRoommates] = useState<Roommate[]>([]);
   const [mounted, setMounted] = useState(false);
 
@@ -33,6 +36,16 @@ export default function RoommatesPage() {
   useEffect(() => {
     const timer = setTimeout(() => setMounted(true), 0);
     return () => clearTimeout(timer);
+  }, []);
+
+  const loadRoommates = () => {
+    apiRequest('/roommates', { auth: false })
+      .then(data => setRoommates(data || []))
+      .catch(console.error);
+  };
+
+  useEffect(() => {
+    loadRoommates();
   }, []);
 
   // New state for prioritized matching
@@ -84,12 +97,21 @@ export default function RoommatesPage() {
             className={styles.searchInput}
           />
         </div>
-        <button 
-          className={styles.matchBtn}
-          onClick={() => setShowMatchForm(!showMatchForm)}
-        >
-          {showMatchForm ? 'Hide Match Filters' : 'Match Filters'}
-        </button>
+        <div className={styles.actionBtns}>
+          <button
+            className={styles.postBtn}
+            onClick={() => setShowPostForm(true)}
+          >
+            <Plus size={16} style={{ marginRight: 6 }} />
+            Post a Housemate Ad
+          </button>
+          <button 
+            className={styles.matchBtn}
+            onClick={() => setShowMatchForm(!showMatchForm)}
+          >
+            {showMatchForm ? 'Hide Match Filters' : 'Match Filters'}
+          </button>
+        </div>
       </div>
 
       <div className={styles.content}>
@@ -169,7 +191,7 @@ export default function RoommatesPage() {
                 name={roommate.user?.name || 'User'}
                 age={20}
                 occupation={roommate.occupation}
-                imageUrl={mediaUrl(roommate.user?.avatar_url) || ''}
+                imageUrl={mediaUrl(roommate.avatar_url) || mediaUrl(roommate.user?.avatar_url) || ''}
                 matchScore={85}
                 sharedInterests={roommate.habits?.slice(0, 3) || []}
                 budget={`£${roommate.budget}`}
@@ -181,6 +203,16 @@ export default function RoommatesPage() {
           </div>
         </motion.div>
       </div>
+
+      {showPostForm && (
+        <PostRoommateForm
+          onClose={() => setShowPostForm(false)}
+          onPosted={() => {
+            setShowPostForm(false);
+            loadRoommates();
+          }}
+        />
+      )}
     </motion.div>
   );
 }

@@ -19,13 +19,27 @@
   gap: var(--space-3);
 }
 
-.title {
-  font-family: var(--font-heading);
-  color: var(--text-primary);
-  font-size: var(--text-lg);
-  font-weight: 700;
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   margin: 0 0 var(--space-2) 0;
-  letter-spacing: -0.02em;
+}
+
+.brandText {
+  font-family: var(--font-heading);
+  font-size: var(--text-lg);
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: #08192f;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 2px;
+  line-height: 1;
+}
+
+.brandAccent {
+  color: #b18842;
 }
 
 .link {

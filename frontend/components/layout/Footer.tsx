@@ -4,7 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Home, Search, Users, MessageSquare, User } from 'lucide-react';
-import { PremiumIcon } from '@/components/ui/PremiumIcon';
+import { Logo } from '@/components/layout/Logo';
 import { useLanguageStore } from '@/lib/store/useLanguageStore';
 import { useChatStore } from '@/lib/store/useChatStore';
 import { useAuthStore } from '@/lib/store/useAuthStore';
@@ -28,10 +28,13 @@ export function Footer() {
       <footer className={styles.footer}>
         <div className={styles.content}>
           <div className={styles.column}>
-            <h3 className={styles.title}>
-              <PremiumIcon icon={Home} size={20} colorVariant="accent" />
-              House Agent
-            </h3>
+            <div className={styles.brand}>
+              <Logo height={36} />
+              <span className={styles.brandText}>
+                HOUSE
+                <span className={styles.brandAccent}>AGENT</span>
+              </span>
+            </div>
             <p style={{ color: 'var(--text-secondary)', fontSize: 'var(--text-sm)', lineHeight: 1.5 }}>
               {t('footer_tagline')}
             </p>
@@ -41,6 +44,7 @@ export function Footer() {
             <Link href="/about" className={styles.link}>{t('footer_about')}</Link>
             <Link href="/contact" className={styles.link}>{t('footer_contact')}</Link>
             <Link href="/terms" className={styles.link}>{t('footer_terms')}</Link>
+            <Link href="/privacy" className={styles.link}>{t('footer_privacy')}</Link>
           </div>
         </div>
       </footer>

@@ -239,9 +239,45 @@
     flex-direction: column;
   }
 
+.actionBtns {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.postBtn {
+  padding: 0 1.5rem;
+  background-color: #08192f;
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-full);
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  transition: transform var(--duration-fast) var(--ease-out), background-color var(--duration-fast) var(--ease-out);
+  box-shadow: var(--shadow-sm);
+}
+
+.postBtn:hover {
+  transform: scale(1.02);
+  background-color: #b18842;
+}
+
+.postBtn:active {
+  transform: scale(0.98);
+}
+
+  .actionBtns {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .postBtn,
   .matchBtn {
     padding: 1rem;
     width: 100%;
+    justify-content: center;
   }
 
   .content {

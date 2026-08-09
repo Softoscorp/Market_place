@@ -442,6 +442,10 @@ class RoommateProfileOut(BaseModel):
     user: PublicUserOut
 
 
+class PhotoUploadOut(BaseModel):
+    url: str
+
+
 class SavedPropertyOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     id: int

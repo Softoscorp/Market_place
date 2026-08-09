@@ -1,185 +1,209 @@
 .card {
   background-color: var(--bg-surface);
-  border-radius: var(--radius-xl);
+  border-radius: 16px;
+  overflow: hidden;
   border: 1px solid var(--border-subtle);
-  padding: var(--space-6);
+  box-shadow: var(--shadow-sm);
   display: flex;
   flex-direction: column;
-  gap: var(--space-5);
   transition: transform var(--duration-normal) var(--ease-spring), box-shadow var(--duration-normal) var(--ease-spring);
-  box-shadow: var(--shadow-sm);
 }
 
 .card:hover {
-  transform: translateY(-4px) scale(1.01);
-  border-color: var(--border-hover);
+  transform: translateY(-5px);
   box-shadow: var(--shadow-md);
+  border-color: var(--border-hover);
 }
 
-.header {
-  display: flex;
-  align-items: center;
-  gap: var(--space-4);
+.photoWrap {
   position: relative;
-}
-
-.avatarWrapper {
-  position: relative;
-  width: 72px;
-  height: 72px;
-  border-radius: 50%;
+  height: 200px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.avatarRing {
+.photo {
   position: absolute;
-  top: 0;
-  left: 0;
+  inset: 0;
   width: 100%;
   height: 100%;
-  border-radius: 50%;
-  border: 3px solid var(--text-primary);
-  border-top-color: transparent;
-  transform: rotate(45deg);
-}
-
-.avatar {
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
   object-fit: cover;
-  z-index: 1;
-  border: 2px solid var(--bg-surface);
 }
 
-.matchScoreBadge {
+.photoFallback {
+  background: linear-gradient(135deg, #1e3a5f 0%, #0f2747 100%);
+}
+
+.photoIcon {
+  font-size: 42px;
+  opacity: 0.9;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+
+.overlay {
   position: absolute;
-  bottom: -4px;
-  right: -4px;
-  background-color: var(--text-primary);
-  color: var(--text-inverse);
-  font-size: var(--text-xs);
+  inset: 0;
+  background: linear-gradient(to top, rgba(8, 25, 47, 0.35) 0%, transparent 45%);
+  pointer-events: none;
+}
+
+.matchPill {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background: rgba(8, 25, 47, 0.92);
+  color: #fff;
+  border-radius: 999px;
+  padding: 5px 12px;
+  font-size: 12px;
   font-weight: 700;
-  padding: 2px 8px;
-  border-radius: var(--radius-full);
-  border: 2px solid var(--bg-surface);
-  z-index: 2;
   box-shadow: var(--shadow-sm);
 }
 
-.info {
+.typePill {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  border-radius: 999px;
+  padding: 5px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+  box-shadow: var(--shadow-sm);
+}
+
+.typeHousemate {
+  background: #b18842;
+}
+
+.typeRoommate {
+  background: #12335c;
+}
+
+.pricePill {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  background: rgba(255, 255, 255, 0.95);
+  color: #08192f;
+  border-radius: 10px;
+  padding: 6px 12px;
+  font-weight: 800;
+  font-size: 15px;
+  box-shadow: var(--shadow-sm);
+}
+
+.body {
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
   flex: 1;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
 }
 
 .name {
   font-family: var(--font-heading);
-  font-size: var(--text-lg);
-  font-weight: 700;
-  color: var(--text-primary);
-  margin: 0 0 var(--space-1) 0;
+  font-size: 19px;
+  font-weight: 800;
+  color: #08192f;
+  margin: 0;
   letter-spacing: -0.02em;
 }
 
+.name small {
+  color: var(--text-muted);
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.location {
+  color: #b18842;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+  max-width: 45%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .details {
-  font-size: var(--text-sm);
+  font-size: 13px;
   font-weight: 500;
   color: var(--text-secondary);
-  margin: 0;
+  margin: 6px 0 0;
 }
 
 .tags {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-2);
+  gap: 6px;
+  margin-top: 14px;
 }
 
 .tag {
-  background-color: var(--bg-hover);
+  background: #f0efec;
   color: var(--text-secondary);
-  font-size: var(--text-xs);
-  font-weight: 500;
-  padding: var(--space-2) var(--space-3);
-  border-radius: var(--radius-full);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 5px 10px;
+  border-radius: 999px;
   border: 1px solid var(--border-subtle);
 }
 
-.tagMatch {
-  background-color: var(--success-muted);
-  color: var(--success-text);
-  border-color: var(--success-border);
-}
-
-.typeBadges {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin-top: 6px;
-}
-
-.tagRoommate {
-  background-color: var(--blue-muted);
-  color: var(--blue);
-  border-color: var(--blue-border);
-}
-
-.tagHousemate {
-  background-color: var(--warning-muted);
-  color: var(--warning-text);
-  border-color: var(--warning-border);
+.tagGold {
+  background: rgba(177, 136, 66, 0.14);
+  color: #8a6a2f;
+  border-color: rgba(177, 136, 66, 0.25);
 }
 
 .actions {
   display: flex;
-  gap: var(--space-3);
-  margin-top: var(--space-2);
+  gap: 10px;
+  margin-top: 16px;
 }
 
 .btnPrimary {
   flex: 1;
-  background-color: var(--text-primary);
-  color: var(--text-inverse);
+  background: #08192f;
+  color: #fff;
   border: none;
-  border-radius: var(--radius-full);
-  padding: var(--space-3);
-  font-weight: 600;
+  border-radius: 999px;
+  padding: 12px;
+  font-weight: 700;
   cursor: pointer;
-  transition: transform var(--duration-fast) var(--ease-out), opacity var(--duration-fast) var(--ease-out);
+  font-size: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: var(--shadow-sm);
+  transition: background var(--duration-fast) var(--ease-out);
 }
 
 .btnPrimary:hover {
-  transform: scale(1.02);
-  opacity: 0.9;
-}
-
-.btnPrimary:active {
-  transform: scale(0.98);
+  background: #b18842;
 }
 
 .btnSecondary {
-  background-color: transparent;
-  color: var(--text-secondary);
+  width: 46px;
+  background: transparent;
   border: 1px solid var(--border);
-  border-radius: var(--radius-full);
-  padding: var(--space-3) var(--space-4);
+  border-radius: 999px;
+  color: #08192f;
   cursor: pointer;
-  transition: all var(--duration-fast) var(--ease-out);
+  font-size: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: all var(--duration-fast) var(--ease-out);
 }
 
 .btnSecondary:hover {
-  background-color: var(--bg-hover);
-  color: var(--text-primary);
+  background: #f0efec;
   border-color: var(--border-hover);
-}
-
-.btnSecondary:active {
-  transform: scale(0.95);
 }

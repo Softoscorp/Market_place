@@ -113,8 +113,8 @@ export const translations = {
     // Profile & Roommates
     profile_title: 'My Profile',
     profile_sub: 'Manage your details and roommate search status',
-    roommates_title: 'Find Compatible Roommates',
-    roommates_sub: 'Connect with verified students and renters in North Cyprus.',
+    roommates_title: 'Find a housemate, or post your free room.',
+    roommates_sub: 'Browse verified students and tenants in North Cyprus. Filter by city, budget and habits — message them instantly.',
 
     // Common
     loading: 'Loading...',
@@ -293,8 +293,8 @@ export const translations = {
     // Profile & Roommates
     profile_title: 'Profilim',
     profile_sub: 'Detaylarınızı ve oda arkadaşı arama durumunuzu yönetin',
-    roommates_title: 'Uyumlu Oda Arkadaşı Bul',
-    roommates_sub: 'Kuzey Kıbrıs\'taki onaylı öğrenciler ve kiracılarla iletişim kurun.',
+    roommates_title: 'Bir ev arkadaşı bul veya boş odanı ilan et.',
+    roommates_sub: 'Kuzey Kıbrıs\'taki onaylı öğrenci ve kiracılara göz atın. Şehre, bütçeye ve alışkanlıklara göre filtreleyin — anında mesaj gönderin.',
 
     // Common
     loading: 'Yükleniyor...',

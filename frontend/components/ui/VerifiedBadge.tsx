@@ -62,7 +62,7 @@ export function VerifiedBadge({ tier = 'none', size = 'md', label = false }: Ver
   const isNone = !tier || tier === 'none';
   const isInternational = tier === 'international';
   const title = isNone
-    ? 'Agent — not verified yet'
+    ? 'Agent'
     : isInternational
       ? 'International verified agent'
       : 'Verified agent';
@@ -92,9 +92,11 @@ export function VerifiedBadge({ tier = 'none', size = 'md', label = false }: Ver
   return (
     <span className={styles.withLabel}>
       {badge}
-      <span className={clsx(styles.text, isNone ? styles.textNone : isInternational ? styles.textInt : styles.textLocal, size === 'sm' && styles.textSm)}>
-        {isNone ? 'Not Verified' : isInternational ? 'International' : 'Local'}
-      </span>
+      {!isNone && (
+        <span className={clsx(styles.text, isInternational ? styles.textInt : styles.textLocal, size === 'sm' && styles.textSm)}>
+          {isInternational ? 'International' : 'Local'}
+        </span>
+      )}
     </span>
   );
 }

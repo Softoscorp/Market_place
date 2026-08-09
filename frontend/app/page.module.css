@@ -50,66 +50,11 @@
   gap: var(--space-3); /* reduced from 6 */
 }
 
-@media (min-width: 640px) {
-  .grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: var(--space-4);
-  }
-}
-
 @media (min-width: 1024px) {
   .grid {
     grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: var(--space-5);
   }
-}
-
-.universityGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); /* reduced minmax */
-  gap: var(--space-4); /* reduced from 6 */
-}
-
-/* Browse-by-Location: show on laptop, hide on phone (phone users want apartments) */
-.locationsSection {
-  display: block;
-}
-
-@media (max-width: 768px) {
-  .locationsSection {
-    display: none;
-  }
-}
-
-.uniCard {
-  background: var(--bg-surface);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-lg); /* reduced from xl */
-  padding: var(--space-4); /* reduced from 8 */
-  text-align: center;
-  transition: all var(--duration-normal) var(--ease-spring);
-  cursor: pointer;
-  box-shadow: var(--shadow-sm);
-}
-
-.uniCard:hover {
-  transform: translateY(-6px) scale(1.02);
-  box-shadow: var(--shadow-md);
-  border-color: var(--border-hover);
-}
-
-.uniCard h3 {
-  color: var(--text-primary);
-  margin-bottom: var(--space-1);
-  font-weight: 700;
-  font-size: var(--text-base); /* reduced from xl */
-  letter-spacing: -0.02em;
-}
-
-.uniCard p {
-  color: var(--text-secondary);
-  font-size: var(--text-sm); /* reduced from base */
-  margin: 0 auto;
 }
 
 .howItWorks {

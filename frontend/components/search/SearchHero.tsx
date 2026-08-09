@@ -3,45 +3,42 @@
 import React, { useState } from 'react';
 import { Search } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { PremiumIcon } from '@/components/ui/PremiumIcon';
 import styles from './SearchHero.module.css';
 
 import { useRouter } from 'next/navigation';
 import { useLanguageStore } from '@/lib/store/useLanguageStore';
-import { ProtectedImage } from '@/components/ui/ProtectedImage';
+
+const CITY_CHIPS = ['Nicosia', 'Kyrenia', 'Famagusta', 'Lefke', 'Guzelyurt'];
 
 export function SearchHero() {
   const [query, setQuery] = useState('');
   const { t } = useLanguageStore();
   const router = useRouter();
 
-  const handleSearch = () => {
-    if (query.trim()) {
-      router.push(`/search?location=${encodeURIComponent(query.trim())}`);
+  const handleSearch = (value?: string) => {
+    const q = (value ?? query).trim();
+    if (q) {
+      router.push(`/search?location=${encodeURIComponent(q)}`);
     }
   };
 
   return (
     <section className={styles.hero}>
       <div className={styles.container}>
-        <motion.div 
+        <motion.div
           className={styles.content}
-          initial={{ opacity: 0, x: -30 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.8, ease: [0.2, 0.8, 0.2, 1] }}
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: [0.2, 0.8, 0.2, 1] }}
         >
-          <h1 className={styles.title}>{t('hero_title')}</h1>
-          <p className={styles.subtitle}>
-            {t('hero_subtitle')}
-          </p>
+          <h1 className={styles.title}>
+            {t('hero_title_pre')} <em>{t('hero_title_em')}</em> {t('hero_title_post')}
+          </h1>
+          <p className={styles.subtitle}>{t('hero_subtitle')}</p>
 
           <div className={styles.searchContainer}>
-            <motion.div 
-              className={styles.inputWrapper}
-              whileHover={{ scale: 1.01 }}
-              transition={{ duration: 0.3, ease: 'easeOut' }}
-            >
-              <PremiumIcon icon={Search} size={20} colorVariant="primary" className={styles.searchIcon} containerSize={40} />
+            <div className={styles.inputWrapper}>
+              <Search size={18} className={styles.searchIcon} aria-hidden="true" />
               <input
                 type="text"
                 className={styles.input}
@@ -49,28 +46,24 @@ export function SearchHero() {
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    handleSearch();
-                  }
+                  if (e.key === 'Enter') handleSearch();
                 }}
               />
-              <button className={styles.actionButton} onClick={handleSearch}>{t('hero_search_btn')}</button>
-            </motion.div>
+              <button className={styles.actionButton} onClick={() => handleSearch()}>{t('hero_search_btn')}</button>
+            </div>
           </div>
-        </motion.div>
 
-        <motion.div
-          className={styles.imageContainer}
-          initial={{ opacity: 0, x: 30, scale: 0.95 }}
-          animate={{ opacity: 1, x: 0, scale: 1 }}
-          transition={{ duration: 1, delay: 0.2, ease: [0.2, 0.8, 0.2, 1] }}
-        >
-          <ProtectedImage 
-            src="/hero-home.jpg" 
-            alt="Luxury home in North Cyprus" 
-            className={styles.heroImage}
-          />
-          <div className={styles.imageOverlay} aria-hidden="true" />
+          <div className={styles.chips}>
+            {CITY_CHIPS.map((city, idx) => (
+              <button
+                key={city}
+                className={`${styles.chip} ${idx === 0 ? styles.chipOn : ''}`}
+                onClick={() => handleSearch(city)}
+              >
+                {city}
+              </button>
+            ))}
+          </div>
         </motion.div>
       </div>
     </section>

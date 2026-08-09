@@ -23,9 +23,11 @@ export const translations = {
     nav_saved: 'Saved',
 
     // Homepage
-    hero_title: 'Find a home you can actually afford today.',
-    hero_subtitle: 'Discover premium spaces with transparent upfront move-in costs. Verified agents, compatible roommates, zero surprises.',
-    hero_search_placeholder: "Try 'Kyrenia 2+1 under £600'...",
+    hero_title_pre: 'Find your',
+    hero_title_em: 'perfect',
+    hero_title_post: 'home in North Cyprus',
+    hero_subtitle: 'Rentals, agents and roommates — all verified, all in one place.',
+    hero_search_placeholder: 'City, area or apartment…',
     hero_search_btn: 'Search',
     recently_added: 'Recently Added',
     recently_added_sub: 'Discover the newest properties on the market.',
@@ -200,9 +202,11 @@ export const translations = {
     nav_saved: 'Kaydedilenler',
 
     // Homepage
-    hero_title: 'Bugün gerçekten karşılayabileceğin bir ev bul.',
-    hero_subtitle: 'Şeffaf taşınma maliyetleriyle premium mekanlar. Onaylı emlakçılar, uyumlu oda arkadaşları, sıfır sürpriz.',
-    hero_search_placeholder: "'Girne 2+1 £600 altı' gibi ara...",
+    hero_title_pre: 'Kuzey Kıbrıs\'ta',
+    hero_title_em: 'mükemmel',
+    hero_title_post: 'evinizi bulun',
+    hero_subtitle: 'Kiralık evler, emlakçılar ve oda arkadaşları — hepsi onaylı, hepsi tek yerde.',
+    hero_search_placeholder: 'Şehir, bölge veya daire…',
     hero_search_btn: 'Ara',
     recently_added: 'Yeni Eklenenler',
     recently_added_sub: 'Piyasadaki en yeni mülkleri keşfedin.',

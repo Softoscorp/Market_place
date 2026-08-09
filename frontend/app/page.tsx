@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Search, ArrowRight, Users, ShieldCheck } from "lucide-react";
+import { ArrowRight, Search, Users, ShieldCheck } from "lucide-react";
 import { motion } from "framer-motion";
 import { PremiumIcon } from "@/components/ui/PremiumIcon";
 import { SearchHero } from "@/components/search/SearchHero";
@@ -17,15 +17,6 @@ import { useLanguageStore } from "@/lib/store/useLanguageStore";
 import { useScrollRestoration } from "@/lib/useScrollRestoration";
 
 import { isOnline } from "@/lib/timeAgo";
-
-// Locations to replace universities
-const LOCATIONS = [
-  { name: "Nicosia" },
-  { name: "Kyrenia" },
-  { name: "Famagusta" },
-  { name: "Lefke" },
-  { name: "Guzelyurt" }
-];
 
 interface PropertyData {
   upfront_rent_months?: number;
@@ -56,7 +47,6 @@ interface AgentData {
 export default function HomePage() {
   const { t } = useLanguageStore();
   const [featuredProperties, setFeaturedProperties] = useState<PropertyData[]>([]);
-  const [mostViewedProperties, setMostViewedProperties] = useState<PropertyData[]>([]);
   const [topAgents, setTopAgents] = useState<AgentData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -64,11 +54,10 @@ export default function HomePage() {
 
   useEffect(() => {
     let propertiesLoaded = false;
-    let mostViewedLoaded = false;
     let agentsLoaded = false;
 
     const checkLoading = () => {
-      if (propertiesLoaded && mostViewedLoaded && agentsLoaded) {
+      if (propertiesLoaded && agentsLoaded) {
         setIsLoading(false);
       }
     };
@@ -82,18 +71,6 @@ export default function HomePage() {
       .catch((err) => {
         console.error(err);
         propertiesLoaded = true;
-        checkLoading();
-      });
-
-    apiRequest("/listings?sort=most_viewed&page_size=6", { auth: false })
-      .then((data) => {
-        setMostViewedProperties(data.items || []);
-        mostViewedLoaded = true;
-        checkLoading();
-      })
-      .catch((err) => {
-        console.error(err);
-        mostViewedLoaded = true;
         checkLoading();
       });
 
@@ -146,7 +123,7 @@ export default function HomePage() {
           </div>
           <div className={styles.grid}>
             {isLoading ? (
-              Array.from({ length: 3 }).map((_, i) => (
+              Array.from({ length: 4 }).map((_, i) => (
                 <div key={i} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
                   <Skeleton width="100%" height={200} style={{ borderRadius: 'var(--radius-md)' }} />
                   <Skeleton width="80%" height={24} />
@@ -155,85 +132,7 @@ export default function HomePage() {
                 </div>
               ))
             ) : (
-              featuredProperties.slice(0, 3).map((prop) => (
-                <PropertyCard
-                  key={prop.id}
-                  id={prop.id.toString()}
-                  title={prop.title}
-                  location={prop.location}
-                  price={prop.price}
-                  currency="£"
-                  type={prop.house_type || 'Unknown'}
-                  bedrooms={parseInt(prop.house_type?.split('+')[0]) || 1}
-                  bathrooms={1}
-                  images={prop.photos?.length && prop.photos.length > 0 ? prop.photos.map((p: { url: string }) => mediaUrl(p.url) || '') : ['/images/placeholder-studio.jpg']}
-                  upfrontMonths={prop.upfront_rent_months}
-                  depositMonths={prop.deposit_months}
-                  commissionMonths={prop.commission_months}
-                  agentRating={prop.agent_average_rating}
-                  agentName={prop.agent?.name || 'Agent'}
-                  agentAvatar={prop.agent?.avatar_url ? mediaUrl(prop.agent.avatar_url) : undefined}
-                  verificationTier={prop.agent?.verification_tier}
-                />
-              ))
-            )}
-          </div>
-        </motion.section>
-
-        {/* Locations Section */}
-        <motion.section 
-          className={`${styles.locationsSection} section`}
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.8, ease: [0.2, 0.8, 0.2, 1] }}
-        >
-          <div className={styles.sectionHeader}>
-            <div>
-              <h2 className={styles.sectionTitle}>{t('browse_by_location')}</h2>
-              <p className={styles.ctaSubtitle}>{t('browse_location_sub')}</p>
-            </div>
-          </div>
-          <div className={styles.universityGrid}>
-            {LOCATIONS.map((loc, idx) => (
-              <Link key={idx} href={`/search?location=${encodeURIComponent(loc.name)}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-                <div className={styles.uniCard}>
-                  <h3>{loc.name}</h3>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </motion.section>
-
-        {/* Trending Section */}
-        <motion.section 
-          className={`${styles.section} section`}
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.8, ease: [0.2, 0.8, 0.2, 1] }}
-        >
-          <div className={styles.sectionHeader}>
-            <div>
-              <h2 className={styles.sectionTitle}>{t('trending')}</h2>
-              <p className={styles.sectionSubtitle}>{t('trending_sub')}</p>
-            </div>
-            <Link href="/search?sort=most_viewed" className={styles.viewAll}>
-              {t('view_all')} <ArrowRight size={16} aria-hidden="true" />
-            </Link>
-          </div>
-          <div className={styles.grid}>
-            {isLoading ? (
-              Array.from({ length: 3 }).map((_, i) => (
-                <div key={i} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
-                  <Skeleton width="100%" height={200} style={{ borderRadius: 'var(--radius-md)' }} />
-                  <Skeleton width="80%" height={24} />
-                  <Skeleton width="50%" height={20} />
-                  <Skeleton width="100%" height={40} style={{ marginTop: 'auto' }} />
-                </div>
-              ))
-            ) : (
-              mostViewedProperties.slice(0, 3).map((prop) => (
+              featuredProperties.slice(0, 8).map((prop) => (
                 <PropertyCard
                   key={prop.id}
                   id={prop.id.toString()}
@@ -277,8 +176,8 @@ export default function HomePage() {
           </div>
           <div className={styles.grid}>
             {isLoading ? (
-              Array.from({ length: 3 }).map((_, i) => (
-                <div key={i} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
+              Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4)' }}>
                     <Skeleton circle width={50} height={50} />
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-1)', flex: 1 }}>
@@ -290,7 +189,7 @@ export default function HomePage() {
                 </div>
               ))
             ) : (
-              topAgents.slice(0, 3).map((agent, idx) => (
+              topAgents.slice(0, 8).map((agent, idx) => (
                 <AgentCard 
                   key={idx} 
                   agentId={agent.id}

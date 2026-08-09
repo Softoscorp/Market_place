@@ -193,6 +193,11 @@ class PaginatedListings(BaseModel):
     page_size: int
 
 
+class LocationCount(BaseModel):
+    location: str
+    count: int
+
+
 # ============================================================================
 # Messaging
 # ============================================================================

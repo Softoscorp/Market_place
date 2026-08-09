@@ -18,13 +18,7 @@ import { useScrollRestoration } from "@/lib/useScrollRestoration";
 
 import { isOnline } from "@/lib/timeAgo";
 
-const LOCATIONS = [
-  { name: 'Nicosia', count: 8 },
-  { name: 'Kyrenia', count: 12 },
-  { name: 'Famagusta', count: 6 },
-  { name: 'Lefke', count: 4 },
-  { name: 'Guzelyurt', count: 3 },
-];
+const LOCATIONS = ['Nicosia', 'Kyrenia', 'Famagusta', 'Lefke', 'Guzelyurt'];
 
 interface PropertyData {
   upfront_rent_months?: number;
@@ -56,6 +50,7 @@ export default function HomePage() {
   const { t } = useLanguageStore();
   const [featuredProperties, setFeaturedProperties] = useState<PropertyData[]>([]);
   const [topAgents, setTopAgents] = useState<AgentData[]>([]);
+  const [locationCounts, setLocationCounts] = useState<Record<string, number>>({});
   const [isLoading, setIsLoading] = useState(true);
 
   useScrollRestoration();
@@ -105,6 +100,17 @@ export default function HomePage() {
         agentsLoaded = true;
         checkLoading();
       });
+
+    apiRequest("/listings/location-counts", { auth: false })
+      .then((data) => {
+        const counts: Record<string, number> = {};
+        (data || []).forEach((row: { location: string; count: number }) => {
+          const loc = (row.location || '').trim().toLowerCase();
+          if (loc) counts[loc] = row.count;
+        });
+        setLocationCounts(counts);
+      })
+      .catch((err) => console.error(err));
   }, []);
 
   return (
@@ -180,12 +186,15 @@ export default function HomePage() {
             </div>
           </div>
           <div className={styles.universityGrid}>
-            {LOCATIONS.map((loc) => (
-              <Link key={loc.name} href={`/search?location=${encodeURIComponent(loc.name)}`} className={styles.uniCard}>
-                <h3>{loc.name}</h3>
-                <p>{loc.count} {t('properties')}</p>
-              </Link>
-            ))}
+            {LOCATIONS.map((loc) => {
+              const count = locationCounts[loc.toLowerCase()] || 0;
+              return (
+                <Link key={loc} href={`/search?location=${encodeURIComponent(loc)}`} className={styles.uniCard}>
+                  <h3>{loc}</h3>
+                  <p>{count} {t('properties')}</p>
+                </Link>
+              );
+            })}
           </div>
         </motion.section>
 

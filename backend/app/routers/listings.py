@@ -188,6 +188,18 @@ def create_listing(
     return _serialize_listing(listing, db, _get_agent_metrics(db, [listing]))
 
 
+@router.get("/location-counts", response_model=list[schemas.LocationCount])
+@ttl_cache(ttl_seconds=30)
+def location_counts(db: Session = Depends(get_db)):
+    rows = (
+        db.query(models.Listing.location, func.count(models.Listing.id))
+        .filter(models.Listing.status == "active")
+        .group_by(models.Listing.location)
+        .all()
+    )
+    return [schemas.LocationCount(location=location, count=count) for location, count in rows]
+
+
 @router.get("", response_model=schemas.PaginatedListings)
 @ttl_cache(ttl_seconds=15)
 def browse_listings(

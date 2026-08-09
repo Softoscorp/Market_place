@@ -449,3 +449,18 @@ class FcmToken(Base):
     user = relationship("User", foreign_keys=[user_id])
 
 
+class EmailLog(Base):
+    """Audit trail of every platform email sent via the admin panel."""
+    __tablename__ = "email_logs"
+
+    id = Column(Integer, primary_key=True, index=True)
+    sender_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    recipient_email = Column(String, nullable=False)
+    subject = Column(String, nullable=False)
+    content = Column(Text, nullable=False)
+    template_key = Column(String, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    sender = relationship("User", foreign_keys=[sender_id])
+
+

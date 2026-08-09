@@ -11,6 +11,42 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/admin", tags=["admin"])
 
 
+# Pre-made email templates shown in the admin panel. `content` is plain text;
+# newlines are converted to <br> when rendered via Resend.
+EMAIL_TEMPLATES: dict[str, dict[str, str]] = {
+    "phone_update": {
+        "subject": "Action needed: update your phone number",
+        "content": (
+            "Hi there,\n\n"
+            "We don't have a valid phone number on your House Agent account. "
+            "To keep your account secure and receive platform notifications, "
+            "please log in and update your phone number in your profile settings.\n\n"
+            "If you need help, just reply to this email.\n\n"
+            "Best regards,\nHouse Agent Support"
+        ),
+    },
+    "account_verify": {
+        "subject": "Please verify your account",
+        "content": (
+            "Hi there,\n\n"
+            "To continue using your House Agent account, please complete account "
+            "verification. You can find the verification option in your profile.\n\n"
+            "If you have any questions, reply to this email.\n\n"
+            "Best regards,\nHouse Agent Support"
+        ),
+    },
+    "complaint_response": {
+        "subject": "Update on your complaint",
+        "content": (
+            "Hi there,\n\n"
+            "Thank you for getting in touch. We've reviewed your report and are "
+            "looking into it. We'll get back to you with an update as soon as we can.\n\n"
+            "Best regards,\nHouse Agent Support"
+        ),
+    },
+}
+
+
 @router.get("/users", response_model=list[schemas.AdminUserOut])
 def list_users(
     role: str | None = None,
@@ -143,7 +179,7 @@ def review_kyc_document(
 def list_reports(
     status_filter: str | None = None,
     db: Session = Depends(get_db),
-    _moderator: models.User = Depends(require_customer_care_or_admin),
+    _admin: models.User = Depends(require_admin),
 ):
     query = db.query(models.Report)
     if status_filter:
@@ -167,15 +203,36 @@ def review_report(
     return report
 
 
-@router.get("/conversations", response_model=list[schemas.ConversationOut])
+@router.get("/conversations", response_model=list[schemas.AdminConversationOut])
 def list_all_conversations(
     db: Session = Depends(get_db),
     moderator: models.User = Depends(require_customer_care_or_admin),
 ):
-    from .messaging import _serialize_conversation
-
     convs = db.query(models.Conversation).order_by(models.Conversation.created_at.desc()).all()
-    return [_serialize_conversation(c, moderator, db) for c in convs]
+    out = []
+    for conv in convs:
+        last_message_at = conv.created_at
+        last_msg = (
+            db.query(models.Message)
+            .filter(models.Message.conversation_id == conv.id)
+            .order_by(models.Message.created_at.desc())
+            .first()
+        )
+        if last_msg:
+            last_message_at = last_msg.created_at
+        out.append(
+            schemas.AdminConversationOut(
+                id=conv.id,
+                renter=schemas.AdminConversationUserOut(
+                    id=conv.renter.id, name=conv.renter.name, email=conv.renter.email
+                ),
+                agent=schemas.AdminConversationUserOut(
+                    id=conv.agent.id, name=conv.agent.name, email=conv.agent.email
+                ),
+                last_message_at=last_message_at,
+            )
+        )
+    return out
 
 
 @router.get("/conversations/{conversation_id}/messages", response_model=list[schemas.MessageOut])
@@ -195,15 +252,33 @@ def get_conversation_messages(
     return [_serialize_message(m, moderator, db) for m in messages]
 
 
+@router.get("/email-logs", response_model=list[schemas.EmailLogOut])
+def list_email_logs(
+    db: Session = Depends(get_db),
+    _admin: models.User = Depends(require_admin),
+):
+    """Audit trail of every platform email — admin-only."""
+    return (
+        db.query(models.EmailLog)
+        .order_by(models.EmailLog.created_at.desc())
+        .limit(200)
+        .all()
+    )
+
+
 @router.post("/send-email", status_code=200)
 def send_email_to_user(
     payload: schemas.SendEmailRequest,
-    _moderator: models.User = Depends(require_customer_care_or_admin),
+    db: Session = Depends(get_db),
+    moderator: models.User = Depends(require_customer_care_or_admin),
 ):
     """
     Sends an email via Resend API to any user.
     Requires RESEND_API_KEY in backend environment variables.
+    Every email is recorded in email_logs for accountability.
     """
+    if payload.template_key and payload.template_key not in EMAIL_TEMPLATES:
+        raise HTTPException(status_code=400, detail="Unknown email template")
     try:
         import resend
         from ..config import settings
@@ -217,6 +292,16 @@ def send_email_to_user(
             "html": f"<p>{payload.content.replace(chr(10), '<br>')}</p>",
         }
         resend.Emails.send(params)
+
+        log = models.EmailLog(
+            sender_id=moderator.id,
+            recipient_email=payload.email,
+            subject=payload.subject,
+            content=payload.content,
+            template_key=payload.template_key,
+        )
+        db.add(log)
+        db.commit()
         return {"message": "Email sent successfully"}
     except Exception as e:
         logger.error(f"Failed to send email via Resend: {e}")

@@ -24,7 +24,9 @@ def _get_conversation_for_user(conversation_id: int, db: Session, user: models.U
     conv = db.query(models.Conversation).filter(models.Conversation.id == conversation_id).first()
     if not conv:
         raise HTTPException(status_code=404, detail="Conversation not found")
-    if user.id not in (conv.renter_id, conv.agent_id):
+    is_participant = user.id in (conv.renter_id, conv.agent_id)
+    is_support = user.role in (models.UserRole.admin, models.UserRole.customer_care)
+    if not is_participant and not is_support:
         raise HTTPException(status_code=403, detail="Not a participant in this conversation")
     return conv
 
@@ -196,6 +198,52 @@ def start_conversation(
             original_language=current_user.language,
         )
         db.add(message)
+        db.commit()
+        db.refresh(conv)
+
+    return _serialize_conversation(conv, current_user, db)
+
+
+@router.post("/support/conversation", response_model=schemas.ConversationOut, status_code=201)
+def start_support_conversation(
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user),
+):
+    """
+    Starts (or reuses) a support chat between the current user and the
+    platform's support team (first active customer_care or admin account).
+    """
+    support_user = (
+        db.query(models.User)
+        .filter(
+            models.User.role.in_([models.UserRole.customer_care, models.UserRole.admin]),
+            models.User.account_status == models.AccountStatus.active,
+        )
+        .order_by(
+            (models.User.role == models.UserRole.customer_care).desc(),
+            models.User.id.asc(),
+        )
+        .first()
+    )
+    if not support_user:
+        raise HTTPException(status_code=503, detail="Support is not available right now")
+
+    conv = (
+        db.query(models.Conversation)
+        .filter(
+            models.Conversation.renter_id == current_user.id,
+            models.Conversation.agent_id == support_user.id,
+            models.Conversation.listing_id.is_(None),
+        )
+        .first()
+    )
+    if not conv:
+        conv = models.Conversation(
+            listing_id=None,
+            renter_id=current_user.id,
+            agent_id=support_user.id,
+        )
+        db.add(conv)
         db.commit()
         db.refresh(conv)
 

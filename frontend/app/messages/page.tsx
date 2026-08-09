@@ -19,7 +19,7 @@ function previewText(msg: Message): string {
 export default function MessagesPage() {
   const router = useRouter();
   const { isAuthenticated } = useAuthStore();
-  const { conversations, fetchConversations, openChat } = useChatStore();
+  const { conversations, fetchConversations, openChat, startSupportChat } = useChatStore();
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -39,6 +39,9 @@ export default function MessagesPage() {
     <div className={styles.page}>
       <div className={styles.header}>
         <h1 className={styles.title}>Messages</h1>
+        <button className={styles.supportBtn} onClick={() => startSupportChat()}>
+          <span className={styles.supportIcon}>?</span> Contact Support
+        </button>
       </div>
 
       {convList.length === 0 ? (

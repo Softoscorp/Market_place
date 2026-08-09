@@ -301,6 +301,23 @@ class AdminReporterOut(BaseModel):
     email: EmailStr
 
 
+class AdminConversationUserOut(BaseModel):
+    """Participant with email — only exposed to admin/customer_care."""
+    model_config = ConfigDict(from_attributes=True)
+    id: int
+    name: str
+    email: EmailStr
+
+
+class AdminConversationOut(BaseModel):
+    """Conversation with participant emails — only exposed to admin/customer_care."""
+    model_config = ConfigDict(from_attributes=True)
+    id: int
+    renter: AdminConversationUserOut
+    agent: AdminConversationUserOut
+    last_message_at: datetime
+
+
 class AdminReportOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     id: int
@@ -316,6 +333,18 @@ class SendEmailRequest(BaseModel):
     email: EmailStr
     subject: str
     content: str
+    template_key: Optional[str] = None
+
+
+class EmailLogOut(BaseModel):
+    """Record of an email sent through the admin panel — admin-only audit."""
+    model_config = ConfigDict(from_attributes=True)
+    id: int
+    sender: PublicUserOut
+    recipient_email: EmailStr
+    subject: str
+    template_key: Optional[str] = None
+    created_at: datetime
 
 
 # ============================================================================

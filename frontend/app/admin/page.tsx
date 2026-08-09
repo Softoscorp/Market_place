@@ -64,18 +64,42 @@ interface AdminConversation {
   id: number;
   renter_id: number;
   agent_id: number;
-  renter: { id: number; name: string };
-  agent: { id: number; name: string };
+  renter: { id: number; name: string; email: string };
+  agent: { id: number; name: string; email: string };
   last_message_at: string;
 }
 
 
 interface AdminMessage {
   id: number;
-  content: string;
+  text: string;
   sender_id: number;
   created_at: string;
 }
+
+interface AdminEmailLog {
+  id: number;
+  sender: { id: number; name: string };
+  recipient_email: string;
+  subject: string;
+  template_key?: string | null;
+  created_at: string;
+}
+
+const EMAIL_TEMPLATES: Record<string, { subject: string; content: string }> = {
+  phone_update: {
+    subject: 'Action needed: update your phone number',
+    content: "Hi there,\n\nWe don't have a valid phone number on your House Agent account. To keep your account secure and receive platform notifications, please log in and update your phone number in your profile settings.\n\nIf you need help, just reply to this email.\n\nBest regards,\nHouse Agent Support",
+  },
+  account_verify: {
+    subject: 'Please verify your account',
+    content: "Hi there,\n\nTo continue using your House Agent account, please complete account verification. You can find the verification option in your profile.\n\nIf you have any questions, reply to this email.\n\nBest regards,\nHouse Agent Support",
+  },
+  complaint_response: {
+    subject: 'Update on your complaint',
+    content: "Hi there,\n\nThank you for getting in touch. We've reviewed your report and are looking into it. We'll get back to you with an update as soon as we can.\n\nBest regards,\nHouse Agent Support",
+  },
+};
 
 export default function AdminDashboard() {
   const router = useRouter();
@@ -95,7 +119,11 @@ export default function AdminDashboard() {
   const [emailModal, setEmailModal] = useState<{ email: string; name: string } | null>(null);
   const [emailSubject, setEmailSubject] = useState('');
   const [emailBody, setEmailBody] = useState('');
-  const [emailSending, setEmailSending] = useState(false);;
+  const [emailTemplateKey, setEmailTemplateKey] = useState('');
+  const [emailSending, setEmailSending] = useState(false);
+  const [emailLogs, setEmailLogs] = useState<AdminEmailLog[]>([]);
+  const [replyText, setReplyText] = useState('');
+  const [replySending, setReplySending] = useState(false);;
 
   useEffect(() => {
     let timeout: NodeJS.Timeout;
@@ -178,17 +206,54 @@ export default function AdminDashboard() {
       await apiRequest('/admin/send-email', {
         method: 'POST',
         auth: true,
-        body: JSON.stringify({ email: emailModal.email, subject: emailSubject, content: emailBody }),
+        body: JSON.stringify({
+          email: emailModal.email,
+          subject: emailSubject,
+          content: emailBody,
+          template_key: emailTemplateKey || null,
+        }),
       });
       alert('Email sent successfully!');
       setEmailModal(null);
       setEmailSubject('');
       setEmailBody('');
+      setEmailTemplateKey('');
     } catch (error) {
       console.error(error);
       alert('Failed to send email. Make sure RESEND_API_KEY is configured.');
     } finally {
       setEmailSending(false);
+    }
+  };
+
+  const applyEmailTemplate = (key: string) => {
+    setEmailTemplateKey(key);
+    const tpl = EMAIL_TEMPLATES[key];
+    if (tpl) {
+      setEmailSubject(tpl.subject);
+      setEmailBody(tpl.content);
+    }
+  };
+
+  const handleSendReply = async () => {
+    const text = replyText.trim();
+    if (!selectedConversation || !text || replySending) return;
+    setReplySending(true);
+    try {
+      const formData = new FormData();
+      formData.append('body', text);
+      const msg = await apiRequest(`/messages/conversations/${selectedConversation.id}/messages`, {
+        method: 'POST',
+        formData,
+        auth: true,
+      });
+      setChatMessages(msgs => [...msgs, msg]);
+      setReplyText('');
+    } catch (error) {
+      console.error(error);
+      alert('Failed to send reply.');
+    } finally {
+      setReplySending(false);
     }
   };
 
@@ -477,16 +542,27 @@ title="Reject"
                       <strong>Agent:</strong> {selectedConversation.agent.name}
                     </p>
                   </div>
-                  <button onClick={() => setSelectedConversation(null)} className={styles.btnSecondary} style={{ padding: 'var(--space-2) var(--space-4)' }}>
-                    Back to List
-                  </button>
+                  <div style={{ display: 'flex', gap: 'var(--space-3)' }}>
+                    <button
+                      className={styles.btnSecondary}
+                      style={{ padding: 'var(--space-2) var(--space-4)' }}
+                      onClick={() => setEmailModal({ email: selectedConversation.renter.email, name: selectedConversation.renter.name })}
+                    >
+                      <Mail size={14} style={{ marginRight: 'var(--space-2)' }} /> Email Renter
+                    </button>
+                    <button onClick={() => setSelectedConversation(null)} className={styles.btnSecondary} style={{ padding: 'var(--space-2) var(--space-4)' }}>
+                      Back to List
+                    </button>
+                  </div>
                 </div>
                 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)', maxHeight: '400px', overflowY: 'auto', padding: 'var(--space-4)', background: 'var(--bg-hover)', borderRadius: 'var(--radius-sm)' }}>
                   {chatMessages.length === 0 && <p style={{ textAlign: 'center', color: 'var(--text-secondary)' }}>No messages yet.</p>}
                   {chatMessages.map(msg => {
                     const isRenter = msg.sender_id === selectedConversation.renter_id;
-                    const senderName = isRenter ? selectedConversation.renter.name : selectedConversation.agent.name;
+                    const isAgent = msg.sender_id === selectedConversation.agent_id;
+                    const senderName = isRenter ? selectedConversation.renter.name : isAgent ? selectedConversation.agent.name : 'Support';
+                    const isSupport = !isRenter && !isAgent;
                     return (
                       <div key={msg.id} style={{
                         alignSelf: isRenter ? 'flex-start' : 'flex-end',
@@ -498,14 +574,33 @@ title="Reject"
                         border: isRenter ? '1px solid var(--border-subtle)' : 'none',
                         boxShadow: 'var(--shadow-sm)'
                       }}>
-                        <div style={{ fontSize: 'var(--text-xs)', opacity: 0.8, marginBottom: 'var(--space-1)' }}>{senderName}</div>
-                        <div>{msg.content}</div>
+                        <div style={{ fontSize: 'var(--text-xs)', opacity: 0.8, marginBottom: 'var(--space-1)' }}>{senderName}{isSupport ? ' (you)' : ''}</div>
+                        <div>{msg.text}</div>
                         <div style={{ fontSize: 'var(--text-xs)', opacity: 0.6, marginTop: 'var(--space-1)', textAlign: 'right' }}>
                           {new Date(msg.created_at).toLocaleTimeString()}
                         </div>
                       </div>
                     );
                   })}
+                </div>
+
+                <div style={{ display: 'flex', gap: 'var(--space-3)', marginTop: 'var(--space-3)' }}>
+                  <textarea
+                    className={styles.input}
+                    rows={3}
+                    placeholder="Type your reply as support..."
+                    value={replyText}
+                    onChange={e => setReplyText(e.target.value)}
+                    style={{ resize: 'vertical', flex: 1 }}
+                  />
+                  <button
+                    className={styles.btnPrimary}
+                    onClick={handleSendReply}
+                    disabled={replySending || !replyText.trim()}
+                    style={{ alignSelf: 'flex-end', whiteSpace: 'nowrap' }}
+                  >
+                    {replySending ? 'Sending...' : 'Send Reply'}
+                  </button>
                 </div>
               </div>
             ) : (
@@ -528,6 +623,39 @@ title="Reject"
                 ))}
               </div>
             )}
+          </motion.div>
+        );
+      case 'emailLogs':
+        return (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className={styles.listingsTab}>
+            <div className={styles.tabHeader}>
+              <h3 className={styles.sectionTitle}>Email Logs</h3>
+            </div>
+            <div className={styles.tableContainer}>
+              <table className={styles.table}>
+                <thead>
+                  <tr>
+                    <th>Sent By</th>
+                    <th>To</th>
+                    <th>Subject</th>
+                    <th>Template</th>
+                    <th>Sent At</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {emailLogs.length === 0 && <tr><td colSpan={5} style={{ textAlign: 'center', color: 'var(--text-secondary)' }}>No emails sent yet.</td></tr>}
+                  {emailLogs.map(log => (
+                    <tr key={log.id}>
+                      <td className={styles.fw500}>{log.sender.name}</td>
+                      <td>{log.recipient_email}</td>
+                      <td style={{ maxWidth: '300px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{log.subject}</td>
+                      <td><span className={styles.statusBadge}>{log.template_key || 'custom'}</span></td>
+                      <td>{new Date(log.created_at).toLocaleString()}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </motion.div>
         );
       default: return null;
@@ -617,6 +745,12 @@ title="Reject"
               >
                 <PremiumIcon icon={AlertTriangle} size={14} colorVariant="primary" containerSize={24} /> Reports
               </button>
+              <button 
+                className={`${styles.navItem} ${activeTab === 'emailLogs' ? styles.active : ''}`}
+                onClick={() => { setActiveTab('emailLogs'); apiRequest('/admin/email-logs', { auth: true }).then(d => setEmailLogs(d || [])).catch(console.error); }}
+              >
+                <PremiumIcon icon={Mail} size={14} colorVariant="primary" containerSize={24} /> Email Logs
+              </button>
             </>
           )}
           <button 
@@ -675,6 +809,19 @@ title="Reject"
               </button>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+              <div>
+                <label style={{ fontSize: 'var(--text-sm)', fontWeight: 500, display: 'block', marginBottom: 'var(--space-2)' }}>Template</label>
+                <select
+                  className={styles.input}
+                  value={emailTemplateKey}
+                  onChange={e => applyEmailTemplate(e.target.value)}
+                >
+                  <option value="">Custom message (no template)</option>
+                  <option value="phone_update">Update your phone number</option>
+                  <option value="account_verify">Account verification</option>
+                  <option value="complaint_response">Complaint response</option>
+                </select>
+              </div>
               <div>
                 <label style={{ fontSize: 'var(--text-sm)', fontWeight: 500, display: 'block', marginBottom: 'var(--space-2)' }}>To</label>
                 <input className={styles.input} value={emailModal.email} disabled style={{ opacity: 0.7 }} />

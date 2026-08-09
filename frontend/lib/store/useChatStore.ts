@@ -95,6 +95,7 @@ interface ChatState {
   
   openChat: (agent: Agent, listingId?: number) => void;
   closeChat: () => void;
+  startSupportChat: () => Promise<void>;
   sendMessage: (text: string) => Promise<void>;
   sendImage: (file: File) => Promise<void>;
   sendVoice: (blob: Blob, durationSeconds: number) => Promise<void>;
@@ -257,6 +258,24 @@ export const useChatStore = create<ChatState>((set, get) => ({
   },
 
   closeChat: () => set({ isOpen: false, activeAgentId: null, activeConversationId: null, activeListingId: null, chatError: null }),
+
+  startSupportChat: async () => {
+    set({ chatError: null });
+    try {
+      const conv = await apiRequest('/messages/support/conversation', { method: 'POST' });
+      const contact: Agent = {
+        id: String(conv.agent.id),
+        name: conv.agent.name || 'Customer Support',
+        avatarUrl: conv.agent.avatar_url,
+        lastSeenAt: conv.agent.last_seen_at,
+      };
+      await get().openChat(contact);
+    } catch (e: unknown) {
+      console.error('Failed to start support chat', e);
+      const err = e as { detail?: unknown };
+      set({ chatError: typeof err?.detail === 'string' ? err.detail : 'Support is not available right now. Please try again later.' });
+    }
+  },
 
   markAsRead: (agentId) => {
     set((state) => {

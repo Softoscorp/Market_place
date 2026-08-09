@@ -18,6 +18,14 @@ import { useScrollRestoration } from "@/lib/useScrollRestoration";
 
 import { isOnline } from "@/lib/timeAgo";
 
+const LOCATIONS = [
+  { name: 'Nicosia', count: 8 },
+  { name: 'Kyrenia', count: 12 },
+  { name: 'Famagusta', count: 6 },
+  { name: 'Lefke', count: 4 },
+  { name: 'Guzelyurt', count: 3 },
+];
+
 interface PropertyData {
   upfront_rent_months?: number;
   deposit_months?: number;
@@ -154,6 +162,30 @@ export default function HomePage() {
                 />
               ))
             )}
+          </div>
+        </motion.section>
+
+        {/* Browse by Location Section (desktop only) */}
+        <motion.section
+          className={`${styles.locationsSection} section`}
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.8, ease: [0.2, 0.8, 0.2, 1] }}
+        >
+          <div className={styles.sectionHeader}>
+            <div>
+              <h2 className={styles.sectionTitle}>{t('browse_by_location')}</h2>
+              <p className={styles.sectionSubtitle}>{t('browse_location_sub')}</p>
+            </div>
+          </div>
+          <div className={styles.universityGrid}>
+            {LOCATIONS.map((loc) => (
+              <Link key={loc.name} href={`/search?location=${encodeURIComponent(loc.name)}`} className={styles.uniCard}>
+                <h3>{loc.name}</h3>
+                <p>{loc.count} {t('properties')}</p>
+              </Link>
+            ))}
           </div>
         </motion.section>
 

@@ -65,6 +65,15 @@ export function SearchHero() {
             ))}
           </div>
         </motion.div>
+
+        <div className={styles.heroImage}>
+          <img
+            src="/images/kyrenia-aerial.jpg"
+            alt="Aerial view of North Cyprus"
+            width={640}
+            height={480}
+          />
+        </div>
       </div>
     </section>
   );

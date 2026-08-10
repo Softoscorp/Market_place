@@ -16,6 +16,10 @@ public class MainActivity extends BridgeActivity {
         if (getBridge() != null && getBridge().getWebView() != null) {
             getBridge().getWebView().getSettings().setUseWideViewPort(false);
             getBridge().getWebView().getSettings().setLoadWithOverviewMode(false);
+            // Always fetch fresh content from the server so app updates show
+            // immediately instead of showing a stale cached version.
+            getBridge().getWebView().getSettings().setCacheMode(android.webkit.WebSettings.LOAD_DEFAULT);
+            getBridge().getWebView().clearCache(true);
         }
     }
 }

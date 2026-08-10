@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
 import { clsx } from 'clsx';
+import { useLanguageStore } from '@/lib/store/useLanguageStore';
 import styles from './ReportModal.module.css';
 
 export interface ReportModalProps {
@@ -13,13 +14,6 @@ export interface ReportModalProps {
   propertyTitle?: string;
 }
 
-const REPORT_REASONS = [
-  { id: 'fake', label: 'Fake Listing', description: 'This property does not exist or the photos are stolen.' },
-  { id: 'wrong_price', label: 'Wrong Price / Move-in Cost', description: 'The actual cost is different from what is listed.' },
-  { id: 'unavailable', label: 'Already Rented', description: 'The agent says this is no longer available but won\'t take it down.' },
-  { id: 'other', label: 'Other', description: 'Something else is wrong with this listing.' },
-];
-
 export const ReportModal: React.FC<ReportModalProps> = ({ 
   isOpen, 
   onClose, 
@@ -28,6 +22,14 @@ export const ReportModal: React.FC<ReportModalProps> = ({
 }) => {
   const [selectedReason, setSelectedReason] = useState<string>('');
   const [details, setDetails] = useState('');
+  const t = useLanguageStore((s) => s.t);
+
+  const REPORT_REASONS = [
+    { id: 'fake', label: t('rm_fake_listing'), description: t('rm_fake_listing_desc') },
+    { id: 'wrong_price', label: t('rm_wrong_price'), description: t('rm_wrong_price_desc') },
+    { id: 'unavailable', label: t('rm_already_rented'), description: t('rm_already_rented_desc') },
+    { id: 'other', label: t('rm_other'), description: t('rm_other_desc') },
+  ];
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,14 +44,14 @@ export const ReportModal: React.FC<ReportModalProps> = ({
   const isSubmitDisabled = !selectedReason || (selectedReason === 'other' && details.trim().length === 0);
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Report Listing">
+    <Modal isOpen={isOpen} onClose={onClose} title={t('rm_title')}>
       <form onSubmit={handleSubmit} className={styles.form}>
         <p className={styles.description}>
-          Help us keep House Agent safe. Why are you reporting {propertyTitle ? <strong>{propertyTitle}</strong> : 'this listing'}?
+          {t('rm_desc').replace('{name}', propertyTitle || t('rm_other'))}
         </p>
 
         <div className={styles.fieldGroup}>
-          <span className={styles.label}>Select a reason</span>
+          <span className={styles.label}>{t('rm_select_reason')}</span>
           <div className={styles.optionsList}>
             {REPORT_REASONS.map((reason) => (
               <label 
@@ -77,21 +79,21 @@ export const ReportModal: React.FC<ReportModalProps> = ({
         </div>
 
         <div className={styles.fieldGroup}>
-          <span className={styles.label}>Additional Details (Optional)</span>
+          <span className={styles.label}>{t('rm_details_optional')}</span>
           <textarea
             value={details}
             onChange={(e) => setDetails(e.target.value)}
-            placeholder="Please provide any other information that might help us investigate..."
+            placeholder={t('rm_details_placeholder')}
             className={styles.textarea}
           />
         </div>
 
         <div className={styles.footer}>
           <Button type="button" variant="ghost" onClick={onClose}>
-            Cancel
+            {t('auth_cancel')}
           </Button>
           <Button type="submit" variant="primary" disabled={isSubmitDisabled}>
-            Submit Report
+            {t('rm_submit_report')}
           </Button>
         </div>
       </form>

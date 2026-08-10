@@ -13,6 +13,7 @@ import 'swiper/css/thumbs';
 import 'swiper/css/free-mode';
 
 import { ProtectedImage } from '@/components/ui/ProtectedImage';
+import { useLanguageStore } from '@/lib/store/useLanguageStore';
 import styles from './PropertyGallery.module.css';
 
 export interface PropertyGalleryProps {
@@ -27,13 +28,14 @@ export const PropertyGallery: React.FC<PropertyGalleryProps> = ({
   className
 }) => {
   const [thumbsSwiper, setThumbsSwiper] = useState<SwiperType | null>(null);
+  const t = useLanguageStore((s) => s.t);
 
   if (!images || images.length === 0) {
     return (
       <div className={clsx(styles.galleryContainer, className)}>
         <div className={styles.mainSwiper}>
           <div className={styles.mainSlide}>
-            <span>No images available</span>
+            <span>{t('pg_no_images')}</span>
           </div>
         </div>
       </div>
@@ -57,7 +59,7 @@ export const PropertyGallery: React.FC<PropertyGalleryProps> = ({
           <SwiperSlide key={index} className={styles.mainSlide}>
             <ProtectedImage 
               src={src} 
-              alt={`${title} - Image ${index + 1}`} 
+              alt={t('pg_image_alt').replace('{title}', title).replace('{n}', String(index + 1))} 
               className={styles.mainImage} 
             />
           </SwiperSlide>
@@ -83,7 +85,7 @@ export const PropertyGallery: React.FC<PropertyGalleryProps> = ({
             <SwiperSlide key={index} className={styles.thumbSlide}>
               <ProtectedImage 
                 src={src} 
-                alt={`${title} - Thumbnail ${index + 1}`} 
+                alt={t('pg_thumb_alt').replace('{title}', title).replace('{n}', String(index + 1))} 
                 className={styles.thumbImage} 
               />
             </SwiperSlide>

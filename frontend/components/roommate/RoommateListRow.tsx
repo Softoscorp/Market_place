@@ -3,6 +3,7 @@
 import React from 'react';
 import { MessageCircle, Heart, BedDouble, Sofa } from 'lucide-react';
 import { useChatStore } from '@/lib/store/useChatStore';
+import { useLanguageStore } from '@/lib/store/useLanguageStore';
 import { ProtectedImage } from '@/components/ui/ProtectedImage';
 import styles from './RoommateListRow.module.css';
 
@@ -36,6 +37,7 @@ export function RoommateListRow({
   location,
 }: RoommateListRowProps) {
   const { openChat } = useChatStore();
+  const t = useLanguageStore((s) => s.t);
 
   const detail = [age > 0 ? `${age}` : '', gender, occupation]
     .filter(Boolean)
@@ -52,7 +54,7 @@ export function RoommateListRow({
           </div>
         )}
         <span className={`${styles.typePill} ${profileType === 'housemate' ? styles.typeHousemate : styles.typeRoommate}`}>
-          {profileType === 'housemate' ? 'Housemate' : 'Roommate'}
+          {profileType === 'housemate' ? t('rc_housemate') : t('rc_roommate')}
         </span>
       </div>
 
@@ -90,7 +92,7 @@ export function RoommateListRow({
         <div className={styles.actions}>
           <button
             className={styles.btnSecondary}
-            aria-label="Save"
+            aria-label={t('rc_save')}
           >
             <Heart size={15} />
           </button>
@@ -99,7 +101,7 @@ export function RoommateListRow({
             onClick={() => openChat({ id: name, name: name, avatarUrl: imageUrl })}
           >
             <MessageCircle size={15} style={{ marginRight: 5 }} />
-            Message
+            {t('rc_message')}
           </button>
         </div>
       </div>

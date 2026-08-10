@@ -4,6 +4,7 @@ import React, { useRef, useState } from 'react';
 import { X, Camera, Home, Users } from 'lucide-react';
 import { apiRequest, mediaUrl } from '@/lib/api';
 import { useAuthStore } from '@/lib/store/useAuthStore';
+import { useLanguageStore } from '@/lib/store/useLanguageStore';
 import { UNIVERSITIES_BY_CITY } from '@/lib/universities';
 import styles from './PostRoommateForm.module.css';
 
@@ -28,6 +29,7 @@ type PostRoommateFormProps = {
 
 export function PostRoommateForm({ onClose, onPosted }: PostRoommateFormProps) {
   const { user, isAuthenticated } = useAuthStore();
+  const t = useLanguageStore((s) => s.t);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [profileType, setProfileType] = useState<'roommate' | 'housemate'>('housemate');
   const [name, setName] = useState(user?.name || '');
@@ -49,6 +51,29 @@ export function PostRoommateForm({ onClose, onPosted }: PostRoommateFormProps) {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const habitLabel = (habit: string) => {
+    const map: Record<string, string> = {
+      'Non-smoker': t('prf_habit_non_smoker'),
+      'Quiet': t('prf_habit_quiet'),
+      'Early bird': t('prf_habit_early_bird'),
+      'Night owl': t('prf_habit_night_owl'),
+      'Clean': t('prf_habit_clean'),
+      'Cook': t('prf_habit_cook'),
+      'Pet friendly': t('prf_habit_pet_friendly'),
+      'Gym': t('prf_habit_gym'),
+      'Social': t('prf_habit_social'),
+      'No guests': t('prf_habit_no_guests'),
+    };
+    return map[habit] || habit;
+  };
+
+  const genderLabel = (value: string) => {
+    if (value === 'Male') return t('prf_male');
+    if (value === 'Female') return t('prf_female');
+    if (value === 'Any') return t('prf_any');
+    return value;
+  };
+
   const toggleHabit = (habit: string) => {
     setHabits((prev) => (prev.includes(habit) ? prev.filter((h) => h !== habit) : [...prev, habit]));
   };
@@ -56,7 +81,7 @@ export function PostRoommateForm({ onClose, onPosted }: PostRoommateFormProps) {
   const handleFile = (file: File | undefined) => {
     if (!file) return;
     if (!file.type.startsWith('image/')) {
-      setError('Please choose an image file (JPG, PNG or WebP).');
+      setError(t('prf_err_image'));
       return;
     }
     setPhoto(file);
@@ -68,21 +93,21 @@ export function PostRoommateForm({ onClose, onPosted }: PostRoommateFormProps) {
     setError(null);
 
     if (!isAuthenticated) {
-      setError('Please sign in as a tenant before posting.');
+      setError(t('prf_err_signin'));
       return;
     }
     if (!name.trim() || !age || !gender || !occupation || !budget) {
-      setError('Please fill in your name, age, gender, occupation and budget.');
+      setError(t('prf_err_fields'));
       return;
     }
     const numAge = parseInt(age, 10);
     const numBudget = parseInt(budget, 10);
     if (isNaN(numAge) || numAge < 18 || numAge > 99) {
-      setError('Please enter a valid age (18 or older).');
+      setError(t('prf_err_age'));
       return;
     }
     if (isNaN(numBudget) || numBudget <= 0) {
-      setError('Please enter a valid monthly budget.');
+      setError(t('prf_err_budget'));
       return;
     }
 
@@ -109,7 +134,7 @@ export function PostRoommateForm({ onClose, onPosted }: PostRoommateFormProps) {
         looking_for_city: cities,
         move_in_date: new Date(moveInDate || Date.now()).toISOString(),
         duration_months: parseInt(durationMonths, 10) || 12,
-        bio: bio.trim() || 'Looking for a friendly housemate.',
+        bio: bio.trim() || t('prf_default_bio'),
         habits,
         gender_preference: genderPreference,
         avatar_url: photoUrl,
@@ -119,7 +144,7 @@ export function PostRoommateForm({ onClose, onPosted }: PostRoommateFormProps) {
       onPosted();
     } catch (err: unknown) {
       const e = err as Error;
-      setError(e.message || 'Failed to post. Please try again.');
+      setError(e.message || t('prf_err_failed'));
     } finally {
       setSubmitting(false);
     }
@@ -129,8 +154,8 @@ export function PostRoommateForm({ onClose, onPosted }: PostRoommateFormProps) {
     <div className={styles.overlay} onClick={onClose}>
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
         <div className={styles.header}>
-          <h2>{profileType === 'housemate' ? 'Post a Housemate Ad' : 'Post a Roommate Profile'}</h2>
-          <button className={styles.closeBtn} onClick={onClose} aria-label="Close">
+          <h2>{profileType === 'housemate' ? t('prf_title_room') : t('prf_title_profile')}</h2>
+          <button className={styles.closeBtn} onClick={onClose} aria-label={t('prf_close')}>
             <X size={20} />
           </button>
         </div>
@@ -141,28 +166,28 @@ export function PostRoommateForm({ onClose, onPosted }: PostRoommateFormProps) {
             onClick={() => setProfileType('housemate')}
           >
             <Home size={18} style={{ marginBottom: 6 }} />
-            Housemate
-            <span className={styles.typeHint}>I have a flat, one room is free</span>
+            {t('prf_type_housemate')}
+            <span className={styles.typeHint}>{t('prf_type_housemate_hint')}</span>
           </button>
           <button
             className={`${styles.typeBtn} ${profileType === 'roommate' ? styles.typeBtnActive : ''}`}
             onClick={() => setProfileType('roommate')}
           >
             <Users size={18} style={{ marginBottom: 6 }} />
-            Roommate
-            <span className={styles.typeHint}>I want to share a room</span>
+            {t('prf_type_roommate')}
+            <span className={styles.typeHint}>{t('prf_type_roommate_hint')}</span>
           </button>
         </div>
 
         <div className={styles.body}>
           <div className={styles.photoBox} onClick={() => fileInputRef.current?.click()}>
             {preview ? (
-              <img src={preview} alt="Preview" className={styles.photoPreview} />
+              <img src={preview} alt={t('chat_preview')} className={styles.photoPreview} />
             ) : (
               <div className={styles.photoPlaceholder}>
                 <Camera size={28} />
-                <span>Snap a photo of the room</span>
-                <small>JPG, PNG or WebP</small>
+                <span>{t('prf_photo_placeholder')}</span>
+                <small>{t('prf_photo_hint')}</small>
               </div>
             )}
             <input
@@ -176,29 +201,29 @@ export function PostRoommateForm({ onClose, onPosted }: PostRoommateFormProps) {
 
           <div className={styles.grid}>
             <label className={styles.field}>
-              <span>Name *</span>
-              <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Your name" />
+              <span>{t('prf_name')}</span>
+              <input value={name} onChange={(e) => setName(e.target.value)} placeholder={t('prf_name_placeholder')} />
             </label>
             <label className={styles.field}>
-              <span>Age *</span>
-              <input type="number" value={age} onChange={(e) => setAge(e.target.value)} placeholder="e.g. 22" min={18} max={99} />
+              <span>{t('prf_age')}</span>
+              <input type="number" value={age} onChange={(e) => setAge(e.target.value)} placeholder={t('prf_age_placeholder')} min={18} max={99} />
             </label>
             <label className={styles.field}>
-              <span>Gender *</span>
+              <span>{t('prf_gender')}</span>
               <select value={gender} onChange={(e) => setGender(e.target.value)}>
-                <option value="">Select...</option>
-                <option value="Male">Male</option>
-                <option value="Female">Female</option>
+                <option value="">{t('prf_select')}</option>
+                <option value="Male">{t('prf_male')}</option>
+                <option value="Female">{t('prf_female')}</option>
               </select>
             </label>
             <label className={styles.field}>
-              <span>Occupation *</span>
-              <input value={occupation} onChange={(e) => setOccupation(e.target.value)} placeholder="e.g. Student, Engineer" />
+              <span>{t('prf_occupation')}</span>
+              <input value={occupation} onChange={(e) => setOccupation(e.target.value)} placeholder={t('prf_occupation_placeholder')} />
             </label>
             <label className={styles.field}>
-              <span>University</span>
+              <span>{t('prf_university')}</span>
               <select value={university} onChange={(e) => setUniversity(e.target.value)}>
-                <option value="">Select your university...</option>
+                <option value="">{t('prf_university_placeholder')}</option>
                 {UNIVERSITIES_BY_CITY.map((group) => (
                   <optgroup key={group.city} label={group.city}>
                     {group.schools.map((school) => (
@@ -209,26 +234,26 @@ export function PostRoommateForm({ onClose, onPosted }: PostRoommateFormProps) {
               </select>
             </label>
             <label className={styles.field}>
-              <span>Nationality</span>
-              <input value={nationality} onChange={(e) => setNationality(e.target.value)} placeholder="e.g. Nigerian" />
+              <span>{t('prf_nationality')}</span>
+              <input value={nationality} onChange={(e) => setNationality(e.target.value)} placeholder={t('prf_nationality_placeholder')} />
             </label>
             {profileType === 'housemate' && (
               <label className={styles.field}>
-                <span>Flat type</span>
+                <span>{t('prf_flat_type')}</span>
                 <select value={houseType} onChange={(e) => setHouseType(e.target.value)}>
-                  <option value="">Select...</option>
+                  <option value="">{t('prf_select')}</option>
                   {HOUSE_TYPES.map((ht) => (
-                    <option key={ht} value={ht}>{ht}</option>
+                    <option key={ht} value={ht}>{ht === 'Studio' ? t('prf_studio') : ht}</option>
                   ))}
                 </select>
               </label>
             )}
             <label className={styles.field}>
-              <span>Monthly budget (room) *</span>
-              <input type="number" value={budget} onChange={(e) => setBudget(e.target.value)} placeholder="e.g. 300" min={1} />
+              <span>{t('prf_budget')}</span>
+              <input type="number" value={budget} onChange={(e) => setBudget(e.target.value)} placeholder={t('prf_budget_placeholder')} min={1} />
             </label>
             <label className={styles.field}>
-              <span>Looking in</span>
+              <span>{t('prf_looking_in')}</span>
               <select
                 value={cities[0] || ''}
                 onChange={(e) => {
@@ -241,7 +266,7 @@ export function PostRoommateForm({ onClose, onPosted }: PostRoommateFormProps) {
                   setCities(group ? [group.city] : [school]);
                 }}
               >
-                <option value="">Select an area...</option>
+                <option value="">{t('prf_area_placeholder')}</option>
                 {UNIVERSITIES_BY_CITY.map((group) => (
                   <optgroup key={group.city} label={group.city}>
                     {group.schools.map((school) => (
@@ -252,25 +277,25 @@ export function PostRoommateForm({ onClose, onPosted }: PostRoommateFormProps) {
               </select>
             </label>
             <label className={styles.field}>
-              <span>Move-in date</span>
+              <span>{t('prf_move_in_date')}</span>
               <input type="date" value={moveInDate} onChange={(e) => setMoveInDate(e.target.value)} />
             </label>
             <label className={styles.field}>
-              <span>Stay duration (months)</span>
-              <input type="number" value={durationMonths} onChange={(e) => setDurationMonths(e.target.value)} placeholder="e.g. 12" min={1} />
+              <span>{t('prf_duration')}</span>
+              <input type="number" value={durationMonths} onChange={(e) => setDurationMonths(e.target.value)} placeholder={t('prf_duration_placeholder')} min={1} />
             </label>
             <label className={styles.field}>
-              <span>Preferred gender</span>
+              <span>{t('prf_pref_gender')}</span>
               <select value={genderPreference} onChange={(e) => setGenderPreference(e.target.value)}>
-                <option value="Any">Any</option>
-                <option value="Male">Male</option>
-                <option value="Female">Female</option>
+                <option value="Any">{t('prf_any')}</option>
+                <option value="Male">{t('prf_male')}</option>
+                <option value="Female">{t('prf_female')}</option>
               </select>
             </label>
           </div>
 
           <label className={styles.field}>
-            <span>Habits</span>
+            <span>{t('prf_habits')}</span>
             <div className={styles.chips}>
               {HABITS.map((habit) => (
                 <button
@@ -279,21 +304,21 @@ export function PostRoommateForm({ onClose, onPosted }: PostRoommateFormProps) {
                   className={`${styles.chip} ${habits.includes(habit) ? styles.chipActive : ''}`}
                   onClick={() => toggleHabit(habit)}
                 >
-                  {habit}
+                  {habitLabel(habit)}
                 </button>
               ))}
             </div>
           </label>
 
           <label className={styles.field}>
-            <span>About the room / you</span>
+            <span>{t('prf_about')}</span>
             <textarea
               value={bio}
               onChange={(e) => setBio(e.target.value)}
               rows={3}
               placeholder={profileType === 'housemate'
-                ? 'Describe the flat, the room, rent, bills, and who you are looking for.'
-                : 'Tell people a bit about yourself and what you are looking for.'}
+                ? t('prf_about_housemate')
+                : t('prf_about_roommate')}
             />
           </label>
         </div>
@@ -302,7 +327,7 @@ export function PostRoommateForm({ onClose, onPosted }: PostRoommateFormProps) {
 
         <div className={styles.footer}>
           <button className={styles.submitBtn} onClick={handleSubmit} disabled={submitting}>
-            {submitting ? 'Posting...' : 'Post Ad'}
+            {submitting ? t('prf_posting') : t('prf_post_ad')}
           </button>
         </div>
       </div>

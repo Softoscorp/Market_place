@@ -306,7 +306,7 @@ export default function ProfilePage() {
             className={styles.cameraBtn}
             onClick={() => fileInputRef.current?.click()}
             disabled={uploadingAvatar}
-            title="Change profile photo"
+            title={t('pr_change_photo')}
           >
             <Camera size={14} />
           </button>

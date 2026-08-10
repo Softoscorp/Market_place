@@ -32,6 +32,7 @@ interface ProfileData {
 
 export default function AgentDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = React.use(params);
+  const { t } = useLanguageStore();
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [reviews, setReviews] = useState<Array<{ id: number; stars: number; comment?: string; created_at: string }>>([]);
   const [loading, setLoading] = useState(true);
@@ -53,11 +54,10 @@ export default function AgentDetailPage({ params }: { params: Promise<{ id: stri
       .catch(console.error);
   }, [resolvedParams.id]);
 
-  if (loading) return <div className="section container text-center">Loading...</div>;
+  if (loading) return <div className="section container text-center">{t('pd_loading')}</div>;
   if (!profile) return notFound();
 
   const { agent, average_rating, rating_count, listings } = profile;
-  const { t } = useLanguageStore();
 
   return (
     <motion.div 

@@ -4,10 +4,12 @@ import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
 import { useChatStore } from '@/lib/store/useChatStore';
+import { useLanguageStore } from '@/lib/store/useLanguageStore';
 import styles from './GlobalNotification.module.css';
 
 export function GlobalNotification() {
   const { notification, clearNotification, openChat } = useChatStore();
+  const t = useLanguageStore((s) => s.t);
 
   const handleOpenChat = () => {
     if (!notification) return;
@@ -35,7 +37,7 @@ export function GlobalNotification() {
             <div className={styles.content}>
               <div className={styles.header}>
                 <h4 className={styles.name}>{notification.contactName}</h4>
-                <span className={styles.time}>Just now</span>
+                <span className={styles.time}>{t('gn_just_now')}</span>
               </div>
               <p className={styles.text}>{notification.text}</p>
             </div>
@@ -45,7 +47,7 @@ export function GlobalNotification() {
                 e.stopPropagation();
                 clearNotification();
               }}
-              aria-label="Dismiss notification"
+              aria-label={t('gn_dismiss')}
             >
               <X size={16} />
             </button>

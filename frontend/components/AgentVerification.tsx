@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { getMyVerificationStatus, applyForVerification, uploadVerificationProof } from "@/lib/api";
 import { ShieldCheck, ShieldAlert, BadgeCheck, Upload } from "lucide-react";
+import { useLanguageStore } from "@/lib/store/useLanguageStore";
 import styles from "./AgentVerification.module.css";
 
 interface VerificationApplication {
@@ -13,6 +14,7 @@ interface VerificationApplication {
 }
 
 export function AgentVerification({ verificationTier }: { verificationTier: string }) {
+  const t = useLanguageStore((s) => s.t);
   const [apps, setApps] = useState<VerificationApplication[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploadingTier, setUploadingTier] = useState<string | null>(null);
@@ -45,7 +47,7 @@ export function AgentVerification({ verificationTier }: { verificationTier: stri
       await loadStatus();
     } catch (err: unknown) {
       console.error(err);
-      alert("Failed to submit verification application. Please try again.");
+      alert(t('av_failed'));
     } finally {
       setUploadingTier(null);
       if (proofInputRef.current) {
@@ -54,16 +56,25 @@ export function AgentVerification({ verificationTier }: { verificationTier: stri
     }
   };
 
-  if (loading) return <div className="p-6 text-gray-500">Loading verification status...</div>;
+  if (loading) return <div className="p-6 text-gray-500">{t('av_loading')}</div>;
+
+  const applyBtn = (tier: 'local' | 'international', reapplying: boolean) => {
+    const tierNum = tier === 'local' ? 1 : 2;
+    const uploading = uploadingTier === tier;
+    if (uploading) {
+      return <><Upload size={16} /> {t('av_uploading')}</>;
+    }
+    return <><Upload size={16} /> {t(reapplying ? 'av_reapply' : 'av_apply').replace('{tier}', String(tierNum))}</>;
+  };
 
   return (
     <div className={styles.card}>
       <div className={styles.sectionHeader}>
         <h2 className={styles.title}>
           <ShieldCheck size={24} color="var(--text-primary)" />
-          Verification Center
+          {t('av_title')}
         </h2>
-        <p className={styles.subtitle}>Build trust by verifying your identity and business</p>
+        <p className={styles.subtitle}>{t('av_subtitle')}</p>
       </div>
 
       <input
@@ -82,12 +93,12 @@ export function AgentVerification({ verificationTier }: { verificationTier: stri
               <ShieldCheck size={24} />
             </div>
             <div>
-              <div className={styles.verificationTitle}>Tier 1: Local</div>
-              <div style={{ fontSize: 'var(--text-xs)', fontWeight: 600, color: 'var(--warning-text)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Identity Verification</div>
+              <div className={styles.verificationTitle}>{t('av_tier1')}</div>
+              <div style={{ fontSize: 'var(--text-xs)', fontWeight: 600, color: 'var(--warning-text)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{t('av_tier1_sub')}</div>
             </div>
           </div>
           <p className={styles.verificationDesc}>
-            Upload a Government-issued ID Card, Driver's License, or Passport to prove your identity.
+            {t('av_tier1_desc')}
           </p>
 
           {(() => {
@@ -97,27 +108,27 @@ export function AgentVerification({ verificationTier }: { verificationTier: stri
             if (isApproved) {
               return (
                 <div className={`${styles.verificationStatus} ${styles.statusApproved}`}>
-                  <BadgeCheck size={18} /> Verified
+                  <BadgeCheck size={18} /> {t('verified')}
                 </div>
               );
             } else if (app && app.status === 'pending') {
               return (
                 <div className={`${styles.verificationStatus} ${styles.statusPending}`}>
-                  <ShieldAlert size={18} /> Review Pending
+                  <ShieldAlert size={18} /> {t('av_review_pending')}
                 </div>
               );
             } else if (app && app.status === 'rejected') {
               return (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
                   <div className={`${styles.verificationStatus}`} style={{ color: 'var(--danger)', marginBottom: 0 }}>
-                    <ShieldAlert size={18} /> Rejected: {app.reviewer_notes}
+                    <ShieldAlert size={18} /> {t('av_rejected').replace('{notes}', app.reviewer_notes || '')}
                   </div>
                   <button
                     className={styles.verificationBtn}
                     onClick={() => { setTargetTier('local'); proofInputRef.current?.click(); }}
                     disabled={uploadingTier === 'local'}
                   >
-                    {uploadingTier === 'local' ? 'Uploading...' : <><Upload size={16} /> Re-apply for Tier 1</>}
+                    {applyBtn('local', true)}
                   </button>
                 </div>
               );
@@ -128,7 +139,7 @@ export function AgentVerification({ verificationTier }: { verificationTier: stri
                   onClick={() => { setTargetTier('local'); proofInputRef.current?.click(); }}
                   disabled={uploadingTier === 'local'}
                 >
-                  {uploadingTier === 'local' ? 'Uploading...' : <><Upload size={16} /> Apply for Tier 1</>}
+                  {applyBtn('local', false)}
                 </button>
               );
             }
@@ -142,12 +153,12 @@ export function AgentVerification({ verificationTier }: { verificationTier: stri
               <BadgeCheck size={24} />
             </div>
             <div>
-              <div className={styles.verificationTitle}>Tier 2: International</div>
-              <div style={{ fontSize: 'var(--text-xs)', fontWeight: 600, color: 'var(--warning)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Business Verification</div>
+              <div className={styles.verificationTitle}>{t('av_tier2')}</div>
+              <div style={{ fontSize: 'var(--text-xs)', fontWeight: 600, color: 'var(--warning)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{t('av_tier2_sub')}</div>
             </div>
           </div>
           <p className={styles.verificationDesc}>
-            Upload your registered Business Certificate or Professional Real Estate License for premium visibility.
+            {t('av_tier2_desc')}
           </p>
 
           {(() => {
@@ -158,34 +169,34 @@ export function AgentVerification({ verificationTier }: { verificationTier: stri
             if (isInternationalApproved) {
               return (
                 <div className={`${styles.verificationStatus} ${styles.statusApproved}`}>
-                  <BadgeCheck size={18} /> Premium Verified
+                  <BadgeCheck size={18} /> {t('av_premium_verified')}
                 </div>
               );
             } else if (app && app.status === 'pending') {
               return (
                 <div className={`${styles.verificationStatus} ${styles.statusPending}`}>
-                  <ShieldAlert size={18} /> Review Pending
+                  <ShieldAlert size={18} /> {t('av_review_pending')}
                 </div>
               );
             } else if (app && app.status === 'rejected') {
               return (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
                   <div className={`${styles.verificationStatus}`} style={{ color: 'var(--danger)', marginBottom: 0 }}>
-                    <ShieldAlert size={18} /> Rejected: {app.reviewer_notes}
+                    <ShieldAlert size={18} /> {t('av_rejected').replace('{notes}', app.reviewer_notes || '')}
                   </div>
                   <button
                     className={`${styles.verificationBtn} ${styles.active}`}
                     onClick={() => { setTargetTier('international'); proofInputRef.current?.click(); }}
                     disabled={uploadingTier === 'international'}
                   >
-                    {uploadingTier === 'international' ? 'Uploading...' : <><Upload size={16} /> Re-apply for Tier 2</>}
+                    {applyBtn('international', true)}
                   </button>
                 </div>
               );
             } else if (!isLocalApproved) {
               return (
-                <button className={styles.verificationBtn} disabled title="Requires Tier 1 Verification first">
-                  Complete Tier 1 First
+                <button className={styles.verificationBtn} disabled title={t('av_requires_tier1')}>
+                  {t('av_complete_tier1')}
                 </button>
               );
             } else {
@@ -195,7 +206,7 @@ export function AgentVerification({ verificationTier }: { verificationTier: stri
                   onClick={() => { setTargetTier('international'); proofInputRef.current?.click(); }}
                   disabled={uploadingTier === 'international'}
                 >
-                  {uploadingTier === 'international' ? 'Uploading...' : <><Upload size={16} /> Apply for Tier 2</>}
+                  {applyBtn('international', false)}
                 </button>
               );
             }

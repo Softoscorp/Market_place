@@ -79,10 +79,10 @@ export default function AgentDashboard() {
     : '0%';
 
   const metrics = [
-    { label: 'Total Views', value: '0', change: '0%', icon: Eye, trend: 'neutral' },
-    { label: 'Active Listings', value: String(agentListings.length), change: '0%', icon: List, trend: 'neutral' },
-    { label: 'Messages', value: String(conversationList.length), change: '0%', icon: MessageSquare, trend: 'neutral' },
-    { label: 'Respond Rate', value: respondRateStr, change: '0%', icon: MousePointerClick, trend: 'neutral' },
+    { labelKey: 'ad_total_views', value: '0', change: '0%', icon: Eye, trend: 'neutral' },
+    { labelKey: 'ad_active_listings', value: String(agentListings.length), change: '0%', icon: List, trend: 'neutral' },
+    { labelKey: 'ad_messages', value: String(conversationList.length), change: '0%', icon: MessageSquare, trend: 'neutral' },
+    { labelKey: 'ad_respond_rate', value: respondRateStr, change: '0%', icon: MousePointerClick, trend: 'neutral' },
   ];
 
   const renderTabContent = () => {
@@ -98,34 +98,34 @@ export default function AgentDashboard() {
               {metrics.map((metric, idx) => (
                 <div key={idx} className={styles.metricCard}>
                   <div className={styles.metricHeader}>
-                    <span className={styles.metricLabel}>{metric.label}</span>
+                    <span className={styles.metricLabel}>{t(metric.labelKey)}</span>
                     <metric.icon size={18} className={styles.metricIcon} />
                   </div>
                   <div className={styles.metricValue}>{metric.value}</div>
                   <div className={`${styles.metricChange} ${styles[metric.trend]}`}>
-                    {metric.change} from last month
+                    {t('ad_from_last_month').replace('{change}', metric.change)}
                   </div>
                 </div>
               ))}
             </div>
 
             <div className={styles.recentActivity}>
-              <h3 className={styles.sectionTitle}>Recent Activity</h3>
+              <h3 className={styles.sectionTitle}>{t('ad_recent_activity')}</h3>
               <div className={styles.activityList}>
                 {conversationList.length > 0 ? (
                   conversationList.map((conv) => (
                     <div key={conv.contact.id} className={styles.activityItem}>
                       <div className={styles.activityDot} style={{ background: 'var(--success)' }}></div>
                       <div className={styles.activityText}>
-                        <strong>{conv.contact.name}</strong> sent a message regarding listing inquiry.
+                        <strong>{conv.contact.name}</strong> {t('ad_activity_msg')}
                       </div>
-                      <div className={styles.activityTime}>Active</div>
+                      <div className={styles.activityTime}>{t('ad_active')}</div>
                     </div>
                   ))
                 ) : (
                   <div className={styles.activityItem}>
                     <div className={styles.activityDot} style={{ background: 'var(--text-muted)' }}></div>
-                    <div className={styles.activityText}>No recent activity yet. Post your first listing to start getting inquiries.</div>
+                    <div className={styles.activityText}>{t('ad_no_activity')}</div>
                   </div>
                 )}
               </div>
@@ -141,14 +141,14 @@ export default function AgentDashboard() {
             className={styles.listingsTab}
           >
             <div className={styles.tabHeader}>
-              <h3 className={styles.sectionTitle}>Manage Listings</h3>
+              <h3 className={styles.sectionTitle}>{t('ad_manage_listings')}</h3>
               <Link href="/post-listing" className={styles.btnPrimary}>
-                <Plus size={16} /> New Listing
+                <Plus size={16} /> {t('ad_new_listing')}
               </Link>
             </div>
 
             {loadingListings ? (
-              <p style={{ padding: 'var(--space-8)', color: 'var(--text-secondary)' }}>Loading listings...</p>
+              <p style={{ padding: 'var(--space-8)', color: 'var(--text-secondary)' }}>{t('ad_loading_listings')}</p>
             ) : agentListings.length === 0 ? (
               <div style={{
                 textAlign: 'center',
@@ -159,12 +159,12 @@ export default function AgentDashboard() {
                 marginTop: 'var(--space-4)'
               }}>
                 <Building2 size={48} style={{ color: 'var(--text-muted)', marginBottom: 'var(--space-4)' }} />
-                <h4 style={{ margin: '0 0 var(--space-2) 0', color: 'var(--text-primary)' }}>No listings posted yet</h4>
+                <h4 style={{ margin: '0 0 var(--space-2) 0', color: 'var(--text-primary)' }}>{t('ad_no_listings')}</h4>
                 <p style={{ color: 'var(--text-secondary)', marginBottom: 'var(--space-6)', fontSize: 'var(--text-base)' }}>
-                  Post your properties to showcase them to thousands of students and tenants in North Cyprus.
+                  {t('ad_no_listings_sub')}
                 </p>
                 <Link href="/post-listing" className={styles.btnPrimary} style={{ display: 'inline-flex' }}>
-                  <Plus size={16} /> Create First Listing
+                  <Plus size={16} /> {t('ad_create_first')}
                 </Link>
               </div>
             ) : (
@@ -172,11 +172,11 @@ export default function AgentDashboard() {
                 <table className={styles.table}>
                   <thead>
                     <tr>
-                      <th>Property Title</th>
-                      <th>Type</th>
-                      <th>Price</th>
-                      <th>Status</th>
-                      <th>Actions</th>
+                      <th>{t('ad_col_title')}</th>
+                      <th>{t('ad_col_type')}</th>
+                      <th>{t('ad_col_price')}</th>
+                      <th>{t('ad_col_status')}</th>
+                      <th>{t('ad_col_actions')}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -184,15 +184,15 @@ export default function AgentDashboard() {
                       <tr key={listing.id}>
                         <td className={styles.fw500}>{listing.title}</td>
                         <td>{listing.house_type}</td>
-                        <td>£{listing.price}/mo</td>
+                        <td>£{listing.price}{t('per_month')}</td>
                         <td>
                           <span className={`${styles.statusBadge} ${styles.active}`}>
-                            Active
+                            {t('ad_active')}
                           </span>
                         </td>
                         <td>
                           <Link href={`/property/${listing.id}`} style={{ color: 'var(--accent)', fontSize: 'var(--text-sm)', fontWeight: 500 }}>
-                            View Listing
+                            {t('ad_view_listing')}
                           </Link>
                         </td>
                       </tr>
@@ -211,7 +211,7 @@ export default function AgentDashboard() {
             animate={{ opacity: 1, y: 0 }}
             className={styles.crmTab}
           >
-            <h3 className={styles.sectionTitle}>Client CRM (Leads)</h3>
+            <h3 className={styles.sectionTitle}>{t('ad_crm')}</h3>
             {conversationList.length === 0 ? (
               <div style={{
                 textAlign: 'center',
@@ -222,9 +222,9 @@ export default function AgentDashboard() {
                 marginTop: 'var(--space-4)'
               }}>
                 <Users size={48} style={{ color: 'var(--text-muted)', marginBottom: 'var(--space-4)' }} />
-                <h4 style={{ margin: '0 0 var(--space-2) 0', color: 'var(--text-primary)' }}>No client leads yet</h4>
+                <h4 style={{ margin: '0 0 var(--space-2) 0', color: 'var(--text-primary)' }}>{t('ad_no_leads')}</h4>
                 <p style={{ color: 'var(--text-secondary)', fontSize: 'var(--text-base)' }}>
-                  Inquiries and messages from interested tenants will appear here.
+                  {t('ad_no_leads_sub')}
                 </p>
               </div>
             ) : (
@@ -235,19 +235,19 @@ export default function AgentDashboard() {
                       <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
                         <BrandedAvatar 
                           src={conv.contact.avatarUrl ? mediaUrl(conv.contact.avatarUrl) : null}
-                          name={conv.contact.name || 'User'} 
+                          name={conv.contact.name || t('common_user')} 
                           size={40}
                           style={{ borderRadius: '50%' }}
                         />
                         <span className={styles.clientName}>{conv.contact.name}</span>
                       </div>
-                      <span className={styles.leadBadge}>Active Contact</span>
+                      <span className={styles.leadBadge}>{t('ad_active_contact')}</span>
                     </div>
                     <button 
                       className={styles.btnSecondary}
                       onClick={() => openChat(conv.contact)}
                     >
-                      <MessageSquare size={14} /> Resume Chat
+                      <MessageSquare size={14} /> {t('ad_resume_chat')}
                     </button>
                   </div>
                 ))}
@@ -265,20 +265,20 @@ export default function AgentDashboard() {
           >
             <div className={styles.settingsGrid}>
               <div className={styles.settingsCard}>
-                <h3>Profile Details</h3>
+                <h3>{t('ad_profile_details')}</h3>
                 <div className={styles.inputGroup}>
-                  <label>Full Name / Agency Name</label>
+                  <label>{t('ad_full_name')}</label>
                   <input type="text" defaultValue={user?.name || ''} className={styles.input} />
                 </div>
                 <div className={styles.inputGroup}>
-                  <label>Email Address</label>
+                  <label>{t('ad_email_address')}</label>
                   <input type="email" defaultValue={user?.email || ''} className={styles.input} disabled />
                 </div>
-                <button className={styles.btnPrimary} style={{marginTop: 'var(--space-4)'}}>Save Changes</button>
+                <button className={styles.btnPrimary} style={{marginTop: 'var(--space-4)'}}>{t('ad_save_changes')}</button>
               </div>
 
               <div className={styles.settingsCard}>
-                <h3>Notifications</h3>
+                <h3>{t('ad_notifications')}</h3>
                 <div className={styles.toggleRow}>
                   <span>{t('notification_email')}</span>
                   <input type="checkbox" defaultChecked />
@@ -370,31 +370,31 @@ export default function AgentDashboard() {
             className={`${styles.navItem} ${activeTab === 'overview' ? styles.active : ''}`}
             onClick={() => setActiveTab('overview')}
           >
-            <LayoutDashboard size={18} /> Overview
+            <LayoutDashboard size={18} /> {t('ad_nav_overview')}
           </button>
           <button 
             className={`${styles.navItem} ${activeTab === 'listings' ? styles.active : ''}`}
             onClick={() => setActiveTab('listings')}
           >
-            <List size={18} /> My Listings
+            <List size={18} /> {t('ad_nav_my_listings')}
           </button>
           <button 
             className={`${styles.navItem} ${activeTab === 'crm' ? styles.active : ''}`}
             onClick={() => setActiveTab('crm')}
           >
-            <Users size={18} /> Client CRM
+            <Users size={18} /> {t('ad_nav_crm')}
           </button>
           <button 
             className={`${styles.navItem} ${activeTab === 'settings' ? styles.active : ''}`}
             onClick={() => setActiveTab('settings')}
           >
-            <Settings size={18} /> Settings
+            <Settings size={18} /> {t('common_settings')}
           </button>
           <button 
             className={`${styles.navItem} ${activeTab === 'verification' ? styles.active : ''}`}
             onClick={() => setActiveTab('verification')}
           >
-            <ShieldAlert size={18} /> Verification
+            <ShieldAlert size={18} /> {t('common_verification')}
           </button>
           
           <div style={{ marginTop: 'auto', paddingTop: 'var(--space-8)' }}>
@@ -417,10 +417,10 @@ export default function AgentDashboard() {
           <div>
             <h1 className={styles.pageTitle}>
               {activeTab === 'overview' && 'Dashboard Overview'}
-              {activeTab === 'listings' && 'Properties Manager'}
-              {activeTab === 'crm' && 'Client CRM'}
-              {activeTab === 'settings' && 'Account Settings'}
-              {activeTab === 'verification' && 'Trust & Verification'}
+              {activeTab === 'listings' && t('ad_nav_top_properties')}
+              {activeTab === 'crm' && t('ad_nav_top_crm')}
+              {activeTab === 'settings' && t('ad_nav_top_settings')}
+              {activeTab === 'verification' && t('ad_nav_top_verification')}
             </h1>
             <p style={{ margin: 'var(--space-1) 0 0 0', fontSize: 'var(--text-sm)', color: 'var(--text-secondary)' }}>
               {user?.name || user?.email}
@@ -429,7 +429,7 @@ export default function AgentDashboard() {
           <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', fontSize: 'var(--text-sm)', fontWeight: 500, color: isOnline(user?.last_seen_at) ? 'var(--success)' : 'var(--text-secondary)' }}>
               <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: isOnline(user?.last_seen_at) ? 'var(--success)' : 'var(--text-secondary)' }} />
-              {lastSeenText(user?.last_seen_at)}
+              {(() => { const ls = lastSeenText(user?.last_seen_at); return t(ls.key, ls.params); })()}
             </div>
             
             <VerifiedBadge tier={user?.verification_tier || 'none'} />

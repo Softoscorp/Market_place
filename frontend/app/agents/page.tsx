@@ -97,10 +97,10 @@ export default function AgentsPage() {
           <button 
             className={styles.infoBtn}
             onClick={() => setShowTierModal(true)}
-            aria-label="About agent tiers"
+            aria-label={t('ag_tiers_aria')}
           >
             <Info size={20} />
-            <span>Verification Tiers</span>
+            <span>{t('ag_verification_tiers')}</span>
           </button>
         </div>
         <p className={styles.subtitle}>{t('agents_sub')}</p>
@@ -151,12 +151,12 @@ export default function AgentsPage() {
         </motion.div>
 
         {agents.length > AGENTS_PER_PAGE && (
-          <nav className={styles.pagination} aria-label="Agents pagination">
+          <nav className={styles.pagination} aria-label={t('ag_pagination')}>
             <button
               className={styles.pageBtn}
               onClick={() => setPage((p) => Math.max(1, p - 1))}
               disabled={page === 1}
-              aria-label="Previous page"
+              aria-label={t('ag_prev')}
             >
               <ChevronLeft size={16} />
             </button>
@@ -165,7 +165,7 @@ export default function AgentsPage() {
                 key={i}
                 className={`${styles.pageBtn} ${page === i + 1 ? styles.active : ''}`}
                 onClick={() => setPage(i + 1)}
-                aria-label={`Page ${i + 1}`}
+                aria-label={t('ag_page').replace('{n}', String(i + 1))}
               >
                 {i + 1}
               </button>
@@ -174,7 +174,7 @@ export default function AgentsPage() {
               className={styles.pageBtn}
               onClick={() => setPage((p) => Math.min(Math.ceil(agents.length / AGENTS_PER_PAGE), p + 1))}
               disabled={page === Math.ceil(agents.length / AGENTS_PER_PAGE)}
-              aria-label="Next page"
+              aria-label={t('ag_next')}
             >
               <ChevronRight size={16} />
             </button>

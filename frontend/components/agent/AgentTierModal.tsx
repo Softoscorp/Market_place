@@ -2,6 +2,7 @@ import React from 'react';
 import { ShieldAlert } from 'lucide-react';
 import { Modal } from '@/components/ui/Modal';
 import { VerifiedBadge } from '@/components/ui/VerifiedBadge';
+import { useLanguageStore } from '@/lib/store/useLanguageStore';
 import styles from './AgentTierModal.module.css';
 
 interface AgentTierModalProps {
@@ -10,11 +11,12 @@ interface AgentTierModalProps {
 }
 
 export function AgentTierModal({ isOpen, onClose }: AgentTierModalProps) {
+  const t = useLanguageStore((s) => s.t);
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Agent Verification Tiers">
+    <Modal isOpen={isOpen} onClose={onClose} title={t('atm_title')}>
       <div className={styles.container}>
         <p className={styles.intro}>
-          To keep our platform safe and reliable, we verify agents and assign them tiers based on their verification level. Here's what they mean:
+          {t('atm_intro')}
         </p>
 
         <div className={styles.tierList}>
@@ -22,11 +24,11 @@ export function AgentTierModal({ isOpen, onClose }: AgentTierModalProps) {
             <div className={styles.tierHeader}>
               <span className={`${styles.tierBadge} ${styles.tierGoldBadge}`}>
                 <VerifiedBadge tier="international" size="sm" />
-                <span>International</span>
+                <span>{t('atm_international')}</span>
               </span>
             </div>
             <p className={styles.tierDesc}>
-              These agents have completed the highest level of verification, including international background checks. You can deal with them internationally. Highly trusted.
+              {t('atm_international_desc')}
             </p>
           </div>
 
@@ -34,11 +36,11 @@ export function AgentTierModal({ isOpen, onClose }: AgentTierModalProps) {
             <div className={styles.tierHeader}>
               <span className={`${styles.tierBadge} ${styles.tierBlueBadge}`}>
                 <VerifiedBadge tier="local" size="sm" />
-                <span>Local</span>
+                <span>{t('atm_local')}</span>
               </span>
             </div>
             <p className={styles.tierDesc}>
-              These agents have completed local identity verification and are trusted members of our platform.
+              {t('atm_local_desc')}
             </p>
           </div>
 
@@ -46,17 +48,17 @@ export function AgentTierModal({ isOpen, onClose }: AgentTierModalProps) {
             <div className={styles.tierHeader}>
               <span className={`${styles.tierBadge} ${styles.tierNoneBadge}`}>
                 <VerifiedBadge tier="none" size="sm" />
-                <span>Not Verified</span>
+                <span>{t('atm_not_verified')}</span>
               </span>
             </div>
             <p className={styles.tierDesc}>
-              These agents have not completed their verification. <strong>You can still rent through them, but it will be at your own risk.</strong>
+              {t('atm_not_verified_desc')}
             </p>
           </div>
         </div>
 
         <button className={styles.gotItBtn} onClick={onClose}>
-          Got it
+          {t('atm_got_it')}
         </button>
       </div>
     </Modal>

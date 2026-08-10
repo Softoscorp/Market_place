@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { Star, Phone, Mail, MapPin, MessageSquareHeart } from 'lucide-react';
 import { useChatStore } from '@/lib/store/useChatStore';
+import { useLanguageStore } from '@/lib/store/useLanguageStore';
 import { PremiumIcon } from '@/components/ui/PremiumIcon';
 import { VerifiedBadge } from '@/components/ui/VerifiedBadge';
 import { isOnline, lastSeenText } from '@/lib/timeAgo';
@@ -38,6 +39,7 @@ export function AgentProfile({
   lastSeenAt
 }: AgentProfileProps) {
   const { openChat } = useChatStore();
+  const t = useLanguageStore((s) => s.t);
   const [isRatingMode, setIsRatingMode] = useState(false);
   const [hoveredStar, setHoveredStar] = useState(0);
   const [selectedRating, setSelectedRating] = useState(0);
@@ -67,10 +69,9 @@ export function AgentProfile({
             {lastSeenAt && (
               <span className={isOnline(lastSeenAt) ? styles.statusOnline : styles.statusOffline}>
                 <span className={styles.statusDot} />
-                {lastSeenText(lastSeenAt)}
+                {(() => { const ls = lastSeenText(lastSeenAt); return t(ls.key, ls.params); })()}
               </span>
-            )}
-          </div>
+            )}          </div>
           <p className={styles.agency}>
             <PremiumIcon icon={MapPin} size={14} colorVariant="primary" containerSize={24} /> {agency}
           </p>
@@ -81,20 +82,20 @@ export function AgentProfile({
               <span className={styles.statValue}>
                 {rating} <Star size={16} fill="var(--warning)" color="var(--warning)" aria-hidden="true" />
               </span>
-              <span className={styles.statLabel}>{reviews} Reviews</span>
+              <span className={styles.statLabel}>{reviews} {t('agent_reviews')}</span>
             </div>
             <div className={styles.statItem}>
               <span className={styles.statValue}>{activeListings}</span>
-              <span className={styles.statLabel}>Active Listings</span>
+              <span className={styles.statLabel}>{t('ac_active_listings')}</span>
             </div>
             <div className={styles.statItem}>
-              <span className={styles.statValue}>{experienceYears} yrs</span>
-              <span className={styles.statLabel}>Experience</span>
+              <span className={styles.statValue}>{experienceYears} {t('ac_years')}</span>
+              <span className={styles.statLabel}>{t('ac_experience')}</span>
             </div>
             {respondRate !== undefined && (
               <div className={styles.statItem}>
                 <span className={styles.statValue}>{respondRate}%</span>
-                <span className={styles.statLabel}>Respond Rate</span>
+                <span className={styles.statLabel}>{t('agent_response')}</span>
               </div>
             )}
           </div>
@@ -102,26 +103,26 @@ export function AgentProfile({
         
         <div className={styles.contactActions}>
           <button className={styles.btnPrimary}>
-            <PremiumIcon icon={Phone} size={16} colorVariant="success" containerSize={28} /> Call Agent
+            <PremiumIcon icon={Phone} size={16} colorVariant="success" containerSize={28} /> {t('ac_call_agent')}
           </button>
           <button 
             className={styles.btnSecondary}
             onClick={() => openChat({ id: name, name: name, avatarUrl: imageUrl })}
           >
-            <PremiumIcon icon={Mail} size={16} colorVariant="primary" containerSize={28} /> Send Message
+            <PremiumIcon icon={Mail} size={16} colorVariant="primary" containerSize={28} /> {t('ac_send_message')}
           </button>
           <button 
             className={styles.btnRate}
             onClick={() => setIsRatingMode(!isRatingMode)}
             disabled={hasRated}
           >
-            <PremiumIcon icon={MessageSquareHeart} size={16} colorVariant="accent" containerSize={28} /> {hasRated ? 'Rated!' : 'Rate Agent'}
+            <PremiumIcon icon={MessageSquareHeart} size={16} colorVariant="accent" containerSize={28} /> {hasRated ? t('ac_rated') : t('ac_rate_agent')}
           </button>
         </div>
 
         {isRatingMode && !hasRated && (
           <div className={styles.ratingSection}>
-            <h3 className={styles.ratingTitle}>Rate {name}</h3>
+            <h3 className={styles.ratingTitle}>{t('ac_rate_title').replace('{name}', name)}</h3>
             <div className={styles.starsContainer}>
               {[1, 2, 3, 4, 5].map((star) => (
                 <button
@@ -130,7 +131,7 @@ export function AgentProfile({
                   onMouseEnter={() => setHoveredStar(star)}
                   onMouseLeave={() => setHoveredStar(0)}
                   onClick={() => setSelectedRating(star)}
-                  aria-label={`Rate ${star} star${star === 1 ? '' : 's'}`}
+                  aria-label={t('ac_rate_star').replace('{star}', String(star)).replace('{plural}', star === 1 ? '' : 's')}
                 >
                   <Star size={24} fill={(hoveredStar || selectedRating) >= star ? 'var(--warning)' : 'transparent'} color="var(--warning)" />
                 </button>
@@ -141,16 +142,16 @@ export function AgentProfile({
               disabled={selectedRating === 0 || isSubmitting}
               onClick={handleRateSubmit}
             >
-              {isSubmitting ? 'Submitting...' : 'Submit Rating'}
+              {isSubmitting ? t('ac_submitting') : t('ac_submit_rating')}
             </button>
           </div>
         )}
       </div>
 
       <div className={styles.section}>
-        <h2 className={styles.sectionTitle}>About {name}</h2>
+        <h2 className={styles.sectionTitle}>{t('ac_about').replace('{name}', name)}</h2>
         <p style={{ color: 'var(--text-secondary)', lineHeight: 1.6 }}>
-          As a top-rated agent specializing in student and professional housing across North Cyprus, I prioritize finding the perfect match for your lifestyle and budget. Whether you&apos;re looking for a quiet studio in Nicosia or a vibrant shared apartment in Kyrenia, I have the local expertise to guide you.
+          {bio || t('ac_about_default')}
         </p>
       </div>
 

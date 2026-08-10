@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { UploadCloud, MapPin, Calculator, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/lib/store/useAuthStore';
+import { useLanguageStore } from '@/lib/store/useLanguageStore';
 import { BackButton } from '@/components/ui/BackButton';
 import { VerifiedBadge } from '@/components/ui/VerifiedBadge';
 import { BrandedAvatar } from '@/components/ui/BrandedAvatar';
@@ -13,6 +14,7 @@ import { apiRequest, mediaUrl } from '@/lib/api';
 
 export default function PostListingPage() {
   const router = useRouter();
+  const t = useLanguageStore((s) => s.t);
   const { user, isAuthenticated } = useAuthStore();
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const [isPublishing, setIsPublishing] = useState(false);
@@ -91,14 +93,14 @@ export default function PostListingPage() {
         animate={{ opacity: 1, y: 0 }}
       >
         <div className={styles.header}>
-          <h1 className={styles.title}>Post a New Listing</h1>
-          <p className={styles.subtitle}>Upload photos and details for your property.</p>
+          <h1 className={styles.title}>{t('pl_title')}</h1>
+          <p className={styles.subtitle}>{t('pl_subtitle')}</p>
         </div>
 
         <div className={styles.grid}>
           <div className={styles.formSection}>
             <div className={styles.inputGroup}>
-              <label className={styles.label}>Property Images</label>
+              <label className={styles.label}>{t('pl_images')}</label>
               <input 
                 type="file" 
                 ref={fileInputRef} 
@@ -113,8 +115,8 @@ export default function PostListingPage() {
               >
                 <UploadCloud size={48} />
                 <div>
-                  <strong>Click to upload</strong> or drag and drop<br/>
-                  <span style={{ fontSize: 'var(--text-sm)' }}>PNG, JPG, WEBP (max 10MB per image)</span>
+                  <strong>{t('pl_upload_cta')}</strong><br/>
+                  <span style={{ fontSize: 'var(--text-sm)' }}>{t('pl_upload_hint')}</span>
                 </div>
               </div>
 
@@ -123,7 +125,7 @@ export default function PostListingPage() {
                   {previewUrls.map((url, idx) => (
                     <div key={idx} className={styles.previewThumbWrapper}>
                       {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={url} alt={`Preview ${idx}`} className={styles.previewThumb} />
+                      <img src={url} alt={t('pl_preview').replace('{n}', String(idx))} className={styles.previewThumb} />
                       <button 
                         type="button" 
                         className={styles.removeThumbBtn} 
@@ -131,7 +133,7 @@ export default function PostListingPage() {
                           e.stopPropagation();
                           removePhoto(idx);
                         }}
-                        aria-label="Remove photo"
+                        aria-label={t('pl_remove_photo')}
                       >
                         <X size={12} />
                       </button>
@@ -142,24 +144,24 @@ export default function PostListingPage() {
             </div>
 
             <div className={styles.inputGroup}>
-              <label className={styles.label}>Listing Title</label>
-              <input id="listingTitle" type="text" className={styles.input} placeholder="e.g. Modern 2+1 near EMU" value={title} onChange={(e) => setTitle(e.target.value)} />
+              <label className={styles.label}>{t('pl_listing_title')}</label>
+              <input id="listingTitle" type="text" className={styles.input} placeholder={t('pl_listing_title_placeholder')} value={title} onChange={(e) => setTitle(e.target.value)} />
             </div>
 
             <div className={styles.inputGroup}>
-              <label className={styles.label}>Description</label>
+              <label className={styles.label}>{t('pl_description')}</label>
               <textarea 
                 className={styles.input} 
                 style={{ minHeight: '100px', resize: 'vertical', fontFamily: 'inherit' }}
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder="Describe the property..."
+                placeholder={t('pl_description_placeholder')}
               />
             </div>
 
             <div className={styles.row}>
               <div className={styles.inputGroup}>
-                <label className={styles.label}>Monthly Rent</label>
+                <label className={styles.label}>{t('pl_monthly_rent')}</label>
                 <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
                   <select 
                     className={styles.input}
@@ -181,9 +183,9 @@ export default function PostListingPage() {
                 </div>
               </div>
               <div className={styles.inputGroup}>
-                <label className={styles.label}>Type</label>
+                <label className={styles.label}>{t('pl_type')}</label>
                 <select id="listingType" className={styles.input} value={houseType} onChange={(e) => setHouseType(e.target.value)}>
-                  <option value="1+0">Studio (1+0)</option>
+                  <option value="1+0">{t('pl_studio')}</option>
                   <option value="1+1">1+1</option>
                   <option value="2+1">2+1</option>
                   <option value="3+1">3+1</option>
@@ -195,7 +197,7 @@ export default function PostListingPage() {
             </div>
 
             <div className={styles.inputGroup}>
-              <label className={styles.label}>Distance to University (km)</label>
+              <label className={styles.label}>{t('pl_distance')}</label>
               <input 
                 type="number" 
                 step="0.1"
@@ -207,49 +209,49 @@ export default function PostListingPage() {
 
             <div className={styles.row}>
               <div className={styles.inputGroup}>
-                <label className={styles.label}>Upfront Rent (Months)</label>
+                <label className={styles.label}>{t('pl_upfront_months')}</label>
                 <select 
                   className={styles.input}
                   value={upfrontMonths}
                   onChange={(e) => setUpfrontMonths(Number(e.target.value))}
                 >
-                  <option value={1}>1 Month (Standard)</option>
-                  <option value={2}>2 Months</option>
-                  <option value={3}>3 Months</option>
-                  <option value={6}>6 Months</option>
-                  <option value={12}>12 Months (Yearly)</option>
+                  <option value={1}>{t('pl_1month')}</option>
+                  <option value={2}>{t('pl_2months')}</option>
+                  <option value={3}>{t('pl_3months')}</option>
+                  <option value={6}>{t('pl_6months')}</option>
+                  <option value={12}>{t('pl_12months')}</option>
                 </select>
               </div>
               <div className={styles.inputGroup}>
-                <label className={styles.label}>Deposit</label>
+                <label className={styles.label}>{t('pl_deposit')}</label>
                 <select 
                   className={styles.input}
                   value={depositMonths}
                   onChange={(e) => setDepositMonths(Number(e.target.value))}
                 >
-                  <option value={0}>No Deposit</option>
-                  <option value={1}>1 Month Rent</option>
-                  <option value={2}>2 Months Rent</option>
-                  <option value={3}>3 Months Rent</option>
+                  <option value={0}>{t('pl_no_deposit')}</option>
+                  <option value={1}>{t('pl_1mo_rent')}</option>
+                  <option value={2}>{t('pl_2mo_rent')}</option>
+                  <option value={3}>{t('pl_3mo_rent')}</option>
                 </select>
               </div>
               <div className={styles.inputGroup}>
-                <label className={styles.label}>Agency Commission</label>
+                <label className={styles.label}>{t('pl_commission')}</label>
                 <select 
                   className={styles.input}
                   value={commissionMonths}
                   onChange={(e) => setCommissionMonths(Number(e.target.value))}
                 >
-                  <option value={0}>No Commission</option>
-                  <option value={0.5}>Half Month Rent (50%)</option>
-                  <option value={1}>1 Month Rent (100%)</option>
-                  <option value={2}>2 Months Rent</option>
+                  <option value={0}>{t('pl_no_commission')}</option>
+                  <option value={0.5}>{t('pl_half_rent')}</option>
+                  <option value={1}>{t('pl_1mo_commission')}</option>
+                  <option value={2}>{t('pl_2mo_commission')}</option>
                 </select>
               </div>
             </div>
 
             <div className={styles.inputGroup}>
-              <label className={styles.label}>Location / Region</label>
+              <label className={styles.label}>{t('pl_location')}</label>
               <div style={{ position: 'relative' }}>
                 <MapPin size={18} style={{ position: 'absolute', left: 12, top: 12, color: 'var(--text-muted)' }} />
                 <select 
@@ -269,31 +271,31 @@ export default function PostListingPage() {
             </div>
 
             <div className={styles.inputGroup}>
-              <label className={styles.label}>Property Amenities</label>
+              <label className={styles.label}>{t('pl_amenities')}</label>
               <div className={styles.amenitiesGrid}>
                 <label className={styles.checkboxLabel}>
                   <input type="checkbox" checked={furnished} onChange={(e) => setFurnished(e.target.checked)} />
-                  Fully Furnished
+                  {t('fp_fully_furnished')}
                 </label>
                 <label className={styles.checkboxLabel}>
                   <input type="checkbox" checked={generator} onChange={(e) => setGenerator(e.target.checked)} />
-                  Generator
+                  {t('fp_generator')}
                 </label>
                 <label className={styles.checkboxLabel}>
                   <input type="checkbox" checked={pool} onChange={(e) => setPool(e.target.checked)} />
-                  Pool
+                  {t('fp_pool')}
                 </label>
                 <label className={styles.checkboxLabel}>
                   <input type="checkbox" checked={gym} onChange={(e) => setGym(e.target.checked)} />
-                  Gym
+                  {t('fp_gym')}
                 </label>
                 <label className={styles.checkboxLabel}>
                   <input type="checkbox" checked={parking} onChange={(e) => setParking(e.target.checked)} />
-                  Parking
+                  {t('fp_parking')}
                 </label>
                 <label className={styles.checkboxLabel}>
                   <input type="checkbox" checked={petFriendly} onChange={(e) => setPetFriendly(e.target.checked)} />
-                  Pet Friendly
+                  {t('fp_pet_friendly')}
                 </label>
               </div>
             </div>
@@ -317,30 +319,30 @@ export default function PostListingPage() {
                   {user?.name || 'Agent'}
                   <VerifiedBadge tier={user?.verification_tier || 'none'} />
                 </div>
-                <div className={styles.agentSub}>Posting as agent</div>
+                <div className={styles.agentSub}>{t('pl_agent_sidebar')}</div>
               </div>
             </div>
 
             <div className={styles.previewCard}>
               <div className={styles.previewCardImg}>
                 {previewUrls.length > 0 ? (
-                  <img src={previewUrls[0]} alt="Listing preview" className={styles.previewCardImgEl} />
+                  <img src={previewUrls[0]} alt={t('pl_listing_preview')} className={styles.previewCardImgEl} />
                 ) : (
                   /* eslint-disable-next-line @next/next/no-img-element */
-                  <img src="/images/listing-placeholder.svg" alt="Listing preview" className={styles.previewCardImgEl} />
+                  <img src="/images/listing-placeholder.svg" alt={t('pl_listing_preview')} className={styles.previewCardImgEl} />
                 )}
                 <div className={styles.previewCardScrim} />
                 <span className={styles.previewType}>{houseType}</span>
                 <div className={styles.previewPrice}>
                   <span className={styles.previewPriceAmt}>{currency}{price}</span>
-                  <span className={styles.previewPricePer}>/mo</span>
+                  <span className={styles.previewPricePer}>{t('per_month')}</span>
                 </div>
               </div>
               <div className={styles.previewCardInfo}>
-                <div className={styles.previewCardTitle}>{title || 'Your listing title'}</div>
+                <div className={styles.previewCardTitle}>{title || t('pl_preview_title')}</div>
                 <div className={styles.previewCardLoc}>
                   <MapPin size={13} /> {location}
-                  {distanceToUni > 0 && <span> · {distanceToUni}km to uni</span>}
+                  {distanceToUni > 0 && <span> · {t('pl_km_uni').replace('{km}', String(distanceToUni))}</span>}
                 </div>
                 <div className={styles.previewCardFooter}>
                   <div className={styles.previewAgent}>
@@ -355,7 +357,7 @@ export default function PostListingPage() {
                     <VerifiedBadge tier={user?.verification_tier || 'none'} size="sm" />
                   </div>
                   <div className={styles.previewTerm}>
-                    <span className={styles.previewTermLabel}>Move-in</span>
+                    <span className={styles.previewTermLabel}>{t('prop_move_in')}</span>
                     <span className={styles.previewTermValue}>{currency}{totalMoveIn}</span>
                   </div>
                 </div>
@@ -364,24 +366,24 @@ export default function PostListingPage() {
 
             <div className={styles.previewTitle}>
               <Calculator size={20} style={{ display: 'inline', marginRight: 8, verticalAlign: 'middle' }}/>
-              Move-in Cost Preview
+              {t('pl_move_in_cost')}
             </div>
             
             <div className={styles.summaryItem}>
-              <span>Upfront Rent</span>
+              <span>{t('pl_upfront_rent')}</span>
               <span>{currency}{upfront}</span>
             </div>
             <div className={styles.summaryItem}>
-              <span>Deposit</span>
+              <span>{t('pl_deposit')}</span>
               <span>{currency}{deposit}</span>
             </div>
             <div className={styles.summaryItem}>
-              <span>Agency Commission</span>
+              <span>{t('pl_commission')}</span>
               <span>{currency}{commission}</span>
             </div>
             
             <div className={styles.summaryItem}>
-              <span>Total Move-in Cost</span>
+              <span>{t('pl_total_move_in')}</span>
               <span>{currency}{totalMoveIn}</span>
             </div>
 
@@ -391,7 +393,7 @@ export default function PostListingPage() {
               onClick={async () => {
                 try {
                   setIsPublishing(true);
-                  const title = (document.getElementById('listingTitle') as HTMLInputElement).value || 'New Property';
+                  const title = (document.getElementById('listingTitle') as HTMLInputElement).value || t('pl_new_property');
 
                   const payload = {
                     title,
@@ -427,17 +429,17 @@ export default function PostListingPage() {
                     }
                   }
 
-                  setPublishMessage({ text: 'Listing published successfully! Redirecting...', type: 'success' });
+                  setPublishMessage({ text: t('pl_published'), type: 'success' });
                   setTimeout(() => router.push('/property/' + res.id), 1500);
                 } catch (err: unknown) {
                   const error = err as Error;
-                  setPublishMessage({ text: error.message || 'Failed to post listing', type: 'error' });
+                  setPublishMessage({ text: error.message || t('pl_failed'), type: 'error' });
                 } finally {
                   setIsPublishing(false);
                 }
               }}
             >
-              {isPublishing ? 'Publishing...' : 'Publish Listing'}
+              {isPublishing ? t('pl_publishing') : t('pl_publish')}
             </button>
             {publishMessage && (
               <div style={{
@@ -454,7 +456,7 @@ export default function PostListingPage() {
               </div>
             )}
             <p style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)', textAlign: 'center', marginTop: 'var(--space-4)' }}>
-              By publishing, you agree to our Verified Agent terms.
+              {t('pl_agree')}
             </p>
                 </>
               );

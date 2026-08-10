@@ -1,6 +1,9 @@
+'use client';
+
 import React from 'react';
 import Link from 'next/link';
 import { Logo } from '@/components/layout/Logo';
+import { useLanguageStore } from '@/lib/store/useLanguageStore';
 import styles from './LegalPage.module.css';
 
 export type LegalSection = {
@@ -17,6 +20,7 @@ type LegalPageProps = {
 };
 
 export function LegalPage({ title, updated, intro, sections }: LegalPageProps) {
+  const t = useLanguageStore((s) => s.t);
   return (
     <div className={styles.page}>
       <div className={styles.container}>
@@ -26,7 +30,7 @@ export function LegalPage({ title, updated, intro, sections }: LegalPageProps) {
 
         <header className={styles.header}>
           <h1>{title}</h1>
-          <p className={styles.updated}>Last updated: {updated}</p>
+          <p className={styles.updated}>{t('legal_last_updated').replace('{date}', updated)}</p>
         </header>
 
         <p className={styles.intro}>{intro}</p>
@@ -49,10 +53,9 @@ export function LegalPage({ title, updated, intro, sections }: LegalPageProps) {
 
         <footer className={styles.notice}>
           <p>
-            This page is provided for general information and does not constitute legal
-            advice. Please contact us at{' '}
-            <Link href="/contact">support@houseagent.app</Link> with any questions, and
-            consult a qualified professional for advice specific to your situation.
+            {t('legal_notice').split('support@houseagent.app')[0]}
+            <Link href="/contact">support@houseagent.app</Link>
+            {t('legal_notice').split('support@houseagent.app')[1]}
           </p>
         </footer>
       </div>

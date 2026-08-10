@@ -221,7 +221,7 @@ export function ChatPanel() {
               <ProtectedImage
                 src={mediaUrl(msg.imageUrl) || ''}
                 fallbackSrc={msg.imageUrl}
-                alt="Shared image"
+                alt={t('chat_shared_image')}
                 className={styles.sharedImage}
               />
             ) : (
@@ -236,7 +236,7 @@ export function ChatPanel() {
               type="button"
               className={styles.voicePlayBtn}
               onClick={() => togglePlay(msg.audioUrl!)}
-              aria-label={playingUrl === msg.audioUrl ? 'Pause' : 'Play'}
+              aria-label={playingUrl === msg.audioUrl ? t('chat_pause') : t('chat_play')}
             >
               {playingUrl === msg.audioUrl ? <Pause size={16} /> : <Play size={16} />}
             </button>
@@ -327,7 +327,7 @@ export function ChatPanel() {
                   </div>
                 )}
               </div>
-              <button onClick={closeChat} className={styles.closeBtn} aria-label="Close chat">
+              <button onClick={closeChat} className={styles.closeBtn} aria-label={t('chat_close_chat')}>
                 <X size={20} />
               </button>
             </div>
@@ -383,7 +383,7 @@ export function ChatPanel() {
                 <ProtectedImage
                   src={imagePreview}
                   fallbackSrc={imagePreview}
-                  alt="Preview"
+                  alt={t('chat_preview')}
                   className={styles.previewImage}
                 />
                 <div className={styles.previewActions}>
@@ -456,7 +456,7 @@ export function ChatPanel() {
                   <Mic size={18} />
                 </button>
               )}
-              <button type="submit" className={styles.sendBtn} disabled={!activeConversation} aria-label="Send message">
+              <button type="submit" className={styles.sendBtn} disabled={!activeConversation} aria-label={t('chat_send_message')}>
                 <Send size={18} />
               </button>
             </form>

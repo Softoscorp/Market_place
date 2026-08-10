@@ -111,13 +111,13 @@ export default function SignupPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
             >
-              <h1>Find Your Perfect Space in North Cyprus</h1>
-              <p>Join thousands of students and verified agents on the most trusted housing platform.</p>
+              <h1>{t('sg_hero_title')}</h1>
+              <p>{t('sg_hero_sub')}</p>
               
               <div className={styles.testimonial}>
                 <div className={styles.stars}>★★★★★</div>
-                <p>&quot;House Agent made finding my flatmate and apartment so easy!&quot;</p>
-                <div className={styles.author}>— Sarah T., EMU Student</div>
+                <p>&quot;{t('sg_testimonial')}&quot;</p>
+                <div className={styles.author}>{t('sg_testimonial_author')}</div>
               </div>
             </motion.div>
           </div>
@@ -199,7 +199,7 @@ export default function SignupPage() {
                   </button>
                   
                   <div className={styles.loginLink}>
-                    Already have an account? <Link href="/login">Sign in</Link>
+                    {t('sg_have_account')} <Link href="/login">{t('sg_signin')}</Link>
                   </div>
                 </motion.div>
               )}
@@ -228,7 +228,7 @@ export default function SignupPage() {
                         type="text" 
                         className={styles.input} 
                         required 
-                        placeholder="John Doe"
+                        placeholder={t('sg_name_placeholder')}
                         value={formData.name}
                         onChange={(e) => setFormData({...formData, name: e.target.value})}
                       />

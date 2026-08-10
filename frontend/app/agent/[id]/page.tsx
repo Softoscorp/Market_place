@@ -156,7 +156,7 @@ interface AgentProfile {
             ))}
           </div>
         ) : (
-          <p>This agent currently has no active listings.</p>
+          <p>{t('ag_no_listings')}</p>
         )}
       </motion.section>
     </div>

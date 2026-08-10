@@ -1,15 +1,19 @@
+'use client';
+
 import React, { useState } from 'react';
+import { useLanguageStore } from '@/lib/store/useLanguageStore';
 import styles from './RoommateMatchForm.module.css';
 
-const STEPS = [
-  { id: 1, title: 'Lifestyle' },
-  { id: 2, title: 'Cleanliness' },
-  { id: 3, title: 'Schedule' }
-];
-
 export function RoommateMatchForm() {
+  const t = useLanguageStore((s) => s.t);
   const [currentStep, setCurrentStep] = useState(1);
   const [selections, setSelections] = useState<Record<string, string>>({});
+
+  const STEPS = [
+    { id: 1 },
+    { id: 2 },
+    { id: 3 }
+  ];
 
   const handleSelect = (key: string, value: string) => {
     setSelections(prev => ({ ...prev, [key]: value }));
@@ -26,8 +30,8 @@ export function RoommateMatchForm() {
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <h2 className={styles.title}>Find Your Match</h2>
-        <p className={styles.subtitle}>Let's understand your lifestyle to find the best roommate.</p>
+        <h2 className={styles.title}>{t('rmf_title')}</h2>
+        <p className={styles.subtitle}>{t('rmf_subtitle')}</p>
       </div>
 
       <div className={styles.progress}>
@@ -43,9 +47,9 @@ export function RoommateMatchForm() {
         {currentStep === 1 && (
           <>
             <div>
-              <h3 className={styles.question}>How often do you have guests over?</h3>
+              <h3 className={styles.question}>{t('rmf_q_guests')}</h3>
               <div className={styles.optionsGrid}>
-                {['Rarely', 'Occasionally', 'Often', 'Constantly'].map(opt => (
+                {[t('rmf_guests_rarely'), t('rmf_guests_occasionally'), t('rmf_guests_often'), t('rmf_guests_constantly')].map(opt => (
                   <div 
                     key={opt}
                     className={`${styles.optionCard} ${selections['guests'] === opt ? styles.optionCardSelected : ''}`}
@@ -57,9 +61,9 @@ export function RoommateMatchForm() {
               </div>
             </div>
             <div>
-              <h3 className={styles.question}>Do you smoke?</h3>
+              <h3 className={styles.question}>{t('rmf_q_smoke')}</h3>
               <div className={styles.optionsGrid}>
-                {['No', 'Yes, outside', 'Yes, inside', 'Occasionally'].map(opt => (
+                {[t('rmf_smoke_no'), t('rmf_smoke_sometimes'), t('rmf_smoke_outside'), t('rmf_smoke_inside')].map(opt => (
                   <div 
                     key={opt}
                     className={`${styles.optionCard} ${selections['smoking'] === opt ? styles.optionCardSelected : ''}`}
@@ -75,9 +79,9 @@ export function RoommateMatchForm() {
 
         {currentStep === 2 && (
           <div>
-            <h3 className={styles.question}>How clean do you keep your space?</h3>
+            <h3 className={styles.question}>{t('rmf_q_clean')}</h3>
             <div className={styles.optionsGrid}>
-              {['Immaculate', 'Clean but lived in', 'Messy but clean', 'Very relaxed'].map(opt => (
+              {[t('rmf_clean_immaculate'), t('rmf_clean_lived'), t('rmf_clean_messy'), t('rmf_clean_relaxed')].map(opt => (
                 <div 
                   key={opt}
                   className={`${styles.optionCard} ${selections['cleanliness'] === opt ? styles.optionCardSelected : ''}`}
@@ -92,9 +96,9 @@ export function RoommateMatchForm() {
 
         {currentStep === 3 && (
           <div>
-            <h3 className={styles.question}>Are you an early bird or night owl?</h3>
+            <h3 className={styles.question}>{t('rmf_q_schedule')}</h3>
             <div className={styles.optionsGrid}>
-              {['Early Bird', '9 to 5 Schedule', 'Night Owl', 'Mixed/Shifts'].map(opt => (
+              {[t('rmf_sched_early'), t('rmf_sched_9to5'), t('rmf_sched_night'), t('rmf_sched_mixed')].map(opt => (
                 <div 
                   key={opt}
                   className={`${styles.optionCard} ${selections['schedule'] === opt ? styles.optionCardSelected : ''}`}
@@ -110,10 +114,10 @@ export function RoommateMatchForm() {
 
       <div className={styles.footer}>
         {currentStep > 1 ? (
-          <button className={styles.btnBack} onClick={prevStep}>Back</button>
+          <button className={styles.btnBack} onClick={prevStep}>{t('back')}</button>
         ) : <div />}
         <button className={styles.btnNext} onClick={nextStep}>
-          {currentStep === STEPS.length ? 'Find Matches' : 'Next Step'}
+          {currentStep === STEPS.length ? t('rmf_find_matches') : t('rmf_next_step')}
         </button>
       </div>
     </div>

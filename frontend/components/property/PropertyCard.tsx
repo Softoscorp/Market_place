@@ -10,6 +10,7 @@ import { Avatar } from '@/components/ui/Avatar';
 import { StarRating } from '@/components/ui/StarRating';
 import { ProtectedImage } from '@/components/ui/ProtectedImage';
 import { VerifiedBadge } from '@/components/ui/VerifiedBadge';
+import { useLanguageStore } from '@/lib/store/useLanguageStore';
 import styles from './PropertyCard.module.css';
 
 export interface PropertyCardProps {
@@ -61,6 +62,7 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
   className
 }) => {
   const [saved, setSaved] = useState(isSaved);
+  const t = useLanguageStore((s) => s.t);
 
   const handleSave = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -104,7 +106,7 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
           <button
             className={clsx(styles.saveButton, saved && styles.saved)}
             onClick={handleSave}
-            aria-label={saved ? "Remove from saved" : "Save property"}
+            aria-label={saved ? t('prop_remove_saved') : t('prop_save_property')}
           >
             <Heart size={16} aria-hidden="true" />
           </button>
@@ -112,7 +114,7 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
 
         <div className={styles.pricePill}>
           <span className={styles.priceAmount}>{formattedPrice}</span>
-          <span className={styles.pricePer}>/mo</span>
+          <span className={styles.pricePer}>{t('per_month')}</span>
         </div>
       </div>
 
@@ -127,11 +129,11 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
             {walkingDistanceMins && (
               <div className={styles.campus}>
                 <GraduationCap size={13} aria-hidden="true" />
-                <span>{walkingDistanceMins}m to uni</span>
+                <span>{t('prop_to_uni').replace('{mins}', String(walkingDistanceMins))}</span>
               </div>
             )}
             <div className={styles.rooms}>
-              {bedrooms} Beds · {bathrooms} Baths
+              {t('prop_beds_baths').replace('{bedrooms}', String(bedrooms)).replace('{bathrooms}', String(bathrooms))}
             </div>
           </div>
         </div>
@@ -146,7 +148,7 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
           ) : null}
         </div>
         <div className={styles.term}>
-          <span className={styles.termLabel}>Move-in</span>
+          <span className={styles.termLabel}>{t('prop_move_in')}</span>
           <span className={styles.termValue}>{formattedMoveInCost}</span>
         </div>
       </div>

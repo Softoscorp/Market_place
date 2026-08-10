@@ -2,11 +2,13 @@
 
 import React, { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useLanguageStore } from '@/lib/store/useLanguageStore';
 import styles from './FilterPanel.module.css';
 
 export function FilterPanel() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const t = useLanguageStore((s) => s.t);
 
   const [location, setLocation] = useState(searchParams.get('location') || '');
   const [minPrice, setMinPrice] = useState(searchParams.get('min_price') || '');
@@ -74,18 +76,18 @@ export function FilterPanel() {
   return (
     <div className={styles.panel}>
       <div className={styles.header}>
-        <h2 className={styles.title}>Filters</h2>
-        <button type="button" onClick={handleReset} className={styles.resetBtn}>Reset All</button>
+        <h2 className={styles.title}>{t('show_filters')}</h2>
+        <button type="button" onClick={handleReset} className={styles.resetBtn}>{t('fp_reset_all')}</button>
       </div>
 
       <div className={styles.section}>
-        <h3 className={styles.sectionTitle}>Location</h3>
+        <h3 className={styles.sectionTitle}>{t('fp_location')}</h3>
         <select 
           className={styles.select} 
           value={location} 
           onChange={(e) => setLocation(e.target.value)}
         >
-          <option value="">Any Region</option>
+          <option value="">{t('fp_any_region')}</option>
           <option value="Famagusta">Famagusta (Gazimağusa)</option>
           <option value="Kyrenia">Kyrenia (Girne)</option>
           <option value="Nicosia">Nicosia (Lefkoşa)</option>
@@ -96,11 +98,11 @@ export function FilterPanel() {
       </div>
 
       <div className={styles.section}>
-        <h3 className={styles.sectionTitle}>Monthly Rent (£)</h3>
+        <h3 className={styles.sectionTitle}>{t('fp_monthly_rent')}</h3>
         <div className={styles.priceRange}>
           <input 
             type="number" 
-            placeholder="Min" 
+            placeholder={t('fp_min')} 
             className={styles.priceInput} 
             value={minPrice}
             onChange={(e) => setMinPrice(e.target.value)}
@@ -108,7 +110,7 @@ export function FilterPanel() {
           <span style={{ color: 'var(--text-secondary)' }}>-</span>
           <input 
             type="number" 
-            placeholder="Max" 
+            placeholder={t('fp_max')} 
             className={styles.priceInput} 
             value={maxPrice}
             onChange={(e) => setMaxPrice(e.target.value)}
@@ -117,9 +119,9 @@ export function FilterPanel() {
       </div>
 
       <div className={styles.section}>
-        <h3 className={styles.sectionTitle}>Property Type</h3>
+        <h3 className={styles.sectionTitle}>{t('fp_property_type')}</h3>
         <div className={styles.grid}>
-          {[{ value: '1+0', label: 'Studio' }, { value: '1+1', label: '1+1' }, { value: '2+1', label: '2+1' }, { value: '3+1', label: '3+1' }, { value: '4+1', label: '4+1' }, { value: '5+1', label: '5+1' }, { value: '6+1', label: '6+1' }].map((type) => (
+          {[{ value: '1+0', label: t('prf_studio') }, { value: '1+1', label: '1+1' }, { value: '2+1', label: '2+1' }, { value: '3+1', label: '3+1' }, { value: '4+1', label: '4+1' }, { value: '5+1', label: '5+1' }, { value: '6+1', label: '6+1' }].map((type) => (
             <label key={type.value} className={styles.checkboxLabel}>
               <input 
                 type="radio" 
@@ -133,30 +135,30 @@ export function FilterPanel() {
       </div>
 
       <div className={styles.section}>
-        <h3 className={styles.sectionTitle}>Amenities</h3>
+        <h3 className={styles.sectionTitle}>{t('fp_amenities')}</h3>
         <div className={styles.grid}>
           <label className={styles.checkboxLabel}>
-            <input type="checkbox" checked={furnished} onChange={(e) => setFurnished(e.target.checked)} /> Fully Furnished
+            <input type="checkbox" checked={furnished} onChange={(e) => setFurnished(e.target.checked)} /> {t('fp_fully_furnished')}
           </label>
           <label className={styles.checkboxLabel}>
-            <input type="checkbox" checked={generator} onChange={(e) => setGenerator(e.target.checked)} /> Generator
+            <input type="checkbox" checked={generator} onChange={(e) => setGenerator(e.target.checked)} /> {t('fp_generator')}
           </label>
           <label className={styles.checkboxLabel}>
-            <input type="checkbox" checked={pool} onChange={(e) => setPool(e.target.checked)} /> Pool
+            <input type="checkbox" checked={pool} onChange={(e) => setPool(e.target.checked)} /> {t('fp_pool')}
           </label>
           <label className={styles.checkboxLabel}>
-            <input type="checkbox" checked={gym} onChange={(e) => setGym(e.target.checked)} /> Gym
+            <input type="checkbox" checked={gym} onChange={(e) => setGym(e.target.checked)} /> {t('fp_gym')}
           </label>
           <label className={styles.checkboxLabel}>
-            <input type="checkbox" checked={parking} onChange={(e) => setParking(e.target.checked)} /> Parking
+            <input type="checkbox" checked={parking} onChange={(e) => setParking(e.target.checked)} /> {t('fp_parking')}
           </label>
           <label className={styles.checkboxLabel}>
-            <input type="checkbox" checked={petFriendly} onChange={(e) => setPetFriendly(e.target.checked)} /> Pet Friendly
+            <input type="checkbox" checked={petFriendly} onChange={(e) => setPetFriendly(e.target.checked)} /> {t('fp_pet_friendly')}
           </label>
         </div>
       </div>
 
-      <button type="button" onClick={handleApply} className={styles.applyBtn}>Apply Filters</button>
+      <button type="button" onClick={handleApply} className={styles.applyBtn}>{t('fp_apply')}</button>
     </div>
   );
 }

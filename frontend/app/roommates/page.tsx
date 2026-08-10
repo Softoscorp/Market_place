@@ -36,6 +36,7 @@ const BUDGET_RANGES = [
   { label: '£300 – £500', min: 300, max: 500 },
   { label: '£500+', min: 501, max: Infinity },
 ];
+const BUDGET_LABEL_KEYS = ['rm_budget_under', 'rm_budget_300', 'rm_budget_500'] as const;
 export default function RoommatesPage() {
   const { t } = useLanguageStore();
   const [showPostForm, setShowPostForm] = useState(false);
@@ -118,7 +119,7 @@ export default function RoommatesPage() {
         </div>
         <button className={styles.postBtn} onClick={() => setShowPostForm(true)}>
           <Plus size={18} />
-          Post a Housemate Ad
+          {t('rm_post_ad')}
         </button>
       </header>
 
@@ -127,12 +128,12 @@ export default function RoommatesPage() {
           <Search size={16} />
           <input
             type="text"
-            placeholder="Search by name, area, school…"
+            placeholder={t('rm_search')}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
           {searchQuery && (
-            <button className={styles.searchClear} onClick={() => setSearchQuery('')} aria-label="Clear search">
+            <button className={styles.searchClear} onClick={() => setSearchQuery('')} aria-label={t('rm_clear_search')}>
               <X size={15} />
             </button>
           )}
@@ -142,7 +143,7 @@ export default function RoommatesPage() {
           onClick={() => setFilterOpen(!filterOpen)}
         >
           <SlidersHorizontal size={16} />
-          Filter
+          {t('rm_filter')}
           {activeFilterCount > 0 && (
             <span className={styles.filterDot}>{activeFilterCount}</span>
           )}
@@ -152,27 +153,27 @@ export default function RoommatesPage() {
       {filterOpen && (
         <div className={styles.filterSheet}>
           <div className={styles.filterSheetHead}>
-            <h3>Filters</h3>
-            <button className={styles.resetBtn} onClick={clearFilters}>Reset</button>
+            <h3>{t('show_filters')}</h3>
+            <button className={styles.resetBtn} onClick={clearFilters}>{t('rm_reset')}</button>
           </div>
 
           <div className={styles.filterGroup}>
-            <label>Type</label>
+            <label>{t('rm_type')}</label>
             <div className={styles.seg}>
-              <button className={typeFilter === 'all' ? styles.segOn : ''} onClick={() => toggleChip('all')}>Any</button>
-              <button className={typeFilter === 'housemate' ? styles.segOn : ''} onClick={() => toggleChip('housemate')}>Housemate</button>
-              <button className={typeFilter === 'roommate' ? styles.segOn : ''} onClick={() => toggleChip('roommate')}>Roommate</button>
+              <button className={typeFilter === 'all' ? styles.segOn : ''} onClick={() => toggleChip('all')}>{t('rm_all')}</button>
+              <button className={typeFilter === 'housemate' ? styles.segOn : ''} onClick={() => toggleChip('housemate')}>{t('prf_type_housemate')}</button>
+              <button className={typeFilter === 'roommate' ? styles.segOn : ''} onClick={() => toggleChip('roommate')}>{t('prf_type_roommate')}</button>
             </div>
           </div>
 
           <div className={styles.filterGroup}>
-            <label>Area / School</label>
+            <label>{t('rm_area_school')}</label>
             <select
               className={styles.schoolSelect}
               value={schoolFilter}
               onChange={(e) => setSchoolFilter(e.target.value)}
             >
-              <option value="">All areas</option>
+              <option value="">{t('rm_all_areas')}</option>
               {UNIVERSITIES_BY_CITY.map((group) => (
                 <optgroup key={group.city} label={group.city}>
                   {group.schools.map((school) => (
@@ -184,7 +185,7 @@ export default function RoommatesPage() {
           </div>
 
           <div className={styles.filterGroup}>
-            <label>Budget</label>
+            <label>{t('rm_budget')}</label>
             <div className={styles.seg}>
               {BUDGET_RANGES.map((range, idx) => (
                 <button
@@ -192,7 +193,7 @@ export default function RoommatesPage() {
                   className={budgetRange === idx ? styles.segOn : ''}
                   onClick={() => setBudgetRange(budgetRange === idx ? null : idx)}
                 >
-                  {range.label}
+                  {t(BUDGET_LABEL_KEYS[idx])}
                 </button>
               ))}
             </div>
@@ -202,29 +203,29 @@ export default function RoommatesPage() {
 
       <div className={styles.chips}>
         <span className={`${styles.chip} ${typeFilter === 'all' ? styles.chipActive : ''}`} onClick={() => toggleChip('all')}>
-          All
+          {t('rm_all')}
         </span>
         <span className={`${styles.chip} ${typeFilter === 'housemate' ? styles.chipActive : ''}`} onClick={() => toggleChip('housemate')}>
           <Home size={14} style={{ marginRight: 6 }} />
-          Housemates
+          {t('rm_housemates')}
         </span>
         <span className={`${styles.chip} ${typeFilter === 'roommate' ? styles.chipActive : ''}`} onClick={() => toggleChip('roommate')}>
           <Users size={14} style={{ marginRight: 6 }} />
-          Roommates
+          {t('rm_roommates')}
         </span>
         <span className={`${styles.chip} ${budgetRange === 0 ? styles.chipActive : ''}`} onClick={() => setBudgetRange(budgetRange === 0 ? null : 0)}>
           <Banknote size={14} style={{ marginRight: 6 }} />
-          {BUDGET_RANGES[0].label}
+          {t(BUDGET_LABEL_KEYS[0])}
         </span>
       </div>
 
       <div className={styles.resultsSection}>
         <h2 className={styles.resultsTitle}>
-          {filteredRoommates.length} {typeFilter === 'housemate' ? 'housemate' : typeFilter === 'roommate' ? 'roommate' : 'profile'}{filteredRoommates.length === 1 ? '' : 's'}
+          {filteredRoommates.length} {typeFilter === 'housemate' ? (filteredRoommates.length === 1 ? t('rm_result_housemate') : t('rm_result_housemates')) : typeFilter === 'roommate' ? (filteredRoommates.length === 1 ? t('rm_result_roommate') : t('rm_result_roommates')) : (filteredRoommates.length === 1 ? t('rm_result_profile') : t('rm_result_profiles'))}
         </h2>
         {filteredRoommates.length === 0 ? (
           <p className={styles.empty}>
-            No profiles match those filters yet. Be the first to post a room.
+            {t('rm_no_results')}
           </p>
         ) : (
           <>
@@ -232,10 +233,10 @@ export default function RoommatesPage() {
               {filteredRoommates.map(roommate => (
                 <RoommateCard
                   key={roommate.id}
-                  name={roommate.name || roommate.user?.name || 'User'}
+                  name={roommate.name || roommate.user?.name || t('common_user')}
                   age={roommate.age || 0}
                   gender={roommate.gender || roommate.user?.gender}
-                  occupation={roommate.occupation || (roommate.university ? `${roommate.university} student` : 'Tenant')}
+                  occupation={roommate.occupation || (roommate.university ? t('rm_student').replace('{uni}', roommate.university) : t('rm_tenant'))}
                   imageUrl={mediaUrl(roommate.avatar_url) || mediaUrl(roommate.user?.avatar_url) || ''}
                   matchScore={85}
                   sharedInterests={roommate.habits?.slice(0, 3) || []}
@@ -251,10 +252,10 @@ export default function RoommatesPage() {
               {filteredRoommates.map(roommate => (
                 <RoommateListRow
                   key={roommate.id}
-                  name={roommate.name || roommate.user?.name || 'User'}
+                  name={roommate.name || roommate.user?.name || t('common_user')}
                   age={roommate.age || 0}
                   gender={roommate.gender || roommate.user?.gender}
-                  occupation={roommate.occupation || (roommate.university ? `${roommate.university} student` : 'Tenant')}
+                  occupation={roommate.occupation || (roommate.university ? t('rm_student').replace('{uni}', roommate.university) : t('rm_tenant'))}
                   imageUrl={mediaUrl(roommate.avatar_url) || mediaUrl(roommate.user?.avatar_url) || ''}
                   matchScore={85}
                   sharedInterests={roommate.habits?.slice(0, 3) || []}

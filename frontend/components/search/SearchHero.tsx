@@ -69,7 +69,7 @@ export function SearchHero() {
         <div className={styles.heroImage}>
           <img
             src="/images/kyrenia-aerial.jpg"
-            alt="Aerial view of North Cyprus"
+            alt={t('sh_alt')}
             width={640}
             height={480}
           />

@@ -3,6 +3,7 @@
 import React from 'react';
 import { MessageCircle, Heart, Home, Users, BedDouble, Sofa } from 'lucide-react';
 import { useChatStore } from '@/lib/store/useChatStore';
+import { useLanguageStore } from '@/lib/store/useLanguageStore';
 import { ProtectedImage } from '@/components/ui/ProtectedImage';
 import styles from './RoommateCard.module.css';
 
@@ -36,6 +37,7 @@ export function RoommateCard({
   gender
 }: RoommateCardProps) {
   const { openChat } = useChatStore();
+  const t = useLanguageStore((s) => s.t);
 
   return (
     <div className={styles.card}>
@@ -50,12 +52,12 @@ export function RoommateCard({
           </div>
         )}
         <div className={styles.overlay} />
-        <div className={styles.matchPill}>{matchScore}% Match</div>
+        <div className={styles.matchPill}>{t('rc_match').replace('{score}', String(matchScore))}</div>
         <div className={`${styles.typePill} ${profileType === 'housemate' ? styles.typeHousemate : styles.typeRoommate}`}>
           {profileType === 'housemate' ? <Home size={12} style={{ marginRight: 4 }} /> : <Users size={12} style={{ marginRight: 4 }} />}
-          {profileType === 'housemate' ? 'Housemate' : 'Roommate'}
+          {profileType === 'housemate' ? t('rc_housemate') : t('rc_roommate')}
         </div>
-        <div className={styles.pricePill}>{budget} / mo</div>
+        <div className={styles.pricePill}>{budget} {t('per_month')}</div>
       </div>
 
       <div className={styles.body}>
@@ -79,7 +81,7 @@ export function RoommateCard({
               {interest}
             </span>
           ))}
-          {houseType && <span className={`${styles.tag} ${styles.tagGold}`}>{houseType} flat</span>}
+          {houseType && <span className={`${styles.tag} ${styles.tagGold}`}>{t('rc_flat').replace('{type}', houseType)}</span>}
         </div>
 
         <div className={styles.actions}>
@@ -88,9 +90,9 @@ export function RoommateCard({
             onClick={() => openChat({ id: name, name: name, avatarUrl: imageUrl })}
           >
             <MessageCircle size={16} style={{ marginRight: 6 }} />
-            Message
+            {t('rc_message')}
           </button>
-          <button className={styles.btnSecondary} aria-label="Save">
+          <button className={styles.btnSecondary} aria-label={t('rc_save')}>
             <Heart size={16} />
           </button>
         </div>

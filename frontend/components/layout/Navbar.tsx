@@ -91,7 +91,7 @@ export function Navbar() {
             <button
               className={styles.langToggle}
               onClick={() => setLang(lang === 'en' ? 'tr' : 'en')}
-              aria-label="Toggle language"
+              aria-label={t('nav_toggle_lang')}
             >
               <Globe size={14} />
               {lang === 'en' ? 'TR' : 'EN'}
@@ -101,7 +101,7 @@ export function Navbar() {
         {mounted && isAuthenticated ? (
           <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4)' }}>
             <Link href="/saved" className={styles.link} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', fontWeight: 500 }}>
-              <Heart size={16} /> <span className={styles.hideOnMobile}>{t('nav_saved') || 'Saved'}</span>
+              <Heart size={16} /> <span className={styles.hideOnMobile}>{t('nav_saved')}</span>
             </Link>
             {/* Messages Icon with Badge */}
             <Link href="/messages" className={styles.link} style={{ position: 'relative', display: 'flex', alignItems: 'center' }} title={t('tab_messages')}>
@@ -135,7 +135,7 @@ export function Navbar() {
       <button 
         className={styles.mobileMenuBtn} 
         onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-        aria-label="Toggle menu"
+        aria-label={t('nav_toggle_menu')}
       >
         {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
       </button>
@@ -165,7 +165,7 @@ export function Navbar() {
             {mounted && isAuthenticated ? (
               <>
                 <Link href="/saved" className={styles.mobileLink} onClick={() => setMobileMenuOpen(false)}>
-                  <Heart size={18} /> {t('nav_saved') || 'Saved Properties'}
+                  <Heart size={18} /> {t('nav_saved')}
                 </Link>
                 <Link href="/messages" className={styles.mobileLink} onClick={() => setMobileMenuOpen(false)} style={{ position: 'relative' }}>
                   <MessageSquare size={18} />

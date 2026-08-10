@@ -41,7 +41,8 @@ export function AgentCard({
   const avatarSrc = imageUrl && !imageUrl.includes('placeholder') ? imageUrl : null;
 
   const online = isOnline(lastSeenAt);
-  const statusText = lastSeenText(lastSeenAt);
+  const lastSeen = lastSeenText(lastSeenAt);
+  const statusText = t(lastSeen.key, lastSeen.params);
 
   return (
     <div className={`${styles.card} ${compact ? styles.compact : ''}`}>
@@ -89,7 +90,7 @@ export function AgentCard({
         {respondRate !== undefined && (
           <div className={styles.statItem}>
             <span className={styles.statValue}>{respondRate}%</span>
-            <span className={styles.statLabel}>Respond Rate</span>
+            <span className={styles.statLabel}>{t('agent_response')}</span>
           </div>
         )}
       </div>

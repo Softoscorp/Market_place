@@ -1,5 +1,6 @@
 import React from 'react';
 import { Star } from 'lucide-react';
+import { useLanguageStore } from '@/lib/store/useLanguageStore';
 
 interface Review {
   id: number;
@@ -13,8 +14,9 @@ interface ReviewListProps {
 }
 
 export function ReviewList({ reviews }: ReviewListProps) {
+  const t = useLanguageStore((s) => s.t);
   if (!reviews || reviews.length === 0) {
-    return <p style={{ color: 'var(--text-secondary)', fontStyle: 'italic' }}>No reviews yet.</p>;
+    return <p style={{ color: 'var(--text-secondary)', fontStyle: 'italic' }}>{t('rl_no_reviews')}</p>;
   }
 
   return (

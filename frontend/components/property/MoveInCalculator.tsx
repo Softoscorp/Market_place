@@ -5,6 +5,7 @@ import { clsx } from 'clsx';
 import { Info } from 'lucide-react';
 import { Tooltip } from '@/components/ui/Tooltip';
 import { MoveInBadge } from '@/components/ui/MoveInBadge';
+import { useLanguageStore } from '@/lib/store/useLanguageStore';
 import styles from './MoveInCalculator.module.css';
 
 export interface MoveInCalculatorProps {
@@ -26,6 +27,7 @@ export const MoveInCalculator: React.FC<MoveInCalculatorProps> = ({
 }) => {
   const advanceTotal = rent * advanceMonths;
   const totalMoveIn = advanceTotal + deposit + commission;
+  const t = useLanguageStore((s) => s.t);
 
   const formatMoney = (amount: number) => {
     return new Intl.NumberFormat('en-GB', {
@@ -35,15 +37,19 @@ export const MoveInCalculator: React.FC<MoveInCalculatorProps> = ({
     }).format(amount).replace('£', currency);
   };
 
+  const monthsLabel = t('mic_rent_advance')
+    .replace('{months}', String(advanceMonths))
+    .replace('{plural}', advanceMonths > 1 ? 's' : '');
+
   return (
     <div className={clsx(styles.container, className)}>
-      <h3 className={styles.title}>Move-in Breakdown</h3>
+      <h3 className={styles.title}>{t('mic_title')}</h3>
       
       <div className={styles.breakdown}>
         <div className={styles.item}>
           <div className={styles.itemLabel}>
-            <span>Rent ({advanceMonths} month{advanceMonths > 1 ? 's' : ''} advance)</span>
-            <Tooltip content={`Monthly rent is ${formatMoney(rent)}. You pay ${advanceMonths} month(s) upfront.`}>
+            <span>{monthsLabel}</span>
+            <Tooltip content={t('mic_rent_tooltip').replace('{rent}', formatMoney(rent)).replace('{months}', String(advanceMonths))}>
               <Info size={14} className={styles.infoIcon} aria-hidden="true" />
             </Tooltip>
           </div>
@@ -52,8 +58,8 @@ export const MoveInCalculator: React.FC<MoveInCalculatorProps> = ({
         
         <div className={styles.item}>
           <div className={styles.itemLabel}>
-            <span>Deposit</span>
-            <Tooltip content="Refundable deposit held by the landlord.">
+            <span>{t('mic_deposit')}</span>
+            <Tooltip content={t('mic_deposit_tooltip')}>
               <Info size={14} className={styles.infoIcon} aria-hidden="true" />
             </Tooltip>
           </div>
@@ -62,8 +68,8 @@ export const MoveInCalculator: React.FC<MoveInCalculatorProps> = ({
         
         <div className={styles.item}>
           <div className={styles.itemLabel}>
-            <span>Agency Commission</span>
-            <Tooltip content="One-time fee for the real estate agency.">
+            <span>{t('mic_commission')}</span>
+            <Tooltip content={t('mic_commission_tooltip')}>
               <Info size={14} className={styles.infoIcon} aria-hidden="true" />
             </Tooltip>
           </div>
@@ -72,7 +78,7 @@ export const MoveInCalculator: React.FC<MoveInCalculatorProps> = ({
       </div>
 
       <div className={styles.totalSection}>
-        <span className={styles.totalLabel}>Total Move-in</span>
+        <span className={styles.totalLabel}>{t('mic_total')}</span>
         <MoveInBadge cost={totalMoveIn} className={styles.totalBadge} />
       </div>
     </div>

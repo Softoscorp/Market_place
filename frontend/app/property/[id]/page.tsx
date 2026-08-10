@@ -55,10 +55,10 @@ interface PropertyData {
 }
 
 const TABS = [
-  { id: 'highlights', label: 'Highlights' },
-  { id: 'features', label: 'Features' },
-  { id: 'description', label: 'Description' },
-  { id: 'reviews', label: 'Reviews' },
+  { id: 'highlights', labelKey: 'pd_highlights' },
+  { id: 'features', labelKey: 'pd_features' },
+  { id: 'description', labelKey: 'pd_description' },
+  { id: 'reviews', labelKey: 'pd_reviews' },
 ] as const;
 
 export default function PropertyPage({ params }: PropertyPageProps) {
@@ -147,10 +147,10 @@ export default function PropertyPage({ params }: PropertyPageProps) {
       if (!property) return;
       await saveProperty(property.id);
       setIsSaved(true);
-      showToast("Property saved to your favorites!", "success");
+      showToast(t('pd_saved_toast'), "success");
     } catch (error) {
       console.error(error);
-      showToast("Please log in to save properties.", "error");
+      showToast(t('pd_login_save'), "error");
     }
   };
 
@@ -169,17 +169,17 @@ export default function PropertyPage({ params }: PropertyPageProps) {
         }
       });
       setShowRoommateForm(false);
-      showToast("Roommate profile created successfully!", "success");
+      showToast(t('pd_roommate_created'), "success");
       router.push('/roommates');
     } catch (error) {
       console.error(error);
-      showToast("Error creating roommate profile.", "error");
+      showToast(t('pd_roommate_error'), "error");
     }
   };
 
   const handleBookingSubmit = async () => {
     setShowBookingModal(false);
-    showToast("Booking request sent! The agent will contact you shortly.", "success");
+    showToast(t('pd_booking_sent'), "success");
   };
 
   const handleShare = async () => {
@@ -189,7 +189,7 @@ export default function PropertyPage({ params }: PropertyPageProps) {
         await navigator.share({ title: property?.title, url });
       } else {
         await navigator.clipboard.writeText(url);
-        showToast("Link copied to clipboard!", "success");
+        showToast(t('pd_link_copied'), "success");
       }
     } catch (err) {
       console.error(err);
@@ -200,7 +200,7 @@ export default function PropertyPage({ params }: PropertyPageProps) {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
-  if (loading) return <div className="section container text-center">Loading...</div>;
+  if (loading) return <div className="section container text-center">{t('pd_loading')}</div>;
   if (!property) return notFound();
 
   const agent = property.agent;
@@ -211,13 +211,13 @@ export default function PropertyPage({ params }: PropertyPageProps) {
   const bedrooms = parseInt(property.house_type?.split('+')[0]) || 1;
   const bathrooms = 1;
 
-  const amenities: Array<{ label: string; value: boolean | undefined }> = [
-    { label: 'Furnished', value: property.furnished },
-    { label: 'Parking', value: property.parking },
-    { label: 'Pet Friendly', value: property.pet_friendly },
-    { label: 'Generator', value: property.generator },
-    { label: 'Pool', value: property.pool },
-    { label: 'Gym', value: property.gym },
+  const amenities: Array<{ labelKey: string; value: boolean | undefined }> = [
+    { labelKey: 'fp_fully_furnished', value: property.furnished },
+    { labelKey: 'fp_parking', value: property.parking },
+    { labelKey: 'fp_pet_friendly', value: property.pet_friendly },
+    { labelKey: 'fp_generator', value: property.generator },
+    { labelKey: 'fp_pool', value: property.pool },
+    { labelKey: 'fp_gym', value: property.gym },
   ].filter((a) => a.value);
 
   return (
@@ -244,14 +244,14 @@ export default function PropertyPage({ params }: PropertyPageProps) {
         <div className={styles.heroScrim} />
 
         <div className={styles.heroTop}>
-          <button className={styles.heroBtn} onClick={() => router.back()} aria-label="Go back">
+          <button className={styles.heroBtn} onClick={() => router.back()} aria-label={t('pd_go_back')}>
             <ArrowLeft size={20} aria-hidden="true" />
           </button>
           <div className={styles.heroTopRight}>
-            <button className={styles.heroBtn} onClick={handleShare} aria-label="Share property">
+            <button className={styles.heroBtn} onClick={handleShare} aria-label={t('pd_share')}>
               <Share2 size={19} aria-hidden="true" />
             </button>
-            <button className={styles.heroBtn} onClick={handleSave} aria-label="Save property" style={{ color: isSaved ? 'var(--danger)' : undefined }}>
+            <button className={styles.heroBtn} onClick={handleSave} aria-label={isSaved ? t('pd_saved') : t('pd_save_wishlist')} style={{ color: isSaved ? 'var(--danger)' : undefined }}>
               <Heart size={19} aria-hidden="true" fill={isSaved ? 'currentColor' : 'none'} />
             </button>
           </div>
@@ -259,22 +259,22 @@ export default function PropertyPage({ params }: PropertyPageProps) {
 
         <div className={styles.pricePill}>
           <span className={styles.priceAmount}>£{property.price}</span>
-          <span className={styles.pricePer}>/mo</span>
+          <span className={styles.pricePer}>{t('per_month')}</span>
         </div>
 
         <div className={styles.heroCaption}>
           <div className={styles.heroBadges}>
             <Badge variant="accent">{property.house_type}</Badge>
-            <Badge variant="neutral">{property.furnished ? 'Furnished' : 'Unfurnished'}</Badge>
-            {agent?.verification_tier === 'local' && <Badge variant="verified">Local Verified</Badge>}
-            {agent?.verification_tier === 'international' && <Badge variant="verified">Verified</Badge>}
+            <Badge variant="neutral">{property.furnished ? t('fp_fully_furnished') : t('pd_unfurnished')}</Badge>
+            {agent?.verification_tier === 'local' && <Badge variant="verified">{t('dg_local_verified')}</Badge>}
+            {agent?.verification_tier === 'international' && <Badge variant="verified">{t('verified')}</Badge>}
           </div>
           <h1 className={styles.heroTitle}>{property.title}</h1>
           <div className={styles.heroLoc}>
             <MapPin size={15} aria-hidden="true" />
             {property.location}
             {property.distance_to_university != null && property.distance_to_university > 0 && (
-              <span className={styles.heroUni}>· {property.distance_to_university} km from uni</span>
+              <span className={styles.heroUni}>· {t('pd_km_from_uni').replace('{km}', String(property.distance_to_university))}</span>
             )}
           </div>
         </div>
@@ -284,7 +284,7 @@ export default function PropertyPage({ params }: PropertyPageProps) {
       <nav className={styles.tabs}>
         {TABS.map((tab) => (
           <button key={tab.id} className={styles.tabItem} onClick={() => scrollToTab(tab.id)}>
-            {tab.label}
+            {t(tab.labelKey)}
           </button>
         ))}
       </nav>
@@ -301,7 +301,7 @@ export default function PropertyPage({ params }: PropertyPageProps) {
 
               {/* At a glance */}
               <section id="highlights" className={styles.section}>
-                <h2 className={styles.sectionTitle}>At a glance</h2>
+                <h2 className={styles.sectionTitle}>{t('pd_at_glance')}</h2>
                 <div className={styles.atGlance}>
                   <div className={styles.featureTile}>
                     <div className={styles.featureIcon}>
@@ -309,7 +309,7 @@ export default function PropertyPage({ params }: PropertyPageProps) {
                     </div>
                     <div>
                       <div className={styles.featureValue}>{bedrooms}</div>
-                      <div className={styles.featureLabel}>Bedrooms</div>
+                      <div className={styles.featureLabel}>{t('pd_bedrooms')}</div>
                     </div>
                   </div>
                   <div className={styles.featureTile}>
@@ -318,7 +318,7 @@ export default function PropertyPage({ params }: PropertyPageProps) {
                     </div>
                     <div>
                       <div className={styles.featureValue}>{bathrooms}</div>
-                      <div className={styles.featureLabel}>Bathrooms</div>
+                      <div className={styles.featureLabel}>{t('pd_bathrooms')}</div>
                     </div>
                   </div>
                   <div className={styles.featureTile}>
@@ -331,7 +331,7 @@ export default function PropertyPage({ params }: PropertyPageProps) {
                           ? `${property.distance_to_university} km`
                           : '—'}
                       </div>
-                      <div className={styles.featureLabel}>From Uni</div>
+                      <div className={styles.featureLabel}>{t('pd_from_uni')}</div>
                     </div>
                   </div>
                   <div className={styles.featureTile}>
@@ -340,7 +340,7 @@ export default function PropertyPage({ params }: PropertyPageProps) {
                     </div>
                     <div>
                       <div className={styles.featureValue}>£{property.price}</div>
-                      <div className={styles.featureLabel}>Per month</div>
+                      <div className={styles.featureLabel}>{t('pd_per_month')}</div>
                     </div>
                   </div>
                 </div>
@@ -348,21 +348,21 @@ export default function PropertyPage({ params }: PropertyPageProps) {
 
               {/* Gallery */}
               <section className={styles.section}>
-                <h2 className={styles.sectionTitle}>Photos</h2>
+                <h2 className={styles.sectionTitle}>{t('pd_photos')}</h2>
                 <PropertyGallery images={images} title={property.title} />
               </section>
 
               {/* Features / Amenities */}
               {amenities.length > 0 && (
                 <section id="features" className={styles.section}>
-                  <h2 className={styles.sectionTitle}>Features</h2>
+                  <h2 className={styles.sectionTitle}>{t('pd_features')}</h2>
                   <div className={styles.amenitiesGrid}>
                     {amenities.map((a) => (
-                      <div key={a.label} className={styles.amenityItem}>
+                      <div key={a.labelKey} className={styles.amenityItem}>
                         <span className={styles.amenityCheck}>
                           <Check size={13} strokeWidth={3} aria-hidden="true" />
                         </span>
-                        {a.label}
+                        {t(a.labelKey)}
                       </div>
                     ))}
                   </div>
@@ -371,17 +371,17 @@ export default function PropertyPage({ params }: PropertyPageProps) {
 
               {/* Description */}
               <section id="description" className={styles.section}>
-                <h2 className={styles.sectionTitle}>Description</h2>
+                <h2 className={styles.sectionTitle}>{t('pd_description')}</h2>
                 <p className={styles.description}>{property.description}</p>
               </section>
 
               {/* Reviews */}
               <section id="reviews" className={styles.section}>
                 <div className={styles.reviewsHead}>
-                  <h2 className={styles.sectionTitle}>Property Reviews ({reviews.length})</h2>
+                  <h2 className={styles.sectionTitle}>{t('pd_reviews_count').replace('{count}', String(reviews.length))}</h2>
                   {!showReviewForm && user?.role !== 'agent' && (
                     <Button variant="secondary" onClick={() => setShowReviewForm(true)}>
-                      Write a Review
+                      {t('rf_write_review')}
                     </Button>
                   )}
                 </div>
@@ -420,10 +420,10 @@ export default function PropertyPage({ params }: PropertyPageProps) {
                     fullWidth
                     onClick={() => setShowBookingModal(true)}
                   >
-                    Book Apartment
+                    {t('pd_book')}
                   </Button>
                   <Button variant={isSaved ? "primary" : "secondary"} size="lg" fullWidth onClick={handleSave}>
-                    <Heart size={18} aria-hidden="true" style={{ marginRight: 'var(--space-2)' }} /> {isSaved ? "Saved" : "Save to Wishlist"}
+                    <Heart size={18} aria-hidden="true" style={{ marginRight: 'var(--space-2)' }} /> {isSaved ? t('pd_saved') : t('pd_save_wishlist')}
                   </Button>
                 </div>
               </div>
@@ -463,9 +463,9 @@ export default function PropertyPage({ params }: PropertyPageProps) {
         >
           <div className={styles.container}>
             <div className={styles.similarHead}>
-              <h2 className={styles.sectionTitle}>Similar Properties</h2>
+              <h2 className={styles.sectionTitle}>{t('pd_similar')}</h2>
               <Link href={`/search?house_type=${encodeURIComponent(property.house_type)}`} className={styles.seeAll}>
-                See all →
+                {t('pd_see_all')}
               </Link>
             </div>
             <div className={styles.similarGrid}>
@@ -477,7 +477,7 @@ export default function PropertyPage({ params }: PropertyPageProps) {
                   location={prop.location}
                   price={prop.price}
                   currency={'£'}
-                  type={prop.house_type || 'Unknown'}
+                  type={prop.house_type || t('common_unknown')}
                   bedrooms={parseInt(prop.house_type?.split('+')[0]) || 1}
                   bathrooms={1}
                   images={prop.photos && prop.photos.length > 0 ? (prop.photos.map((p: { url: string }) => mediaUrl(p.url)).filter(Boolean) as string[]) : ['/images/listing-placeholder.svg']}
@@ -496,79 +496,79 @@ export default function PropertyPage({ params }: PropertyPageProps) {
       )}
 
       {/* ============ STICKY BOTTOM BAR ============ */}
-      <div className={styles.bottomBar}>
+        <div className={styles.bottomBar}>
         <div className={styles.bottomPrice}>
           <span className={styles.bottomAmount}>£{property.price}</span>
-          <span className={styles.bottomPer}>/mo</span>
+          <span className={styles.bottomPer}>{t('per_month')}</span>
         </div>
         <div className={styles.bottomActions}>
-          <button className={styles.bottomSave} onClick={handleSave} aria-label="Save property" style={{ color: isSaved ? 'var(--danger)' : undefined }}>
+          <button className={styles.bottomSave} onClick={handleSave} aria-label={t('pd_save_wishlist')} style={{ color: isSaved ? 'var(--danger)' : undefined }}>
             <Heart size={19} aria-hidden="true" fill={isSaved ? 'currentColor' : 'none'} />
           </button>
           <button className={styles.bottomBook} onClick={() => setShowBookingModal(true)}>
-            Book Apartment
+            {t('pd_book')}
           </button>
         </div>
       </div>
 
       {/* Booking Modal */}
-      <Modal isOpen={showBookingModal} onClose={() => setShowBookingModal(false)} title="Book Apartment">
+      <Modal isOpen={showBookingModal} onClose={() => setShowBookingModal(false)} title={t('pd_booking_title')}>
         <div style={{ padding: 'var(--space-4)' }}>
-          <p style={{ marginBottom: 'var(--space-4)' }}>You are about to submit a booking request for <strong>{property.title}</strong>.</p>
-          <p style={{ marginBottom: 'var(--space-8)', color: 'var(--text-secondary)' }}>The agent will review your request and contact you to proceed with the contract.</p>
+          <p style={{ marginBottom: 'var(--space-4)' }}>{t('pd_booking_desc').replace('{title}', property.title)}</p>
+          <p style={{ marginBottom: 'var(--space-8)', color: 'var(--text-secondary)' }}>{t('pd_booking_desc2')}</p>
           <Button variant="primary" fullWidth onClick={handleBookingSubmit}>
-            Confirm Booking Request
+            {t('pd_confirm_booking')}
           </Button>
         </div>
       </Modal>
 
       {/* Roommate Prompt Modal */}
-      <Modal isOpen={showRoommatePrompt} onClose={() => setShowRoommatePrompt(false)} title="Looking for a Roommate?">
+      <Modal isOpen={showRoommatePrompt} onClose={() => setShowRoommatePrompt(false)} title={t('pd_roommate_prompt')}>
         <div style={{ padding: 'var(--space-4)', textAlign: 'center' }}>
           <div style={{ marginBottom: 'var(--space-8)' }}>
             <Heart size={48} color="var(--favorite)" aria-hidden="true" style={{ margin: '0 auto', marginBottom: 'var(--space-4)' }} />
-            <h3 style={{ fontSize: '1.25rem', fontWeight: 600, marginBottom: 'var(--space-2)' }}>Want to split the rent?</h3>
-            <p style={{ color: 'var(--text-secondary)' }}>You can create a roommate request for this apartment. Other users will see it and can message you to team up!</p>
+            <h3 style={{ fontSize: '1.25rem', fontWeight: 600, marginBottom: 'var(--space-2)' }}>{t('pd_split_rent')}</h3>
+            <p style={{ color: 'var(--text-secondary)' }}>{t('pd_split_rent_desc')}</p>
           </div>
           <div style={{ display: 'flex', gap: 'var(--space-4)' }}>
             <Button variant="secondary" fullWidth onClick={() => setShowRoommatePrompt(false)}>
-              No, thanks
+              {t('pd_no_thanks')}
             </Button>
             <Button variant="primary" fullWidth onClick={() => {
               setShowRoommatePrompt(false);
               setShowRoommateForm(true);
             }}>
-              Yes, find a roommate
+              {t('pd_yes_roommate')}
             </Button>
           </div>
         </div>
       </Modal>
 
       {/* Roommate Form Modal */}
-      <Modal isOpen={showRoommateForm} onClose={() => setShowRoommateForm(false)} title="Create Roommate Profile">
+      <Modal isOpen={showRoommateForm} onClose={() => setShowRoommateForm(false)} title={t('pd_create_roommate')}>
         <div style={{ padding: 'var(--space-4)' }}>
           <div style={{ marginBottom: 'var(--space-6)' }}>
-            <label style={{ display: 'block', fontSize: 'var(--text-sm)', fontWeight: 500, marginBottom: 'var(--space-2)' }}>What is your maximum budget for your share? (£)</label>
+            <label style={{ display: 'block', fontSize: 'var(--text-sm)', fontWeight: 500, marginBottom: 'var(--space-2)' }}>{t('pd_budget_label')}</label>
             <Input 
               type="number" 
               name="budget" 
-              placeholder="e.g. 400" 
+              placeholder={t('pd_budget_placeholder')} 
               value={roommateData.budget} 
               onChange={handleRoommateChange} 
             />
           </div>
           <div style={{ marginBottom: 'var(--space-8)' }}>
-            <label style={{ display: 'block', fontSize: 'var(--text-sm)', fontWeight: 500, marginBottom: 'var(--space-2)' }}>Bio & Lifestyle</label>
+            <label style={{ display: 'block', fontSize: 'var(--text-sm)', fontWeight: 500, marginBottom: 'var(--space-2)' }}>{t('pd_bio_label')}</label>
             <textarea 
               name="bio" 
-              placeholder="Describe yourself and what you're looking for in a roommate..." 
+              placeholder={t('pd_bio_placeholder')} 
               value={roommateData.bio} 
               onChange={handleRoommateChange}
               style={{ width: '100%', padding: 'var(--space-3)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border)', minHeight: '100px' }}
             />
           </div>
           <Button variant="primary" fullWidth onClick={handleRoommateSubmit}>
-            Post Roommate Request
+            {t('pd_post_roommate')}
           </Button>
         </div>
       </Modal>

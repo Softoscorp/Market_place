@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Housemates · Version B — Stacked List</title>
+<style>
+  :root {
+    --navy: #08192f;
+    --navy2: #12335c;
+    --gold: #b18842;
+    --ink: #1d1d1f;
+    --muted: #6b7280;
+    --surface: #ffffff;
+    --bg: #f4f4f2;
+    --border: #e8e7e2;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: #e9e9e6;
+    display: flex; justify-content: center; padding: 24px 0;
+  }
+  .phone {
+    width: 390px; height: 800px; background: var(--bg); border-radius: 44px;
+    border: 8px solid #2b2b2e; overflow: hidden; position: relative;
+    box-shadow: 0 30px 60px rgba(0,0,0,0.35);
+  }
+  .screen { height: 100%; overflow-y: auto; padding-bottom: 84px; background: var(--bg); }
+
+  /* ---- top header ---- */
+  .head { position: sticky; top: 0; z-index: 20; background: var(--surface); padding: 14px 18px 10px; border-bottom: 1px solid var(--border); }
+  .head-row { display: flex; align-items: center; justify-content: space-between; }
+  .logo { display: flex; align-items: center; gap: 8px; }
+  .logo .mark { width: 30px; height: 30px; }
+  .logo .text { font-weight: 800; font-size: 15px; letter-spacing: 0.06em; color: var(--navy); }
+  .logo .text span { color: var(--gold); }
+  .post { background: var(--navy); color: #fff; border: none; border-radius: 999px; padding: 9px 16px; font-size: 12px; font-weight: 700; }
+
+  /* ---- search + filter row ---- */
+  .search { display: flex; gap: 8px; margin-top: 12px; }
+  .search-box { flex: 1; display: flex; align-items: center; gap: 8px; background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 10px 14px; color: var(--muted); font-size: 13px; }
+  .search-box svg { width: 16px; height: 16px; }
+  .filter-btn { background: var(--navy); color: #fff; border: none; border-radius: 12px; padding: 0 14px; display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; position: relative; }
+  .filter-btn .dot { position: absolute; top: -5px; right: -5px; background: var(--gold); width: 16px; height: 16px; border-radius: 50%; color: #fff; font-size: 9px; display: flex; align-items: center; justify-content: center; border: 2px solid var(--surface); }
+  .filter-btn svg { width: 16px; height: 16px; }
+
+  /* ---- filter chips (collapsible) ---- */
+  .chips { display: flex; gap: 8px; overflow-x: auto; padding: 10px 18px 4px; }
+  .chips::-webkit-scrollbar { display: none; }
+  .chip { white-space: nowrap; border: 1px solid var(--border); background: var(--surface); border-radius: 999px; padding: 6px 12px; font-size: 11px; font-weight: 600; color: var(--muted); }
+  .chip.on { background: var(--navy); color: #fff; border-color: var(--navy); }
+
+  /* ---- results meta ---- */
+  .meta { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px 8px; }
+  .meta h2 { font-size: 17px; color: var(--navy); }
+  .meta h2 b { color: var(--gold); }
+  .meta .sort { font-size: 12px; color: var(--muted); font-weight: 600; display: flex; align-items: center; gap: 4px; }
+  .meta .sort svg { width: 14px; height: 14px; }
+
+  /* ---- stacked list rows ---- */
+  .list { padding: 4px 18px; display: flex; flex-direction: column; gap: 12px; }
+  .row {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 18px; padding: 12px;
+    display: flex; gap: 12px; box-shadow: 0 2px 10px rgba(8,25,47,0.05);
+  }
+  .thumb { width: 92px; height: 108px; border-radius: 14px; overflow: hidden; position: relative; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+  .thumb .type { position: absolute; top: 7px; left: 7px; color: #fff; font-size: 9px; font-weight: 800; padding: 3px 8px; border-radius: 999px; }
+  .thumb .icon { font-size: 30px; }
+  .info { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+  .row-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 6px; }
+  .name { font-size: 15px; font-weight: 800; color: var(--navy); }
+  .name small { color: var(--muted); font-weight: 600; font-size: 11px; display: block; margin-top: 1px; }
+  .match { color: var(--gold); font-size: 11px; font-weight: 800; white-space: nowrap; margin-top: 2px; }
+  .desc { color: var(--muted); font-size: 12px; margin: 6px 0 8px; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .row-bottom { display: flex; align-items: center; justify-content: space-between; margin-top: auto; }
+  .tags { display: flex; gap: 5px; overflow: hidden; }
+  .tag { font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 999px; background: #f0efec; color: var(--muted); white-space: nowrap; }
+  .tag.gold { background: rgba(177,136,66,0.14); color: #8a6a2f; }
+  .budget { font-size: 14px; font-weight: 800; color: var(--navy); white-space: nowrap; }
+  .row-actions { display: flex; gap: 6px; }
+  .msg { background: var(--navy); color: #fff; border: none; border-radius: 999px; padding: 8px 14px; font-size: 11px; font-weight: 700; }
+  .save { background: transparent; border: 1px solid var(--border); color: var(--navy); border-radius: 999px; padding: 7px 10px; font-size: 12px; cursor: pointer; }
+
+  /* ---- bottom tab bar ---- */
+  .tabbar {
+    position: absolute; bottom: 0; left: 0; right: 0; height: 76px;
+    background: var(--surface); border-top: 1px solid var(--border);
+    display: flex; align-items: stretch; padding-bottom: env(safe-area-inset-bottom, 0px);
+    z-index: 100;
+  }
+  .tab { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; color: var(--muted); font-size: 10px; font-weight: 600; text-decoration: none; position: relative; }
+  .tab svg { width: 24px; height: 24px; }
+  .tab.on { color: #fff; font-weight: 800; }
+  .tab.on svg { color: #fff; }
+  .tab.on::before { content: ''; position: absolute; top: 6px; width: 44px; height: 28px; background: var(--navy); border-radius: 999px; box-shadow: 0 2px 8px rgba(8,25,47,0.25); }
+  .tab .badge { position: absolute; top: 7px; right: calc(50% - 20px); background: #d4543a; color: #fff; font-size: 9px; font-weight: 700; border-radius: 999px; min-width: 16px; height: 16px; display: flex; align-items: center; justify-content: center; border: 2px solid var(--surface); }
+  .phone-note { margin-top: 16px; text-align: center; color: #999; font-size: 13px; max-width: 390px; line-height: 1.6; }
+  .phone-note b { color: #777; }
+</style>
+</head>
+<body>
+
+  <div>
+    <div class="phone">
+      <div class="screen">
+        <!-- header -->
+        <div class="head">
+          <div class="head-row">
+            <div class="logo">
+              <svg class="mark" viewBox="0 0 352 210"><g transform="translate(0,190) scale(0.1,-0.1)" fill="#b18842"><path d="M963 1633 c15 -2 39 -2 55 0 15 2 2 4 -28 4 -30 0 -43 -2 -27 -4z M2030 1405 c-29 -35 -57 -62 -62 -59 -4 3 -8 -3 -8 -14 0 -19 -151 -200 -310 -372 -149 -161 -361 -412 -357 -424 2 -7 52 -11 146 -11 l143 0 26 31 c15 17 59 68 97 114 39 46 106 124 150 175 44 50 115 133 158 184 43 51 82 91 86 89 9 -3 50 -50 332 -373 105 -121 193 -213 206 -217 26 -7 273 -1 281 7 3 3 -4 15 -15 28 -113 127 -726 830 -753 863 -19 24 -42 43 -51 44 -8 0 -39 -29 -69 -65z"/></g><g transform="translate(0,190) scale(0.1,-0.1)" fill="#08192f"><path d="M890 1623 c0 -5 -1 -251 -2 -548 l-3 -540 140 0 140 0 3 233 2 233 254 -1 254 -1 39 43 c22 24 85 96 142 161 l102 119 -3 151 -3 152 -142 3 -143 3 0 -210 0 -209 -27 -5 c-30 -6 -414 1 -450 9 -23 4 -23 5 -23 209 l0 205 -140 0 c-77 0 -140 -3 -140 -7z"/></g></svg>
+              <div class="text">HOUSE <span>AGENT</span></div>
+            </div>
+            <button class="post">+ Post an Ad</button>
+          </div>
+          <div class="search">
+            <div class="search-box">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+              Search by name, area, school…
+            </div>
+            <button class="filter-btn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 3H2l8 9.46V19l4 2v-8.54z"/></svg>
+              Filter
+              <span class="dot">2</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- chips -->
+        <div class="chips">
+          <span class="chip on">All</span>
+          <span class="chip">Housemates</span>
+          <span class="chip">Roommates</span>
+          <span class="chip">Famagusta</span>
+          <span class="chip">Nicosia</span>
+        </div>
+
+        <!-- meta -->
+        <div class="meta">
+          <h2>24 <b>matches</b></h2>
+          <div class="sort">Best match <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></div>
+        </div>
+
+        <!-- stacked list -->
+        <div class="list">
+          <div class="row">
+            <div class="thumb" style="background:linear-gradient(135deg,#1e3a5f,#0f2747)">
+              <span class="type" style="background:#b18842">Housemate</span>
+              <span class="icon">🛏️</span>
+            </div>
+            <div class="info">
+              <div class="row-top">
+                <div>
+                  <div class="name">Chinedu, 24</div>
+                  <small>Male · EMU · Famagusta</small>
+                </div>
+                <div class="match">92% match</div>
+              </div>
+              <p class="desc">Own room in a 2+1 flat near Maraş. Fully furnished, bills shared.</p>
+              <div class="row-bottom">
+                <div class="tags"><span class="tag">Non-smoker</span><span class="tag gold">Furnished</span></div>
+                <span class="budget">£280/mo</span>
+              </div>
+              <div class="row-actions" style="margin-top:8px">
+                <button class="save">♥</button>
+                <button class="msg">Message</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="thumb" style="background:linear-gradient(135deg,#b18842,#8a6a2f)">
+              <span class="type" style="background:#12335c">Roommate</span>
+              <span class="icon">🛋️</span>
+            </div>
+            <div class="info">
+              <div class="row-top">
+                <div>
+                  <div class="name">Aylin, 21</div>
+                  <small>Female · NEU · Nicosia</small>
+                </div>
+                <div class="match">87% match</div>
+              </div>
+              <p class="desc">Looking to share a bedroom in Nicosia. Social, loves coffee.</p>
+              <div class="row-bottom">
+                <div class="tags"><span class="tag">Night owl</span><span class="tag gold">Verified ✓</span></div>
+                <span class="budget">£150/mo</span>
+              </div>
+              <div class="row-actions" style="margin-top:8px">
+                <button class="save">♥</button>
+                <button class="msg">Message</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="thumb" style="background:linear-gradient(135deg,#0e3d34,#082a24)">
+              <span class="type" style="background:#b18842">Housemate</span>
+              <span class="icon">🏡</span>
+            </div>
+            <div class="info">
+              <div class="row-top">
+                <div>
+                  <div class="name">Mert, 26</div>
+                  <small>Male · Engineer · Kyrenia</small>
+                </div>
+                <div class="match">90% match</div>
+              </div>
+              <p class="desc">3+1 villa in Kyrenia, one room free. Pool, parking and fast internet.</p>
+              <div class="row-bottom">
+                <div class="tags"><span class="tag">Pet friendly</span><span class="tag gold">Pool</span></div>
+                <span class="budget">£320/mo</span>
+              </div>
+              <div class="row-actions" style="margin-top:8px">
+                <button class="save">♥</button>
+                <button class="msg">Message</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="thumb" style="background:linear-gradient(135deg,#5b2e8a,#3a1c5c)">
+              <span class="type" style="background:#12335c">Roommate</span>
+              <span class="icon">🛋️</span>
+            </div>
+            <div class="info">
+              <div class="row-top">
+                <div>
+                  <div class="name">Selma, 23</div>
+                  <small>Female · CIU · Famagusta</small>
+                </div>
+                <div class="match">84% match</div>
+              </div>
+              <p class="desc">Quiet and tidy, looking for a 1+1 to share near CIU. No pets.</p>
+              <div class="row-bottom">
+                <div class="tags"><span class="tag">Quiet</span><span class="tag gold">Tidy</span></div>
+                <span class="budget">£180/mo</span>
+              </div>
+              <div class="row-actions" style="margin-top:8px">
+                <button class="save">♥</button>
+                <button class="msg">Message</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- bottom tab bar -->
+      <div class="tabbar">
+        <a class="tab" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12l9-9 9 9"/><path d="M5 10v10h14V10"/></svg>Home</a>
+        <a class="tab" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>Search</a>
+        <a class="tab on" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Matches</a>
+        <a class="tab" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Messages<span class="badge">3</span></a>
+        <a class="tab" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"/></svg>Profile</a>
+      </div>
+    </div>
+    <div class="phone-note">
+      <b>Version B — Stacked List.</b><br>
+      Search + Filter button on top, compact rows you can scan quickly. Bottom bar stays fixed.
+    </div>
+  </div>
+
+</body>
+</html>

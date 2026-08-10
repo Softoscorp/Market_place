@@ -96,12 +96,12 @@
 }
 
 .tabBtnActive {
-  color: var(--text-primary);
+  color: #fff;
   font-weight: 700;
 }
 
 .tabBtnActive svg {
-  color: var(--text-primary);
+  color: #fff;
   transform: scale(1.1);
 }
 
@@ -112,11 +112,12 @@
   top: 2px;
   left: 50%;
   transform: translateX(-50%);
-  width: 42px;
-  height: 30px;
-  background-color: var(--accent-muted);
+  width: 48px;
+  height: 32px;
+  background-color: #08192f;
   border-radius: 999px;
   z-index: -1;
+  box-shadow: 0 2px 8px rgba(8, 25, 47, 0.25);
 }
 
 .tabBadge {

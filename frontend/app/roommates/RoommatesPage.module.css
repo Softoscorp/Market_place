@@ -60,6 +60,177 @@
   margin-bottom: 28px;
 }
 
+.searchRow {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.searchBox {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 10px 14px;
+  color: var(--text-muted);
+}
+
+.searchBox:focus-within {
+  border-color: #08192f;
+}
+
+.searchBox input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 13px;
+  color: var(--text-primary);
+  min-width: 0;
+}
+
+.searchBox input::placeholder {
+  color: var(--text-muted);
+}
+
+.searchClear {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: 2px;
+}
+
+.filterBtn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #08192f;
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  padding: 0 16px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  position: relative;
+  transition: background var(--duration-fast) var(--ease-out);
+}
+
+.filterBtn:hover {
+  background: #b18842;
+}
+
+.filterDot {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background: #b18842;
+  width: 17px;
+  height: 17px;
+  border-radius: 50%;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--bg-surface);
+}
+
+.filterSheet {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 18px;
+  margin-bottom: 18px;
+  box-shadow: var(--shadow-sm);
+}
+
+.filterSheetHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.filterSheetHead h3 {
+  font-family: var(--font-heading);
+  font-size: 16px;
+  font-weight: 700;
+  color: #08192f;
+  margin: 0;
+}
+
+.resetBtn {
+  background: none;
+  border: none;
+  color: #b18842;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.filterGroup {
+  margin-bottom: 16px;
+}
+
+.filterGroup label {
+  display: block;
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 8px;
+}
+
+.seg {
+  display: flex;
+  gap: 6px;
+}
+
+.seg button {
+  flex: 1;
+  padding: 9px;
+  border: 1px solid var(--border);
+  background: #fff;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-out);
+}
+
+.seg button:hover {
+  border-color: var(--border-hover);
+}
+
+.segOn {
+  background: #08192f !important;
+  color: #fff !important;
+  border-color: #08192f !important;
+}
+
+.filterSheet .schoolSelect {
+  width: 100%;
+  border: 1px solid var(--border);
+  background: #fff;
+  border-radius: 10px;
+  padding: 11px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  cursor: pointer;
+  outline: none;
+}
+
 .chip {
   border: 1px solid var(--border);
   background: var(--bg-surface);
@@ -126,6 +297,10 @@
   gap: 24px;
 }
 
+.mobileList {
+  display: none;
+}
+
 @media (max-width: 768px) {
   .container {
     padding: 28px 16px 48px;
@@ -147,5 +322,33 @@
 
   .grid {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .grid {
+    display: none;
+  }
+
+  .mobileList {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .chips {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .chips::-webkit-scrollbar {
+    display: none;
+  }
+
+  .chip {
+    white-space: nowrap;
+    flex-shrink: 0;
   }
 }

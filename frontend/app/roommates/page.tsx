@@ -2,8 +2,9 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { RoommateCard } from '@/components/roommate/RoommateCard';
+import { RoommateListRow } from '@/components/roommate/RoommateListRow';
 import { PostRoommateForm } from '@/components/roommate/PostRoommateForm';
-import { Plus, Home, Users, Banknote } from 'lucide-react';
+import { Plus, Home, Users, Banknote, Search, X, SlidersHorizontal } from 'lucide-react';
 import { useLanguageStore } from '@/lib/store/useLanguageStore';
 import { UNIVERSITIES_BY_CITY } from '@/lib/universities';
 import styles from './RoommatesPage.module.css';
@@ -43,6 +44,8 @@ export default function RoommatesPage() {
   const [typeFilter, setTypeFilter] = useState<'all' | 'housemate' | 'roommate'>('all');
   const [schoolFilter, setSchoolFilter] = useState<string>('');
   const [budgetRange, setBudgetRange] = useState<number | null>(null);
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [filterOpen, setFilterOpen] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => setMounted(true), 0);
@@ -72,11 +75,33 @@ export default function RoommatesPage() {
       const range = BUDGET_RANGES[budgetRange];
       if (rm.budget < range.min || rm.budget > range.max) return false;
     }
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      const haystack = [
+        rm.name,
+        rm.user?.name,
+        rm.occupation,
+        rm.university,
+        rm.nationality,
+        rm.looking_for_city?.join(' '),
+      ].filter(Boolean).join(' ').toLowerCase();
+      if (!haystack.includes(q)) return false;
+    }
     return true;
   });
 
+  const activeFilterCount =
+    (schoolFilter ? 1 : 0) + (budgetRange !== null ? 1 : 0);
+
   const toggleChip = (type: 'all' | 'housemate' | 'roommate') => {
     setTypeFilter(typeFilter === type ? 'all' : type);
+  };
+
+  const clearFilters = () => {
+    setTypeFilter('all');
+    setSchoolFilter('');
+    setBudgetRange(null);
+    setSearchQuery('');
   };
 
   return (
@@ -97,6 +122,84 @@ export default function RoommatesPage() {
         </button>
       </header>
 
+      <div className={styles.searchRow}>
+        <div className={styles.searchBox}>
+          <Search size={16} />
+          <input
+            type="text"
+            placeholder="Search by name, area, school…"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+          {searchQuery && (
+            <button className={styles.searchClear} onClick={() => setSearchQuery('')} aria-label="Clear search">
+              <X size={15} />
+            </button>
+          )}
+        </div>
+        <button
+          className={styles.filterBtn}
+          onClick={() => setFilterOpen(!filterOpen)}
+        >
+          <SlidersHorizontal size={16} />
+          Filter
+          {activeFilterCount > 0 && (
+            <span className={styles.filterDot}>{activeFilterCount}</span>
+          )}
+        </button>
+      </div>
+
+      {filterOpen && (
+        <div className={styles.filterSheet}>
+          <div className={styles.filterSheetHead}>
+            <h3>Filters</h3>
+            <button className={styles.resetBtn} onClick={clearFilters}>Reset</button>
+          </div>
+
+          <div className={styles.filterGroup}>
+            <label>Type</label>
+            <div className={styles.seg}>
+              <button className={typeFilter === 'all' ? styles.segOn : ''} onClick={() => toggleChip('all')}>Any</button>
+              <button className={typeFilter === 'housemate' ? styles.segOn : ''} onClick={() => toggleChip('housemate')}>Housemate</button>
+              <button className={typeFilter === 'roommate' ? styles.segOn : ''} onClick={() => toggleChip('roommate')}>Roommate</button>
+            </div>
+          </div>
+
+          <div className={styles.filterGroup}>
+            <label>Area / School</label>
+            <select
+              className={styles.schoolSelect}
+              value={schoolFilter}
+              onChange={(e) => setSchoolFilter(e.target.value)}
+            >
+              <option value="">All areas</option>
+              {UNIVERSITIES_BY_CITY.map((group) => (
+                <optgroup key={group.city} label={group.city}>
+                  {group.schools.map((school) => (
+                    <option key={school} value={school}>{school}</option>
+                  ))}
+                </optgroup>
+              ))}
+            </select>
+          </div>
+
+          <div className={styles.filterGroup}>
+            <label>Budget</label>
+            <div className={styles.seg}>
+              {BUDGET_RANGES.map((range, idx) => (
+                <button
+                  key={range.label}
+                  className={budgetRange === idx ? styles.segOn : ''}
+                  onClick={() => setBudgetRange(budgetRange === idx ? null : idx)}
+                >
+                  {range.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className={styles.chips}>
         <span className={`${styles.chip} ${typeFilter === 'all' ? styles.chipActive : ''}`} onClick={() => toggleChip('all')}>
           All
@@ -109,30 +212,10 @@ export default function RoommatesPage() {
           <Users size={14} style={{ marginRight: 6 }} />
           Roommates
         </span>
-        <select
-          className={styles.schoolSelect}
-          value={schoolFilter}
-          onChange={(e) => setSchoolFilter(e.target.value)}
-        >
-          <option value="">All areas</option>
-          {UNIVERSITIES_BY_CITY.map((group) => (
-            <optgroup key={group.city} label={group.city}>
-              {group.schools.map((school) => (
-                <option key={school} value={school}>{school}</option>
-              ))}
-            </optgroup>
-          ))}
-        </select>
-        {BUDGET_RANGES.map((range, idx) => (
-          <span
-            key={range.label}
-            className={`${styles.chip} ${budgetRange === idx ? styles.chipActive : ''}`}
-            onClick={() => setBudgetRange(budgetRange === idx ? null : idx)}
-          >
-            <Banknote size={14} style={{ marginRight: 6 }} />
-            {range.label}
-          </span>
-        ))}
+        <span className={`${styles.chip} ${budgetRange === 0 ? styles.chipActive : ''}`} onClick={() => setBudgetRange(budgetRange === 0 ? null : 0)}>
+          <Banknote size={14} style={{ marginRight: 6 }} />
+          {BUDGET_RANGES[0].label}
+        </span>
       </div>
 
       <div className={styles.resultsSection}>
@@ -144,25 +227,46 @@ export default function RoommatesPage() {
             No profiles match those filters yet. Be the first to post a room.
           </p>
         ) : (
-          <div className={styles.grid}>
-            {filteredRoommates.map(roommate => (
-              <RoommateCard
-                key={roommate.id}
-                name={roommate.name || roommate.user?.name || 'User'}
-                age={roommate.age || 0}
-                gender={roommate.gender || roommate.user?.gender}
-                occupation={roommate.occupation || (roommate.university ? `${roommate.university} student` : 'Tenant')}
-                imageUrl={mediaUrl(roommate.avatar_url) || mediaUrl(roommate.user?.avatar_url) || ''}
-                matchScore={85}
-                sharedInterests={roommate.habits?.slice(0, 3) || []}
-                budget={`£${roommate.budget}`}
-                profileType={roommate.profile_type || 'roommate'}
-                houseType={roommate.house_type || undefined}
-                nationality={roommate.nationality || undefined}
-                location={(roommate.looking_for_city || []).slice(0, 2).join(', ')}
-              />
-            ))}
-          </div>
+          <>
+            <div className={styles.grid}>
+              {filteredRoommates.map(roommate => (
+                <RoommateCard
+                  key={roommate.id}
+                  name={roommate.name || roommate.user?.name || 'User'}
+                  age={roommate.age || 0}
+                  gender={roommate.gender || roommate.user?.gender}
+                  occupation={roommate.occupation || (roommate.university ? `${roommate.university} student` : 'Tenant')}
+                  imageUrl={mediaUrl(roommate.avatar_url) || mediaUrl(roommate.user?.avatar_url) || ''}
+                  matchScore={85}
+                  sharedInterests={roommate.habits?.slice(0, 3) || []}
+                  budget={`£${roommate.budget}`}
+                  profileType={roommate.profile_type || 'roommate'}
+                  houseType={roommate.house_type || undefined}
+                  nationality={roommate.nationality || undefined}
+                  location={(roommate.looking_for_city || []).slice(0, 2).join(', ')}
+                />
+              ))}
+            </div>
+            <div className={styles.mobileList}>
+              {filteredRoommates.map(roommate => (
+                <RoommateListRow
+                  key={roommate.id}
+                  name={roommate.name || roommate.user?.name || 'User'}
+                  age={roommate.age || 0}
+                  gender={roommate.gender || roommate.user?.gender}
+                  occupation={roommate.occupation || (roommate.university ? `${roommate.university} student` : 'Tenant')}
+                  imageUrl={mediaUrl(roommate.avatar_url) || mediaUrl(roommate.user?.avatar_url) || ''}
+                  matchScore={85}
+                  sharedInterests={roommate.habits?.slice(0, 3) || []}
+                  budget={`£${roommate.budget}`}
+                  profileType={roommate.profile_type || 'roommate'}
+                  houseType={roommate.house_type || undefined}
+                  nationality={roommate.nationality || undefined}
+                  location={(roommate.looking_for_city || []).slice(0, 2).join(', ')}
+                />
+              ))}
+            </div>
+          </>
         )}
       </div>
 

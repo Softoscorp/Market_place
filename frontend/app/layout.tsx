@@ -17,15 +17,19 @@ export const metadata: Metadata = {
   title: "House Agent - North Cyprus Housing",
   description: "North Cyprus housing rental platform",
   manifest: "/manifest.json",
+  icons: {
+    icon: "/icon.png",
+    apple: "/icon-192.png",
+  },
   appleWebApp: {
     capable: true,
-    statusBarStyle: "default",
+    statusBarStyle: "black-translucent",
     title: "House Agent",
   },
 };
 
 export const viewport = {
-  themeColor: "#ffffff",
+  themeColor: "#08192F",
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",

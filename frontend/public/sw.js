@@ -19,8 +19,8 @@ self.addEventListener('push', (event) => {
 
   const options = {
     body: data.body,
-    icon: '/favicon.ico',
-    badge: '/favicon.ico',
+    icon: '/icon.png',
+    badge: '/icon.png',
     data: { url: data.url || '/' }
   };
 

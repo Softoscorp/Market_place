@@ -215,7 +215,7 @@ export default function HomePage() {
               {t('view_all')} <ArrowRight size={16} aria-hidden="true" />
             </Link>
           </div>
-          <div className={styles.grid}>
+          <div className={styles.agentsGrid}>
             {isLoading ? (
               Array.from({ length: 4 }).map((_, i) => (
                 <div key={i} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>

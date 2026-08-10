@@ -1,5 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
-  <g transform="translate(35.9,77.9) scale(0.908) translate(-88.5,-26.5)">
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <rect width="1024" height="1024" rx="200" fill="#08192f"/>
+  <g transform="translate(512,470) scale(2.6)">
     <g transform="translate(0,190) scale(0.1,-0.1)" fill="#b18842" stroke="none">
       <path d="M963 1633 c15 -2 39 -2 55 0 15 2 2 4 -28 4 -30 0 -43 -2 -27 -4z
 M2030 1405 c-29 -35 -57 -62 -62 -59 -4 3 -8 -3 -8 -14 0 -19 -151 -200 -310
@@ -9,7 +10,7 @@ M2030 1405 c-29 -35 -57 -62 -62 -59 -4 3 -8 -3 -8 -14 0 -19 -151 -200 -310
 15 -15 28 -113 127 -726 830 -753 863 -19 24 -42 43 -51 44 -8 0 -39 -29 -69
 -65z"/>
     </g>
-    <g transform="translate(0,190) scale(0.1,-0.1)" fill="#08192f" stroke="none">
+    <g transform="translate(0,190) scale(0.1,-0.1)" fill="#f5f2ea" stroke="none">
       <path d="M890 1623 c0 -5 -1 -251 -2 -548 l-3 -540 140 0 140 0 3 233 2 233
 254 -1 254 -1 39 43 c22 24 85 96 142 161 l102 119 -3 151 -3 152 -142 3 -143
 3 0 -210 0 -209 -27 -5 c-30 -6 -414 1 -450 9 -23 4 -23 5 -23 209 l0 205

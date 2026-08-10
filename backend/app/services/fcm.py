@@ -83,6 +83,8 @@ def send_fcm_notification(token: str, title: str, body: str, data: dict | None =
                 priority="high",
                 notification=messaging.AndroidNotification(
                     channel_id="messages",
+                    icon="ic_stat_house_agent",
+                    color="#08192F",
                     sound="default",
                 ),
             ),

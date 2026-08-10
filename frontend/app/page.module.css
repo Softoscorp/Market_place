@@ -57,6 +57,25 @@
   }
 }
 
+.agentsGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-3);
+}
+
+@media (min-width: 640px) {
+  .agentsGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .agentsGrid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--space-5);
+  }
+}
+
 .howItWorks {
   background: var(--bg-surface);
   padding: var(--space-8) 0; /* reduced from 12 */

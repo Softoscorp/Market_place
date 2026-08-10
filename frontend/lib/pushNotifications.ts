@@ -78,7 +78,13 @@ async function initWebPush() {
   if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
 
   try {
-    const reg = await navigator.serviceWorker.ready;
+    // Register the service worker first — required before we can subscribe.
+    let reg = await navigator.serviceWorker.getRegistration('/sw.js');
+    if (!reg) {
+      reg = await navigator.serviceWorker.register('/sw.js');
+    }
+    await navigator.serviceWorker.ready;
+
     const existing = await reg.pushManager.getSubscription();
     if (existing) return; // Already subscribed
 

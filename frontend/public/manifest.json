@@ -1,16 +1,24 @@
 {
-  "name": "House Agent",
-  "short_name": "HouseAgent",
-  "description": "North Cyprus housing rental platform",
+  "name": "House Agent - North Cyprus Housing",
+  "short_name": "House Agent",
+  "description": "North Cyprus housing rental platform — find apartments, agents and roommates.",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#ffffff",
+  "orientation": "portrait",
+  "background_color": "#08192F",
+  "theme_color": "#08192F",
   "icons": [
     {
-      "src": "/icon.png",
-      "sizes": "256x256",
+      "src": "/icon-192.png",
+      "sizes": "192x192",
       "type": "image/png"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
       "src": "/icon.svg",

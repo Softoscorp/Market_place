@@ -41,6 +41,7 @@
 - **Book a viewing** — booking request flow (modal with confirmation feedback).
 - **Roommate split request** — create a roommate profile for the listed apartment and find someone to share the rent.
 - **Reviews & ratings** — read reviews + leave star ratings.
+- **Description translation** — one-tap "Translate to TR / EN" button on the listing description (server-side, auto-detects the source language).
 - **Duplicate / untaken offers** section (same property posted by different agents, grouped).
 - **Report listing** — reasons: fake listing / wrong price / unavailable / other.
 
@@ -71,8 +72,8 @@ Agent-only area with:
 - **Conversation thread** list (`/messages`) with unread counts.
 - **Messages**: send/receive, auto-scroll to newest, contact avatar + online status + last-seen (localized EN/TR).
 - **Message push notifications** (in-app toast).
-- **Anti-scam contact filtering** — phone numbers (10+ digits), WhatsApp, Telegram, Viber references are **scrubbed from chat messages** automatically.
-- **Auto-translation** of posted messages.
+- **Anti-scam contact filtering** — phone numbers (10+ digits), WhatsApp, Telegram, Viber, Instagram, Facebook, Snapchat, TikTok, Discord references are **rejected** from chat messages and listing text.
+- **Auto-translation** of posted messages — each reader sees incoming messages in their own language (translated + cached server-side), with a **"Translated · show original"** toggle per message. The UI language preference is synced to the user profile so chat auto-translation targets the reader's language.
 
 ## 8. Roommates & Housemates (`/roommates`)
 
@@ -129,7 +130,7 @@ Moderation suite:
 | Layer | Measure |
 |---|---|
 | Auth | token in localStorage, 4h expiry, device ID at signup |
-| Chat | **contact-filter** strips phone numbers / WhatsApp / Telegram / Viber from messages |
+| Chat | **contact-filter** rejects phone numbers / WhatsApp / Telegram / Viber / Instagram / Facebook / Snapchat / TikTok / Discord from messages & listings |
 | Verification | identity + business proof required for trusted tiers |
 | Reports | any user can report fake / wrong-price / unavailable / other |
 | Image protection | `ProtectedImage` blocks long-press/save & context menu & drag |

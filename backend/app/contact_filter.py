@@ -22,7 +22,22 @@ MIN_PHONE_DIGITS = 10
 # e.g. "0533 123 45 67", "+90-533-123-4567", "(0533) 1234567".
 _CANDIDATE_RE = re.compile(r"[\d][\d\-.\s()]{5,}\d")
 
-_KEYWORDS = ["whatsapp", "wa.me", "telegram", "t.me/", "viber", "imo.im"]
+_KEYWORDS = [
+    "whatsapp",
+    "wa.me",
+    "telegram",
+    "t.me/",
+    "viber",
+    "imo.im",
+    "instagram",
+    "insta.",
+    "facebook",
+    "fb.com",
+    "fb.me",
+    "snapchat",
+    "tiktok",
+    "discord",
+]
 
 
 def _count_digits(s: str) -> int:

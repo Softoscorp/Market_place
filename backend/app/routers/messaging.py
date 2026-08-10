@@ -53,6 +53,7 @@ def _serialize_message(message: models.Message, reader: models.User, db: Session
 
     out = schemas.MessageOut.model_validate(message)
     out.text = text
+    out.original_text = message.original_text if message.message_type == models.MessageType.text else None
     out.was_translated = was_translated
 
     if message.message_type == models.MessageType.listing and message.listing_id:

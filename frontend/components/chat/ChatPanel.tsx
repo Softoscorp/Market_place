@@ -31,6 +31,7 @@ export function ChatPanel() {
   const [isRecording, setIsRecording] = useState(false);
   const [recordingSeconds, setRecordingSeconds] = useState(0);
   const [recordingError, setRecordingError] = useState<string | null>(null);
+  const [showOriginalFor, setShowOriginalFor] = useState<number | null>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const recorderTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -71,6 +72,7 @@ export function ChatPanel() {
   // Reset scroll tracking when switching conversations
   useEffect(() => {
     setUserAtBottom(true);
+    setShowOriginalFor(null);
   }, [activeAgentId]);
 
   // Reset transient state when chat closes or switches conversation
@@ -249,10 +251,20 @@ export function ChatPanel() {
           <span className={styles.mediaPending}>{t('chat_sending_voice')}</span>
         );
       default:
+        const showOriginal = showOriginalFor === msg.id && !!msg.originalText && msg.originalText !== msg.text;
         return (
           <span className={styles.textMessage}>
-            {msg.text}
-            <PropertyLinkCard text={msg.text} />
+            {showOriginal ? msg.originalText : msg.text}
+            <PropertyLinkCard text={showOriginal ? msg.originalText : msg.text} />
+            {msg.wasTranslated && msg.originalText && msg.originalText !== msg.text && (
+              <button
+                type="button"
+                className={styles.translatedToggle}
+                onClick={() => setShowOriginalFor(showOriginal ? null : msg.id)}
+              >
+                {showOriginal ? t('chat_show_translation') : `${t('chat_translated')} · ${t('chat_show_original')}`}
+              </button>
+            )}
           </span>
         );
     }

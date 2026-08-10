@@ -186,6 +186,14 @@ class ListingOut(BaseModel):
     updated_at: datetime
 
 
+class ListingTranslationOut(BaseModel):
+    """On-demand translation of a listing's title + description."""
+    id: int
+    title: str
+    description: str
+    target_lang: str
+
+
 class PaginatedListings(BaseModel):
     items: list[ListingOut]
     total: int
@@ -215,8 +223,11 @@ class MessageOut(BaseModel):
     sender_id: int
     message_type: MessageType
     # `text` is what the READER should see: original if same-language,
-    # translated (and cached) otherwise. See routers/messaging.py.
+    # translated (and cached) otherwise. `original_text` is always the raw
+    # text as the sender wrote it, so clients can offer a "show original"
+    # toggle. See routers/messaging.py.
     text: Optional[str] = None
+    original_text: Optional[str] = None
     original_language: Optional[str] = None
     was_translated: bool = False
     audio_url: Optional[str] = None

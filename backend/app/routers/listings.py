@@ -16,6 +16,7 @@ from ..dependencies import get_current_user, require_agent
 from ..services.supabase_storage import upload_file, delete_file
 from ..services.file_validation import validate_image
 from ..services.ttl_cache import ttl_cache
+from ..translation import translate_with_cache
 
 _view_executor = ThreadPoolExecutor(max_workers=2)
 
@@ -300,6 +301,32 @@ def get_listing(listing_id: int, db: Session = Depends(get_db)):
     if result is None:
         raise HTTPException(status_code=404, detail="Listing not found")
     return result
+
+
+@router.get("/{listing_id}/translation", response_model=schemas.ListingTranslationOut)
+def get_listing_translation(
+    listing_id: int,
+    target_lang: str = Query("tr", min_length=2, max_length=5),
+    db: Session = Depends(get_db),
+):
+    """Translate a listing's title + description into `target_lang`.
+
+    Source language is auto-detected (translation service omits `source`), so
+    an English listing can be read in Turkish and vice versa. Translations are
+    computed on demand and cached in-memory by translate_with_cache.
+    """
+    listing = db.query(models.Listing).filter(models.Listing.id == listing_id).first()
+    if not listing:
+        raise HTTPException(status_code=404, detail="Listing not found")
+    if listing.status != "active":
+        raise HTTPException(status_code=404, detail="Listing not found")
+
+    return schemas.ListingTranslationOut(
+        id=listing.id,
+        title=translate_with_cache(listing.title, None, target_lang),
+        description=translate_with_cache(listing.description, None, target_lang),
+        target_lang=target_lang,
+    )
 
 
 @router.patch("/{listing_id}", response_model=schemas.ListingOut)

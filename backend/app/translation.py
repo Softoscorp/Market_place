@@ -27,7 +27,7 @@ GOOGLE_TRANSLATE_ENDPOINT = "https://translation.googleapis.com/language/transla
 
 
 class TranslationService:
-    def translate(self, text: str, source_lang: str, target_lang: str) -> str:
+    def translate(self, text: str, source_lang: str | None, target_lang: str) -> str:
         raise NotImplementedError
 
 
@@ -35,16 +35,20 @@ class GoogleTranslateService(TranslationService):
     def __init__(self, api_key: str):
         self.api_key = api_key
 
-    def translate(self, text: str, source_lang: str, target_lang: str) -> str:
+    def translate(self, text: str, source_lang: str | None, target_lang: str) -> str:
+        params: dict[str, str] = {"key": self.api_key}
+        payload: dict[str, object] = {
+            "q": text,
+            "target": target_lang,
+            "format": "text",
+        }
+        # Omit `source` entirely to let Google auto-detect the language.
+        if source_lang and source_lang != "auto":
+            params["source"] = source_lang
         response = requests.post(
             GOOGLE_TRANSLATE_ENDPOINT,
-            params={"key": self.api_key},
-            json={
-                "q": text,
-                "source": source_lang,
-                "target": target_lang,
-                "format": "text",
-            },
+            params=params,
+            json=payload,
             timeout=10,
         )
         response.raise_for_status()
@@ -56,7 +60,7 @@ class MockTranslationService(TranslationService):
     """No API key configured — clearly-labeled passthrough so the app is
     still demoable, without pretending to translate for real."""
 
-    def translate(self, text: str, source_lang: str, target_lang: str) -> str:
+    def translate(self, text: str, source_lang: str | None, target_lang: str) -> str:
         return f"[{target_lang}, untranslated — no translation API key configured] {text}"
 
 
@@ -79,9 +83,9 @@ def reset_translation_service_cache():
     _service_instance = None
 
 
-def translate_with_cache(text: str, source_lang: str, target_lang: str, service: TranslationService | None = None) -> str:
+def translate_with_cache(text: str, source_lang: str | None, target_lang: str, service: TranslationService | None = None) -> str:
     """Return a cached translation when possible to avoid repeated slow translation calls."""
-    key = (text, source_lang, target_lang)
+    key = (text, source_lang or "auto", target_lang)
     if key in _translation_cache:
         return _translation_cache[key]
 

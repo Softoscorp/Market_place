@@ -22,6 +22,9 @@ export interface ListingCard {
 export interface Message {
   id: number;
   text?: string | null;
+  originalText?: string | null;
+  originalLanguage?: string | null;
+  wasTranslated?: boolean;
   sender: 'user' | 'agent';
   timestamp: number;
   message_type?: 'text' | 'voice' | 'image' | 'listing';
@@ -66,6 +69,9 @@ interface RawApiConversation {
 interface RawApiMessage {
   id: number;
   text: string | null;
+  original_text?: string | null;
+  original_language?: string | null;
+  was_translated?: boolean;
   sender_id: number;
   created_at: string;
   message_type?: 'text' | 'voice' | 'image' | 'listing';
@@ -181,6 +187,9 @@ export const useChatStore = create<ChatState>((set, get) => ({
           const serverMessages: Message[] = msgs.map((m: RawApiMessage) => ({
             id: m.id,
             text: m.text ?? undefined,
+            originalText: m.original_text ?? undefined,
+            originalLanguage: m.original_language ?? undefined,
+            wasTranslated: m.was_translated || false,
             sender: (currentUser && m.sender_id.toString() === currentUser.id.toString()) ? 'user' as const : 'agent' as const,
             timestamp: new Date(m.created_at.endsWith('Z') ? m.created_at : m.created_at + 'Z').getTime(),
             message_type: m.message_type || 'text',

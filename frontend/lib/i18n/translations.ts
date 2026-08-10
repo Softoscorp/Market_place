@@ -162,6 +162,9 @@ export const translations = {
     chat_listing_price: '{currency}{price}',
     chat_listing_view: 'View Apartment',
     chat_apartment: 'Apartment',
+    chat_translated: 'Translated',
+    chat_show_original: 'show original',
+    chat_show_translation: 'show translation',
 
     // Profile & Dashboard
     messages_hub: 'Messages Hub',
@@ -529,6 +532,10 @@ export const translations = {
     pd_booking_desc2: 'The agent will review your request and contact you to proceed with the contract.',
     pd_confirm_booking: 'Confirm Booking Request',
     pd_roommate_prompt: 'Looking for a Roommate?',
+    pd_translate: 'Translate to {lang}',
+    pd_show_original: 'Show original',
+    pd_translating: 'Translating...',
+    pd_translate_error: 'Translation failed. Please try again.',
     pd_split_rent: 'Want to split the rent?',
     pd_split_rent_desc: 'You can create a roommate request for this apartment. Other users will see it and can message you to team up!',
     pd_no_thanks: 'No, thanks',
@@ -976,6 +983,9 @@ export const translations = {
     chat_listing_price: '{currency}{price}',
     chat_listing_view: 'Daireyi Görüntüle',
     chat_apartment: 'Daire',
+    chat_translated: 'Çevrildi',
+    chat_show_original: 'orijinali göster',
+    chat_show_translation: 'çeviriyi göster',
 
     // Profile & Dashboard
     messages_hub: 'Mesaj Merkezi',
@@ -1343,6 +1353,10 @@ export const translations = {
     pd_booking_desc2: 'Emlakçı talebinizi inceleyecek ve sözleşmeye devam etmek için sizinle iletişime geçecek.',
     pd_confirm_booking: 'Rezervasyon Talebini Onayla',
     pd_roommate_prompt: 'Oda Arkadaşı mı Arıyorsunuz?',
+    pd_translate: '{lang} çevir',
+    pd_show_original: 'Orijinali göster',
+    pd_translating: 'Çevriliyor...',
+    pd_translate_error: 'Çeviri başarısız. Lütfen tekrar deneyin.',
     pd_split_rent: 'Kirayı paylaşmak ister misiniz?',
     pd_split_rent_desc: 'Bu daire için bir oda arkadaşı talebi oluşturabilirsiniz. Diğer kullanıcılar bunu görecek ve birlikte olmak için size mesaj gönderebilir!',
     pd_no_thanks: 'Hayır, teşekkürler',

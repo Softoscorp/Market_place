@@ -74,17 +74,39 @@ export default function PropertyPage({ params }: PropertyPageProps) {
 
   // Booking and Roommate Flow
   const { user } = useAuthStore();
-  const { t } = useLanguageStore();
+  const { t, lang } = useLanguageStore();
   const router = useRouter();
   const [showBookingModal, setShowBookingModal] = useState(false);
   const [showRoommatePrompt, setShowRoommatePrompt] = useState(false);
   const [showRoommateForm, setShowRoommateForm] = useState(false);
   const [roommateData, setRoommateData] = useState({ budget: '', bio: '' });
   const [notification, setNotification] = useState<{text: string, type: 'success' | 'error'} | null>(null);
+  const [translatedDesc, setTranslatedDesc] = useState<{ title: string; description: string } | null>(null);
+  const [translating, setTranslating] = useState(false);
 
   const showToast = (text: string, type: 'success' | 'error' = 'success') => {
     setNotification({ text, type });
     setTimeout(() => setNotification(null), 3000);
+  };
+
+  const targetLang = lang === 'tr' ? 'en' : 'tr';
+
+  const handleTranslateDescription = async () => {
+    if (!property || translating) return;
+    if (translatedDesc) {
+      setTranslatedDesc(null);
+      return;
+    }
+    setTranslating(true);
+    try {
+      const res = await apiRequest(`/listings/${property.id}/translation?target_lang=${targetLang}`, { auth: false });
+      setTranslatedDesc({ title: res.title, description: res.description });
+    } catch (e) {
+      showToast(t('pd_translate_error'), 'error');
+      console.error('Translation failed', e);
+    } finally {
+      setTranslating(false);
+    }
   };
 
   useEffect(() => {
@@ -371,8 +393,19 @@ export default function PropertyPage({ params }: PropertyPageProps) {
 
               {/* Description */}
               <section id="description" className={styles.section}>
-                <h2 className={styles.sectionTitle}>{t('pd_description')}</h2>
-                <p className={styles.description}>{property.description}</p>
+                <div className={styles.reviewsHead}>
+                  <h2 className={styles.sectionTitle}>{t('pd_description')}</h2>
+                  {property.description && (
+                    <Button variant="secondary" onClick={handleTranslateDescription} disabled={translating}>
+                      {translating
+                        ? t('pd_translating')
+                        : translatedDesc
+                          ? t('pd_show_original')
+                          : t('pd_translate').replace('{lang}', lang === 'tr' ? 'EN' : 'TR')}
+                    </Button>
+                  )}
+                </div>
+                <p className={styles.description}>{translatedDesc ? translatedDesc.description : property.description}</p>
               </section>
 
               {/* Reviews */}

@@ -91,7 +91,7 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
     <Link href={`/property/${id}`} className={clsx(styles.card, className)}>
       <div className={styles.hero}>
         <ProtectedImage
-          src={images[0] || '/images/placeholder-studio.jpg'}
+          src={images[0] || '/images/listing-placeholder.svg'}
           alt={title}
           className={styles.image}
         />

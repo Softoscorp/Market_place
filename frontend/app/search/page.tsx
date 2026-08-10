@@ -154,7 +154,7 @@ function SearchResults() {
                     upfrontMonths={prop.upfront_rent_months}
                     depositMonths={prop.deposit_months}
                     commissionMonths={prop.commission_months}
-                    images={prop.photos?.map((p) => mediaUrl(p.url) || '') || ['/images/placeholder-studio.jpg']}
+                    images={prop.photos?.map((p) => mediaUrl(p.url) || '') || ['/images/listing-placeholder.svg']}
                     agentRating={prop.agent_average_rating}
                     agentName={prop.agent?.name || 'Agent'}
                     agentAvatar={prop.agent?.avatar_url ? mediaUrl(prop.agent.avatar_url) : undefined}

@@ -107,7 +107,7 @@ export default function AgentDetailPage({ params }: { params: Promise<{ id: stri
               type={prop.house_type || 'Unknown'}
               bedrooms={parseInt(prop.house_type?.split('+')[0]) || 1}
               bathrooms={1}
-              images={prop.photos?.length > 0 ? prop.photos.map((p) => mediaUrl(p.url) || '') : ['/images/placeholder-studio.jpg']}
+              images={prop.photos?.length > 0 ? prop.photos.map((p) => mediaUrl(p.url) || '') : ['/images/listing-placeholder.svg']}
               sizeSqf={75}
               upfrontMonths={prop.upfront_rent_months}
               depositMonths={prop.deposit_months}

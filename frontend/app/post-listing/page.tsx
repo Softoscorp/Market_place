@@ -327,7 +327,7 @@ export default function PostListingPage() {
                   <img src={previewUrls[0]} alt="Listing preview" className={styles.previewCardImgEl} />
                 ) : (
                   /* eslint-disable-next-line @next/next/no-img-element */
-                  <img src="/images/placeholder-studio.jpg" alt="Listing preview" className={styles.previewCardImgEl} />
+                  <img src="/images/listing-placeholder.svg" alt="Listing preview" className={styles.previewCardImgEl} />
                 )}
                 <div className={styles.previewCardScrim} />
                 <span className={styles.previewType}>{houseType}</span>

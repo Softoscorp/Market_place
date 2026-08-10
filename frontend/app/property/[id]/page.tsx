@@ -206,7 +206,7 @@ export default function PropertyPage({ params }: PropertyPageProps) {
   const agent = property.agent;
   const images = property.photos && property.photos.length > 0 
     ? (property.photos.map((p) => mediaUrl(p.url)).filter(Boolean) as string[])
-    : ['/images/placeholder-studio.jpg'];
+    : ['/images/listing-placeholder.svg'];
 
   const bedrooms = parseInt(property.house_type?.split('+')[0]) || 1;
   const bathrooms = 1;
@@ -480,7 +480,7 @@ export default function PropertyPage({ params }: PropertyPageProps) {
                   type={prop.house_type || 'Unknown'}
                   bedrooms={parseInt(prop.house_type?.split('+')[0]) || 1}
                   bathrooms={1}
-                  images={prop.photos && prop.photos.length > 0 ? (prop.photos.map((p: { url: string }) => mediaUrl(p.url)).filter(Boolean) as string[]) : ['/images/placeholder-studio.jpg']}
+                  images={prop.photos && prop.photos.length > 0 ? (prop.photos.map((p: { url: string }) => mediaUrl(p.url)).filter(Boolean) as string[]) : ['/images/listing-placeholder.svg']}
                   sizeSqf={75}
                   upfrontMonths={prop.upfront_rent_months}
                   depositMonths={prop.deposit_months}

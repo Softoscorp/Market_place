@@ -107,7 +107,7 @@ interface AgentProfile {
             agentId={agent.id}
             name={agent.name}
             agency={t('independent_agent')}
-            imageUrl={mediaUrl(agent.avatar_url) || '/images/placeholder-studio.jpg'}
+            imageUrl={mediaUrl(agent.avatar_url) || '/images/listing-placeholder.svg'}
             rating={average_rating || 5.0}
             reviews={rating_count || 0}
             activeListings={listings?.length || 0}
@@ -143,7 +143,7 @@ interface AgentProfile {
                 location={`${listing.city}, ${listing.district}`}
                 price={listing.price}
                 currency="£"
-                images={[listing.photos && listing.photos.length > 0 ? (mediaUrl(listing.photos[0].url) || '/images/placeholder-studio.jpg') : '/images/placeholder-studio.jpg']}
+                images={[listing.photos && listing.photos.length > 0 ? (mediaUrl(listing.photos[0].url) || '/images/listing-placeholder.svg') : '/images/listing-placeholder.svg']}
                 type={listing.house_type || 'Unknown'}
                 sizeSqf={listing.sqm}
                 bedrooms={listing.bedrooms}

@@ -4,10 +4,10 @@ import React, { useRef, useState } from 'react';
 import { X, Camera, Home, Users } from 'lucide-react';
 import { apiRequest, mediaUrl } from '@/lib/api';
 import { useAuthStore } from '@/lib/store/useAuthStore';
+import { UNIVERSITIES_BY_CITY } from '@/lib/universities';
 import styles from './PostRoommateForm.module.css';
 
-const CITIES = ['Famagusta (EMU)', 'Nicosia (CIU/NEU)', 'Kyrenia (GAU)'];
-const HOUSE_TYPES = ['Studio', '1+1', '2+1', '3+1', '4+1'];
+const HOUSE_TYPES = ['Studio', '1+1', '2+1', '3+1', '4+1', '5+1', '6+1'];
 const HABITS = [
   'Non-smoker',
   'Quiet',
@@ -48,10 +48,6 @@ export function PostRoommateForm({ onClose, onPosted }: PostRoommateFormProps) {
   const [preview, setPreview] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  const toggleCity = (city: string) => {
-    setCities((prev) => (prev.includes(city) ? prev.filter((c) => c !== city) : [...prev, city]));
-  };
 
   const toggleHabit = (habit: string) => {
     setHabits((prev) => (prev.includes(habit) ? prev.filter((h) => h !== habit) : [...prev, habit]));
@@ -201,7 +197,16 @@ export function PostRoommateForm({ onClose, onPosted }: PostRoommateFormProps) {
             </label>
             <label className={styles.field}>
               <span>University</span>
-              <input value={university} onChange={(e) => setUniversity(e.target.value)} placeholder="e.g. EMU" />
+              <select value={university} onChange={(e) => setUniversity(e.target.value)}>
+                <option value="">Select your university...</option>
+                {UNIVERSITIES_BY_CITY.map((group) => (
+                  <optgroup key={group.city} label={group.city}>
+                    {group.schools.map((school) => (
+                      <option key={school} value={school}>{school}</option>
+                    ))}
+                  </optgroup>
+                ))}
+              </select>
             </label>
             <label className={styles.field}>
               <span>Nationality</span>
@@ -224,18 +229,27 @@ export function PostRoommateForm({ onClose, onPosted }: PostRoommateFormProps) {
             </label>
             <label className={styles.field}>
               <span>Looking in</span>
-              <div className={styles.chips}>
-                {CITIES.map((city) => (
-                  <button
-                    key={city}
-                    type="button"
-                    className={`${styles.chip} ${cities.includes(city) ? styles.chipActive : ''}`}
-                    onClick={() => toggleCity(city)}
-                  >
-                    {city}
-                  </button>
+              <select
+                value={cities[0] || ''}
+                onChange={(e) => {
+                  const school = e.target.value;
+                  if (!school) {
+                    setCities([]);
+                    return;
+                  }
+                  const group = UNIVERSITIES_BY_CITY.find((g) => g.schools.includes(school));
+                  setCities(group ? [group.city] : [school]);
+                }}
+              >
+                <option value="">Select an area...</option>
+                {UNIVERSITIES_BY_CITY.map((group) => (
+                  <optgroup key={group.city} label={group.city}>
+                    {group.schools.map((school) => (
+                      <option key={school} value={school}>{school}</option>
+                    ))}
+                  </optgroup>
                 ))}
-              </div>
+              </select>
             </label>
             <label className={styles.field}>
               <span>Move-in date</span>

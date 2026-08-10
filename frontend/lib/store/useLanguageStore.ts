@@ -8,21 +8,30 @@ interface LanguageState {
   t: (key: TranslationKey, params?: Record<string, string | number>) => string;
 }
 
+const makeT = (lang: Lang) => (key: TranslationKey, params?: Record<string, string | number>): string => {
+  let text = translations[lang][key] ?? translations['en'][key];
+  if (params) {
+    for (const [name, value] of Object.entries(params)) {
+      text = text.split(`{${name}}`).join(String(value));
+    }
+  }
+  return text;
+};
+
 export const useLanguageStore = create<LanguageState>()(
   persist(
-    (set, get) => ({
+    (set) => ({
       lang: 'en',
-      setLang: (lang) => set({ lang }),
-      t: (key, params) => {
-        let text = translations[get().lang][key] ?? translations['en'][key];
-        if (params) {
-          for (const [name, value] of Object.entries(params)) {
-            text = text.split(`{${name}}`).join(String(value));
-          }
-        }
-        return text;
-      },
+      setLang: (lang) => set({ lang, t: makeT(lang) }),
+      t: makeT('en'),
     }),
-    { name: 'house-agent-lang' }
+    {
+      name: 'house-agent-lang',
+      onRehydrateStorage: () => (state) => {
+        if (state) {
+          state.setLang(state.lang);
+        }
+      },
+    }
   )
 );

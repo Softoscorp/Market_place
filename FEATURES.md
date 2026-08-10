@@ -38,6 +38,8 @@
 - **Move-In Calculator** — estimates the total move-in cost (rent + deposit + fees) and shows the affordable "move-in" figure.
 - **Agent card on the listing** with **verified / international-verified** badges.
 - **Start chat** with the agent directly from the listing.
+- **Book a viewing** — booking request flow (modal with confirmation feedback).
+- **Roommate split request** — create a roommate profile for the listed apartment and find someone to share the rent.
 - **Reviews & ratings** — read reviews + leave star ratings.
 - **Duplicate / untaken offers** section (same property posted by different agents, grouped).
 - **Report listing** — reasons: fake listing / wrong price / unavailable / other.
@@ -67,28 +69,33 @@ Agent-only area with:
 
 - **Sliding chat panel** available site-wide (floating button).
 - **Conversation thread** list (`/messages`) with unread counts.
-- **Messages**: send/receive, auto-scroll to newest, contact avatar + online status + last-seen (EN/TR).
+- **Messages**: send/receive, auto-scroll to newest, contact avatar + online status + last-seen (localized EN/TR).
 - **Message push notifications** (in-app toast).
 - **Anti-scam contact filtering** — phone numbers (10+ digits), WhatsApp, Telegram, Viber references are **scrubbed from chat messages** automatically.
 - **Auto-translation** of posted messages.
 
 ## 8. Roommates & Housemates (`/roommates`)
 
-- **Full open listing** of roommate/roommate offers.
-- **Filters**: taste, timezone, budget, gender, profile type.
-- **Compatibility matching** — a 3-step wizard (lifestyle / cleanliness / schedule) that produces a **match score** shown on roommate cards.
-- Roomsmate card with profile summary; message the person directly.
+- **Full open listing** of housemate / roommate offers (card grid + mobile list rows).
+- **Filters**: profile type (housemate / roommate), area / university, budget range, free-text search by name / area / school.
+- **Compatibility matching** — a 3-step lifestyle wizard (guests & smoking / cleanliness / schedule) that produces a **match score** shown on roommate cards.
+- Roommate card with profile summary; message the person directly.
 
 ## 9. Saved / Wishlist (`/saved`)
 
-- View all saved properties in one place.
-- Quick actions: explore listings / explore roommates.
+- View all saved properties in one place (properties tab).
+- Roommate profiles tab (planned empty state).
+- Quick actions: explore listings / find roommates.
 
 ## 10. Post a Listing (`/post-listing`) — Agent only
 
 - Full property form: title, description, location, price, type, bedrooms.
 - **Photo upload** (up to 8 photos; PNG/JPG/WEBP, max 10MB each) → Supabase storage.
+- **Move-In details**: upfront months, deposit months, agency commission (month selection).
+- **Amenities toggles**: furnished, generator, pool, gym, parking, pet friendly.
+- **Distance to university** (km) field.
 - Live **Move-In Calculator** preview while creating.
+- Live listing-card preview (agent identity + verified badge).
 - Publish; success/error messaging.
 
 ## 11. Profile (`/profile`)
@@ -131,8 +138,10 @@ Moderation suite:
 
 ## 15. Internationalization
 
-- Full support for **English** and **Turkish** (~200 keys each, fallback EN).
-- Language persisted across sessions.
+- Full support for **English** and **Turkish** — **720 keys each** (verified 1:1 parity, fallback EN).
+- Covers all user-facing UI: navigation, homepage, search & filters, property detail (incl. booking / roommate modals, move-in calc), agent directory & dashboard, chat (incl. last-seen timestamps), roommates (filters, wizard, cards), post-listing form, profile, saved/wishlist, signup, legal pages (Terms & Privacy), and admin-adjacent agent views.
+- Language persisted across sessions (`localStorage`, key `house-agent-lang`).
+- `t(key, params)` helper with `{placeholder}` parameter interpolation for plural/count strings.
 
 ## 16. Tech notes
 

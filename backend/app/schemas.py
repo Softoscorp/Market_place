@@ -40,8 +40,8 @@ class LoginRequest(BaseModel):
     password: str
 
 
-class GoogleAuthRequest(BaseModel):
-    credential: str
+class SupabaseAuthRequest(BaseModel):
+    access_token: str
     role: Optional[UserRole] = None
 
 

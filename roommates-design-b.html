@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Roommates — Design B · Filters + List</title>
+<style>
+  :root {
+    --navy: #08192f;
+    --navy2: #12335c;
+    --gold: #b18842;
+    --ink: #1d1d1f;
+    --muted: #6b7280;
+    --surface: #ffffff;
+    --bg: #f4f4f2;
+    --border: #e5e4e0;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--ink); }
+  .nav { background: var(--surface); border-bottom: 1px solid var(--border); padding: 14px 28px; display: flex; align-items: center; gap: 12px; position: sticky; top: 0; z-index: 10; }
+  .logo-mark { width: 34px; height: 34px; }
+  .logo-text { font-weight: 800; letter-spacing: 0.06em; font-size: 16px; }
+  .logo-text span { color: var(--gold); }
+  .nav-spacer { flex: 1; }
+  .nav-link { color: var(--muted); font-weight: 600; font-size: 14px; margin-left: 22px; text-decoration: none; }
+  .nav-link.active { color: var(--navy); }
+  .layout { max-width: 1220px; margin: 0 auto; padding: 36px 28px 60px; display: grid; grid-template-columns: 280px 1fr; gap: 28px; }
+  .sidebar { position: sticky; top: 84px; height: fit-content; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 22px; }
+  .side-title { font-size: 15px; font-weight: 800; color: var(--navy); margin-bottom: 18px; display: flex; justify-content: space-between; align-items: center; }
+  .side-title a { font-size: 12px; color: var(--gold); font-weight: 700; text-decoration: none; }
+  .group { margin-bottom: 20px; }
+  .group label { display: block; font-size: 12px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 8px; }
+  .seg { display: flex; gap: 6px; }
+  .seg button { flex: 1; padding: 9px; border: 1px solid var(--border); background: #fff; border-radius: 10px; font-size: 13px; font-weight: 600; color: var(--muted); cursor: pointer; }
+  .seg button.on { background: var(--navy); color: #fff; border-color: var(--navy); }
+  .range { width: 100%; accent-color: var(--gold); }
+  .range-labels { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); margin-top: 4px; }
+  .check { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; color: var(--ink); margin-bottom: 8px; cursor: pointer; }
+  .check input { accent-color: var(--navy); width: 16px; height: 16px; }
+  .apply { width: 100%; background: var(--navy); color: #fff; border: none; border-radius: 10px; padding: 12px; font-weight: 700; cursor: pointer; }
+  .apply:hover { background: var(--gold); }
+  .results-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; gap: 12px; flex-wrap: wrap; }
+  .results-head h2 { font-size: 22px; color: var(--navy); }
+  .results-head h2 b { color: var(--gold); }
+  .post-btn { background: var(--navy); color: #fff; border: none; border-radius: 999px; padding: 12px 22px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; }
+  .post-btn:hover { background: var(--gold); }
+  .sort { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--muted); }
+  .sort select { border: 1px solid var(--border); border-radius: 8px; padding: 8px; background: #fff; font-size: 13px; }
+  .list { display: flex; flex-direction: column; gap: 14px; }
+  .row-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 14px; display: flex; gap: 16px; transition: box-shadow .2s, transform .2s; }
+  .row-card:hover { box-shadow: 0 10px 24px rgba(8,25,47,0.1); transform: translateY(-2px); }
+  .thumb { width: 130px; height: 130px; border-radius: 12px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+  .thumb-icon { font-size: 34px; }
+  .thumb .type { position: absolute; top: 8px; left: 8px; color: #fff; font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 999px; }
+  .info { flex: 1; min-width: 0; }
+  .top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .name { font-size: 17px; font-weight: 800; color: var(--navy); }
+  .name small { color: var(--muted); font-weight: 600; }
+  .match { color: var(--gold); font-size: 12px; font-weight: 800; white-space: nowrap; }
+  .desc { color: var(--muted); font-size: 13px; margin: 5px 0 8px; }
+  .chips { display: flex; gap: 6px; flex-wrap: wrap; }
+  .chip { font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 999px; background: #f0efec; color: var(--muted); }
+  .chip.gold { background: rgba(177,136,66,0.14); color: #8a6a2f; }
+  .budget { font-size: 15px; font-weight: 800; color: var(--navy); white-space: nowrap; }
+  .actions { display: flex; flex-direction: column; justify-content: center; gap: 8px; flex-shrink: 0; }
+  .msg { background: var(--navy); color: #fff; border: none; border-radius: 999px; padding: 10px 18px; font-weight: 700; cursor: pointer; font-size: 13px; white-space: nowrap; }
+  .msg:hover { background: var(--gold); }
+  .save { background: transparent; border: 1px solid var(--border); color: var(--navy); border-radius: 999px; padding: 8px; cursor: pointer; font-size: 14px; }
+  @media (max-width: 900px) { .layout { grid-template-columns: 1fr; } .sidebar { position: static; } .row-card { flex-wrap: wrap; } }
+</style>
+</head>
+<body>
+  <nav class="nav">
+    <svg class="logo-mark" viewBox="0 0 352 210"><g transform="translate(0,190) scale(0.1,-0.1)" fill="#b18842"><path d="M963 1633 c15 -2 39 -2 55 0 15 2 2 4 -28 4 -30 0 -43 -2 -27 -4z M2030 1405 c-29 -35 -57 -62 -62 -59 -4 3 -8 -3 -8 -14 0 -19 -151 -200 -310 -372 -149 -161 -361 -412 -357 -424 2 -7 52 -11 146 -11 l143 0 26 31 c15 17 59 68 97 114 39 46 106 124 150 175 44 50 115 133 158 184 43 51 82 91 86 89 9 -3 50 -50 332 -373 105 -121 193 -213 206 -217 26 -7 273 -1 281 7 3 3 -4 15 -15 28 -113 127 -726 830 -753 863 -19 24 -42 43 -51 44 -8 0 -39 -29 -69 -65z"/></g><g transform="translate(0,190) scale(0.1,-0.1)" fill="#08192f"><path d="M890 1623 c0 -5 -1 -251 -2 -548 l-3 -540 140 0 140 0 3 233 2 233 254 -1 254 -1 39 43 c22 24 85 96 142 161 l102 119 -3 151 -3 152 -142 3 -143 3 0 -210 0 -209 -27 -5 c-30 -6 -414 1 -450 9 -23 4 -23 5 -23 209 l0 205 -140 0 c-77 0 -140 -3 -140 -7z"/></g></svg>
+    <div class="logo-text">HOUSE <span>AGENT</span></div>
+    <div class="nav-spacer"></div>
+    <a class="nav-link active" href="#">Roommates</a>
+    <a class="nav-link" href="#">Properties</a>
+    <a class="nav-link" href="#">Agents</a>
+  </nav>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="side-title">Filters <a href="#">Reset</a></div>
+
+      <div class="group">
+        <label>Type</label>
+        <div class="seg">
+          <button class="on">Housemate</button>
+          <button>Roommate</button>
+          <button>Any</button>
+        </div>
+      </div>
+
+      <div class="group">
+        <label>City</label>
+        <div class="seg">
+          <button class="on">Famagusta</button>
+          <button>Nicosia</button>
+          <button>Kyrenia</button>
+        </div>
+      </div>
+
+      <div class="group">
+        <label>Max budget — <b style="color:var(--gold)">£300</b></label>
+        <input type="range" class="range" min="100" max="800" value="300">
+        <div class="range-labels"><span>£100</span><span>£800</span></div>
+      </div>
+
+      <div class="group">
+        <label>Gender</label>
+        <label class="check"><input type="checkbox" checked> Male</label>
+        <label class="check"><input type="checkbox"> Female</label>
+        <label class="check"><input type="checkbox"> Any</label>
+      </div>
+
+      <div class="group">
+        <label>Habits</label>
+        <label class="check"><input type="checkbox" checked> Non-smoker</label>
+        <label class="check"><input type="checkbox"> Pet friendly</label>
+        <label class="check"><input type="checkbox"> Cook</label>
+        <label class="check"><input type="checkbox"> Quiet</label>
+      </div>
+
+      <button class="apply">Apply Filters</button>
+    </aside>
+
+    <section>
+      <div class="results-head">
+        <h2>24 <b>housemates</b> in Famagusta</h2>
+        <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+          <button class="post-btn">+ Post an Ad</button>
+          <div class="sort">Sort by <select><option>Best match</option><option>Newest</option><option>Lowest rent</option></select></div>
+        </div>
+      </div>
+
+      <div class="list">
+        <div class="row-card">
+          <div class="thumb" style="background:linear-gradient(135deg,#1e3a5f,#0f2747)"><div class="thumb-icon">🛏️</div><span class="type" style="background:#b18842">Housemate</span></div>
+          <div class="info">
+            <div class="top"><span class="name">Chinedu, 24 <small>· Male · EMU</small></span><span class="match">92% match</span></div>
+            <p class="desc">Own room in a 2+1 flat near Maraş. Fully furnished, bills shared, 2 mins to campus bus.</p>
+            <div class="chips"><span class="chip">Non-smoker</span><span class="chip gold">Own room</span><span class="chip gold">Furnished</span><span class="chip gold">Verified ✓</span></div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;justify-content:center;gap:6px;flex-shrink:0">
+            <span class="budget">£280/mo</span>
+            <div class="actions" style="flex-direction:row">
+              <button class="save">♥</button>
+              <button class="msg">Message</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="row-card">
+          <div class="thumb" style="background:linear-gradient(135deg,#b18842,#8a6a2f)"><div class="thumb-icon">🛋️</div><span class="type" style="background:#12335c">Roommate</span></div>
+          <div class="info">
+            <div class="top"><span class="name">Aylin, 21 <small>· Female · NEU</small></span><span class="match">87% match</span></div>
+            <p class="desc">Looking to share a bedroom in Nicosia. Social, loves coffee and weekend trips.</p>
+            <div class="chips"><span class="chip">Night owl</span><span class="chip">Social</span><span class="chip gold">Verified ✓</span></div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;justify-content:center;gap:6px;flex-shrink:0">
+            <span class="budget">£150/mo</span>
+            <div class="actions" style="flex-direction:row">
+              <button class="save">♥</button>
+              <button class="msg">Message</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="row-card">
+          <div class="thumb" style="background:linear-gradient(135deg,#0e3d34,#082a24)"><div class="thumb-icon">🏡</div><span class="type" style="background:#b18842">Housemate</span></div>
+          <div class="info">
+            <div class="top"><span class="name">Mert, 26 <small>· Male · Engineer</small></span><span class="match">90% match</span></div>
+            <p class="desc">3+1 villa in Kyrenia, one room free. Pool, parking and fast internet included.</p>
+            <div class="chips"><span class="chip">Pet friendly</span><span class="chip gold">Pool</span><span class="chip gold">Parking</span><span class="chip gold">Verified ✓</span></div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;justify-content:center;gap:6px;flex-shrink:0">
+            <span class="budget">£320/mo</span>
+            <div class="actions" style="flex-direction:row">
+              <button class="save">♥</button>
+              <button class="msg">Message</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</body>
+</html>

@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Housemates · Version A — Swipe Deck</title>
+<style>
+  :root {
+    --navy: #08192f;
+    --navy2: #12335c;
+    --gold: #b18842;
+    --ink: #1d1d1f;
+    --muted: #6b7280;
+    --surface: #ffffff;
+    --bg: #f4f4f2;
+    --border: #e8e7e2;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: #e9e9e6;
+    display: flex; justify-content: center; padding: 24px 0;
+  }
+  .phone {
+    width: 390px; height: 800px; background: var(--bg); border-radius: 44px;
+    border: 8px solid #2b2b2e; overflow: hidden; position: relative;
+    box-shadow: 0 30px 60px rgba(0,0,0,0.35);
+  }
+  .screen { height: 100%; overflow-y: auto; padding-bottom: 84px; background: var(--bg); }
+
+  /* ---- top header ---- */
+  .head { position: sticky; top: 0; z-index: 20; background: var(--surface); padding: 14px 18px 12px; border-bottom: 1px solid var(--border); }
+  .head-row { display: flex; align-items: center; justify-content: space-between; }
+  .logo { display: flex; align-items: center; gap: 8px; }
+  .logo .mark { width: 30px; height: 30px; }
+  .logo .text { font-weight: 800; font-size: 15px; letter-spacing: 0.06em; color: var(--navy); }
+  .logo .text span { color: var(--gold); }
+  .post { background: var(--navy); color: #fff; border: none; border-radius: 999px; padding: 9px 16px; font-size: 12px; font-weight: 700; }
+  .title-row { display: flex; align-items: baseline; justify-content: space-between; margin-top: 14px; }
+  .title-row h1 { font-size: 22px; color: var(--navy); letter-spacing: -0.02em; }
+  .title-row .count { font-size: 13px; color: var(--muted); font-weight: 600; }
+
+  /* ---- filter chips ---- */
+  .chips { display: flex; gap: 8px; overflow-x: auto; padding: 12px 18px 6px; }
+  .chips::-webkit-scrollbar { display: none; }
+  .chip { white-space: nowrap; border: 1px solid var(--border); background: var(--surface); border-radius: 999px; padding: 7px 14px; font-size: 12px; font-weight: 600; color: var(--muted); }
+  .chip.on { background: var(--navy); color: #fff; border-color: var(--navy); }
+  .chip.gold.on { background: var(--gold); border-color: var(--gold); }
+
+  /* ---- swipe deck ---- */
+  .deck { padding: 16px 18px 6px; }
+  .swipe-card {
+    position: relative; border-radius: 22px; overflow: hidden; height: 440px;
+    box-shadow: 0 12px 32px rgba(8,25,47,0.18); border: 1px solid var(--border);
+    background: var(--surface);
+  }
+  .card-photo { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
+  .card-photo .grad { position: absolute; inset: 0; }
+  .card-photo .big-icon { position: relative; color: rgba(255,255,255,0.9); }
+  .card-shade { position: absolute; left: 0; right: 0; bottom: 0; height: 55%; background: linear-gradient(transparent, rgba(0,0,0,0.72)); }
+  .card-match { position: absolute; top: 14px; left: 14px; background: var(--gold); color: #fff; font-size: 11px; font-weight: 800; padding: 5px 12px; border-radius: 999px; }
+  .card-type { position: absolute; top: 14px; right: 14px; background: rgba(255,255,255,0.16); backdrop-filter: blur(6px); color: #fff; font-size: 11px; font-weight: 700; padding: 5px 12px; border-radius: 999px; }
+  .card-info { position: absolute; left: 18px; right: 18px; bottom: 16px; color: #fff; }
+  .card-info .who { font-size: 24px; font-weight: 800; letter-spacing: -0.02em; }
+  .card-info .who small { font-size: 15px; font-weight: 600; color: rgba(255,255,255,0.85); }
+  .card-info .desc { font-size: 13px; color: rgba(255,255,255,0.85); margin-top: 6px; line-height: 1.45; }
+  .card-info .price { display: inline-block; margin-top: 10px; background: rgba(255,255,255,0.2); backdrop-filter: blur(6px); padding: 5px 12px; border-radius: 999px; font-size: 13px; font-weight: 800; }
+  .card-tags { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
+  .card-tags span { font-size: 10px; font-weight: 700; padding: 4px 10px; border-radius: 999px; background: rgba(255,255,255,0.22); backdrop-filter: blur(6px); }
+
+  /* ---- swipe actions ---- */
+  .actions { display: flex; justify-content: center; gap: 18px; padding: 16px 0 4px; }
+  .act { width: 58px; height: 58px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 22px; border: none; box-shadow: 0 6px 16px rgba(8,25,47,0.14); cursor: pointer; background: var(--surface); }
+  .act.pass { color: #d4543a; border: 1px solid #f3d6cf; }
+  .act.save { color: var(--navy); border: 1px solid var(--border); }
+  .act.msg { background: var(--navy); color: #fff; }
+  .act-label { text-align: center; font-size: 10px; font-weight: 700; color: var(--muted); margin-top: 5px; }
+  .act-col { display: flex; flex-direction: column; }
+
+  /* ---- upcoming hint ---- */
+  .upcoming { display: flex; align-items: center; gap: 10px; padding: 14px 18px 4px; }
+  .upcoming .thumb { width: 42px; height: 42px; border-radius: 12px; overflow: hidden; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .upcoming .name { font-size: 12px; font-weight: 700; color: var(--navy); }
+  .upcoming .sub { font-size: 11px; color: var(--muted); }
+  .upcoming .line { flex: 1; height: 1px; background: var(--border); }
+  .upcoming .label { font-size: 11px; font-weight: 700; color: var(--gold); text-transform: uppercase; letter-spacing: 0.05em; }
+
+  /* ---- bottom tab bar (always visible) ---- */
+  .tabbar {
+    position: fixed; bottom: 0; left: 0; right: 0; height: 76px;
+    background: var(--surface); border-top: 1px solid var(--border);
+    display: flex; align-items: stretch; padding-bottom: env(safe-area-inset-bottom, 0px);
+    z-index: 100; width: 390px; margin: 0 auto;
+  }
+  .tab { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; color: var(--muted); font-size: 10px; font-weight: 600; text-decoration: none; position: relative; }
+  .tab svg { width: 24px; height: 24px; }
+  .tab.on { color: var(--navy); font-weight: 800; }
+  .tab.on::before { content: ''; position: absolute; top: 6px; width: 40px; height: 26px; background: rgba(177,136,66,0.18); border-radius: 999px; }
+  .tab .badge { position: absolute; top: 7px; right: calc(50% - 20px); background: #d4543a; color: #fff; font-size: 9px; font-weight: 700; border-radius: 999px; min-width: 16px; height: 16px; display: flex; align-items: center; justify-content: center; border: 2px solid var(--surface); }
+  .phone-note { margin-top: 16px; text-align: center; color: #999; font-size: 13px; max-width: 390px; line-height: 1.6; }
+  .phone-note b { color: #777; }
+</style>
+</head>
+<body>
+
+  <div>
+    <div class="phone">
+      <div class="screen">
+        <!-- header -->
+        <div class="head">
+          <div class="head-row">
+            <div class="logo">
+              <svg class="mark" viewBox="0 0 352 210"><g transform="translate(0,190) scale(0.1,-0.1)" fill="#b18842"><path d="M963 1633 c15 -2 39 -2 55 0 15 2 2 4 -28 4 -30 0 -43 -2 -27 -4z M2030 1405 c-29 -35 -57 -62 -62 -59 -4 3 -8 -3 -8 -14 0 -19 -151 -200 -310 -372 -149 -161 -361 -412 -357 -424 2 -7 52 -11 146 -11 l143 0 26 31 c15 17 59 68 97 114 39 46 106 124 150 175 44 50 115 133 158 184 43 51 82 91 86 89 9 -3 50 -50 332 -373 105 -121 193 -213 206 -217 26 -7 273 -1 281 7 3 3 -4 15 -15 28 -113 127 -726 830 -753 863 -19 24 -42 43 -51 44 -8 0 -39 -29 -69 -65z"/></g><g transform="translate(0,190) scale(0.1,-0.1)" fill="#08192f"><path d="M890 1623 c0 -5 -1 -251 -2 -548 l-3 -540 140 0 140 0 3 233 2 233 254 -1 254 -1 39 43 c22 24 85 96 142 161 l102 119 -3 151 -3 152 -142 3 -143 3 0 -210 0 -209 -27 -5 c-30 -6 -414 1 -450 9 -23 4 -23 5 -23 209 l0 205 -140 0 c-77 0 -140 -3 -140 -7z"/></g></svg>
+              <div class="text">HOUSE <span>AGENT</span></div>
+            </div>
+            <button class="post">+ Post an Ad</button>
+          </div>
+          <div class="title-row">
+            <h1>Your Matches</h1>
+            <span class="count">24 nearby</span>
+          </div>
+        </div>
+
+        <!-- filters -->
+        <div class="chips">
+          <span class="chip on">All</span>
+          <span class="chip">Housemates</span>
+          <span class="chip">Roommates</span>
+          <span class="chip gold on">£300–£500</span>
+          <span class="chip">EMU · Famagusta</span>
+        </div>
+
+        <!-- swipe card -->
+        <div class="deck">
+          <div class="swipe-card">
+            <div class="card-photo">
+              <div class="grad" style="background:linear-gradient(135deg,#1e3a5f,#0f2747)"></div>
+              <div class="big-icon" style="font-size:64px">🛏️</div>
+            </div>
+            <div class="card-shade"></div>
+            <div class="card-match">92% Match</div>
+            <div class="card-type">Housemate</div>
+            <div class="card-info">
+              <div class="who">Chinedu, 24 <small>· Male · EMU</small></div>
+              <div class="desc">Own room in a 2+1 flat near Maraş. Fully furnished, bills shared, 2 mins to campus bus.</div>
+              <div>
+                <span class="price">£280 / mo</span>
+              </div>
+              <div class="card-tags">
+                <span>Non-smoker</span><span>Furnished</span><span>Own room</span><span>Verified ✓</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- actions -->
+        <div class="actions">
+          <div class="act-col">
+            <button class="act pass">✕</button>
+            <div class="act-label">Pass</div>
+          </div>
+          <div class="act-col">
+            <button class="act save">♥</button>
+            <div class="act-label">Save</div>
+          </div>
+          <div class="act-col">
+            <button class="act msg">💬</button>
+            <div class="act-label">Message</div>
+          </div>
+        </div>
+
+        <!-- next up -->
+        <div class="upcoming">
+          <div class="thumb" style="background:linear-gradient(135deg,#b18842,#8a6a2f)">🛋️</div>
+          <div>
+            <div class="name">Aylin, 21 · Female · NEU</div>
+            <div class="sub">87% match · £150/mo · Nicosia</div>
+          </div>
+          <div class="line"></div>
+          <div class="label">Next →</div>
+        </div>
+      </div>
+
+      <!-- bottom tab bar -->
+      <div class="tabbar">
+        <a class="tab" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12l9-9 9 9"/><path d="M5 10v10h14V10"/></svg>Home</a>
+        <a class="tab" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>Search</a>
+        <a class="tab on" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Matches</a>
+        <a class="tab" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Messages<span class="badge">3</span></a>
+        <a class="tab" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"/></svg>Profile</a>
+      </div>
+    </div>
+    <div class="phone-note">
+      <b>Version A — Swipe Deck.</b><br>
+      One big card at a time, tap ✕ / ♥ / 💬. The bottom bar stays fixed and never disappears.
+    </div>
+  </div>
+
+</body>
+</html>

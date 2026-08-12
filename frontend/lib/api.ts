@@ -107,10 +107,10 @@ export async function login(email: string, password: string): Promise<void> {
   setToken(data.access_token);
 }
 
-export async function googleLogin(credential: string, role?: string): Promise<void> {
-  const data = await apiRequest("/auth/google", {
+export async function supabaseLogin(access_token: string, role?: string): Promise<void> {
+  const data = await apiRequest("/auth/supabase-login", {
     method: "POST",
-    body: { credential, role },
+    body: { access_token, role },
     auth: false
   });
   setToken(data.access_token);

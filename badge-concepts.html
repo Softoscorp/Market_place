@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Unique Verified Badge Concepts — Rental Platform</title>
+<style>
+  :root {
+    --bg: #eef0f3;
+    --surface: #ffffff;
+    --border: #e5e7eb;
+    --text: #111827;
+    --text-2: #4b5563;
+    --text-3: #9ca3af;
+    --success: #16a34a;
+    --success-soft: #ecfdf5;
+    --warning: #d97706;
+    --shadow-md: 0 6px 16px rgba(16,24,40,.10);
+    --radius-lg: 14px;
+    --radius-md: 10px;
+    --radius-full: 999px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: var(--bg); color: var(--text); padding: 40px 20px 80px; }
+  .page-head { max-width: 1000px; margin: 0 auto 8px; }
+  .page-head h1 { font-size: 26px; letter-spacing: -.02em; }
+  .page-head p { color: var(--text-2); margin-top: 6px; font-size: 15px; max-width: 800px; line-height: 1.5; }
+  .note { color: var(--text-3); font-size: 13px; margin-top: 8px; }
+
+  .concepts { max-width: 1000px; margin: 40px auto 0; display: flex; flex-direction: column; gap: 18px; }
+  .concept { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; box-shadow: var(--shadow-md); padding: 22px 24px; }
+  .concept .head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+  .concept .t { font-size: 17px; font-weight: 800; }
+  .concept .chip { background: var(--success-soft); color: var(--success); border-radius: var(--radius-full); padding: 3px 12px; font-size: 11.5px; font-weight: 700; }
+  .concept .d { color: var(--text-2); font-size: 13px; margin-top: 4px; max-width: 700px; line-height: 1.5; }
+  .row { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px dashed var(--border); }
+  .row:last-child { border-bottom: none; }
+  .nm { font-weight: 800; font-size: 17px; display: flex; align-items: center; gap: 7px; }
+  .sub { font-size: 12px; color: var(--text-2); margin-top: 2px; }
+  .row .info2 { font-size: 12px; color: var(--text-3); margin-left: auto; }
+
+  /* ============ BADGE DESIGN LIBRARY ============ */
+  .badge { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+
+  /* B1 — THE KEY (green key in white ring) */
+  .b-key { width: 20px; height: 20px; border-radius: 50%; background: linear-gradient(135deg,#22c55e,#15803d); color: #fff; box-shadow: 0 0 0 2px #fff, 0 1px 3px rgba(0,0,0,.2); }
+
+  /* B2 — HOUSE WITH CHECK (roof + check) */
+  .b-house { width: 20px; height: 20px; border-radius: 7px; background: linear-gradient(135deg,#10b981,#059669); color: #fff; box-shadow: 0 0 0 2px #fff, 0 1px 3px rgba(0,0,0,.2); }
+
+  /* B3 — SHIELD (not a circle, stands out) */
+  .b-shield { width: 20px; height: 22px; background: linear-gradient(135deg,#2563eb,#1d4ed8); color: #fff; border-radius: 6px 6px 10px 10px; clip-path: polygon(50% 0, 100% 12%, 92% 78%, 50% 100%, 8% 78%, 0 12%); box-shadow: 0 1px 3px rgba(0,0,0,.25); }
+
+  /* B4 — SPARKLE CHECK (check + sparkle accent) */
+  .b-spark { width: 22px; height: 22px; border-radius: 50%; background: radial-gradient(circle at 30% 30%, #4ade80, #16a34a); color: #fff; box-shadow: 0 0 0 2px #fff, 0 1px 4px rgba(22,163,74,.4); position: relative; }
+
+  /* B5 — MAP PIN / LOCATION (trusted pin) */
+  .b-pin { width: 20px; height: 20px; border-radius: 50% 50% 50% 0; background: linear-gradient(135deg,#f59e0b,#d97706); color: #fff; transform: rotate(-45deg); box-shadow: 0 1px 3px rgba(0,0,0,.25); display: inline-flex; align-items: center; justify-content: center; }
+  .b-pin svg { transform: rotate(45deg); }
+
+  /* B6 — THE KEYHOLD (filled circle, keyhole cutout — the "entry" mark) */
+  .b-keyhole { width: 20px; height: 20px; border-radius: 50%; background: var(--success); color: #fff; box-shadow: 0 0 0 2px #fff, 0 1px 3px rgba(0,0,0,.2); }
+
+  /* ============ PREVIEW: the chosen one on real surfaces ============ */
+  .preview { max-width: 1000px; margin: 48px auto 0; }
+  .preview .head { font-size: 18px; font-weight: 800; margin-bottom: 16px; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  .surface { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; box-shadow: var(--shadow-md); padding: 18px; }
+  .surface .lab { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--text-3); margin-bottom: 12px; }
+  .agent-card { display: flex; gap: 14px; align-items: center; }
+  .avatar { width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg,#2563eb,#7c3aed); color: #fff; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .foot { display: flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 600; }
+  .foot .nm { display: flex; align-items: center; gap: 5px; font-size: 13.5px; }
+  .star { color: #f59e0b; }
+
+  @media (max-width: 760px) { .grid2 { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<header class="page-head">
+  <h1>Unique Verified Badge — Concept Library</h1>
+  <p>Not a generic checkmark — six distinct "verified agent" badges, each with its own meaning tied to a rental platform. All follow the Twitter/Facebook placement (small badge after the name). Pick one, and I'll wire it in.</p>
+  <p class="note">Static mockup. Icons are drawn inline. The chosen one gets built as the app's VerifiedBadge component.</p>
+</header>
+
+<div class="concepts">
+
+  <!-- B1 -->
+  <div class="concept">
+    <div class="head">
+      <div class="t">Concept 1 · The Key</div>
+      <span class="chip">Rental meaning: "holds the keys"</span>
+    </div>
+    <div class="d">A key instead of a checkmark. A verified agent literally has the keys to the property — instantly reads as a rental platform, not a social network.</div>
+    <div class="row">
+      <div class="nm">Jane Doe <span class="badge b-key"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg></span></div>
+      <div class="sub">Local verified</div>
+      <div class="info2">Government ID verified</div>
+    </div>
+  </div>
+
+  <!-- B2 -->
+  <div class="concept">
+    <div class="head">
+      <div class="t">Concept 2 · The House Check</div>
+      <span class="chip">Rental meaning: "approved property home"</span>
+    </div>
+    <div class="d">A tiny house silhouette with a checkmark — the property is real and the agent is who they say they are.</div>
+    <div class="row">
+      <div class="nm">House Agent <span class="badge b-house"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7"/><path d="M5 9.5V21h14V9.5"/><polyline points="9 21 9 13 15 13 15 21"/></svg></span></div>
+      <div class="sub">Local verified</div>
+      <div class="info2">Government ID verified</div>
+    </div>
+  </div>
+
+  <!-- B3 -->
+  <div class="concept">
+    <div class="head">
+      <div class="t">Concept 3 · The Shield</div>
+      <span class="chip">Rental meaning: "protected &amp; trusted"</span>
+    </div>
+    <div class="d">A shield, not a circle — different shape catches the eye instantly. Blue = protection, matches the "Trust &amp; Safety" idea.</div>
+    <div class="row">
+      <div class="nm">Jane Doe <span class="badge b-shield"><svg width="11" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg></span></div>
+      <div class="sub">Local verified</div>
+      <div class="info2">Government ID verified</div>
+    </div>
+  </div>
+
+  <!-- B4 -->
+  <div class="concept">
+    <div class="head">
+      <div class="t">Concept 4 · The Sparkle</div>
+      <span class="chip">Rental meaning: "premium / standout"</span>
+    </div>
+    <div class="d">Checkmark with a tiny sparkle — a "premium" verified look. Reserved for international/business agents.</div>
+    <div class="row">
+      <div class="nm">House Agent <span class="badge b-spark"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/><path d="M15 4l.5 2M17 8l2 .5M15 12l.5 2"/></svg></span></div>
+      <div class="sub">International verified</div>
+      <div class="info2">Business license verified</div>
+    </div>
+  </div>
+
+  <!-- B5 -->
+  <div class="concept">
+    <div class="head">
+      <div class="t">Concept 5 · The Trusted Pin</div>
+      <span class="chip">Rental meaning: "local, on the map"</span>
+    </div>
+    <div class="d">A map pin — this agent is a real, on-the-ground local. Amber/gold reads as "landmark" and stands out next to green badges.</div>
+    <div class="row">
+      <div class="nm">Jane Doe <span class="badge b-pin"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span></div>
+      <div class="sub">Local verified</div>
+      <div class="info2">Government ID verified</div>
+    </div>
+  </div>
+
+  <!-- B6 -->
+  <div class="concept">
+    <div class="head">
+      <div class="t">Concept 6 · The Keyhole</div>
+      <span class="chip">Rental meaning: "entry granted / gatekeeper"</span>
+    </div>
+    <div class="d">A filled circle with a keyhole cutout — the literal "you're in" mark. Very clean and minimal, reads like a real certification seal.</div>
+    <div class="row">
+      <div class="nm">House Agent <span class="badge b-keyhole"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 15v4"/></svg></span></div>
+      <div class="sub">Local verified</div>
+      <div class="info2">Government ID verified</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ============ PREVIEW ============ -->
+<div class="preview">
+  <div class="head">Preview — Concept 1 (The Key) on the real surfaces</div>
+  <div class="grid2">
+    <div class="surface">
+      <div class="lab">Agent card</div>
+      <div class="agent-card">
+        <div class="avatar">HA</div>
+        <div>
+          <div class="nm">House Agent <span class="badge b-key"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg></span></div>
+          <div class="sub">Independent agent · ★ 4.8 (24)</div>
+        </div>
+        <div class="info2" style="margin-left:auto;">Online</div>
+      </div>
+    </div>
+    <div class="surface">
+      <div class="lab">Property card footer</div>
+      <div class="foot">
+        <div class="avatar" style="width:26px;height:26px;font-size:10px;">HA</div>
+        <div class="nm">House Agent <span class="badge b-key"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg></span></div>
+        <span class="star">★</span> 4.8
+      </div>
+      <div class="foot" style="margin-top:12px;">
+        <div class="avatar" style="width:26px;height:26px;font-size:10px;">JD</div>
+        <div class="nm">Jane Doe <span class="badge b-key"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg></span></div>
+        <span class="star">★</span> 4.5
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

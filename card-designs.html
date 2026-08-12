@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Apartment Card — 3 Design Concepts</title>
+<style>
+  :root {
+    --bg: #f5f6f8;
+    --surface: #ffffff;
+    --border: #e5e7eb;
+    --border-hover: #cbd5e1;
+    --text: #111827;
+    --text-2: #4b5563;
+    --text-3: #9ca3af;
+    --accent: #2563eb;
+    --accent-soft: #eff6ff;
+    --success: #16a34a;
+    --shadow-sm: 0 1px 3px rgba(16,24,40,.08);
+    --shadow-md: 0 6px 16px rgba(16,24,40,.10);
+    --shadow-xl: 0 18px 40px rgba(16,24,40,.16);
+    --radius-lg: 14px;
+    --radius-md: 10px;
+    --radius-full: 999px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    padding: 40px 24px 80px;
+  }
+  header.page-head { max-width: 1200px; margin: 0 auto 12px; }
+  header.page-head h1 { font-size: 26px; letter-spacing: -.02em; }
+  header.page-head p { color: var(--text-2); margin-top: 6px; font-size: 15px; }
+  .note { color: var(--text-3); font-size: 13px; margin-top: 8px; }
+
+  .concepts {
+    max-width: 1200px;
+    margin: 32px auto 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+    gap: 28px;
+    align-items: start;
+  }
+  .concept { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 20px; box-shadow: var(--shadow-sm); }
+  .concept > .label { display: inline-flex; align-items: center; gap: 8px; font-weight: 700; font-size: 14px; margin-bottom: 4px; }
+  .concept > .label .chip { background: var(--accent-soft); color: var(--accent); border-radius: var(--radius-full); padding: 2px 10px; font-size: 11px; font-weight: 600; }
+  .concept > .desc { color: var(--text-2); font-size: 13px; margin-bottom: 16px; line-height: 1.5; }
+  .concept > .stage { display: flex; justify-content: center; padding: 16px 0 8px; }
+
+  /* ============ shared bits ============ */
+  .badge { display: inline-block; font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 6px; background: var(--accent); color: #fff; }
+  .badge.verified { background: var(--success); }
+  .avatar { width: 26px; height: 26px; border-radius: 50%; background: linear-gradient(135deg,#2563eb,#7c3aed); color: #fff; font-size: 11px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; }
+  .star { color: #f59e0b; }
+
+  /* ============ CONCEPT A — PRICE HERO ============ */
+  .card-a { width: 300px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-sm); font-size: 14px; }
+  .card-a .price-hero { display: flex; align-items: baseline; justify-content: space-between; padding: 14px 16px 10px; }
+  .card-a .price-hero .amount { font-size: 26px; font-weight: 800; letter-spacing: -.02em; }
+  .card-a .price-hero .per { color: var(--text-3); font-size: 12px; font-weight: 500; }
+  .card-a .photo { position: relative; height: 140px; margin: 0 16px; border-radius: var(--radius-md); overflow: hidden; }
+  .card-a .photo .grad { position: absolute; inset: 0; }
+  .card-a .photo .beds { position: absolute; bottom: 10px; left: 10px; background: rgba(0,0,0,.55); color: #fff; font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: var(--radius-full); }
+  .card-a .body { padding: 12px 16px 14px; }
+  .card-a .title { font-size: 15px; font-weight: 700; line-height: 1.25; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .card-a .loc { color: var(--text-2); font-size: 13px; margin-top: 2px; }
+  .card-a .meta { display: flex; gap: 14px; color: var(--text-2); font-size: 12.5px; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); }
+  .card-a .meta span { display: flex; align-items: center; gap: 5px; }
+  .card-a .meta .ico { width: 14px; height: 14px; opacity: .7; }
+
+  /* ============ CONCEPT B — IMMERSIVE OVERLAY ============ */
+  .card-b { width: 300px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-sm); font-size: 14px; }
+  .card-b .hero { position: relative; height: 200px; }
+  .card-b .hero .grad { position: absolute; inset: 0; }
+  .card-b .hero .scrim { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,0) 55%, rgba(0,0,0,.45)); }
+  .card-b .hero .top { position: absolute; top: 12px; left: 12px; right: 12px; display: flex; justify-content: space-between; align-items: center; }
+  .card-b .save { width: 34px; height: 34px; border-radius: 50%; background: rgba(255,255,255,.9); border: none; font-size: 16px; cursor: pointer; box-shadow: var(--shadow-sm); }
+  .card-b .price-pill { position: absolute; bottom: 12px; left: 14px; background: #fff; color: var(--text); font-size: 18px; font-weight: 800; padding: 6px 14px; border-radius: var(--radius-md); box-shadow: var(--shadow-md); letter-spacing: -.02em; }
+  .card-b .info { padding: 12px 14px 14px; border-bottom: 1px solid var(--border); }
+  .card-b .info .row { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+  .card-b .info .title { font-size: 15px; font-weight: 700; line-height: 1.3; }
+  .card-b .info .side { text-align: right; font-size: 12.5px; color: var(--text-2); white-space: nowrap; }
+  .card-b .info .side .loc { font-weight: 600; color: var(--text); }
+  .card-b .info .side .campus { margin-top: 3px; }
+  .card-b .footer { display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; }
+  .card-b .footer .agent { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 500; }
+  .card-b .footer .term { font-size: 12px; color: var(--text-2); }
+
+  /* ============ CONCEPT C — CLASSIC COMPACT ============ */
+  .card-c { width: 300px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-sm); font-size: 14px; }
+  .card-c .photo { position: relative; height: 150px; }
+  .card-c .photo .grad { position: absolute; inset: 0; }
+  .card-c .photo .top { position: absolute; top: 10px; left: 10px; right: 10px; display: flex; justify-content: space-between; align-items: center; }
+  .card-c .save { width: 32px; height: 32px; border-radius: 50%; background: rgba(255,255,255,.85); border: none; font-size: 15px; cursor: pointer; }
+  .card-c .body { padding: 10px 12px 12px; }
+  .card-c .row1 { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+  .card-c .title { font-size: 14px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .card-c .price { font-size: 15px; font-weight: 800; white-space: nowrap; }
+  .card-c .loc { color: var(--text-2); font-size: 12.5px; margin-top: 2px; }
+  .card-c .meta { display: flex; gap: 12px; color: var(--text-2); font-size: 12.5px; margin-top: 8px; }
+  .card-c .meta span { display: flex; align-items: center; gap: 4px; }
+  .card-c .meta .ico { width: 13px; height: 13px; opacity: .7; }
+  .card-c .foot { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; padding-top: 9px; border-top: 1px solid var(--border); }
+  .card-c .foot .agent { display: flex; align-items: center; gap: 7px; font-size: 12.5px; font-weight: 500; }
+  .card-c .foot .rate { font-size: 12.5px; color: var(--text-2); }
+
+  /* phone preview toggle */
+  .preview-toggle { margin: 40px auto 0; max-width: 1200px; text-align: center; }
+  .preview-toggle button { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-full); padding: 10px 20px; font-size: 14px; font-weight: 600; cursor: pointer; box-shadow: var(--shadow-sm); }
+  .preview-toggle button:hover { border-color: var(--border-hover); }
+  body.phone .concepts { max-width: 420px; grid-template-columns: 1fr; }
+  body.phone .concept > .stage { transform: scale(.92); }
+</style>
+</head>
+<body>
+
+<header class="page-head">
+  <h1>Apartment Card — 3 Concepts</h1>
+  <p>Same apartment ("Cozy 2+1 Near Campus", Nicosia · £650/mo) rendered three ways. Pick the direction you like best.</p>
+  <p class="note">Static mockup — links/buttons are decorative. Delete this file when done.</p>
+</header>
+
+<div class="concepts">
+
+  <!-- ============ A ============ -->
+  <section class="concept">
+    <div class="label">Concept A <span class="chip">Price-First</span></div>
+    <p class="desc">Price is the hero — big and at the top, photo below it. Best if "what does it cost" is the #1 decision factor. Card stays short so many fit per row.</p>
+    <div class="stage">
+      <div class="card-a">
+        <div class="price-hero">
+          <span><span class="amount">£650</span> <span class="per">/mo</span></span>
+          <span class="badge">2+1</span>
+        </div>
+        <div class="photo">
+          <div class="grad" style="background: linear-gradient(135deg,#93c5fd 0%,#3b82f6 45%,#1e40af 100%);"></div>
+          <span class="beds">🛏 2 Beds · 2 Baths</span>
+        </div>
+        <div class="body">
+          <div class="title">Cozy 2+1 Near Campus</div>
+          <div class="loc">📍 Nicosia · 10m walk to uni</div>
+          <div class="meta">
+            <span><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-6h6v6"/></svg>Furnished</span>
+            <span><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Move-in £2,600</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ B ============ -->
+  <section class="concept">
+    <div class="label">Concept B <span class="chip">Immersive</span></div>
+    <p class="desc">Photo-first, Airbnb/real-estate style. Price sits as a white pill over the image, details on a gradient scrim. Biggest visual impact, taller card.</p>
+    <div class="stage">
+      <div class="card-b">
+        <div class="hero">
+          <div class="grad" style="background: linear-gradient(135deg,#f9a8d4 0%,#ec4899 45%,#9d174d 100%);"></div>
+          <div class="scrim"></div>
+          <div class="top">
+            <span class="badge">2+1</span>
+            <button class="save">♥</button>
+          </div>
+          <div class="price-pill">£650<span style="font-size:12px;font-weight:600;color:#6b7280;"> /mo</span></div>
+        </div>
+        <div class="info">
+          <div class="row">
+            <div class="title">Cozy 2+1 Near Campus</div>
+            <div class="side">
+              <div class="loc">📍 Nicosia</div>
+              <div class="campus">🎓 10m walk to uni</div>
+            </div>
+          </div>
+        </div>
+        <div class="footer">
+          <div class="agent"><span class="avatar">HA</span>House Agent</div>
+          <div class="term">Move-in £2,600</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ C ============ -->
+  <section class="concept">
+    <div class="label">Concept C <span class="chip">Classic</span></div>
+    <p class="desc">The traditional listing card — photo on top, title &amp; price beside each other, details row, agent footer. Balanced, most familiar, info-dense.</p>
+    <div class="stage">
+      <div class="card-c">
+        <div class="photo">
+          <div class="grad" style="background: linear-gradient(135deg,#6ee7b7 0%,#10b981 45%,#065f46 100%);"></div>
+          <div class="top">
+            <span class="badge">2+1</span>
+            <button class="save">♥</button>
+          </div>
+        </div>
+        <div class="body">
+          <div class="row1">
+            <div class="title">Cozy 2+1 Near Campus</div>
+            <div class="price">£650</div>
+          </div>
+          <div class="loc">📍 Nicosia · 10m walk to uni</div>
+          <div class="meta">
+            <span><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-6h6v6"/></svg>2 Beds</span>
+            <span><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12h16M4 8h16M4 16h16M2 20h20"/></svg>2 Baths</span>
+            <span><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Move-in £2,600</span>
+          </div>
+          <div class="foot">
+            <div class="agent"><span class="avatar">HA</span>House Agent</div>
+            <div class="rate"><span class="star">★</span> 4.8 (32)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<div class="preview-toggle">
+  <button onclick="document.body.classList.toggle('phone')">Toggle phone-width preview</button>
+</div>
+
+</body>
+</html>

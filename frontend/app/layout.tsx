@@ -7,7 +7,6 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { ChatPanel } from "@/components/chat/ChatPanel";
 import { GlobalNotification } from "@/components/chat/GlobalNotification";
 import { AuthProvider } from "@/components/AuthProvider";
-import { GoogleOAuthProvider } from '@react-oauth/google';
 import { OrganizationSchema } from '@/components/seo/SchemaMarkup';
 
 const inter = Inter({
@@ -46,7 +45,6 @@ export default function RootLayout({
     <html lang="en" className={`${inter.variable}`} suppressHydrationWarning>
       <body>
         <OrganizationSchema />
-        <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "YOUR_GOOGLE_CLIENT_ID"}>
           <ThemeProvider
             attribute="class"
             defaultTheme="light"
@@ -61,7 +59,6 @@ export default function RootLayout({
               <GlobalNotification />
             </AuthProvider>
           </ThemeProvider>
-        </GoogleOAuthProvider>
       </body>
     </html>
   );

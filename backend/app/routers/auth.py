@@ -4,8 +4,7 @@ from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
 import secrets
 
-from google.oauth2 import id_token
-from google.auth.transport import requests as google_requests
+
 
 from .. import models, schemas
 from ..database import get_db
@@ -111,27 +110,26 @@ def login(payload: schemas.LoginRequest, request: Request, db: Session = Depends
     return schemas.TokenResponse(access_token=token, user=user)
 
 
-@router.post("/google", response_model=schemas.TokenResponse)
-def google_auth(payload: schemas.GoogleAuthRequest, request: Request, db: Session = Depends(get_db)):
+@router.post("/supabase-login", response_model=schemas.TokenResponse)
+def supabase_login(payload: schemas.SupabaseAuthRequest, request: Request, db: Session = Depends(get_db)):
     _rate_limit(_client_ip(request))
     
-    from ..config import settings
-    if not settings.google_client_id or settings.google_client_id == "YOUR_GOOGLE_CLIENT_ID":
-        raise HTTPException(status_code=500, detail="Google Sign-In is not configured yet. Missing Client ID.")
+    from ..services.supabase_storage import supabase
+    if not supabase:
+        raise HTTPException(status_code=500, detail="Supabase is not configured on the backend.")
         
     try:
-        idinfo = id_token.verify_oauth2_token(
-            payload.credential, 
-            google_requests.Request(), 
-            settings.google_client_id
-        )
-        
-        email = idinfo.get('email')
+        # Ask Supabase to verify the token and return the user
+        user_res = supabase.auth.get_user(payload.access_token)
+        if not user_res or not user_res.user:
+            raise HTTPException(status_code=401, detail="Invalid Supabase token")
+            
+        email = user_res.user.email
         if not email:
-            raise HTTPException(status_code=400, detail="Google token did not contain an email address")
+            raise HTTPException(status_code=400, detail="Supabase token did not contain an email address")
             
         email = email.lower().strip()
-        name = idinfo.get('name', 'Google User')
+        name = user_res.user.user_metadata.get('full_name', 'Google User')
         
         user = db.query(models.User).filter(models.User.email == email).first()
         
@@ -139,17 +137,17 @@ def google_auth(payload: schemas.GoogleAuthRequest, request: Request, db: Sessio
             # First time user, register them
             role = payload.role if payload.role else models.UserRole.renter
             if role in (models.UserRole.admin, models.UserRole.customer_care):
-                role = models.UserRole.renter # Prevent privilege escalation via Google Auth
+                role = models.UserRole.renter # Prevent privilege escalation via Supabase Auth
                 
             user = models.User(
                 email=email,
-                # Random password for Google users since they don't log in via password
+                # Random password since they authenticate via Supabase
                 password_hash=hash_password(secrets.token_urlsafe(32)),
                 name=name,
                 phone="",
                 role=role,
                 language="en",
-                is_verified=True, # Emails from Google are implicitly verified
+                is_verified=True, 
             )
             db.add(user)
             db.commit()
@@ -165,8 +163,8 @@ def google_auth(payload: schemas.GoogleAuthRequest, request: Request, db: Sessio
         token = create_access_token(subject=str(user.id))
         return schemas.TokenResponse(access_token=token, user=user)
         
-    except ValueError as e:
-        raise HTTPException(status_code=401, detail=f"Invalid Google credential: {str(e)}")
+    except Exception as e:
+        raise HTTPException(status_code=401, detail=f"Invalid Supabase credential: {str(e)}")
 
 
 @router.post("/forgot-password")

@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Roommates — Design A · Photo-Forward Grid</title>
+<style>
+  :root {
+    --navy: #08192f;
+    --navy2: #12335c;
+    --gold: #b18842;
+    --ink: #1d1d1f;
+    --muted: #6b7280;
+    --surface: #ffffff;
+    --bg: #f4f4f2;
+    --border: #e5e4e0;
+    --radius: 16px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--ink); }
+  .nav { background: var(--surface); border-bottom: 1px solid var(--border); padding: 14px 28px; display: flex; align-items: center; gap: 12px; position: sticky; top: 0; z-index: 10; }
+  .logo-mark { width: 34px; height: 34px; }
+  .logo-text { font-weight: 800; letter-spacing: 0.06em; font-size: 16px; }
+  .logo-text span { color: var(--gold); }
+  .nav-spacer { flex: 1; }
+  .nav-link { color: var(--muted); font-weight: 600; font-size: 14px; margin-left: 22px; text-decoration: none; }
+  .nav-link.active { color: var(--navy); }
+  .hero { max-width: 1180px; margin: 0 auto; padding: 42px 28px 8px; display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
+  .hero h1 { font-size: 40px; letter-spacing: -0.03em; color: var(--navy); }
+  .hero h1 b { color: var(--gold); }
+  .hero p { color: var(--muted); margin-top: 8px; font-size: 16px; max-width: 520px; }
+  .post-btn { background: var(--navy); color: #fff; border: none; border-radius: 999px; padding: 14px 26px; font-size: 15px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 6px 18px rgba(8,25,47,0.25); transition: background .2s; }
+  .post-btn:hover { background: var(--gold); }
+  .chips { max-width: 1180px; margin: 26px auto 0; padding: 0 28px; display: flex; gap: 10px; flex-wrap: wrap; }
+  .chip { border: 1px solid var(--border); background: var(--surface); border-radius: 999px; padding: 9px 18px; font-size: 13px; font-weight: 600; color: var(--muted); cursor: pointer; }
+  .chip.active { background: var(--navy); color: #fff; border-color: var(--navy); }
+  .grid { max-width: 1180px; margin: 28px auto 60px; padding: 0 28px; display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 24px; }
+  .card { background: var(--surface); border-radius: var(--radius); overflow: hidden; border: 1px solid var(--border); box-shadow: 0 2px 10px rgba(0,0,0,0.04); transition: transform .25s, box-shadow .25s; }
+  .card:hover { transform: translateY(-5px); box-shadow: 0 14px 30px rgba(8,25,47,0.12); }
+  .photo { position: relative; height: 200px; display: flex; align-items: center; justify-content: center; }
+  .ph-gradient { position: absolute; inset: 0; }
+  .photo-icon { font-size: 42px; position: relative; z-index: 1; opacity: 0.85; text-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+  .match-pill { position: absolute; top: 12px; left: 12px; background: rgba(8,25,47,0.9); color: #fff; border-radius: 999px; padding: 5px 12px; font-size: 12px; font-weight: 700; }
+  .type-pill { position: absolute; top: 12px; right: 12px; border-radius: 999px; padding: 5px 12px; font-size: 12px; font-weight: 700; color: #fff; }
+  .type-housemate { background: var(--gold); }
+  .type-roommate { background: var(--navy2); }
+  .price { position: absolute; bottom: 12px; right: 12px; background: rgba(255,255,255,0.95); color: var(--navy); border-radius: 10px; padding: 6px 12px; font-weight: 800; font-size: 15px; }
+  .body { padding: 18px; }
+  .row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .name { font-size: 19px; font-weight: 800; color: var(--navy); }
+  .name small { color: var(--muted); font-weight: 600; font-size: 14px; }
+  .verify { color: var(--gold); font-size: 13px; font-weight: 700; white-space: nowrap; }
+  .sub { color: var(--muted); font-size: 13px; margin: 6px 0 0; }
+  .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
+  .tag { background: #f0efec; color: var(--muted); font-size: 11px; font-weight: 600; padding: 5px 10px; border-radius: 999px; }
+  .tag.gold { background: rgba(177,136,66,0.14); color: #8a6a2f; }
+  .actions { display: flex; gap: 10px; margin-top: 16px; }
+  .msg { flex: 1; background: var(--navy); color: #fff; border: none; border-radius: 999px; padding: 12px; font-weight: 700; cursor: pointer; font-size: 14px; }
+  .msg:hover { background: var(--gold); }
+  .save { width: 46px; background: transparent; border: 1px solid var(--border); border-radius: 999px; color: var(--navy); cursor: pointer; font-size: 18px; }
+  @media (max-width: 640px) {
+    .hero h1 { font-size: 30px; }
+    .grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+  <nav class="nav">
+    <svg class="logo-mark" viewBox="0 0 352 210"><g transform="translate(0,190) scale(0.1,-0.1)" fill="#b18842"><path d="M963 1633 c15 -2 39 -2 55 0 15 2 2 4 -28 4 -30 0 -43 -2 -27 -4z M2030 1405 c-29 -35 -57 -62 -62 -59 -4 3 -8 -3 -8 -14 0 -19 -151 -200 -310 -372 -149 -161 -361 -412 -357 -424 2 -7 52 -11 146 -11 l143 0 26 31 c15 17 59 68 97 114 39 46 106 124 150 175 44 50 115 133 158 184 43 51 82 91 86 89 9 -3 50 -50 332 -373 105 -121 193 -213 206 -217 26 -7 273 -1 281 7 3 3 -4 15 -15 28 -113 127 -726 830 -753 863 -19 24 -42 43 -51 44 -8 0 -39 -29 -69 -65z"/></g><g transform="translate(0,190) scale(0.1,-0.1)" fill="#08192f"><path d="M890 1623 c0 -5 -1 -251 -2 -548 l-3 -540 140 0 140 0 3 233 2 233 254 -1 254 -1 39 43 c22 24 85 96 142 161 l102 119 -3 151 -3 152 -142 3 -143 3 0 -210 0 -209 -27 -5 c-30 -6 -414 1 -450 9 -23 4 -23 5 -23 209 l0 205 -140 0 c-77 0 -140 -3 -140 -7z"/></g></svg>
+    <div class="logo-text">HOUSE <span>AGENT</span></div>
+    <div class="nav-spacer"></div>
+    <a class="nav-link active" href="#">Roommates</a>
+    <a class="nav-link" href="#">Properties</a>
+    <a class="nav-link" href="#">Agents</a>
+  </nav>
+
+  <header class="hero">
+    <div>
+      <h1>Find a <b>housemate</b>,<br>or post your free room.</h1>
+      <p>Browse verified students and tenants in North Cyprus. Filter by city, budget and habits — message them instantly.</p>
+    </div>
+    <button class="post-btn">+ Post a Housemate Ad</button>
+  </header>
+
+  <div class="chips">
+    <span class="chip active">All</span>
+    <span class="chip">🏠 Housemates</span>
+    <span class="chip">🤝 Roommates</span>
+    <span class="chip">Famagusta</span>
+    <span class="chip">Nicosia</span>
+    <span class="chip">Kyrenia</span>
+    <span class="chip">Budget &lt; £300</span>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <div class="photo">
+        <div class="ph-gradient" style="background:linear-gradient(135deg,#1e3a5f,#0f2747)"></div>
+        <div class="photo-icon">🛏️</div>
+        <div class="match-pill">92% Match</div>
+        <div class="type-pill type-housemate">Housemate</div>
+        <div class="price">£280 / mo</div>
+      </div>
+      <div class="body">
+        <div class="row"><span class="name">Chinedu, 24 <small>· Male</small></span><span class="verify">✓ Verified</span></div>
+        <p class="sub">EMU Student · Nigerian · 2+1 flat · Near Maraş</p>
+        <div class="tags"><span class="tag">Non-smoker</span><span class="tag">Quiet</span><span class="tag gold">Own room</span><span class="tag gold">Furnished</span></div>
+        <div class="actions"><button class="msg">💬 Message</button><button class="save">♥</button></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="photo">
+        <div class="ph-gradient" style="background:linear-gradient(135deg,#b18842,#8a6a2f)"></div>
+        <div class="photo-icon">🛋️</div>
+        <div class="match-pill">87% Match</div>
+        <div class="type-pill type-roommate">Roommate</div>
+        <div class="price">£150 / mo</div>
+      </div>
+      <div class="body">
+        <div class="row"><span class="name">Aylin, 21 <small>· Female</small></span><span class="verify">✓ Verified</span></div>
+        <p class="sub">NEU Student · Turkish · Shares a bedroom · Nicosia</p>
+        <div class="tags"><span class="tag">Night owl</span><span class="tag">Social</span><span class="tag">Non-smoker</span></div>
+        <div class="actions"><button class="msg">💬 Message</button><button class="save">♥</button></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="photo">
+        <div class="ph-gradient" style="background:linear-gradient(135deg,#0e3d34,#082a24)"></div>
+        <div class="photo-icon">🏡</div>
+        <div class="match-pill">90% Match</div>
+        <div class="type-pill type-housemate">Housemate</div>
+        <div class="price">£320 / mo</div>
+      </div>
+      <div class="body">
+        <div class="row"><span class="name">Mert, 26 <small>· Male</small></span><span class="verify">✓ Verified</span></div>
+        <p class="sub">Engineer · Turkish Cypriot · 3+1 villa · Kyrenia</p>
+        <div class="tags"><span class="tag">Pet friendly</span><span class="tag">Early bird</span><span class="tag gold">Parking</span><span class="tag gold">Pool</span></div>
+        <div class="actions"><button class="msg">💬 Message</button><button class="save">♥</button></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="photo">
+        <div class="ph-gradient" style="background:linear-gradient(135deg,#4a3040,#2c1a25)"></div>
+        <div class="photo-icon">🪴</div>
+        <div class="match-pill">84% Match</div>
+        <div class="type-pill type-housemate">Housemate</div>
+        <div class="price">£260 / mo</div>
+      </div>
+      <div class="body">
+        <div class="row"><span class="name">Zeynep, 23 <small>· Female</small></span><span class="verify">New</span></div>
+        <p class="sub">GAU Student · International · 2+1 flat · Girne</p>
+        <div class="tags"><span class="tag">Cook</span><span class="tag">Clean</span><span class="tag gold">Bills included</span></div>
+        <div class="actions"><button class="msg">💬 Message</button><button class="save">♥</button></div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

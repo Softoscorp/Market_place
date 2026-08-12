@@ -40,6 +40,11 @@ class LoginRequest(BaseModel):
     password: str
 
 
+class GoogleAuthRequest(BaseModel):
+    credential: str
+    role: Optional[UserRole] = None
+
+
 class ForgotPasswordRequest(BaseModel):
     email: EmailStr
 

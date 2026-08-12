@@ -8,8 +8,9 @@ import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/lib/store/useAuthStore';
 import { useLanguageStore } from '@/lib/store/useLanguageStore';
 import styles from '../signup/SignupPage.module.css';
-import { login as apiLogin, getUser, forgotPassword, resetPassword } from '@/lib/api';
+import { login as apiLogin, googleLogin as apiGoogleLogin, getUser, forgotPassword, resetPassword } from '@/lib/api';
 import { useSearchParams } from 'next/navigation';
+import { GoogleLogin, CredentialResponse } from '@react-oauth/google';
 
 function LoginContent() {
   const router = useRouter();
@@ -146,6 +147,36 @@ function LoginContent() {
     return () => { active = false; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const handleGoogleSuccess = async (credentialResponse: CredentialResponse) => {
+    if (!credentialResponse.credential) return;
+    setIsSubmitting(true);
+    setError('');
+    
+    try {
+      await apiGoogleLogin(credentialResponse.credential);
+      const user = await getUser();
+      
+      const { getToken } = await import('@/lib/api');
+      const token = getToken() || '';
+
+      setSuccess(true);
+      setTimeout(() => {
+        setAuthUser({
+          id: user.id.toString(),
+          name: user.name,
+          email: user.email,
+          role: user.role === 'renter' ? 'student' : user.role,
+          token,
+        });
+      }, 1500);
+    } catch (err: unknown) {
+      const error = err as Error;
+      console.error(error);
+      setError(error.message || 'Google Sign-In failed');
+      setIsSubmitting(false);
+    }
+  };
 
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -361,6 +392,23 @@ function LoginContent() {
                       )}
                     </button>
                   </form>
+                  
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', margin: 'var(--space-5) 0' }}>
+                    <span style={{ flex: 1, height: '1px', background: 'var(--border)' }} />
+                    <span style={{ fontSize: 'var(--text-sm)', color: 'var(--text-muted)' }}>or</span>
+                    <span style={{ flex: 1, height: '1px', background: 'var(--border)' }} />
+                  </div>
+
+                  <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 'var(--space-5)' }}>
+                    <GoogleLogin
+                      onSuccess={handleGoogleSuccess}
+                      onError={() => setError('Google Sign-In was unsuccessful')}
+                      useOneTap
+                      theme="outline"
+                      size="large"
+                      width="100%"
+                    />
+                  </div>
                   
                   <div className={styles.loginLink}>
                     {t('auth_no_account')} <Link href="/signup">{t('nav_signup')}</Link>

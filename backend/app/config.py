@@ -39,6 +39,9 @@ class Settings(BaseSettings):
     # Resend email API
     resend_api_key: str = os.getenv("RESEND_API_KEY", "")
     resend_from_email: str = os.getenv("RESEND_FROM_EMAIL", "noreply@houseagent.co")
+    
+    # Google Sign-In
+    google_client_id: str = os.getenv("GOOGLE_CLIENT_ID", "")
 
     class Config:
         env_file = ".env"

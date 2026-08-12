@@ -107,6 +107,15 @@ export async function login(email: string, password: string): Promise<void> {
   setToken(data.access_token);
 }
 
+export async function googleLogin(credential: string, role?: string): Promise<void> {
+  const data = await apiRequest("/auth/google", {
+    method: "POST",
+    body: { credential, role },
+    auth: false
+  });
+  setToken(data.access_token);
+}
+
 export function register(payload: Record<string, unknown>) {
   return apiRequest("/auth/register", {
     method: "POST",

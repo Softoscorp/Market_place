@@ -7,8 +7,9 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuthStore, UserRole } from '@/lib/store/useAuthStore';
 import { useLanguageStore } from '@/lib/store/useLanguageStore';
+import { register, login as apiLogin, googleLogin as apiGoogleLogin, getUser } from '@/lib/api';
 import styles from './SignupPage.module.css';
-import { register } from '@/lib/api';
+import { GoogleLogin, CredentialResponse } from '@react-oauth/google';
 import fpPromise from '@fingerprintjs/fingerprintjs';
 
 export default function SignupPage() {
@@ -92,6 +93,36 @@ export default function SignupPage() {
     }
     
     setStep(step + 1);
+  };
+
+  const handleGoogleSuccess = async (credentialResponse: CredentialResponse) => {
+    if (!credentialResponse.credential) return;
+    setIsSubmitting(true);
+    setError('');
+    
+    try {
+      await apiGoogleLogin(credentialResponse.credential, role || undefined);
+      const user = await getUser();
+      
+      const { getToken } = await import('@/lib/api');
+      const token = getToken() || '';
+
+      setStep(3);
+      setTimeout(() => {
+        setAuthUser({
+          id: user.id.toString(),
+          name: user.name,
+          email: user.email,
+          role: user.role === 'renter' ? 'student' : user.role,
+          token,
+        });
+      }, 1500);
+    } catch (err: unknown) {
+      const error = err as Error;
+      console.error(error);
+      setError(error.message || 'Google Sign-In failed');
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -269,6 +300,23 @@ export default function SignupPage() {
                         t('auth_complete_signup')
                       )}
                     </button>
+                    
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', margin: 'var(--space-5) 0' }}>
+                      <span style={{ flex: 1, height: '1px', background: 'var(--border)' }} />
+                      <span style={{ fontSize: 'var(--text-sm)', color: 'var(--text-muted)' }}>or</span>
+                      <span style={{ flex: 1, height: '1px', background: 'var(--border)' }} />
+                    </div>
+
+                    <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 'var(--space-5)' }}>
+                      <GoogleLogin
+                        onSuccess={handleGoogleSuccess}
+                        onError={() => setError('Google Sign-In was unsuccessful')}
+                        useOneTap
+                        theme="outline"
+                        size="large"
+                        width="100%"
+                      />
+                    </div>
                   </form>
                 </motion.div>
               )}

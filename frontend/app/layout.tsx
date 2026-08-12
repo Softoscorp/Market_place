@@ -7,6 +7,8 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { ChatPanel } from "@/components/chat/ChatPanel";
 import { GlobalNotification } from "@/components/chat/GlobalNotification";
 import { AuthProvider } from "@/components/AuthProvider";
+import { GoogleOAuthProvider } from '@react-oauth/google';
+import { OrganizationSchema } from '@/components/seo/SchemaMarkup';
 
 const inter = Inter({
   variable: "--font-inter",
@@ -43,20 +45,23 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${inter.variable}`} suppressHydrationWarning>
       <body>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="light"
-          forcedTheme="light"
-          disableTransitionOnChange
-        >
-          <AuthProvider>
-            <Navbar />
-            <main>{children}</main>
-            <Footer />
-            <ChatPanel />
-            <GlobalNotification />
-          </AuthProvider>
-        </ThemeProvider>
+        <OrganizationSchema />
+        <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "YOUR_GOOGLE_CLIENT_ID"}>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="light"
+            forcedTheme="light"
+            disableTransitionOnChange
+          >
+            <AuthProvider>
+              <Navbar />
+              <main>{children}</main>
+              <Footer />
+              <ChatPanel />
+              <GlobalNotification />
+            </AuthProvider>
+          </ThemeProvider>
+        </GoogleOAuthProvider>
       </body>
     </html>
   );

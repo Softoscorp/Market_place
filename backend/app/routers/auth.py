@@ -4,6 +4,9 @@ from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
 import secrets
 
+from google.oauth2 import id_token
+from google.auth.transport import requests as google_requests
+
 from .. import models, schemas
 from ..database import get_db
 from ..security import create_access_token, hash_password, verify_password, create_password_reset_token, decode_password_reset_token
@@ -106,6 +109,64 @@ def login(payload: schemas.LoginRequest, request: Request, db: Session = Depends
 
     token = create_access_token(subject=str(user.id))
     return schemas.TokenResponse(access_token=token, user=user)
+
+
+@router.post("/google", response_model=schemas.TokenResponse)
+def google_auth(payload: schemas.GoogleAuthRequest, request: Request, db: Session = Depends(get_db)):
+    _rate_limit(_client_ip(request))
+    
+    from ..config import settings
+    if not settings.google_client_id or settings.google_client_id == "YOUR_GOOGLE_CLIENT_ID":
+        raise HTTPException(status_code=500, detail="Google Sign-In is not configured yet. Missing Client ID.")
+        
+    try:
+        idinfo = id_token.verify_oauth2_token(
+            payload.credential, 
+            google_requests.Request(), 
+            settings.google_client_id
+        )
+        
+        email = idinfo.get('email')
+        if not email:
+            raise HTTPException(status_code=400, detail="Google token did not contain an email address")
+            
+        email = email.lower().strip()
+        name = idinfo.get('name', 'Google User')
+        
+        user = db.query(models.User).filter(models.User.email == email).first()
+        
+        if not user:
+            # First time user, register them
+            role = payload.role if payload.role else models.UserRole.renter
+            if role in (models.UserRole.admin, models.UserRole.customer_care):
+                role = models.UserRole.renter # Prevent privilege escalation via Google Auth
+                
+            user = models.User(
+                email=email,
+                # Random password for Google users since they don't log in via password
+                password_hash=hash_password(secrets.token_urlsafe(32)),
+                name=name,
+                phone="",
+                role=role,
+                language="en",
+                is_verified=True, # Emails from Google are implicitly verified
+            )
+            db.add(user)
+            db.commit()
+            db.refresh(user)
+            
+        elif user.account_status != models.AccountStatus.active:
+            raise HTTPException(
+                status_code=403,
+                detail=f"This account is {user.account_status.value}."
+                + (f" Reason: {user.status_reason}" if user.status_reason else ""),
+            )
+            
+        token = create_access_token(subject=str(user.id))
+        return schemas.TokenResponse(access_token=token, user=user)
+        
+    except ValueError as e:
+        raise HTTPException(status_code=401, detail=f"Invalid Google credential: {str(e)}")
 
 
 @router.post("/forgot-password")

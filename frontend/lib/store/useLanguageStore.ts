@@ -6,11 +6,12 @@ import { getToken, API_BASE_URL } from '@/lib/api';
 interface LanguageState {
   lang: Lang;
   setLang: (lang: Lang) => void;
-  t: (key: TranslationKey, params?: Record<string, string | number>) => string;
+  t: (key: TranslationKey | string, params?: Record<string, string | number>) => string;
 }
 
-const makeT = (lang: Lang) => (key: TranslationKey, params?: Record<string, string | number>): string => {
-  let text = translations[lang][key] ?? translations['en'][key];
+const makeT = (lang: Lang) => (key: TranslationKey | string, params?: Record<string, string | number>): string => {
+  let text = (translations[lang] as any)[key] ?? (translations['en'] as any)[key] ?? key;
+  if (typeof text !== 'string') text = String(text);
   if (params) {
     for (const [name, value] of Object.entries(params)) {
       text = text.split(`{${name}}`).join(String(value));

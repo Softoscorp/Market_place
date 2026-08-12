@@ -19,7 +19,7 @@ export function OrganizationSchema() {
   );
 }
 
-export function RealEstateListingSchema({ property }: { property: any }) {
+export function RealEstateListingSchema({ property }: { property: Record<string, unknown> | null | undefined }) {
   // Gracefully handle missing property data
   if (!property) return null;
 

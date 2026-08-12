@@ -1,12 +1,12 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { supabase } from '@/lib/supabaseClient';
+import { getSupabase } from '@/lib/supabaseClient';
 import { supabaseLogin, getUser } from '@/lib/api';
 import { useAuthStore } from '@/lib/store/useAuthStore';
 
-export default function AuthCallbackPage() {
+function AuthCallbackInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { login: setAuthUser } = useAuthStore();
@@ -15,7 +15,7 @@ export default function AuthCallbackPage() {
   useEffect(() => {
     const handleAuth = async () => {
       try {
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        const { data: { session }, error: sessionError } = await getSupabase().auth.getSession();
         
         if (sessionError) throw sessionError;
         if (!session?.access_token) {
@@ -40,7 +40,7 @@ export default function AuthCallbackPage() {
         });
 
         // Sign out of supabase on frontend since we only use it for the bridge
-        await supabase.auth.signOut();
+        await getSupabase().auth.signOut();
 
         if (user.role === 'agent') {
           router.replace('/agent-dashboard');
@@ -82,5 +82,13 @@ export default function AuthCallbackPage() {
         }
       `}</style>
     </div>
+  );
+}
+
+export default function AuthCallbackPage() {
+  return (
+    <Suspense>
+      <AuthCallbackInner />
+    </Suspense>
   );
 }

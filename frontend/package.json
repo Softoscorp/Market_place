@@ -17,7 +17,7 @@
     "@ducanh2912/next-pwa": "^10.2.9",
     "@fingerprintjs/fingerprintjs": "^5.2.0",
     "@sentry/nextjs": "^10.69.0",
-    "@supabase/supabase-js": "^2.112.3",
+    "@supabase/supabase-js": "^2.45.6",
     "client-only": "^0.0.1",
     "clsx": "^2.1.1",
     "framer-motion": "^12.42.2",

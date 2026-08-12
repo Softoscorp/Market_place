@@ -10,7 +10,7 @@ import { useLanguageStore } from '@/lib/store/useLanguageStore';
 import styles from '../signup/SignupPage.module.css';
 import { login as apiLogin, supabaseLogin as apiSupabaseLogin, getUser, forgotPassword, resetPassword } from '@/lib/api';
 import { useSearchParams } from 'next/navigation';
-import { supabase } from '@/lib/supabaseClient';
+import { getSupabase } from '@/lib/supabaseClient';
 
 function LoginContent() {
   const router = useRouter();
@@ -153,7 +153,7 @@ function LoginContent() {
     setError('');
     
     try {
-      const { error } = await supabase.auth.signInWithOAuth({
+      const { error } = await getSupabase().auth.signInWithOAuth({
         provider: 'google',
         options: {
           redirectTo: `${window.location.origin}/auth/callback`,

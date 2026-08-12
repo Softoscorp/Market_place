@@ -10,7 +10,9 @@ interface LanguageState {
 }
 
 const makeT = (lang: Lang) => (key: TranslationKey | string, params?: Record<string, string | number>): string => {
-  let text = (translations[lang] as any)[key] ?? (translations['en'] as any)[key] ?? key;
+  const langDict = translations[lang] as Record<string, string>;
+  const enDict = translations['en'] as Record<string, string>;
+  let text = langDict[key] ?? enDict[key] ?? key;
   if (typeof text !== 'string') text = String(text);
   if (params) {
     for (const [name, value] of Object.entries(params)) {

@@ -8,7 +8,7 @@ import { useRouter } from 'next/navigation';
 import { useAuthStore, UserRole } from '@/lib/store/useAuthStore';
 import { useLanguageStore } from '@/lib/store/useLanguageStore';
 import { register, login as apiLogin, supabaseLogin as apiSupabaseLogin, getUser } from '@/lib/api';
-import { supabase } from '@/lib/supabaseClient';
+import { getSupabase } from '@/lib/supabaseClient';
 import styles from './SignupPage.module.css';
 import fpPromise from '@fingerprintjs/fingerprintjs';
 
@@ -100,7 +100,7 @@ export default function SignupPage() {
     setError('');
     
     try {
-      const { error } = await supabase.auth.signInWithOAuth({
+      const { error } = await getSupabase().auth.signInWithOAuth({
         provider: 'google',
         options: {
           redirectTo: `${window.location.origin}/auth/callback?role=${role || 'student'}`,

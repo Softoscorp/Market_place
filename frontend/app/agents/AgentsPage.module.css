@@ -20,7 +20,7 @@
 .title {
   font-family: 'DM Serif Display', serif;
   font-size: 2.5rem;
-  color: #E2E8F0;
+  color: var(--text-on-brand);
   margin: 0;
 }
 
@@ -45,7 +45,7 @@
 }
 
 .subtitle {
-  color: #8B97A8;
+  color: var(--text-on-brand-muted);
   font-size: 1.125rem;
   max-width: 600px;
   margin: 0 auto;

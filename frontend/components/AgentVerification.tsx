@@ -33,7 +33,10 @@ export function AgentVerification({ verificationTier }: { verificationTier: stri
   };
 
   useEffect(() => {
-    loadStatus();
+    getMyVerificationStatus()
+      .then((res) => setApps(res))
+      .catch((err: unknown) => console.error(err))
+      .finally(() => setLoading(false));
   }, []);
 
   const handleProofUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -56,7 +59,7 @@ export function AgentVerification({ verificationTier }: { verificationTier: stri
     }
   };
 
-  if (loading) return <div className="p-6 text-gray-500">{t('av_loading')}</div>;
+  if (loading) return <div className={styles.loading}>{t('av_loading')}</div>;
 
   const applyBtn = (tier: 'local' | 'international', reapplying: boolean) => {
     const tierNum = tier === 'local' ? 1 : 2;
@@ -81,7 +84,7 @@ export function AgentVerification({ verificationTier }: { verificationTier: stri
         type="file"
         ref={proofInputRef}
         accept="image/*,.pdf"
-        style={{ display: 'none' }}
+        className={styles.hiddenInput}
         onChange={handleProofUpload}
       />
 
@@ -94,7 +97,7 @@ export function AgentVerification({ verificationTier }: { verificationTier: stri
             </div>
             <div>
               <div className={styles.verificationTitle}>{t('av_tier1')}</div>
-              <div style={{ fontSize: 'var(--text-xs)', fontWeight: 600, color: 'var(--warning-text)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{t('av_tier1_sub')}</div>
+              <div className={styles.tier1Badge}>{t('av_tier1_sub')}</div>
             </div>
           </div>
           <p className={styles.verificationDesc}>
@@ -119,8 +122,8 @@ export function AgentVerification({ verificationTier }: { verificationTier: stri
               );
             } else if (app && app.status === 'rejected') {
               return (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
-                  <div className={`${styles.verificationStatus}`} style={{ color: 'var(--danger)', marginBottom: 0 }}>
+                <div className={styles.rejectedWrap}>
+                  <div className={`${styles.verificationStatus} ${styles.statusRejected}`}>
                     <ShieldAlert size={18} /> {t('av_rejected').replace('{notes}', app.reviewer_notes || '')}
                   </div>
                   <button
@@ -154,7 +157,7 @@ export function AgentVerification({ verificationTier }: { verificationTier: stri
             </div>
             <div>
               <div className={styles.verificationTitle}>{t('av_tier2')}</div>
-              <div style={{ fontSize: 'var(--text-xs)', fontWeight: 600, color: 'var(--warning)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{t('av_tier2_sub')}</div>
+              <div className={styles.tier2Badge}>{t('av_tier2_sub')}</div>
             </div>
           </div>
           <p className={styles.verificationDesc}>
@@ -180,8 +183,8 @@ export function AgentVerification({ verificationTier }: { verificationTier: stri
               );
             } else if (app && app.status === 'rejected') {
               return (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
-                  <div className={`${styles.verificationStatus}`} style={{ color: 'var(--danger)', marginBottom: 0 }}>
+                <div className={styles.rejectedWrap}>
+                  <div className={`${styles.verificationStatus} ${styles.statusRejected}`}>
                     <ShieldAlert size={18} /> {t('av_rejected').replace('{notes}', app.reviewer_notes || '')}
                   </div>
                   <button

@@ -1,0 +1,32 @@
+.empty {
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.item {
+  border-bottom: 1px solid var(--border);
+  padding-bottom: var(--space-4);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
+}
+
+.stars {
+  display: flex;
+  gap: 2px;
+}
+
+.date {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}

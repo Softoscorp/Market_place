@@ -206,15 +206,15 @@ export default function RoommatesPage() {
           {t('rm_all')}
         </span>
         <span className={`${styles.chip} ${typeFilter === 'housemate' ? styles.chipActive : ''}`} onClick={() => toggleChip('housemate')}>
-          <Home size={14} style={{ marginRight: 6 }} />
+          <Home size={14} className={styles.chipIcon} />
           {t('rm_housemates')}
         </span>
         <span className={`${styles.chip} ${typeFilter === 'roommate' ? styles.chipActive : ''}`} onClick={() => toggleChip('roommate')}>
-          <Users size={14} style={{ marginRight: 6 }} />
+          <Users size={14} className={styles.chipIcon} />
           {t('rm_roommates')}
         </span>
         <span className={`${styles.chip} ${budgetRange === 0 ? styles.chipActive : ''}`} onClick={() => setBudgetRange(budgetRange === 0 ? null : 0)}>
-          <Banknote size={14} style={{ marginRight: 6 }} />
+          <Banknote size={14} className={styles.chipIcon} />
           {t(BUDGET_LABEL_KEYS[0])}
         </span>
       </div>

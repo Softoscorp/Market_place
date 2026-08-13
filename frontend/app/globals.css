@@ -59,6 +59,20 @@
   --blue-muted: rgba(10, 132, 255, 0.1);
   --blue-border: rgba(10, 132, 255, 0.2);
 
+  /* Brand — navy/gold (legacy brand palette) */
+  --brand-navy: #08192f;
+  --brand-navy-soft: #12335c;
+  --brand-navy-light: #1e3a5f;
+  --brand-navy-ink: #0f2747;
+  --brand-navy-deep: #08192f;
+  --brand-gold: #b18842;
+  --brand-gold-dark: #8a6a2f;
+  --brand-gold-muted: #f2f0ea;
+  --brand-cream: #f0efec;
+  --text-on-brand: #ffffff;
+  --text-on-brand-muted: #8b97a8;
+  --brand-surface: #ffffff;
+
   /* Scrims */
   --scrim: rgba(0, 0, 0, 0.4);
   --scrim-strong: rgba(0, 0, 0, 0.7);
@@ -85,17 +99,26 @@
   --text-5xl: clamp(3rem, 2.5rem + 4vw, 4.5rem);
   --text-6xl: clamp(4rem, 3rem + 6.25vw, 6rem);
 
-  /* Spacing */
+  /* Spacing — 4px grid */
   --space-1: 0.25rem;
   --space-2: 0.5rem;
   --space-3: 0.75rem;
   --space-4: 1rem;
   --space-5: 1.25rem;
   --space-6: 1.5rem;
+  --space-7: 1.75rem;
   --space-8: 2rem;
+  --space-9: 2.25rem;
   --space-10: 2.5rem;
+  --space-11: 2.75rem;
   --space-12: 3rem;
+  --space-13: 3.25rem;
+  --space-14: 3.5rem;
+  --space-15: 3.75rem;
   --space-16: 4rem;
+  --space-17: 4.25rem;
+  --space-18: 4.5rem;
+  --space-19: 4.75rem;
   --space-20: 5rem;
   --space-24: 6rem;
   --space-32: 8rem;

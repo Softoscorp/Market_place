@@ -45,15 +45,11 @@ export const PropertyGallery: React.FC<PropertyGalleryProps> = ({
   return (
     <div className={clsx(styles.galleryContainer, className)}>
       <Swiper
-        style={{
-          '--swiper-navigation-color': 'var(--accent)',
-          '--swiper-pagination-color': 'var(--accent)',
-        } as React.CSSProperties}
         spaceBetween={10}
         navigation={true}
         thumbs={{ swiper: thumbsSwiper && !thumbsSwiper.destroyed ? thumbsSwiper : null }}
         modules={[FreeMode, Navigation, Thumbs, Pagination]}
-        className={styles.mainSwiper}
+        className={`${styles.mainSwiper} ${styles.gallerySwiper}`}
       >
         {images.map((src, index) => (
           <SwiperSlide key={index} className={styles.mainSlide}>

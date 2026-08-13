@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
+import { clsx } from 'clsx';
+import styles from './ProtectedImage.module.css';
 
 interface ProtectedImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
   src: string;
@@ -10,7 +12,7 @@ interface ProtectedImageProps extends React.ImgHTMLAttributes<HTMLImageElement> 
   style?: React.CSSProperties;
 }
 
-export function ProtectedImage({ src, alt, fallbackSrc, className, style, onError, ...props }: ProtectedImageProps) {
+export function ProtectedImage({ src, alt, fallbackSrc, className, onError, ...props }: ProtectedImageProps) {
   // Track which src caused an error — when src prop changes this won't match,
   // so the new src is shown automatically without any state reset needed.
   const [errorSrc, setErrorSrc] = useState<string | null>(null);
@@ -30,14 +32,7 @@ export function ProtectedImage({ src, alt, fallbackSrc, className, style, onErro
     <img
       src={displaySrc}
       alt={alt}
-      className={className}
-      style={{
-        userSelect: 'none',
-        WebkitUserSelect: 'none',
-        WebkitTouchCallout: 'none',
-        pointerEvents: 'auto',
-        ...style,
-      }}
+      className={clsx(styles.protectedImage, className)}
       onContextMenu={(e) => e.preventDefault()}
       onDragStart={(e) => e.preventDefault()}
       onError={handleError}

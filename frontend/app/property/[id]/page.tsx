@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { MapPin, Bed, Bath, ArrowLeft, Heart, Share2, Calendar, Check, Images } from 'lucide-react';
+import { MapPin, Bed, Bath, ArrowLeft, Heart, Share2, Calendar, Check } from 'lucide-react';
 import { PropertyGallery } from '@/components/property/PropertyGallery';
 import { MoveInCalculator } from '@/components/property/MoveInCalculator';
 import { AgentCard } from '@/components/agent/AgentCard';
@@ -222,7 +222,7 @@ export default function PropertyPage({ params }: PropertyPageProps) {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
-  if (loading) return <div className="section container text-center">{t('pd_loading')}</div>;
+  if (loading) return <div className={`${styles.container} ${styles.section} ${styles.textCenter}`}>{t('pd_loading')}</div>;
   if (!property) return notFound();
 
   const agent = property.agent;
@@ -249,10 +249,7 @@ export default function PropertyPage({ params }: PropertyPageProps) {
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -20 }}
-          className={styles.toast}
-          style={{
-            backgroundColor: notification.type === 'success' ? 'var(--success-text)' : 'var(--danger-text)',
-          }}
+          className={`${styles.toast} ${notification.type === 'success' ? styles.toastSuccess : styles.toastDanger}`}
         >
           {notification.text}
         </motion.div>
@@ -273,7 +270,7 @@ export default function PropertyPage({ params }: PropertyPageProps) {
             <button className={styles.heroBtn} onClick={handleShare} aria-label={t('pd_share')}>
               <Share2 size={19} aria-hidden="true" />
             </button>
-            <button className={styles.heroBtn} onClick={handleSave} aria-label={isSaved ? t('pd_saved') : t('pd_save_wishlist')} style={{ color: isSaved ? 'var(--danger)' : undefined }}>
+            <button className={`${styles.heroBtn} ${isSaved ? styles.heroBtnSaved : ''}`} onClick={handleSave} aria-label={isSaved ? t('pd_saved') : t('pd_save_wishlist')}>
               <Heart size={19} aria-hidden="true" fill={isSaved ? 'currentColor' : 'none'} />
             </button>
           </div>
@@ -456,7 +453,7 @@ export default function PropertyPage({ params }: PropertyPageProps) {
                     {t('pd_book')}
                   </Button>
                   <Button variant={isSaved ? "primary" : "secondary"} size="lg" fullWidth onClick={handleSave}>
-                    <Heart size={18} aria-hidden="true" style={{ marginRight: 'var(--space-2)' }} /> {isSaved ? t('pd_saved') : t('pd_save_wishlist')}
+                    <Heart size={18} aria-hidden="true" className={styles.heartIcon} /> {isSaved ? t('pd_saved') : t('pd_save_wishlist')}
                   </Button>
                 </div>
               </div>
@@ -535,7 +532,7 @@ export default function PropertyPage({ params }: PropertyPageProps) {
           <span className={styles.bottomPer}>{t('per_month')}</span>
         </div>
         <div className={styles.bottomActions}>
-          <button className={styles.bottomSave} onClick={handleSave} aria-label={t('pd_save_wishlist')} style={{ color: isSaved ? 'var(--danger)' : undefined }}>
+          <button className={`${styles.bottomSave} ${isSaved ? styles.bottomSaveSaved : ''}`} onClick={handleSave} aria-label={t('pd_save_wishlist')}>
             <Heart size={19} aria-hidden="true" fill={isSaved ? 'currentColor' : 'none'} />
           </button>
           <button className={styles.bottomBook} onClick={() => setShowBookingModal(true)}>
@@ -546,9 +543,9 @@ export default function PropertyPage({ params }: PropertyPageProps) {
 
       {/* Booking Modal */}
       <Modal isOpen={showBookingModal} onClose={() => setShowBookingModal(false)} title={t('pd_booking_title')}>
-        <div style={{ padding: 'var(--space-4)' }}>
-          <p style={{ marginBottom: 'var(--space-4)' }}>{t('pd_booking_desc').replace('{title}', property.title)}</p>
-          <p style={{ marginBottom: 'var(--space-8)', color: 'var(--text-secondary)' }}>{t('pd_booking_desc2')}</p>
+        <div className={styles.modalBody}>
+          <p className={styles.modalText}>{t('pd_booking_desc').replace('{title}', property.title)}</p>
+          <p className={styles.modalTextSecondary}>{t('pd_booking_desc2')}</p>
           <Button variant="primary" fullWidth onClick={handleBookingSubmit}>
             {t('pd_confirm_booking')}
           </Button>
@@ -557,13 +554,13 @@ export default function PropertyPage({ params }: PropertyPageProps) {
 
       {/* Roommate Prompt Modal */}
       <Modal isOpen={showRoommatePrompt} onClose={() => setShowRoommatePrompt(false)} title={t('pd_roommate_prompt')}>
-        <div style={{ padding: 'var(--space-4)', textAlign: 'center' }}>
-          <div style={{ marginBottom: 'var(--space-8)' }}>
-            <Heart size={48} color="var(--favorite)" aria-hidden="true" style={{ margin: '0 auto', marginBottom: 'var(--space-4)' }} />
-            <h3 style={{ fontSize: '1.25rem', fontWeight: 600, marginBottom: 'var(--space-2)' }}>{t('pd_split_rent')}</h3>
-            <p style={{ color: 'var(--text-secondary)' }}>{t('pd_split_rent_desc')}</p>
+        <div className={styles.modalBodyCenter}>
+          <div className={styles.modalSection}>
+            <Heart size={48} color="var(--favorite)" aria-hidden="true" className={styles.roommateHeart} />
+            <h3 className={styles.modalTitle}>{t('pd_split_rent')}</h3>
+            <p className={styles.modalTextMuted}>{t('pd_split_rent_desc')}</p>
           </div>
-          <div style={{ display: 'flex', gap: 'var(--space-4)' }}>
+          <div className={styles.modalActions}>
             <Button variant="secondary" fullWidth onClick={() => setShowRoommatePrompt(false)}>
               {t('pd_no_thanks')}
             </Button>
@@ -579,9 +576,9 @@ export default function PropertyPage({ params }: PropertyPageProps) {
 
       {/* Roommate Form Modal */}
       <Modal isOpen={showRoommateForm} onClose={() => setShowRoommateForm(false)} title={t('pd_create_roommate')}>
-        <div style={{ padding: 'var(--space-4)' }}>
-          <div style={{ marginBottom: 'var(--space-6)' }}>
-            <label style={{ display: 'block', fontSize: 'var(--text-sm)', fontWeight: 500, marginBottom: 'var(--space-2)' }}>{t('pd_budget_label')}</label>
+        <div className={styles.modalBody}>
+          <div className={styles.formGroup}>
+            <label className={styles.fieldLabel}>{t('pd_budget_label')}</label>
             <Input 
               type="number" 
               name="budget" 
@@ -590,14 +587,14 @@ export default function PropertyPage({ params }: PropertyPageProps) {
               onChange={handleRoommateChange} 
             />
           </div>
-          <div style={{ marginBottom: 'var(--space-8)' }}>
-            <label style={{ display: 'block', fontSize: 'var(--text-sm)', fontWeight: 500, marginBottom: 'var(--space-2)' }}>{t('pd_bio_label')}</label>
+          <div className={styles.modalSection}>
+            <label className={styles.fieldLabel}>{t('pd_bio_label')}</label>
             <textarea 
               name="bio" 
               placeholder={t('pd_bio_placeholder')} 
               value={roommateData.bio} 
               onChange={handleRoommateChange}
-              style={{ width: '100%', padding: 'var(--space-3)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border)', minHeight: '100px' }}
+              className={styles.roommateTextarea}
             />
           </div>
           <Button variant="primary" fullWidth onClick={handleRoommateSubmit}>

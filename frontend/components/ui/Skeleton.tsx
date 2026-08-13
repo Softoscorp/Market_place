@@ -16,9 +16,16 @@ export const Skeleton = React.forwardRef<HTMLDivElement, SkeletonProps>(
         className={clsx(
           styles.skeleton,
           circle && styles.circle,
+          styles.sized,
           className
         )}
-        style={{ width, height, ...style }}
+        style={
+          {
+            ...(width != null && { '--skeleton-width': typeof width === 'number' ? `${width}px` : width }),
+            ...(height != null && { '--skeleton-height': typeof height === 'number' ? `${height}px` : height }),
+            ...style,
+          } as React.CSSProperties
+        }
         {...props}
       />
     );

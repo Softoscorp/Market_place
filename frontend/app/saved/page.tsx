@@ -74,7 +74,7 @@ export default function SavedPage() {
       {activeTab === 'properties' && (
         <>
           {loading ? (
-            <div className="section text-center">{t('saved_loading')}</div>
+            <div className={`${styles.section} ${styles.textCenter}`}>{t('saved_loading')}</div>
           ) : savedProperties.length > 0 ? (
             <div className={styles.grid}>
               {savedProperties.map((prop) => (
@@ -109,7 +109,7 @@ export default function SavedPage() {
               </p>
               <Link href="/search">
                 <Button variant="primary" size="lg">
-                  <Search size={18} aria-hidden="true" style={{ marginRight: 'var(--space-2)' }} /> {t('saved_explore')}
+                  <Search size={18} aria-hidden="true" className={styles.searchIcon} /> {t('saved_explore')}
                 </Button>
               </Link>
             </div>
@@ -127,7 +127,7 @@ export default function SavedPage() {
             </p>
             <Link href="/roommates">
               <Button variant="primary" size="lg">
-                <Search size={18} aria-hidden="true" style={{ marginRight: 'var(--space-2)' }} /> {t('saved_find_roommates')}
+                <Search size={18} aria-hidden="true" className={styles.searchIcon} /> {t('saved_find_roommates')}
               </Button>
             </Link>
           </div>

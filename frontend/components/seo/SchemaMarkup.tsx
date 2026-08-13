@@ -29,7 +29,7 @@ export function RealEstateListingSchema({ property }: { property: Record<string,
     "name": property.title || "Property Listing",
     "description": property.description || "View this property on House Agent.",
     "datePosted": property.created_at,
-    "image": property.images && property.images.length > 0 ? property.images[0] : undefined,
+    "image": Array.isArray(property.images) && property.images.length > 0 ? property.images[0] : undefined,
     "offers": {
       "@type": "Offer",
       "price": property.price || 0,

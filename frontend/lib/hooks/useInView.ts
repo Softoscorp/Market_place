@@ -3,11 +3,12 @@ import { useState, useEffect, useRef } from 'react';
 export function useInView(options: IntersectionObserverInit = { threshold: 0.1 }) {
   const [isInView, setIsInView] = useState(false);
   const ref = useRef<Element | null>(null);
+  const { threshold, root, rootMargin } = options;
 
   useEffect(() => {
     const observer = new IntersectionObserver(([entry]) => {
       setIsInView(entry.isIntersecting);
-    }, options);
+    }, { threshold, root, rootMargin });
 
     const currentRef = ref.current;
     if (currentRef) {
@@ -19,7 +20,7 @@ export function useInView(options: IntersectionObserverInit = { threshold: 0.1 }
         observer.unobserve(currentRef);
       }
     };
-  }, [options.threshold, options.root, options.rootMargin]);
+  }, [threshold, root, rootMargin]);
 
   return { ref, isInView };
 }

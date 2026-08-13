@@ -37,10 +37,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       const data = await response.json();
       const properties = data.items || data || [];
       
-      const propertyRoutes = properties.map((property: any) => ({
+      const propertyRoutes = (properties as Array<Record<string, unknown>>).map((property) => ({
         url: `${baseUrl}/property/${property.id}`,
-        lastModified: property.updated_at ? new Date(property.updated_at) : new Date(),
-        changeFrequency: 'daily',
+        lastModified: property.updated_at ? new Date(String(property.updated_at)) : new Date(),
+        changeFrequency: 'daily' as const,
         priority: 0.9,
       }));
 

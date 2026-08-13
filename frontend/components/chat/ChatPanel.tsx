@@ -10,7 +10,7 @@ import styles from './ChatPanel.module.css';
 import { ProtectedImage } from '@/components/ui/ProtectedImage';
 import { BrandedAvatar } from '@/components/ui/BrandedAvatar';
 import { PropertyLinkCard } from '@/components/chat/PropertyLinkCard';
-import { isOnline } from '@/lib/timeAgo';
+import { isOnline, lastSeenText } from '@/lib/timeAgo';
 import { useLanguageStore } from '@/lib/store/useLanguageStore';
 
 export function ChatPanel() {
@@ -39,26 +39,6 @@ export function ChatPanel() {
 
   const activeConversation = activeAgentId ? conversations[activeAgentId] : null;
 
-  const getLocalizedLastSeenText = (lastSeenAt: string | null | undefined) => {
-    if (!lastSeenAt) return t('chat_offline');
-
-    const date = new Date(lastSeenAt.endsWith('Z') ? lastSeenAt : `${lastSeenAt}Z`);
-    const diffMs = Date.now() - date.getTime();
-    const diffMin = Math.floor(diffMs / 60000);
-
-    if (diffMin < 1) return t('chat_online_now');
-    if (diffMin < 60) return t('chat_last_seen_min').replace('{count}', String(diffMin));
-
-    const diffHours = Math.floor(diffMin / 60);
-    if (diffHours < 24) return t('chat_last_seen_hour').replace('{count}', String(diffHours));
-
-    const diffDays = Math.floor(diffHours / 24);
-    if (diffDays === 1) return t('chat_last_seen_yesterday');
-    if (diffDays < 7) return t('chat_last_seen_days').replace('{count}', String(diffDays));
-
-    return t('chat_offline');
-  };
-
   // Auto-scroll to bottom when messages change, but only if the user is already
   // near the bottom (so polling every 5s doesn't yank the user up while reading).
   useEffect(() => {
@@ -70,25 +50,53 @@ export function ChatPanel() {
   }, [activeConversation?.messages, activeAgentId, isLoadingMessages, userAtBottom]);
 
   // Reset scroll tracking when switching conversations
-  useEffect(() => {
+  const [prevAgentId, setPrevAgentId] = useState(activeAgentId);
+  if (prevAgentId !== activeAgentId) {
+    setPrevAgentId(activeAgentId);
     setUserAtBottom(true);
     setShowOriginalFor(null);
-  }, [activeAgentId]);
+  }
 
-  // Reset transient state when chat closes or switches conversation
-  useEffect(() => {
+  // Reset transient state when chat closes
+  const [prevOpen, setPrevOpen] = useState(isOpen);
+  if (prevOpen !== isOpen) {
+    setPrevOpen(isOpen);
     if (!isOpen) {
       setMessage('');
       setImagePreview(null);
       setImageFile(null);
       setPlayingUrl(null);
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current = null;
-      }
-      stopRecording();
+      setIsRecording(false);
+      setRecordingSeconds(0);
+      setRecordingError(null);
     }
-  }, [isOpen, activeAgentId]);
+  }
+
+  // Stop any in-flight media/recording when the chat closes
+  useEffect(() => {
+    if (isOpen) return;
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current = null;
+    }
+    if (recorderTimerRef.current) {
+      clearInterval(recorderTimerRef.current);
+      recorderTimerRef.current = null;
+    }
+    const mr = mediaRecorderRef.current;
+    if (mr && mr.state !== 'inactive') {
+      try {
+        mr.onstop = null;
+        mr.stop();
+      } catch { /* noop */ }
+    }
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach((track) => track.stop());
+      streamRef.current = null;
+    }
+    mediaRecorderRef.current = null;
+    chunksRef.current = [];
+  }, [isOpen]);
 
   // Poll for new messages every 5 seconds while chat is open
   useEffect(() => {
@@ -318,23 +326,24 @@ export function ChatPanel() {
                       src={activeConversation.contact.avatarUrl ? mediaUrl(activeConversation.contact.avatarUrl) : null}
                       name={activeConversation.contact.name || t('chat_user')}
                       size={40}
-                      className={styles.avatar}
-                      style={{ borderRadius: '50%' }}
+                      className={`${styles.avatar} ${styles.avatarRound}`}
                     />
                     <div>
                       <h3 className={styles.agentName}>{activeConversation.contact.name}</h3>
-                      <div className={styles.status} style={{ color: isOnline(activeConversation.contact.lastSeenAt) ? 'var(--success)' : 'var(--text-muted)' }}>
-                        <span className={styles.statusDot} style={{
-                          background: isOnline(activeConversation.contact.lastSeenAt) ? 'var(--success)' : 'var(--text-muted)',
-                          boxShadow: isOnline(activeConversation.contact.lastSeenAt) ? '0 0 0 2px var(--bg-surface), 0 0 6px var(--success)' : 'none'
-                        }} />
-                        {getLocalizedLastSeenText(activeConversation.contact.lastSeenAt)}
+                      <div className={`${styles.status} ${isOnline(activeConversation.contact.lastSeenAt) ? styles.statusOnline : styles.statusOffline}`}>
+                        <span className={`${styles.statusDot} ${isOnline(activeConversation.contact.lastSeenAt) ? styles.statusDotOnline : styles.statusDotOffline}`} />
+                        {(() => {
+                          const ls = lastSeenText(activeConversation.contact.lastSeenAt);
+                          return ls.params
+                            ? t(ls.key).replace('{count}', ls.params.count ?? '')
+                            : t(ls.key);
+                        })()}
                       </div>
                     </div>
                   </>
                 ) : (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
-                    <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'var(--bg-surface)' }} />
+                  <div className={styles.connectingRow}>
+                    <div className={styles.connectingAvatar} />
                     <h3 className={styles.agentName}>{t('chat_connecting')}</h3>
                   </div>
                 )}
@@ -346,13 +355,13 @@ export function ChatPanel() {
 
             <div className={styles.chatArea} onScroll={handleChatScroll} ref={chatAreaRef}>
               {isLoadingMessages && (
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', flexDirection: 'column', gap: 'var(--space-4)', color: 'var(--text-secondary)' }}>
-                  <div style={{ width: '28px', height: '28px', border: '3px solid var(--border)', borderTopColor: 'var(--text-primary)', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
-                  <span style={{ fontSize: 'var(--text-sm)' }}>{t('chat_loading_messages')}</span>
+                <div className={styles.loadingMessages}>
+                  <div className={styles.loadingSpinner} />
+                  <span className={styles.loadingText}>{t('chat_loading_messages')}</span>
                 </div>
               )}
               {!isLoadingMessages && !activeConversation && (
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: 'var(--text-secondary)', fontSize: 'var(--text-sm)', textAlign: 'center', padding: 'var(--space-4)' }}>
+                <div className={styles.loadError}>
                   {t('chat_error_load')}
                 </div>
               )}
@@ -362,7 +371,7 @@ export function ChatPanel() {
                   className={`${styles.message} ${msg.sender === 'user' ? styles.messageSent : styles.messageReceived}`}
                 >
                   {renderMessageBody(msg)}
-                  <div style={{ fontSize: 'var(--text-xs)', opacity: 0.7, marginTop: 'var(--space-1)', textAlign: msg.sender === 'user' ? 'right' : 'left' }}>
+                  <div className={`${styles.timestamp} ${msg.sender === 'user' ? styles.timestampSent : styles.timestampReceived}`}>
                     {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </div>
                 </div>
@@ -370,20 +379,9 @@ export function ChatPanel() {
             </div>
 
             {chatError && (
-              <div style={{
-                backgroundColor: 'var(--danger-muted)',
-                color: 'var(--danger)',
-                padding: 'var(--space-3)',
-                fontSize: 'var(--text-sm)',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                borderTop: '1px solid var(--danger-border)',
-                margin: '0 var(--space-4)',
-                borderRadius: 'var(--radius-sm)'
-              }}>
+              <div className={styles.chatErrorBar}>
                 <span>{chatError}</span>
-                <button onClick={clearChatError} style={{ color: 'var(--danger)', cursor: 'pointer', background: 'none', border: 'none' }}>
+                <button onClick={clearChatError} className={styles.chatErrorClose}>
                   <X size={14} />
                 </button>
               </div>
@@ -431,7 +429,7 @@ export function ChatPanel() {
                 type="file"
                 accept="image/*"
                 ref={fileInputRef}
-                style={{ display: 'none' }}
+                className={styles.hiddenInput}
                 onChange={handleImagePick}
               />
               <button
@@ -453,7 +451,7 @@ export function ChatPanel() {
                 disabled={!activeConversation}
               />
               {isRecording ? (
-                <button type="button" className={styles.sendBtn} onClick={finishRecording} aria-label={t('chat_voice_send')} style={{ background: 'var(--danger)' }}>
+                <button type="button" className={`${styles.sendBtn} ${styles.sendBtnDanger}`} onClick={finishRecording} aria-label={t('chat_voice_send')}>
                   <Square size={16} />
                 </button>
               ) : (

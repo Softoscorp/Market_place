@@ -77,7 +77,7 @@ interface AgentProfile {
     return (
       <div className={styles.container}>
         <BackButton />
-        <div className={styles.loading}>Loading profile...</div>
+        <div className={styles.loading}>{t('ag_loading_profile')}</div>
       </div>
     );
   }

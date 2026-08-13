@@ -64,8 +64,8 @@ export function AgentProfile({
         </div>
         
         <div className={styles.info}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', marginBottom: 'var(--space-1)' }}>
-            <h1 className={styles.name} style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>{name}<VerifiedBadge tier={verificationTier} /></h1>
+          <div className={styles.nameRow}>
+            <h1 className={`${styles.name} ${styles.nameInline}`}>{name}<VerifiedBadge tier={verificationTier} /></h1>
             {lastSeenAt && (
               <span className={isOnline(lastSeenAt) ? styles.statusOnline : styles.statusOffline}>
                 <span className={styles.statusDot} />
@@ -150,7 +150,7 @@ export function AgentProfile({
 
       <div className={styles.section}>
         <h2 className={styles.sectionTitle}>{t('ac_about').replace('{name}', name)}</h2>
-        <p style={{ color: 'var(--text-secondary)', lineHeight: 1.6 }}>
+        <p className={styles.aboutText}>
           {bio || t('ac_about_default')}
         </p>
       </div>

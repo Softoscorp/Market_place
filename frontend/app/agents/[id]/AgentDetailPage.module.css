@@ -38,6 +38,15 @@
   letter-spacing: -0.02em;
 }
 
+.section {
+  padding-top: var(--space-8);
+  padding-bottom: var(--space-8);
+}
+
+.textCenter {
+  text-align: center;
+}
+
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -62,4 +71,28 @@
   .grid {
     gap: var(--space-4);
   }
+}
+
+/* Inline-style refactor helpers */
+.reviewsSection {
+  margin-top: var(--space-12);
+  padding: var(--space-8);
+  background: var(--bg-surface);
+  border-radius: var(--radius-md);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.reviewsHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-6);
+}
+
+.sectionTitleReset {
+  margin: 0;
+}
+
+.reviewsFormWrap {
+  margin-bottom: var(--space-8);
 }

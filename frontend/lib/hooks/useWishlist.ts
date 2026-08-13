@@ -1,38 +1,39 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useCallback, useSyncExternalStore } from 'react';
 
 export function useWishlist(key: 'properties' | 'roommates') {
   const storageKey = `house_agent_wishlist_${key}`;
-  
-  const [wishlist, setWishlist] = useState<string[]>([]);
-  const [isLoaded, setIsLoaded] = useState(false);
 
-  useEffect(() => {
+  function readStored(): string[] {
     try {
       const stored = localStorage.getItem(storageKey);
-      if (stored) {
-        setWishlist(JSON.parse(stored));
-      }
+      if (stored) return JSON.parse(stored) as string[];
     } catch (e) {
       console.error('Failed to load wishlist', e);
     }
-    setIsLoaded(true);
-  }, [storageKey]);
+    return [];
+  }
+
+  const wishlist = useSyncExternalStore(
+    (cb) => {
+      window.addEventListener('storage', cb);
+      return () => window.removeEventListener('storage', cb);
+    },
+    readStored,
+    () => [] as string[]
+  );
 
   const toggleWishlist = useCallback((id: string) => {
-    setWishlist(prev => {
-      const newWishlist = prev.includes(id) 
-        ? prev.filter(itemId => itemId !== id)
-        : [...prev, id];
-      
-      try {
-        localStorage.setItem(storageKey, JSON.stringify(newWishlist));
-      } catch (e) {
-        console.error('Failed to save wishlist', e);
-      }
-      
-      return newWishlist;
-    });
-  }, [storageKey]);
+    const next = wishlist.includes(id)
+      ? wishlist.filter((itemId) => itemId !== id)
+      : [...wishlist, id];
+
+    try {
+      localStorage.setItem(storageKey, JSON.stringify(next));
+      window.dispatchEvent(new Event('storage'));
+    } catch (e) {
+      console.error('Failed to save wishlist', e);
+    }
+  }, [wishlist, storageKey]);
 
   const isInWishlist = useCallback((id: string) => wishlist.includes(id), [wishlist]);
 
@@ -40,6 +41,6 @@ export function useWishlist(key: 'properties' | 'roommates') {
     wishlist,
     toggleWishlist,
     isInWishlist,
-    isLoaded
+    isLoaded: true
   };
 }

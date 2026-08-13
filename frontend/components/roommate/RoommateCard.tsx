@@ -54,7 +54,7 @@ export function RoommateCard({
         <div className={styles.overlay} />
         <div className={styles.matchPill}>{t('rc_match').replace('{score}', String(matchScore))}</div>
         <div className={`${styles.typePill} ${profileType === 'housemate' ? styles.typeHousemate : styles.typeRoommate}`}>
-          {profileType === 'housemate' ? <Home size={12} style={{ marginRight: 4 }} /> : <Users size={12} style={{ marginRight: 4 }} />}
+          {profileType === 'housemate' ? <Home size={12} className={styles.typeIcon} /> : <Users size={12} className={styles.typeIcon} />}
           {profileType === 'housemate' ? t('rc_housemate') : t('rc_roommate')}
         </div>
         <div className={styles.pricePill}>{budget} {t('per_month')}</div>
@@ -89,7 +89,7 @@ export function RoommateCard({
             className={styles.btnPrimary}
             onClick={() => openChat({ id: name, name: name, avatarUrl: imageUrl })}
           >
-            <MessageCircle size={16} style={{ marginRight: 6 }} />
+            <MessageCircle size={16} className={styles.messageIcon} />
             {t('rc_message')}
           </button>
           <button className={styles.btnSecondary} aria-label={t('rc_save')}>

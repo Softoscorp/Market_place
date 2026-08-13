@@ -1,17 +1,13 @@
-import { useState, useEffect } from 'react';
+import { useSyncExternalStore } from 'react';
 
 export function useMediaQuery(query: string): boolean {
-  const [matches, setMatches] = useState(false);
-
-  useEffect(() => {
-    const media = window.matchMedia(query);
-    if (media.matches !== matches) {
-      setMatches(media.matches);
-    }
-    const listener = () => setMatches(media.matches);
-    media.addEventListener('change', listener);
-    return () => media.removeEventListener('change', listener);
-  }, [matches, query]);
-
-  return matches;
+  return useSyncExternalStore(
+    (cb) => {
+      const media = window.matchMedia(query);
+      media.addEventListener('change', cb);
+      return () => media.removeEventListener('change', cb);
+    },
+    () => window.matchMedia(query).matches,
+    () => false
+  );
 }

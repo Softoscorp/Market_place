@@ -332,7 +332,6 @@ export const useChatStore = create<ChatState>((set, get) => ({
         formData: formData
       });
 
-      const currentUser = useAuthStore.getState().user;
       const sentMsg: Message = {
         id: rawSentMsg.id,
         text: rawSentMsg.text || text,
@@ -420,7 +419,6 @@ export const useChatStore = create<ChatState>((set, get) => ({
         formData: formData
       });
 
-      const currentUser = useAuthStore.getState().user;
       const sentMsg: Message = {
         id: rawSentMsg.id,
         text: rawSentMsg.text,
@@ -503,7 +501,6 @@ export const useChatStore = create<ChatState>((set, get) => ({
         formData: formData
       });
 
-      const currentUser = useAuthStore.getState().user;
       const sentMsg: Message = {
         id: rawSentMsg.id,
         text: rawSentMsg.text,

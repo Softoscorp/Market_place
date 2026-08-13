@@ -19,7 +19,7 @@
   align-items: center;
   min-height: 50vh;
   font-size: 1.1rem;
-  color: #ff4b4b;
+  color: var(--danger);
 }
 
 .profileSection {

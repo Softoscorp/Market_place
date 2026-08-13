@@ -21,7 +21,7 @@ function initialsOf(name: string): string {
   return trimmed.slice(0, 2).toUpperCase();
 }
 
-export function BrandedAvatar({ src, name, size = 64, className, style }: BrandedAvatarProps) {
+export function BrandedAvatar({ src, name, size = 64, className }: BrandedAvatarProps) {
   const [imageFailed, setImageFailed] = useState(false);
 
   const imageUrl = src
@@ -37,7 +37,6 @@ export function BrandedAvatar({ src, name, size = 64, className, style }: Brande
         fallbackSrc={imageUrl}
         alt={name}
         className={className}
-        style={style}
         onError={() => setImageFailed(true)}
       />
     );
@@ -45,12 +44,12 @@ export function BrandedAvatar({ src, name, size = 64, className, style }: Brande
 
   return (
     <div
-      className={`${styles.fallback} ${className || ''}`}
-      style={{ width: size, height: size, ...style }}
+      className={`${styles.fallback} ${styles.sized} ${className || ''}`}
+      style={{ '--avatar-size': `${size}px`, '--avatar-font-size': `${Math.round(size * 0.38)}px` } as React.CSSProperties}
       aria-label={name}
       role="img"
     >
-      <span className={styles.initials} style={{ fontSize: Math.round(size * 0.38) }}>
+      <span className={styles.initials}>
         {initialsOf(name)}
       </span>
     </div>

@@ -5,11 +5,14 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { getSupabase } from '@/lib/supabaseClient';
 import { supabaseLogin, getUser } from '@/lib/api';
 import { useAuthStore } from '@/lib/store/useAuthStore';
+import { useLanguageStore } from '@/lib/store/useLanguageStore';
+import styles from './page.module.css';
 
 function AuthCallbackInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { login: setAuthUser } = useAuthStore();
+  const { t } = useLanguageStore();
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -61,26 +64,20 @@ function AuthCallbackInner() {
 
   if (error) {
     return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', padding: '20px', textAlign: 'center' }}>
+      <div className={styles.errorContainer}>
         <div>
-          <h2 style={{ color: 'red', marginBottom: '16px' }}>Authentication Error</h2>
+          <h2 className={styles.errorTitle}>{t('acb_error_title')}</h2>
           <p>{error}</p>
-          <p style={{ marginTop: '16px', color: '#666' }}>Redirecting you back to login...</p>
+          <p className={styles.redirectText}>{t('acb_redirecting_login')}</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', flexDirection: 'column' }}>
-      <div className="spinner" style={{ width: '40px', height: '40px', border: '3px solid #f3f3f3', borderTop: '3px solid var(--primary)', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
-      <p style={{ marginTop: '20px' }}>Completing login...</p>
-      <style>{`
-        @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
-        }
-      `}</style>
+    <div className={styles.spinnerContainer}>
+      <div className={styles.spinner} />
+      <p className={styles.spinnerText}>{t('acb_completing_login')}</p>
     </div>
   );
 }

@@ -1,0 +1,49 @@
+.form {
+  margin-top: var(--space-4);
+  padding: var(--space-4);
+  background: var(--bg-hover);
+  border-radius: var(--radius-sm);
+}
+
+.title {
+  margin-bottom: var(--space-4);
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.error {
+  color: var(--danger);
+  margin-bottom: var(--space-4);
+  font-size: var(--text-base);
+}
+
+.starsRow {
+  display: flex;
+  gap: var(--space-1);
+  margin-bottom: var(--space-4);
+}
+
+.starBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.commentWrap {
+  margin-bottom: var(--space-4);
+}
+
+.commentInput {
+  width: 100%;
+  padding: var(--space-3);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  min-height: 80px;
+}
+
+.actions {
+  display: flex;
+  gap: var(--space-3);
+  justify-content: flex-end;
+}

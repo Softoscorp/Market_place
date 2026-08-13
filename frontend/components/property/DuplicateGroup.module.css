@@ -94,6 +94,16 @@
   margin-left: var(--space-4);
 }
 
+.verifiedBadge.internationalBadge {
+  background: var(--warning);
+  color: var(--text-inverse);
+  border-color: var(--warning);
+}
+
+.offerRight {
+  text-align: right;
+}
+
 @media (max-width: 640px) {
   .item {
     flex-direction: column;

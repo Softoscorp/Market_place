@@ -50,24 +50,20 @@ export function AgentCard({
         <div className={styles.avatarWrapper}>
           <BrandedAvatar src={avatarSrc} name={name} className={styles.avatar} />
           <div
-            className={styles.onlineDot}
-            style={{
-              background: online ? 'var(--success)' : 'var(--text-muted)',
-              boxShadow: online ? '0 0 0 2px var(--bg-surface), 0 0 6px var(--success)' : 'none',
-            }}
+            className={`${styles.onlineDot} ${online ? styles.onlineDotOnline : styles.onlineDotOffline}`}
             title={statusText}
           />
         </div>
         <div className={styles.info}>
-          <Link href={`/agent/${agentId}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-            <h3 className={styles.name} style={{ cursor: 'pointer' }}>
+          <Link href={`/agent/${agentId}`} className={styles.nameLink}>
+            <h3 className={`${styles.name} ${styles.nameClickable}`}>
               <span className={styles.nameText}>{name.trim()}</span>
               <VerifiedBadge tier={verificationTier} />
             </h3>
           </Link>
           <p className={styles.agency}>{agency}</p>
 
-          <p className={styles.onlineStatus} style={{ color: online ? 'var(--success)' : 'var(--text-muted)', fontSize: 'var(--text-xs)', margin: 'var(--space-2) 0 0' }}>
+          <p className={`${styles.onlineStatus} ${styles.onlineStatusText} ${online ? styles.onlineStatusOnline : styles.onlineStatusOffline}`}>
             {statusText}
           </p>
         </div>
@@ -76,7 +72,7 @@ export function AgentCard({
       <div className={styles.stats}>
         <div className={styles.statItem}>
           <span className={styles.statValue}>
-            <Star size={12} fill="var(--warning)" color="var(--warning)" aria-hidden="true" style={{ marginRight: 2 }} />
+            <Star size={12} fill="var(--warning)" color="var(--warning)" aria-hidden="true" className={styles.starIcon} />
             {rating}
           </span>
           <span className={styles.statLabel}>{reviews} {t('agent_reviews')}</span>

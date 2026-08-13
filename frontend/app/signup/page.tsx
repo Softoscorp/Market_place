@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuthStore, UserRole } from '@/lib/store/useAuthStore';
 import { useLanguageStore } from '@/lib/store/useLanguageStore';
-import { register, login as apiLogin, supabaseLogin as apiSupabaseLogin, getUser } from '@/lib/api';
+import { register } from '@/lib/api';
 import { getSupabase } from '@/lib/supabaseClient';
 import styles from './SignupPage.module.css';
 import fpPromise from '@fingerprintjs/fingerprintjs';
@@ -241,7 +241,7 @@ export default function SignupPage() {
                     </p>
                   </div>
 
-                  {error && <div style={{ color: 'var(--danger)', marginBottom: 'var(--space-4)' }}>{error}</div>}
+                  {error && <div className={styles.signupError}>{error}</div>}
 
                   <form className={styles.form} onSubmit={handleNext}>
                     <div className={styles.inputGroup}>
@@ -292,24 +292,18 @@ export default function SignupPage() {
                       )}
                     </button>
                     
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', margin: 'var(--space-5) 0' }}>
-                      <span style={{ flex: 1, height: '1px', background: 'var(--border)' }} />
-                      <span style={{ fontSize: 'var(--text-sm)', color: 'var(--text-muted)' }}>or</span>
-                      <span style={{ flex: 1, height: '1px', background: 'var(--border)' }} />
+                    <div className={styles.divider}>
+                      <span className={styles.dividerLine} />
+                      <span className={styles.dividerText}>or</span>
+                      <span className={styles.dividerLine} />
                     </div>
 
-                    <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 'var(--space-5)' }}>
+                    <div className={styles.googleWrapper}>
                       <button
                         type="button"
                         onClick={handleSupabaseGoogle}
                         disabled={isSubmitting}
-                        style={{
-                          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', 
-                          width: '100%', padding: '12px', border: '1px solid var(--border)', 
-                          borderRadius: '8px', background: 'white', color: 'var(--text-main)', 
-                          fontSize: '16px', fontWeight: 500, cursor: 'pointer', transition: 'all 0.2s',
-                          opacity: isSubmitting ? 0.7 : 1
-                        }}
+                        className={`${styles.googleBtn} ${isSubmitting ? styles.googleBtnDisabled : ''}`}
                       >
                         <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                           <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>

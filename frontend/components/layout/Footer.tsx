@@ -35,12 +35,12 @@ export function Footer() {
                 <span className={styles.brandAccent}>AGENT</span>
               </span>
             </div>
-            <p style={{ color: 'var(--text-secondary)', fontSize: 'var(--text-sm)', lineHeight: 1.5 }}>
+            <p className={styles.tagline}>
               {t('footer_tagline')}
             </p>
           </div>
           <div className={styles.column}>
-            <h4 style={{ color: 'var(--text-primary)', margin: 0 }}>{t('footer_company')}</h4>
+            <h4 className={styles.columnTitle}>{t('footer_company')}</h4>
             <Link href="/about" className={styles.link}>{t('footer_about')}</Link>
             <Link href="/contact" className={styles.link}>{t('footer_contact')}</Link>
             <Link href="/terms" className={styles.link}>{t('footer_terms')}</Link>
@@ -65,7 +65,7 @@ export function Footer() {
         </Link>
 
         {/* Messages tab with live unread badge */}
-        <Link href="/messages" className={`${styles.tabBtn} ${isActive('/messages') ? styles.tabBtnActive : ''}`} style={{ position: 'relative' }}>
+        <Link href="/messages" className={`${styles.tabBtn} ${isActive('/messages') ? styles.tabBtnActive : ''} ${styles.messagesTab}`}>
           <MessageSquare size={24} />
           {isAuthenticated && unreadCount > 0 && (
             <span className={styles.tabBadge}>

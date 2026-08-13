@@ -41,7 +41,7 @@
   display: flex;
   align-items: center;
   gap: var(--space-3);
-  color: #fff;
+  color: var(--text-on-brand);
   font-family: var(--font-heading);
   font-size: var(--text-xl);
   font-weight: 700;
@@ -52,7 +52,7 @@
 }
 
 .visualContent {
-  color: #fff;
+  color: var(--text-on-brand);
   max-width: 480px;
 }
 
@@ -88,7 +88,7 @@
 
 .testimonial p {
   font-size: var(--text-base);
-  color: #fff;
+  color: var(--text-on-brand);
   margin-bottom: var(--space-4);
   font-style: italic;
 }
@@ -388,7 +388,7 @@
 }
 
 .checkIcon {
-  color: #fff;
+  color: var(--text-on-brand);
 }
 
 .loader {
@@ -396,7 +396,7 @@
   height: 20px;
   border: 2px solid rgba(255, 255, 255, 0.3);
   border-radius: 50%;
-  border-top-color: #fff;
+  border-top-color: var(--text-on-brand);
   animation: spin 0.8s linear infinite;
 }
 
@@ -448,4 +448,94 @@
   .formWrapper {
     padding: var(--space-6);
   }
+}
+
+/* Shared inline-style refactor helpers (login + signup) */
+.errorText {
+  color: var(--danger);
+  margin-bottom: var(--space-4);
+  font-size: var(--text-base);
+}
+
+.successText {
+  color: var(--success);
+  margin-bottom: var(--space-4);
+  font-size: var(--text-base);
+}
+
+.signupError {
+  color: var(--danger);
+  margin-bottom: var(--space-4);
+}
+
+.cancelBtn {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  margin-top: var(--space-4);
+  cursor: pointer;
+  width: 100%;
+  font-size: var(--text-base);
+  text-align: center;
+}
+
+.labelRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.forgotBtn {
+  background: none;
+  border: none;
+  color: var(--accent);
+  font-size: var(--text-sm);
+  cursor: pointer;
+  padding: 0;
+  margin-bottom: var(--space-2);
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin: var(--space-5) 0;
+}
+
+.dividerLine {
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+.dividerText {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+}
+
+.googleWrapper {
+  display: flex;
+  justify-content: center;
+  margin-bottom: var(--space-5);
+}
+
+.googleBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: white;
+  color: var(--text-main);
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.googleBtnDisabled {
+  opacity: 0.7;
 }

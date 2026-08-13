@@ -73,7 +73,7 @@ export default function PostListingPage() {
 
   if (isCheckingAuth) {
     return (
-      <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div className={styles.authLoading}>
         <div className={styles.loader}></div>
       </div>
     );
@@ -107,7 +107,7 @@ export default function PostListingPage() {
                 onChange={handleFileSelect} 
                 multiple 
                 accept="image/*" 
-                style={{ display: 'none' }} 
+                className={styles.hiddenInput}
               />
               <div 
                 className={styles.uploadArea}
@@ -116,7 +116,7 @@ export default function PostListingPage() {
                 <UploadCloud size={48} />
                 <div>
                   <strong>{t('pl_upload_cta')}</strong><br/>
-                  <span style={{ fontSize: 'var(--text-sm)' }}>{t('pl_upload_hint')}</span>
+                  <span className={styles.uploadHint}>{t('pl_upload_hint')}</span>
                 </div>
               </div>
 
@@ -151,8 +151,7 @@ export default function PostListingPage() {
             <div className={styles.inputGroup}>
               <label className={styles.label}>{t('pl_description')}</label>
               <textarea 
-                className={styles.input} 
-                style={{ minHeight: '100px', resize: 'vertical', fontFamily: 'inherit' }}
+                className={`${styles.input} ${styles.textareaInput}`} 
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder={t('pl_description_placeholder')}
@@ -162,12 +161,11 @@ export default function PostListingPage() {
             <div className={styles.row}>
               <div className={styles.inputGroup}>
                 <label className={styles.label}>{t('pl_monthly_rent')}</label>
-                <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
+                <div className={styles.priceRow}>
                   <select 
-                    className={styles.input}
+                    className={`${styles.input} ${styles.currencySelect}`}
                     value={currency}
                     onChange={(e) => setCurrency(e.target.value)}
-                    style={{ width: '80px', flexShrink: 0 }}
                   >
                     <option value="£">£</option>
                     <option value="$">$</option>
@@ -175,10 +173,9 @@ export default function PostListingPage() {
                   </select>
                   <input 
                     type="number" 
-                    className={styles.input} 
+                    className={`${styles.input} ${styles.priceInput}`} 
                     value={price}
                     onChange={(e) => setPrice(Number(e.target.value))}
-                    style={{ flexGrow: 1 }}
                   />
                 </div>
               </div>
@@ -252,11 +249,10 @@ export default function PostListingPage() {
 
             <div className={styles.inputGroup}>
               <label className={styles.label}>{t('pl_location')}</label>
-              <div style={{ position: 'relative' }}>
-                <MapPin size={18} style={{ position: 'absolute', left: 12, top: 12, color: 'var(--text-muted)' }} />
+              <div className={styles.locationWrap}>
+                <MapPin size={18} className={styles.locationIcon} />
                 <select 
-                  className={styles.input} 
-                  style={{ paddingLeft: '2.5rem', width: '100%' }}
+                  className={`${styles.input} ${styles.locationSelect}`} 
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
                 >
@@ -311,7 +307,7 @@ export default function PostListingPage() {
                 <BrandedAvatar
                   src={agentAvatarSrc}
                   name={user?.name || 'Agent'}
-                  style={{ width: '100%', height: '100%', borderRadius: '50%' }}
+                  className={styles.avatarFill}
                 />
               </div>
               <div className={styles.agentInfo}>
@@ -350,7 +346,7 @@ export default function PostListingPage() {
                       <BrandedAvatar
                         src={agentAvatarSrc}
                         name={user?.name || 'Agent'}
-                        style={{ width: '100%', height: '100%', borderRadius: '50%' }}
+                        className={styles.avatarFill}
                       />
                     </div>
                     <span>{user?.name?.split(' ')[0] || 'Agent'}</span>
@@ -365,7 +361,7 @@ export default function PostListingPage() {
             </div>
 
             <div className={styles.previewTitle}>
-              <Calculator size={20} style={{ display: 'inline', marginRight: 8, verticalAlign: 'middle' }}/>
+              <Calculator size={20} className={styles.calculatorIcon}/>
               {t('pl_move_in_cost')}
             </div>
             
@@ -442,20 +438,11 @@ export default function PostListingPage() {
               {isPublishing ? t('pl_publishing') : t('pl_publish')}
             </button>
             {publishMessage && (
-              <div style={{
-                marginTop: 'var(--space-4)',
-                padding: 'var(--space-3)',
-                fontSize: 'var(--text-sm)',
-                color: publishMessage.type === 'success' ? 'var(--success-text)' : 'var(--danger-text)',
-                backgroundColor: publishMessage.type === 'success' ? 'var(--success-muted)' : 'var(--danger-muted)',
-                borderRadius: 'var(--radius-sm)',
-                border: `1px solid ${publishMessage.type === 'success' ? 'var(--success-border)' : 'var(--danger-border)'}`,
-                textAlign: 'center'
-              }}>
+              <div className={`${styles.publishMessage} ${publishMessage.type === 'success' ? styles.publishSuccess : styles.publishError}`}>
                 {publishMessage.text}
               </div>
             )}
-            <p style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)', textAlign: 'center', marginTop: 'var(--space-4)' }}>
+            <p className={styles.agreeText}>
               {t('pl_agree')}
             </p>
                 </>

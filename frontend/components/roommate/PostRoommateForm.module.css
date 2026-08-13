@@ -73,7 +73,7 @@
 }
 
 .typeBtnActive {
-  border-color: #b18842;
+  border-color: var(--brand-gold);
   background: rgba(177, 136, 66, 0.12);
 }
 
@@ -103,7 +103,7 @@
 }
 
 .photoBox:hover {
-  border-color: #b18842;
+  border-color: var(--brand-gold);
 }
 
 .photoPreview {
@@ -181,9 +181,9 @@
 }
 
 .chipActive {
-  border-color: #b18842;
+  border-color: var(--brand-gold);
   background: rgba(177, 136, 66, 0.15);
-  color: #08192f;
+  color: var(--brand-navy);
 }
 
 .error {
@@ -209,8 +209,8 @@
   padding: 12px;
   border: none;
   border-radius: var(--radius-sm);
-  background: #08192f;
-  color: #fff;
+  background: var(--brand-navy);
+  color: var(--text-on-brand);
   font-size: var(--text-base);
   font-weight: 700;
   cursor: pointer;
@@ -218,7 +218,7 @@
 }
 
 .submitBtn:hover:not(:disabled) {
-  background: #b18842;
+  background: var(--brand-gold);
 }
 
 .submitBtn:disabled {
@@ -230,4 +230,8 @@
   .grid {
     grid-template-columns: 1fr;
   }
+}
+
+.typeToggleIcon {
+  margin-bottom: 6px;
 }

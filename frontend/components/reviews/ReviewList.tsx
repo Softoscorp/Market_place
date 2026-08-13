@@ -1,6 +1,7 @@
 import React from 'react';
 import { Star } from 'lucide-react';
 import { useLanguageStore } from '@/lib/store/useLanguageStore';
+import styles from './ReviewList.module.css';
 
 interface Review {
   id: number;
@@ -16,15 +17,15 @@ interface ReviewListProps {
 export function ReviewList({ reviews }: ReviewListProps) {
   const t = useLanguageStore((s) => s.t);
   if (!reviews || reviews.length === 0) {
-    return <p style={{ color: 'var(--text-secondary)', fontStyle: 'italic' }}>{t('rl_no_reviews')}</p>;
+    return <p className={styles.empty}>{t('rl_no_reviews')}</p>;
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-6)' }}>
+    <div className={styles.list}>
       {reviews.map((review) => (
-        <div key={review.id} style={{ borderBottom: '1px solid var(--border)', paddingBottom: 'var(--space-4)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', marginBottom: 'var(--space-2)' }}>
-            <div style={{ display: 'flex', gap: '2px' }}>
+        <div key={review.id} className={styles.item}>
+          <div className={styles.header}>
+            <div className={styles.stars}>
               {[1, 2, 3, 4, 5].map((star) => (
                 <Star
                   key={star}
@@ -34,7 +35,7 @@ export function ReviewList({ reviews }: ReviewListProps) {
                 />
               ))}
             </div>
-            <span style={{ fontSize: 'var(--text-sm)', color: 'var(--text-secondary)' }}>
+            <span className={styles.date}>
               {new Date(review.created_at).toLocaleDateString()}
             </span>
           </div>

@@ -2,10 +2,9 @@
 
 import React, { useState } from 'react';
 import { clsx } from 'clsx';
-import { Heart, MapPin, GraduationCap, ArrowRight } from 'lucide-react';
+import { Heart, MapPin, GraduationCap } from 'lucide-react';
 import Link from 'next/link';
 import { Badge } from '@/components/ui/Badge';
-import { PremiumIcon } from '@/components/ui/PremiumIcon';
 import { Avatar } from '@/components/ui/Avatar';
 import { StarRating } from '@/components/ui/StarRating';
 import { ProtectedImage } from '@/components/ui/ProtectedImage';

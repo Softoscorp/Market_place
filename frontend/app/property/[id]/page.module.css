@@ -24,6 +24,87 @@
   font-size: var(--text-sm);
 }
 
+.toastSuccess {
+  background-color: var(--success-text);
+}
+
+.toastDanger {
+  background-color: var(--danger-text);
+}
+
+.heroBtnSaved {
+  color: var(--danger);
+}
+
+.heartIcon {
+  margin-right: var(--space-2);
+}
+
+.bottomSaveSaved {
+  color: var(--danger);
+}
+
+.modalBody {
+  padding: var(--space-4);
+}
+
+.modalText {
+  margin-bottom: var(--space-4);
+}
+
+.modalTextSecondary {
+  margin-bottom: var(--space-8);
+  color: var(--text-secondary);
+}
+
+.modalBodyCenter {
+  padding: var(--space-4);
+  text-align: center;
+}
+
+.modalSection {
+  margin-bottom: var(--space-8);
+}
+
+.roommateHeart {
+  margin: 0 auto;
+  margin-bottom: var(--space-4);
+}
+
+.modalTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: var(--space-2);
+}
+
+.modalTextMuted {
+  color: var(--text-secondary);
+}
+
+.modalActions {
+  display: flex;
+  gap: var(--space-4);
+}
+
+.formGroup {
+  margin-bottom: var(--space-6);
+}
+
+.fieldLabel {
+  display: block;
+  font-size: var(--text-sm);
+  font-weight: 500;
+  margin-bottom: var(--space-2);
+}
+
+.roommateTextarea {
+  width: 100%;
+  padding: var(--space-3);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  min-height: 100px;
+}
+
 /* ============ HERO ============ */
 .hero {
   position: relative;
@@ -121,7 +202,7 @@
   left: var(--space-4);
   right: var(--space-4);
   bottom: var(--space-5);
-  color: #fff;
+  color: var(--text-on-brand);
   z-index: 10;
 }
 
@@ -136,7 +217,7 @@
   font-family: var(--font-heading);
   font-size: clamp(1.5rem, 5vw, 2.1rem);
   font-weight: 800;
-  color: #fff;
+  color: var(--text-on-brand);
   margin: 0;
   line-height: 1.15;
   letter-spacing: -0.01em;
@@ -228,6 +309,10 @@
   flex-direction: column;
   gap: var(--space-3);
   scroll-margin-top: 64px;
+}
+
+.textCenter {
+  text-align: center;
 }
 
 .sectionTitle {

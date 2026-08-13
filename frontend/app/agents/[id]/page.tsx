@@ -54,7 +54,7 @@ export default function AgentDetailPage({ params }: { params: Promise<{ id: stri
       .catch(console.error);
   }, [resolvedParams.id]);
 
-  if (loading) return <div className="section container text-center">{t('pd_loading')}</div>;
+  if (loading) return <div className={`${styles.container} ${styles.section} ${styles.textCenter}`}>{t('pd_loading')}</div>;
   if (!profile) return notFound();
 
   const { agent, average_rating, rating_count, listings } = profile;
@@ -126,10 +126,9 @@ export default function AgentDetailPage({ params }: { params: Promise<{ id: stri
         initial={{ y: 30, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.8, delay: 0.3, ease: [0.2, 0.8, 0.2, 1] }}
-        style={{ marginTop: 'var(--space-12)', padding: 'var(--space-8)', background: 'var(--bg-surface)', borderRadius: 'var(--radius-md)', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)' }}
       >
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-6)' }}>
-          <h2 className={styles.sectionTitle} style={{ margin: 0 }}>Reviews ({reviews.length})</h2>
+        <div className={styles.reviewsHeader}>
+          <h2 className={`${styles.sectionTitle} ${styles.sectionTitleReset}`}>Reviews ({reviews.length})</h2>
           {!showReviewForm && (
             <Button variant="secondary" onClick={() => setShowReviewForm(true)}>
               Write a Review
@@ -138,7 +137,7 @@ export default function AgentDetailPage({ params }: { params: Promise<{ id: stri
         </div>
 
         {showReviewForm && (
-          <div style={{ marginBottom: 'var(--space-8)' }}>
+          <div className={styles.reviewsFormWrap}>
             <ReviewForm
               targetId={Number(resolvedParams.id)}
               type="agent"

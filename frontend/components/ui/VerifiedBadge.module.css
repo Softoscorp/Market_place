@@ -24,11 +24,11 @@
 }
 
 .international {
-  color: #f59e0b;
+  color: var(--warning);
 }
 
 .none {
-  color: #9ca3af;
+  color: var(--text-muted);
 }
 
 .withLabel {

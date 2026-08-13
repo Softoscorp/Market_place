@@ -3,6 +3,7 @@ import { Star } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { rateAgent, rateApartment } from '@/lib/api';
 import { useLanguageStore } from '@/lib/store/useLanguageStore';
+import styles from './ReviewForm.module.css';
 
 interface ReviewFormProps {
   targetId: number;
@@ -45,12 +46,12 @@ export function ReviewForm({ targetId, type, onSuccess, onCancel }: ReviewFormPr
   };
 
   return (
-    <form onSubmit={handleSubmit} style={{ marginTop: 'var(--space-4)', padding: 'var(--space-4)', background: 'var(--bg-hover)', borderRadius: 'var(--radius-sm)' }}>
-      <h3 style={{ marginBottom: 'var(--space-4)', fontSize: '1.1rem', fontWeight: 600 }}>{t('rf_write_review')}</h3>
+    <form onSubmit={handleSubmit} className={styles.form}>
+      <h3 className={styles.title}>{t('rf_write_review')}</h3>
       
-      {error && <div style={{ color: 'var(--danger)', marginBottom: 'var(--space-4)', fontSize: 'var(--text-base)' }}>{error}</div>}
+      {error && <div className={styles.error}>{error}</div>}
       
-      <div style={{ display: 'flex', gap: 'var(--space-1)', marginBottom: 'var(--space-4)' }}>
+      <div className={styles.starsRow}>
         {[1, 2, 3, 4, 5].map((star) => (
           <button
             key={star}
@@ -59,7 +60,7 @@ export function ReviewForm({ targetId, type, onSuccess, onCancel }: ReviewFormPr
             onMouseEnter={() => setHoverStars(star)}
             onMouseLeave={() => setHoverStars(0)}
             aria-label={t('ac_rate_star').replace('{star}', String(star)).replace('{plural}', star === 1 ? '' : 's')}
-            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+            className={styles.starBtn}
           >
             <Star
               size={24}
@@ -70,15 +71,15 @@ export function ReviewForm({ targetId, type, onSuccess, onCancel }: ReviewFormPr
         ))}
       </div>
 
-      <div style={{ marginBottom: 'var(--space-4)' }}>
+      <div className={styles.commentWrap}>
         <textarea
           value={comment}
           onChange={(e) => setComment(e.target.value)}
           placeholder={t('rf_placeholder')}
-          style={{ width: '100%', padding: 'var(--space-3)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border)', minHeight: '80px' }}
+          className={styles.commentInput}
         />
       </div>
-      <div style={{ display: 'flex', gap: 'var(--space-3)', justifyContent: 'flex-end' }}>
+      <div className={styles.actions}>
         <Button variant="ghost" onClick={onCancel} disabled={isSubmitting}>
           {t('auth_cancel')}
         </Button>

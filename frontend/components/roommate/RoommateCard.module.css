@@ -32,11 +32,11 @@
 }
 
 .photoFallback {
-  background: linear-gradient(135deg, #1e3a5f 0%, #0f2747 100%);
+  background: linear-gradient(135deg, var(--brand-navy-light) 0%, var(--brand-navy-ink) 100%);
 }
 
 .photoIcon {
-  color: #f2f0ea;
+  color: var(--brand-gold-muted);
   opacity: 0.9;
   display: flex;
   align-items: center;
@@ -55,7 +55,7 @@
   top: 12px;
   left: 12px;
   background: rgba(8, 25, 47, 0.92);
-  color: #fff;
+  color: var(--text-on-brand);
   border-radius: 999px;
   padding: 5px 12px;
   font-size: 12px;
@@ -71,18 +71,18 @@
   padding: 5px 12px;
   font-size: 12px;
   font-weight: 700;
-  color: #fff;
+  color: var(--text-on-brand);
   box-shadow: var(--shadow-sm);
   display: flex;
   align-items: center;
 }
 
 .typeHousemate {
-  background: #b18842;
+  background: var(--brand-gold);
 }
 
 .typeRoommate {
-  background: #12335c;
+  background: var(--brand-navy-soft);
 }
 
 .pricePill {
@@ -90,7 +90,7 @@
   bottom: 12px;
   right: 12px;
   background: rgba(255, 255, 255, 0.95);
-  color: #08192f;
+  color: var(--brand-navy);
   border-radius: 10px;
   padding: 6px 12px;
   font-weight: 800;
@@ -116,7 +116,7 @@
   font-family: var(--font-heading);
   font-size: 19px;
   font-weight: 800;
-  color: #08192f;
+  color: var(--brand-navy);
   margin: 0;
   letter-spacing: -0.02em;
 }
@@ -128,7 +128,7 @@
 }
 
 .location {
-  color: #b18842;
+  color: var(--brand-gold);
   font-size: 12px;
   font-weight: 700;
   white-space: nowrap;
@@ -152,7 +152,7 @@
 }
 
 .tag {
-  background: #f0efec;
+  background: var(--brand-cream);
   color: var(--text-secondary);
   font-size: 11px;
   font-weight: 600;
@@ -163,7 +163,7 @@
 
 .tagGold {
   background: rgba(177, 136, 66, 0.14);
-  color: #8a6a2f;
+  color: var(--brand-gold-dark);
   border-color: rgba(177, 136, 66, 0.25);
 }
 
@@ -175,8 +175,8 @@
 
 .btnPrimary {
   flex: 1;
-  background: #08192f;
-  color: #fff;
+  background: var(--brand-navy);
+  color: var(--text-on-brand);
   border: none;
   border-radius: 999px;
   padding: 12px;
@@ -190,7 +190,7 @@
 }
 
 .btnPrimary:hover {
-  background: #b18842;
+  background: var(--brand-gold);
 }
 
 .btnSecondary {
@@ -198,7 +198,7 @@
   background: transparent;
   border: 1px solid var(--border);
   border-radius: 999px;
-  color: #08192f;
+  color: var(--brand-navy);
   cursor: pointer;
   font-size: 16px;
   display: flex;
@@ -208,6 +208,14 @@
 }
 
 .btnSecondary:hover {
-  background: #f0efec;
+  background: var(--brand-cream);
   border-color: var(--border-hover);
+}
+
+.typeIcon {
+  margin-right: 4px;
+}
+
+.messageIcon {
+  margin-right: 6px;
 }

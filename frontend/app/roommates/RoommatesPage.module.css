@@ -17,7 +17,7 @@
   font-family: var(--font-heading);
   font-weight: 700;
   font-size: 40px;
-  color: #08192f;
+  color: var(--brand-navy);
   margin: 0;
   letter-spacing: -0.03em;
   line-height: 1.1;
@@ -33,8 +33,8 @@
 }
 
 .postBtn {
-  background: #08192f;
-  color: #fff;
+  background: var(--brand-navy);
+  color: var(--text-on-brand);
   border: none;
   border-radius: 999px;
   padding: 14px 26px;
@@ -49,7 +49,7 @@
 }
 
 .postBtn:hover {
-  background: #b18842;
+  background: var(--brand-gold);
   transform: translateY(-2px);
 }
 
@@ -79,7 +79,7 @@
 }
 
 .searchBox:focus-within {
-  border-color: #08192f;
+  border-color: var(--brand-navy);
 }
 
 .searchBox input {
@@ -110,8 +110,8 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  background: #08192f;
-  color: #fff;
+  background: var(--brand-navy);
+  color: var(--text-on-brand);
   border: none;
   border-radius: 12px;
   padding: 0 16px;
@@ -123,18 +123,18 @@
 }
 
 .filterBtn:hover {
-  background: #b18842;
+  background: var(--brand-gold);
 }
 
 .filterDot {
   position: absolute;
   top: -5px;
   right: -5px;
-  background: #b18842;
+  background: var(--brand-gold);
   width: 17px;
   height: 17px;
   border-radius: 50%;
-  color: #fff;
+  color: var(--text-on-brand);
   font-size: 10px;
   font-weight: 700;
   display: flex;
@@ -163,14 +163,14 @@
   font-family: var(--font-heading);
   font-size: 16px;
   font-weight: 700;
-  color: #08192f;
+  color: var(--brand-navy);
   margin: 0;
 }
 
 .resetBtn {
   background: none;
   border: none;
-  color: #b18842;
+  color: var(--brand-gold);
   font-size: 13px;
   font-weight: 700;
   cursor: pointer;
@@ -199,7 +199,7 @@
   flex: 1;
   padding: 9px;
   border: 1px solid var(--border);
-  background: #fff;
+  background: var(--brand-surface);
   border-radius: 10px;
   font-size: 12px;
   font-weight: 600;
@@ -213,15 +213,15 @@
 }
 
 .segOn {
-  background: #08192f !important;
-  color: #fff !important;
-  border-color: #08192f !important;
+  background: var(--brand-navy) !important;
+  color: var(--text-on-brand) !important;
+  border-color: var(--brand-navy) !important;
 }
 
 .filterSheet .schoolSelect {
   width: 100%;
   border: 1px solid var(--border);
-  background: #fff;
+  background: var(--brand-surface);
   border-radius: 10px;
   padding: 11px 12px;
   font-size: 13px;
@@ -250,10 +250,14 @@
   border-color: var(--border-hover);
 }
 
+.chipIcon {
+  margin-right: 6px;
+}
+
 .chipActive {
-  background: #08192f;
-  color: #fff;
-  border-color: #08192f;
+  background: var(--brand-navy);
+  color: var(--text-on-brand);
+  border-color: var(--brand-navy);
 }
 
 .schoolSelect {
@@ -270,14 +274,14 @@
 }
 
 .schoolSelect:focus {
-  border-color: #08192f;
+  border-color: var(--brand-navy);
 }
 
 .resultsTitle {
   font-family: var(--font-heading);
   font-weight: 700;
   font-size: 20px;
-  color: #08192f;
+  color: var(--brand-navy);
   margin: 0 0 18px;
   letter-spacing: -0.02em;
 }

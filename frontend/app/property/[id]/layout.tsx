@@ -1,23 +1,21 @@
 import { Metadata } from 'next';
 import { RealEstateListingSchema } from '@/components/seo/SchemaMarkup';
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://marketplace-production-2905.up.railway.app';
+import { getPropertyPublic } from '@/lib/api';
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params;
   try {
-    const response = await fetch(`${API_BASE_URL}/properties/${id}`);
-    if (response.ok) {
-      const property = await response.json();
+    const property = await getPropertyPublic(id);
+    if (property) {
       return {
         title: `${property.title || 'Property'} | House Agent`,
         description: property.description 
-          ? property.description.slice(0, 160) 
+          ? String(property.description).slice(0, 160) 
           : `View this ${property.bedrooms ? `${property.bedrooms} Bed` : ''} ${property.house_type || 'Property'} in ${property.location || 'North Cyprus'}.`,
         openGraph: {
-          title: property.title,
-          description: property.description,
-          images: property.photos && property.photos.length > 0 ? [property.photos[0].url] : [],
+          title: String(property.title),
+          description: property.description ? String(property.description) : undefined,
+          images: Array.isArray(property.photos) && property.photos.length > 0 ? [(property.photos[0] as { url: string }).url] : [],
           type: 'article',
         }
       };
@@ -42,10 +40,7 @@ export default async function PropertyLayout({
   let property = null;
 
   try {
-    const response = await fetch(`${API_BASE_URL}/properties/${id}`);
-    if (response.ok) {
-      property = await response.json();
-    }
+    property = await getPropertyPublic(id);
   } catch (e) {
     console.error('Failed to fetch property for schema', e);
   }

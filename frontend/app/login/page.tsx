@@ -8,7 +8,7 @@ import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/lib/store/useAuthStore';
 import { useLanguageStore } from '@/lib/store/useLanguageStore';
 import styles from '../signup/SignupPage.module.css';
-import { login as apiLogin, supabaseLogin as apiSupabaseLogin, getUser, forgotPassword, resetPassword } from '@/lib/api';
+import { login as apiLogin, getUser, forgotPassword, resetPassword } from '@/lib/api';
 import { useSearchParams } from 'next/navigation';
 import { getSupabase } from '@/lib/supabaseClient';
 
@@ -35,23 +35,16 @@ function LoginContent() {
   const [success, setSuccess] = useState(false);
 
   // Forgot password state
-  const [showForgot, setShowForgot] = useState(false);
-  const [forgotEmail, setForgotEmail] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [resetMessage, setResetMessage] = useState('');
-  const [resetError, setResetError] = useState('');
-  const [isResetting, setIsResetting] = useState(false);
   const searchParams = useSearchParams();
   const resetToken = searchParams.get('reset_token') || '';
   const resetEmail = searchParams.get('email') || '';
   const isPasswordReset = Boolean(resetToken && resetEmail);
-
-  React.useEffect(() => {
-    if (isPasswordReset) {
-      setShowForgot(true);
-      setForgotEmail(resetEmail);
-    }
-  }, [isPasswordReset, resetEmail]);
+  const [showForgot, setShowForgot] = useState(isPasswordReset);
+  const [forgotEmail, setForgotEmail] = useState(isPasswordReset ? resetEmail : '');
+  const [newPassword, setNewPassword] = useState('');
+  const [resetMessage, setResetMessage] = useState('');
+  const [resetError, setResetError] = useState('');
+  const [isResetting, setIsResetting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -92,7 +85,7 @@ function LoginContent() {
     setError('');
     setIsSubmitting(true);
     try {
-      const { getBiometricCredentials, deleteBiometricCredentials } = await import('@/lib/biometrics');
+      const { getBiometricCredentials } = await import('@/lib/biometrics');
       const creds = await getBiometricCredentials();
       if (!creds) {
         setError('Biometric sign-in unavailable. Please sign in with your email and password.');
@@ -248,8 +241,8 @@ function LoginContent() {
                     <p className={styles.subtitle}>{t('auth_reset_sub')}</p>
                   </div>
 
-                  {resetError && <div style={{ color: 'var(--danger)', marginBottom: 'var(--space-4)', fontSize: 'var(--text-base)' }}>{resetError}</div>}
-                  {resetMessage && <div style={{ color: 'var(--success)', marginBottom: 'var(--space-4)', fontSize: 'var(--text-base)' }}>{resetMessage}</div>}
+                  {resetError && <div className={styles.errorText}>{resetError}</div>}
+                  {resetMessage && <div className={styles.successText}>{resetMessage}</div>}
 
                   <form className={styles.form} onSubmit={handleResetPassword}>
                     <div className={styles.inputGroup}>
@@ -295,16 +288,7 @@ function LoginContent() {
                         setResetMessage('');
                         if (isPasswordReset) router.replace('/login');
                       }}
-                      style={{
-                        background: 'transparent',
-                        border: 'none',
-                        color: 'var(--text-secondary)',
-                        marginTop: 'var(--space-4)',
-                        cursor: 'pointer',
-                        width: '100%',
-                        fontSize: 'var(--text-base)',
-                        textAlign: 'center'
-                      }}
+                      className={styles.cancelBtn}
                     >
                       {t('auth_cancel')}
                     </button>
@@ -324,7 +308,7 @@ function LoginContent() {
                     <p className={styles.subtitle}>{t('auth_signin_sub')}</p>
                   </div>
 
-                  {error && <div style={{ color: 'var(--danger)', marginBottom: 'var(--space-4)', fontSize: 'var(--text-base)' }}>{error}</div>}
+                  {error && <div className={styles.errorText}>{error}</div>}
 
                   <form className={styles.form} onSubmit={handleSubmit}>
                     <div className={styles.inputGroup}>
@@ -340,7 +324,7 @@ function LoginContent() {
                     </div>
                     
                     <div className={styles.inputGroup}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div className={styles.labelRow}>
                         <label className={styles.label}>{t('auth_password')}</label>
                         <button
                           type="button"
@@ -348,15 +332,7 @@ function LoginContent() {
                             setForgotEmail(formData.email);
                             setShowForgot(true);
                           }}
-                          style={{
-                            background: 'none',
-                            border: 'none',
-                            color: 'var(--accent)',
-                            fontSize: 'var(--text-sm)',
-                            cursor: 'pointer',
-                            padding: 0,
-                            marginBottom: 'var(--space-2)'
-                          }}
+                          className={styles.forgotBtn}
                         >
                           {t('auth_forgot_password')}
                         </button>
@@ -384,24 +360,18 @@ function LoginContent() {
                     </button>
                   </form>
                   
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', margin: 'var(--space-5) 0' }}>
-                    <span style={{ flex: 1, height: '1px', background: 'var(--border)' }} />
-                    <span style={{ fontSize: 'var(--text-sm)', color: 'var(--text-muted)' }}>or</span>
-                    <span style={{ flex: 1, height: '1px', background: 'var(--border)' }} />
+                  <div className={styles.divider}>
+                    <span className={styles.dividerLine} />
+                    <span className={styles.dividerText}>or</span>
+                    <span className={styles.dividerLine} />
                   </div>
 
-                  <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 'var(--space-5)' }}>
+                  <div className={styles.googleWrapper}>
                     <button
                       type="button"
                       onClick={handleSupabaseGoogle}
                       disabled={isSubmitting}
-                      style={{
-                        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', 
-                        width: '100%', padding: '12px', border: '1px solid var(--border)', 
-                        borderRadius: '8px', background: 'white', color: 'var(--text-main)', 
-                        fontSize: '16px', fontWeight: 500, cursor: 'pointer', transition: 'all 0.2s',
-                        opacity: isSubmitting ? 0.7 : 1
-                      }}
+                      className={`${styles.googleBtn} ${isSubmitting ? styles.googleBtnDisabled : ''}`}
                     >
                       <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
@@ -419,10 +389,10 @@ function LoginContent() {
 
                   {hasBiometrics && (
                     <>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', margin: 'var(--space-5) 0' }}>
-                        <span style={{ flex: 1, height: '1px', background: 'var(--border)' }} />
-                        <span style={{ fontSize: 'var(--text-sm)', color: 'var(--text-muted)' }}>or</span>
-                        <span style={{ flex: 1, height: '1px', background: 'var(--border)' }} />
+                      <div className={styles.divider}>
+                        <span className={styles.dividerLine} />
+                        <span className={styles.dividerText}>or</span>
+                        <span className={styles.dividerLine} />
                       </div>
                       <button
                         type="button"

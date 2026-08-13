@@ -100,7 +100,7 @@ export function RoommateListRow({
             className={styles.btnPrimary}
             onClick={() => openChat({ id: name, name: name, avatarUrl: imageUrl })}
           >
-            <MessageCircle size={15} style={{ marginRight: 5 }} />
+            <MessageCircle size={15} className={styles.messageIcon} />
             {t('rc_message')}
           </button>
         </div>

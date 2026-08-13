@@ -156,3 +156,7 @@
   outline: none;
   border-color: var(--text-primary);
 }
+
+.dash {
+  color: var(--text-secondary);
+}

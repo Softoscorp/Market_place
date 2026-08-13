@@ -5,17 +5,15 @@ import { Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 import { motion } from "framer-motion";
 import { PremiumIcon } from "@/components/ui/PremiumIcon";
+import { useMounted } from "@/lib/hooks/useMounted";
+import styles from "./theme-toggle.module.css";
 
 export function ThemeToggle() {
   const { theme, setTheme } = useTheme();
-  const [mounted, setMounted] = React.useState(false);
-
-  React.useEffect(() => {
-    setMounted(true);
-  }, []);
+  const mounted = useMounted();
 
   if (!mounted) {
-    return <div style={{ width: 36, height: 36 }} />;
+    return <div className={styles.placeholder} />;
   }
 
   return (
@@ -23,19 +21,7 @@ export function ThemeToggle() {
       onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
       whileHover={{ scale: 1.1 }}
       whileTap={{ scale: 0.95 }}
-      style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        width: "36px",
-        height: "36px",
-        borderRadius: "50%",
-        border: "none",
-        background: "transparent",
-        color: "var(--text-primary)",
-        cursor: "pointer",
-        transition: "background 0.2s ease"
-      }}
+      className={styles.toggleButton}
       aria-label="Toggle theme"
     >
       {theme === "dark" 

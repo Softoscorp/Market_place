@@ -107,7 +107,7 @@ export function FilterPanel() {
             value={minPrice}
             onChange={(e) => setMinPrice(e.target.value)}
           />
-          <span style={{ color: 'var(--text-secondary)' }}>-</span>
+          <span className={styles.dash}>-</span>
           <input 
             type="number" 
             placeholder={t('fp_max')} 

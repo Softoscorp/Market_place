@@ -24,7 +24,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #1e3a5f 0%, #0f2747 100%);
+  background: linear-gradient(135deg, var(--brand-navy-light) 0%, var(--brand-navy-ink) 100%);
 }
 
 .thumbImg {
@@ -36,7 +36,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #f2f0ea;
+  color: var(--brand-gold-muted);
 }
 
 .thumbFallback {
@@ -47,7 +47,7 @@
   position: absolute;
   top: 7px;
   left: 7px;
-  color: #fff;
+  color: var(--text-on-brand);
   font-size: 9px;
   font-weight: 800;
   padding: 3px 8px;
@@ -55,11 +55,11 @@
 }
 
 .typeHousemate {
-  background: #b18842;
+  background: var(--brand-gold);
 }
 
 .typeRoommate {
-  background: #12335c;
+  background: var(--brand-navy-soft);
 }
 
 .info {
@@ -84,7 +84,7 @@
   font-family: var(--font-heading);
   font-size: 15px;
   font-weight: 800;
-  color: #08192f;
+  color: var(--brand-navy);
 }
 
 .gender {
@@ -105,7 +105,7 @@
 }
 
 .match {
-  color: #b18842;
+  color: var(--brand-gold);
   font-size: 11px;
   font-weight: 800;
   white-space: nowrap;
@@ -142,20 +142,20 @@
   font-weight: 600;
   padding: 3px 8px;
   border-radius: 999px;
-  background: #f0efec;
+  background: var(--brand-cream);
   color: var(--text-secondary);
   white-space: nowrap;
 }
 
 .tagGold {
   background: rgba(177, 136, 66, 0.14);
-  color: #8a6a2f;
+  color: var(--brand-gold-dark);
 }
 
 .budget {
   font-size: 14px;
   font-weight: 800;
-  color: #08192f;
+  color: var(--brand-navy);
   white-space: nowrap;
 }
 
@@ -167,8 +167,8 @@
 
 .btnPrimary {
   flex: 1;
-  background: #08192f;
-  color: #fff;
+  background: var(--brand-navy);
+  color: var(--text-on-brand);
   border: none;
   border-radius: 999px;
   padding: 9px 0;
@@ -182,7 +182,7 @@
 }
 
 .btnPrimary:hover {
-  background: #b18842;
+  background: var(--brand-gold);
 }
 
 .btnSecondary {
@@ -190,7 +190,7 @@
   background: transparent;
   border: 1px solid var(--border);
   border-radius: 999px;
-  color: #08192f;
+  color: var(--brand-navy);
   cursor: pointer;
   font-size: 14px;
   display: flex;
@@ -200,6 +200,10 @@
 }
 
 .btnSecondary:hover {
-  background: #f0efec;
+  background: var(--brand-cream);
   border-color: var(--border-hover);
+}
+
+.messageIcon {
+  margin-right: 5px;
 }

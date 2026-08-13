@@ -71,3 +71,8 @@
   height: 100%;
   object-fit: cover;
 }
+
+.gallerySwiper {
+  --swiper-navigation-color: var(--accent);
+  --swiper-pagination-color: var(--accent);
+}

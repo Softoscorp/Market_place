@@ -19,7 +19,7 @@ import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/lib/store/useAuthStore';
 import { useChatStore } from '@/lib/store/useChatStore';
 import { useLanguageStore } from '@/lib/store/useLanguageStore';
-import { apiRequest, mediaUrl } from '@/lib/api';
+import { apiRequest, mediaUrl, deactivateAccount } from '@/lib/api';
 import { BrandedAvatar } from '@/components/ui/BrandedAvatar';
 import { VerifiedBadge } from '@/components/ui/VerifiedBadge';
 import { AgentVerification } from '@/components/AgentVerification';
@@ -115,7 +115,7 @@ export default function AgentDashboard() {
                 {conversationList.length > 0 ? (
                   conversationList.map((conv) => (
                     <div key={conv.contact.id} className={styles.activityItem}>
-                      <div className={styles.activityDot} style={{ background: 'var(--success)' }}></div>
+                      <div className={`${styles.activityDot} ${styles.activityDotSuccess}`}></div>
                       <div className={styles.activityText}>
                         <strong>{conv.contact.name}</strong> {t('ad_activity_msg')}
                       </div>
@@ -124,7 +124,7 @@ export default function AgentDashboard() {
                   ))
                 ) : (
                   <div className={styles.activityItem}>
-                    <div className={styles.activityDot} style={{ background: 'var(--text-muted)' }}></div>
+                    <div className={`${styles.activityDot} ${styles.activityDotMuted}`}></div>
                     <div className={styles.activityText}>{t('ad_no_activity')}</div>
                   </div>
                 )}
@@ -148,22 +148,15 @@ export default function AgentDashboard() {
             </div>
 
             {loadingListings ? (
-              <p style={{ padding: 'var(--space-8)', color: 'var(--text-secondary)' }}>{t('ad_loading_listings')}</p>
+              <p className={styles.loadingText}>{t('ad_loading_listings')}</p>
             ) : agentListings.length === 0 ? (
-              <div style={{
-                textAlign: 'center',
-                padding: 'var(--space-12)',
-                background: 'var(--bg-surface)',
-                borderRadius: 'var(--radius-lg)',
-                border: '1px solid var(--border)',
-                marginTop: 'var(--space-4)'
-              }}>
-                <Building2 size={48} style={{ color: 'var(--text-muted)', marginBottom: 'var(--space-4)' }} />
-                <h4 style={{ margin: '0 0 var(--space-2) 0', color: 'var(--text-primary)' }}>{t('ad_no_listings')}</h4>
-                <p style={{ color: 'var(--text-secondary)', marginBottom: 'var(--space-6)', fontSize: 'var(--text-base)' }}>
+              <div className={styles.emptyStateCard}>
+                <Building2 size={48} className={styles.emptyStateIcon} />
+                <h4 className={styles.emptyStateTitle}>{t('ad_no_listings')}</h4>
+                <p className={styles.emptyStateText}>
                   {t('ad_no_listings_sub')}
                 </p>
-                <Link href="/post-listing" className={styles.btnPrimary} style={{ display: 'inline-flex' }}>
+                <Link href="/post-listing" className={`${styles.btnPrimary} ${styles.inlineBtn}`}>
                   <Plus size={16} /> {t('ad_create_first')}
                 </Link>
               </div>
@@ -191,7 +184,7 @@ export default function AgentDashboard() {
                           </span>
                         </td>
                         <td>
-                          <Link href={`/property/${listing.id}`} style={{ color: 'var(--accent)', fontSize: 'var(--text-sm)', fontWeight: 500 }}>
+                          <Link href={`/property/${listing.id}`} className={styles.viewListingLink}>
                             {t('ad_view_listing')}
                           </Link>
                         </td>
@@ -213,17 +206,10 @@ export default function AgentDashboard() {
           >
             <h3 className={styles.sectionTitle}>{t('ad_crm')}</h3>
             {conversationList.length === 0 ? (
-              <div style={{
-                textAlign: 'center',
-                padding: 'var(--space-12)',
-                background: 'var(--bg-surface)',
-                borderRadius: 'var(--radius-lg)',
-                border: '1px solid var(--border)',
-                marginTop: 'var(--space-4)'
-              }}>
-                <Users size={48} style={{ color: 'var(--text-muted)', marginBottom: 'var(--space-4)' }} />
-                <h4 style={{ margin: '0 0 var(--space-2) 0', color: 'var(--text-primary)' }}>{t('ad_no_leads')}</h4>
-                <p style={{ color: 'var(--text-secondary)', fontSize: 'var(--text-base)' }}>
+              <div className={styles.emptyStateCard}>
+                <Users size={48} className={styles.emptyStateIcon} />
+                <h4 className={styles.emptyStateTitle}>{t('ad_no_leads')}</h4>
+                <p className={styles.emptyStateSubtext}>
                   {t('ad_no_leads_sub')}
                 </p>
               </div>
@@ -232,12 +218,12 @@ export default function AgentDashboard() {
                 {conversationList.map((conv) => (
                   <div key={conv.contact.id} className={styles.crmCard}>
                     <div className={styles.crmCardHeader}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
+                      <div className={styles.crmClientRow}>
                         <BrandedAvatar 
                           src={conv.contact.avatarUrl ? mediaUrl(conv.contact.avatarUrl) : null}
                           name={conv.contact.name || t('common_user')} 
                           size={40}
-                          style={{ borderRadius: '50%' }}
+                          className={styles.avatarRound}
                         />
                         <span className={styles.clientName}>{conv.contact.name}</span>
                       </div>
@@ -274,7 +260,7 @@ export default function AgentDashboard() {
                   <label>{t('ad_email_address')}</label>
                   <input type="email" defaultValue={user?.email || ''} className={styles.input} disabled />
                 </div>
-                <button className={styles.btnPrimary} style={{marginTop: 'var(--space-4)'}}>{t('ad_save_changes')}</button>
+                <button className={`${styles.btnPrimary} ${styles.saveBtnMargin}`}>{t('ad_save_changes')}</button>
               </div>
 
               <div className={styles.settingsCard}>
@@ -293,48 +279,24 @@ export default function AgentDashboard() {
                 </div>
               </div>
 
-              <div className={styles.settingsCard} style={{ border: '1px solid var(--danger)' }}>
-                <h3 style={{ color: 'var(--danger)' }}>{t('danger_zone')}</h3>
-                <p style={{ color: 'var(--text-primary)', fontSize: 'var(--text-sm)', marginBottom: 'var(--space-4)', lineHeight: 1.5 }}>
+              <div className={`${styles.settingsCard} ${styles.dangerCard}`}>
+                <h3 className={styles.dangerTitle}>{t('danger_zone')}</h3>
+                <p className={styles.dangerDesc}>
                   {t('deactivate_desc')}
                 </p>
                 <button 
                   onClick={async () => {
                     if (window.confirm(t('deactivate_confirm'))) {
                       try {
-                        const { getToken } = await import('@/lib/api');
-                        const token = getToken() || user?.token;
-                        if (!token) return;
-                        await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/users/me/deactivate`, {
-                          method: 'POST',
-                          headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${token}`
-                          },
-                          body: JSON.stringify({ reason: "Agent self-deactivated" })
-                        });
+                        await deactivateAccount("Agent self-deactivated");
                         alert(t('deactivate_success'));
                         logout();
-                      } catch (e) {
+                      } catch {
                         alert(t('deactivate_error'));
                       }
                     }
                   }}
-                  style={{
-                    backgroundColor: 'var(--danger)',
-                    color: 'var(--text-inverse)',
-                    padding: 'var(--space-3) var(--space-6)',
-                    borderRadius: 'var(--radius-sm)',
-                    border: 'none',
-                    fontWeight: 600,
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 'var(--space-2)',
-                    transition: 'background-color var(--duration-fast)'
-                  }}
-                  onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'var(--danger-text)'}
-                  onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'var(--danger)'}
+                  className={styles.dangerButton}
                 >
                   <ShieldAlert size={18} />
                   {t('deactivate_btn')}
@@ -397,14 +359,13 @@ export default function AgentDashboard() {
             <ShieldAlert size={18} /> {t('common_verification')}
           </button>
           
-          <div style={{ marginTop: 'auto', paddingTop: 'var(--space-8)' }}>
+          <div className={styles.navFooter}>
             <button 
-              className={styles.navItem}
+              className={`${styles.navItem} ${styles.signOutBtn}`}
               onClick={() => {
                 logout();
                 window.location.href = '/';
               }}
-              style={{ color: 'var(--danger)' }}
             >
               <LogOut size={18} color="var(--danger)" /> Sign Out
             </button>
@@ -422,13 +383,13 @@ export default function AgentDashboard() {
               {activeTab === 'settings' && t('ad_nav_top_settings')}
               {activeTab === 'verification' && t('ad_nav_top_verification')}
             </h1>
-            <p style={{ margin: 'var(--space-1) 0 0 0', fontSize: 'var(--text-sm)', color: 'var(--text-secondary)' }}>
+            <p className={styles.topbarUser}>
               {user?.name || user?.email}
             </p>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', fontSize: 'var(--text-sm)', fontWeight: 500, color: isOnline(user?.last_seen_at) ? 'var(--success)' : 'var(--text-secondary)' }}>
-              <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: isOnline(user?.last_seen_at) ? 'var(--success)' : 'var(--text-secondary)' }} />
+          <div className={styles.topbarRight}>
+            <div className={`${styles.onlineStatus} ${isOnline(user?.last_seen_at) ? styles.statusOnline : styles.statusOffline}`}>
+              <div className={isOnline(user?.last_seen_at) ? styles.statusDotOnline : styles.statusDotOffline} />
               {(() => { const ls = lastSeenText(user?.last_seen_at); return t(ls.key, ls.params); })()}
             </div>
             

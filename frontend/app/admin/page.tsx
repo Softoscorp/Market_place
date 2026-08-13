@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/lib/store/useAuthStore';
+import { useLanguageStore } from '@/lib/store/useLanguageStore';
 import { PremiumIcon } from '@/components/ui/PremiumIcon';
 import styles from '../agent-dashboard/Dashboard.module.css';
 import { apiRequest, getAdminUsers, updateUserRole, getAdminConversations, getAdminConversationMessages, getAdminVerifications, approveVerification, rejectVerification } from '@/lib/api';
@@ -104,6 +105,7 @@ const EMAIL_TEMPLATES: Record<string, { subject: string; content: string }> = {
 export default function AdminDashboard() {
   const router = useRouter();
   const { user, isAuthenticated, logout } = useAuthStore();
+  const { t } = useLanguageStore();
   const [activeTabState, setActiveTabState] = useState('overview');
   const activeTab = user?.role === 'customer_care' ? 'chats' : activeTabState;
   const setActiveTab = setActiveTabState;
@@ -156,10 +158,10 @@ export default function AdminDashboard() {
     try {
       await apiRequest(`/admin/kyc/${id}/approve`, { method: 'POST', auth: true });
       setKycDocs(docs => docs.map(d => d.id === id ? { ...d, status: 'approved' } : d));
-      alert('KYC Approved');
+      alert(t('ad_kyc_approved'));
     } catch (error) {
       console.error(error);
-      alert('Failed to approve KYC');
+      alert(t('ad_kyc_approve_failed'));
     }
   };
 
@@ -167,10 +169,10 @@ export default function AdminDashboard() {
     try {
       await apiRequest(`/admin/kyc/${id}/reject`, { method: 'POST', auth: true });
       setKycDocs(docs => docs.map(d => d.id === id ? { ...d, status: 'rejected' } : d));
-      alert('KYC Rejected');
+      alert(t('ad_kyc_rejected'));
     } catch (error) {
       console.error(error);
-      alert('Failed to reject KYC');
+      alert(t('ad_kyc_reject_failed'));
     }
   };
 
@@ -178,10 +180,10 @@ export default function AdminDashboard() {
     try {
       await updateUserRole(userId, newRole);
       setAdminUsers(users => users.map(u => u.id === userId ? { ...u, role: newRole } : u));
-      alert('Role updated successfully');
+      alert(t('ad_role_updated'));
     } catch (error) {
       console.error(error);
-      alert('Failed to update role');
+      alert(t('ad_role_update_failed'));
     }
   };
 
@@ -195,7 +197,7 @@ export default function AdminDashboard() {
       setAdminUsers(users => users.map(u => u.id === userId ? { ...u, is_verified: !currentValue } : u));
     } catch (error) {
       console.error(error);
-      alert('Failed to update verification status');
+      alert(t('ad_verify_status_failed'));
     }
   };
 
@@ -213,14 +215,14 @@ export default function AdminDashboard() {
           template_key: emailTemplateKey || null,
         }),
       });
-      alert('Email sent successfully!');
+      alert(t('ad_email_sent'));
       setEmailModal(null);
       setEmailSubject('');
       setEmailBody('');
       setEmailTemplateKey('');
     } catch (error) {
       console.error(error);
-      alert('Failed to send email. Make sure RESEND_API_KEY is configured.');
+      alert(t('ad_email_send_failed'));
     } finally {
       setEmailSending(false);
     }
@@ -251,7 +253,7 @@ export default function AdminDashboard() {
       setReplyText('');
     } catch (error) {
       console.error(error);
-      alert('Failed to send reply.');
+      alert(t('ad_reply_failed'));
     } finally {
       setReplySending(false);
     }
@@ -264,7 +266,7 @@ export default function AdminDashboard() {
       setChatMessages(msgs || []);
     } catch (error) {
       console.error(error);
-      alert("Failed to load messages");
+      alert(t('ad_load_messages_failed'));
     }
   };
 
@@ -277,11 +279,11 @@ export default function AdminDashboard() {
       case 'overview':
         return (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className={styles.overviewTab}>
-            <h3 className={styles.sectionTitle}>System Overview</h3>
+            <h3 className={styles.sectionTitle}>{t('ad_system_overview')}</h3>
             <div className={styles.metricsGrid}>
               <div className={styles.metricCard}>
                 <div className={styles.metricHeader}>
-                  <span className={styles.metricLabel}>Pending KYC</span>
+                  <span className={styles.metricLabel}>{t('ad_pending_kyc')}</span>
                   <FileText size={18} className={styles.metricIcon} />
                 </div>
                 <div className={styles.metricValue}>{kycDocs.filter(d => d.status === 'pending').length}</div>
@@ -293,22 +295,22 @@ export default function AdminDashboard() {
         return (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className={styles.listingsTab}>
             <div className={styles.tabHeader}>
-              <h3 className={styles.sectionTitle}>KYC Management</h3>
+              <h3 className={styles.sectionTitle}>{t('ad_kyc_management')}</h3>
             </div>
             <div className={styles.tableContainer}>
               <table className={styles.table}>
                 <thead>
                   <tr>
-                    <th>Agent</th>
-                    <th>Document Type</th>
-                    <th>Status</th>
-                    <th>Actions</th>
+                    <th>{t('ad_col_agent')}</th>
+                    <th>{t('ad_doc_type')}</th>
+                    <th>{t('ad_col_status')}</th>
+                    <th>{t('ad_col_actions')}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {kycDocs.map(doc => (
                     <tr key={doc.id}>
-                      <td className={styles.fw500}>{doc.agent?.name || `Agent #${doc.agent_id}`}</td>
+                      <td className={styles.fw500}>{doc.agent?.name || `${t('ad_agent_hash')}${doc.agent_id}`}</td>
                       <td>{doc.document_type}</td>
                       <td>
                         <span className={`${styles.statusBadge} ${doc.status === 'approved' ? styles.active : doc.status === 'rejected' ? styles.paused : ''}`}>
@@ -318,8 +320,8 @@ export default function AdminDashboard() {
                       <td>
                         {doc.status === 'pending' && (
                           <div className={styles.actionButtons}>
-                            <button className={styles.iconBtn} onClick={() => handleApproveKYC(doc.id)} title="Approve" aria-label="Approve"><CheckCircle size={16} color="var(--success)" /></button>
-                            <button className={styles.iconBtn} onClick={() => handleRejectKYC(doc.id)} title="Reject" aria-label="Reject"><XCircle size={16} color="var(--danger)" /></button>
+                            <button className={styles.iconBtn} onClick={() => handleApproveKYC(doc.id)} title={t('ad_approve')} aria-label={t('ad_approve')}><CheckCircle size={16} color="var(--success)" /></button>
+                            <button className={styles.iconBtn} onClick={() => handleRejectKYC(doc.id)} title={t('ad_reject')} aria-label={t('ad_reject')}><XCircle size={16} color="var(--danger)" /></button>
                           </div>
                         )}
                       </td>
@@ -334,16 +336,16 @@ export default function AdminDashboard() {
         return (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className={styles.listingsTab}>
             <div className={styles.tabHeader}>
-              <h3 className={styles.sectionTitle}>Agent Verification Applications</h3>
+              <h3 className={styles.sectionTitle}>{t('ad_verification_applications')}</h3>
             </div>
             <div className={styles.tableContainer}>
               <table className={styles.table}>
                 <thead>
                   <tr>
-                    <th>Agent ID</th>
-                    <th>Requested Tier</th>
-                    <th>Status</th>
-                    <th>Actions</th>
+                    <th>{t('ad_agent_id')}</th>
+                    <th>{t('ad_requested_tier')}</th>
+                    <th>{t('ad_col_status')}</th>
+                    <th>{t('ad_col_actions')}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -351,10 +353,7 @@ export default function AdminDashboard() {
                     <tr key={app.id}>
                       <td className={styles.fw500}>#{app.agent_id}</td>
                       <td>
-                        <span className={styles.statusBadge} style={{ 
-                          background: app.tier === 'international' ? 'var(--warning-muted)' : 'var(--bg-hover)',
-                          color: app.tier === 'international' ? 'var(--warning-text)' : 'var(--text-secondary)'
-                        }}>
+                        <span className={`${styles.statusBadge} ${app.tier === 'international' ? styles.tierInternational : styles.tierStandard}`}>
                           {app.tier}
                         </span>
                       </td>
@@ -364,7 +363,7 @@ export default function AdminDashboard() {
                         </span>
                       </td>
                       <td>
-                        <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
+                        <div className={styles.actionRow}>
                           {app.status === 'pending' && (
                             <>
                               <button 
@@ -373,33 +372,33 @@ export default function AdminDashboard() {
                                   try {
                                     await approveVerification(app.id);
                                     setVerifications(apps => apps.map(a => a.id === app.id ? { ...a, status: 'approved' } : a));
-                                    alert('Approved verification');
+                                    alert(t('ad_verification_approved'));
                                   } catch (e) {
                                     console.error(e);
-                                    alert('Failed to approve');
+                                    alert(t('ad_approve_failed'));
                                   }
                                 }}
-                                title="Approve"
-                                aria-label="Approve verification"
+                                title={t('ad_approve')}
+                                aria-label={t('ad_approve_verification')}
                               >
                                 <CheckCircle size={16} color="var(--success)" />
                               </button>
                               <button 
                                 className={styles.actionBtn} 
                                 onClick={async () => {
-                                  const reason = prompt('Rejection reason:');
+                                  const reason = prompt(t('ad_rejection_reason'));
                                   if (reason === null) return;
                                   try {
                                     await rejectVerification(app.id, reason);
                                     setVerifications(apps => apps.map(a => a.id === app.id ? { ...a, status: 'rejected' } : a));
-                                    alert('Rejected verification');
+                                    alert(t('ad_verification_rejected'));
                                   } catch (e) {
                                     console.error(e);
-                                    alert('Failed to reject');
+                                    alert(t('ad_reject_failed'));
                                   }
                                 }}
-title="Reject"
-                                    aria-label="Reject verification"
+title={t('ad_reject')}
+                                    aria-label={t('ad_reject_verification')}
                                   >
                                     <XCircle size={16} color="var(--danger)" />
                                   </button>
@@ -408,12 +407,12 @@ title="Reject"
                           {app.proof_urls.map((url, idx) => {
                             const safe = typeof url === 'string' && /^https?:\/\//i.test(url);
                             return safe ? (
-                              <a key={idx} href={url} target="_blank" rel="noreferrer" style={{ fontSize: 'var(--text-xs)', color: 'var(--accent)', textDecoration: 'underline' }}>
-                                Proof {idx + 1}
+                              <a key={idx} href={url} target="_blank" rel="noreferrer" className={styles.proofLink}>
+                                {t('ad_proof', { n: String(idx + 1) })}
                               </a>
                             ) : (
-                              <span key={idx} style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)' }}>
-                                Proof {idx + 1} (invalid)
+                              <span key={idx} className={styles.proofInvalid}>
+                                {t('ad_proof_invalid', { n: String(idx + 1) })}
                               </span>
                             );
                           })}
@@ -430,17 +429,17 @@ title="Reject"
         return (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className={styles.listingsTab}>
             <div className={styles.tabHeader}>
-              <h3 className={styles.sectionTitle}>User Management</h3>
+              <h3 className={styles.sectionTitle}>{t('ad_user_management')}</h3>
             </div>
             <div className={styles.tableContainer}>
               <table className={styles.table}>
                 <thead>
                   <tr>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Status</th>
-                    <th>Current Role</th>
-                    <th>Actions</th>
+                    <th>{t('ad_col_name')}</th>
+                    <th>{t('ad_col_email')}</th>
+                    <th>{t('ad_col_status')}</th>
+                    <th>{t('ad_col_current_role')}</th>
+                    <th>{t('ad_col_actions')}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -452,11 +451,11 @@ title="Reject"
                         {(() => {
                           const online = u.last_seen_at ? (Date.now() - new Date(u.last_seen_at.endsWith('Z') ? u.last_seen_at : u.last_seen_at + 'Z').getTime()) < 5 * 60 * 1000 : false;
                           const diffMin = u.last_seen_at ? Math.floor((Date.now() - new Date(u.last_seen_at.endsWith('Z') ? u.last_seen_at : u.last_seen_at + 'Z').getTime()) / 60000) : null;
-                          const label = online ? 'Online now' : diffMin === null ? 'Never' : diffMin < 60 ? `${diffMin}m ago` : `${Math.floor(diffMin/60)}h ago`;
+                          const label = online ? t('ad_online_now') : diffMin === null ? t('ad_never') : diffMin < 60 ? t('ad_min_ago', { count: String(diffMin) }) : t('ad_hour_ago', { count: String(Math.floor(diffMin / 60)) });
                           return (
-                            <span style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
-                              <span style={{ width: 'var(--space-2)', height: 'var(--space-2)', borderRadius: '50%', background: online ? 'var(--success)' : 'var(--text-muted)', display: 'inline-block', boxShadow: online ? '0 0 4px var(--success)' : 'none' }} />
-                              <span style={{ fontSize: 'var(--text-sm)', color: online ? 'var(--success)' : 'var(--text-muted)' }}>{label}</span>
+                            <span className={styles.onlineStatusRow}>
+                              <span className={online ? styles.onlineDot : styles.offlineDot} />
+                              <span className={online ? styles.onlineLabel : styles.offlineLabel}>{label}</span>
                             </span>
                           );
                         })()}
@@ -468,25 +467,23 @@ title="Reject"
                       </td>
                       <td>
                         <select 
-                          className={styles.input} 
-                          style={{ padding: 'var(--space-1)', width: 'auto' }}
+                          className={`${styles.input} ${styles.roleSelect}`}
                           value={u.role}
                           onChange={(e) => handleRoleChange(u.id, e.target.value)}
                         >
-                          <option value="renter">Renter</option>
-                          <option value="agent">Agent</option>
-                          <option value="customer_care">Customer Care</option>
+                          <option value="renter">{t('ad_role_renter')}</option>
+                          <option value="agent">{t('ad_role_agent')}</option>
+                          <option value="customer_care">{t('ad_role_customer_care')}</option>
                         </select>
                         
                         <select 
-                          className={styles.input} 
-                          style={{ padding: 'var(--space-1)', width: 'auto', marginLeft: 'var(--space-2)' }}
+                          className={`${styles.input} ${styles.statusSelect}`}
                           value={u.account_status || 'active'}
                           onChange={async (e) => {
                             const newStatus = e.target.value;
                             let reason = "";
                             if (newStatus !== 'active') {
-                              const input = prompt(`Reason for changing status to ${newStatus}:`);
+                              const input = prompt(t('ad_status_change_reason', { status: newStatus }));
                               if (input === null) return;
                               reason = input;
                             }
@@ -498,22 +495,21 @@ title="Reject"
                                 body: JSON.stringify({ status: newStatus, status_reason: reason })
                               });
                               setAdminUsers(users => users.map(user => user.id === u.id ? { ...user, account_status: newStatus } : user));
-                              alert('Account status updated');
-                            } catch (err) {
-                              alert('Failed to update account status');
+                              alert(t('ad_account_status_updated'));
+                            } catch {
+                              alert(t('ad_account_status_failed'));
                             }
                           }}
                         >
-                          <option value="active">Active</option>
-                          <option value="suspended">Suspended</option>
-                          <option value="banned">Banned</option>
+                          <option value="active">{t('ad_active')}</option>
+                          <option value="suspended">{t('ad_suspended')}</option>
+                          <option value="banned">{t('ad_banned')}</option>
                         </select>
                         
                         <button
-                          className={styles.iconBtn}
-                          style={{ marginLeft: 'var(--space-2)' }}
-                          title={u.is_verified ? 'Revoke Verification' : 'Verify User'}
-                          aria-label={u.is_verified ? 'Revoke verification' : 'Verify user'}
+                          className={`${styles.iconBtn} ${styles.verifyBtn}`}
+                          title={u.is_verified ? t('ad_revoke_verification') : t('ad_verify_user')}
+                          aria-label={u.is_verified ? t('ad_revoke_verification_aria') : t('ad_verify_user_aria')}
                           onClick={() => handleVerifyToggle(u.id, u.is_verified)}
                         >
                           <ShieldCheck size={16} color={u.is_verified ? 'var(--success)' : 'var(--text-muted)'} />
@@ -529,54 +525,44 @@ title="Reject"
       case 'chats':
         return (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className={styles.crmTab}>
-            <h3 className={styles.sectionTitle}>Support Chats</h3>
-            <p>Customer Care agents can view and respond to platform conversations.</p>
+            <h3 className={styles.sectionTitle}>{t('ad_support_chats')}</h3>
+            <p>{t('ad_chats_sub')}</p>
             
             {selectedConversation ? (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)', border: '1px solid var(--border)', borderRadius: 'var(--radius-md)', padding: 'var(--space-6)', background: 'var(--bg-surface)' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-subtle)', paddingBottom: 'var(--space-4)' }}>
+              <div className={styles.chatDetail}>
+                <div className={styles.chatDetailHeader}>
                   <div>
-                    <h4 style={{ margin: 0 }}>Conversation #{selectedConversation.id}</h4>
-                    <p style={{ margin: 'var(--space-1) 0 0 0', fontSize: 'var(--text-sm)', color: 'var(--text-secondary)' }}>
-                      <strong>Renter:</strong> {selectedConversation.renter.name} &nbsp; | &nbsp; 
-                      <strong>Agent:</strong> {selectedConversation.agent.name}
+                    <h4 className={styles.chatDetailTitle}>{t('ad_conversation_id', { id: String(selectedConversation.id) })}</h4>
+                    <p className={styles.chatDetailMeta}>
+                      <strong>{t('ad_renter_colon')}</strong> {selectedConversation.renter.name} &nbsp; | &nbsp; 
+                      <strong>{t('ad_agent_colon')}</strong> {selectedConversation.agent.name}
                     </p>
                   </div>
-                  <div style={{ display: 'flex', gap: 'var(--space-3)' }}>
+                  <div className={styles.chatDetailActions}>
                     <button
-                      className={styles.btnSecondary}
-                      style={{ padding: 'var(--space-2) var(--space-4)' }}
+                      className={`${styles.btnSecondary} ${styles.btnSecondaryCompact}`}
                       onClick={() => setEmailModal({ email: selectedConversation.renter.email, name: selectedConversation.renter.name })}
                     >
-                      <Mail size={14} style={{ marginRight: 'var(--space-2)' }} /> Email Renter
+                      <Mail size={14} className={styles.btnIconMargin} /> {t('ad_email_renter')}
                     </button>
-                    <button onClick={() => setSelectedConversation(null)} className={styles.btnSecondary} style={{ padding: 'var(--space-2) var(--space-4)' }}>
-                      Back to List
+                    <button onClick={() => setSelectedConversation(null)} className={`${styles.btnSecondary} ${styles.btnSecondaryCompact}`}>
+                      {t('ad_back_to_list')}
                     </button>
                   </div>
                 </div>
                 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)', maxHeight: '400px', overflowY: 'auto', padding: 'var(--space-4)', background: 'var(--bg-hover)', borderRadius: 'var(--radius-sm)' }}>
-                  {chatMessages.length === 0 && <p style={{ textAlign: 'center', color: 'var(--text-secondary)' }}>No messages yet.</p>}
+                <div className={styles.chatMessages}>
+                  {chatMessages.length === 0 && <p className={styles.chatEmpty}>{t('ad_no_messages')}</p>}
                   {chatMessages.map(msg => {
                     const isRenter = msg.sender_id === selectedConversation.renter_id;
                     const isAgent = msg.sender_id === selectedConversation.agent_id;
-                    const senderName = isRenter ? selectedConversation.renter.name : isAgent ? selectedConversation.agent.name : 'Support';
+                    const senderName = isRenter ? selectedConversation.renter.name : isAgent ? selectedConversation.agent.name : t('ad_support');
                     const isSupport = !isRenter && !isAgent;
                     return (
-                      <div key={msg.id} style={{
-                        alignSelf: isRenter ? 'flex-start' : 'flex-end',
-                        background: isRenter ? 'var(--bg-surface)' : 'var(--text-primary)',
-                        color: isRenter ? 'var(--text-primary)' : 'var(--text-inverse)',
-                        padding: 'var(--space-3) var(--space-4)',
-                        borderRadius: 'var(--radius-md)',
-                        maxWidth: '70%',
-                        border: isRenter ? '1px solid var(--border-subtle)' : 'none',
-                        boxShadow: 'var(--shadow-sm)'
-                      }}>
-                        <div style={{ fontSize: 'var(--text-xs)', opacity: 0.8, marginBottom: 'var(--space-1)' }}>{senderName}{isSupport ? ' (you)' : ''}</div>
+                      <div key={msg.id} className={`${styles.chatBubble} ${isRenter ? styles.chatBubbleRenter : styles.chatBubbleOther}`}>
+                        <div className={styles.chatSenderName}>{senderName}{isSupport ? t('ad_you_suffix') : ''}</div>
                         <div>{msg.text}</div>
-                        <div style={{ fontSize: 'var(--text-xs)', opacity: 0.6, marginTop: 'var(--space-1)', textAlign: 'right' }}>
+                        <div className={styles.chatTime}>
                           {new Date(msg.created_at).toLocaleTimeString()}
                         </div>
                       </div>
@@ -584,40 +570,37 @@ title="Reject"
                   })}
                 </div>
 
-                <div style={{ display: 'flex', gap: 'var(--space-3)', marginTop: 'var(--space-3)' }}>
+                <div className={styles.chatReplyRow}>
                   <textarea
-                    className={styles.input}
+                    className={`${styles.input} ${styles.replyInput}`}
                     rows={3}
-                    placeholder="Type your reply as support..."
+                    placeholder={t('ad_reply_placeholder')}
                     value={replyText}
                     onChange={e => setReplyText(e.target.value)}
-                    style={{ resize: 'vertical', flex: 1 }}
                   />
                   <button
-                    className={styles.btnPrimary}
+                    className={`${styles.btnPrimary} ${styles.replyButton}`}
                     onClick={handleSendReply}
                     disabled={replySending || !replyText.trim()}
-                    style={{ alignSelf: 'flex-end', whiteSpace: 'nowrap' }}
                   >
-                    {replySending ? 'Sending...' : 'Send Reply'}
+                    {replySending ? t('ad_sending') : t('ad_send_reply')}
                   </button>
                 </div>
               </div>
             ) : (
               <div className={styles.crmGrid}>
-                {conversations.length === 0 && <p>No active conversations found.</p>}
+                {conversations.length === 0 && <p>{t('ad_no_active_conversations')}</p>}
                 {conversations.map(conv => (
                   <div key={conv.id} className={styles.crmCard}>
                     <div className={styles.crmHeader}>
                       <h4>{conv.renter.name} & {conv.agent.name}</h4>
                     </div>
-                    <p style={{ fontSize: 'var(--text-sm)', color: 'var(--text-secondary)' }}>Last message: {new Date(conv.last_message_at).toLocaleString()}</p>
+                    <p className={styles.crmMeta}>{t('ad_last_message', { date: new Date(conv.last_message_at).toLocaleString() })}</p>
                     <button 
-                      className={styles.btnSecondary} 
-                      style={{ width: '100%', marginTop: 'var(--space-4)' }}
+                      className={`${styles.btnSecondary} ${styles.openChatBtn}`}
                       onClick={() => handleOpenChat(conv)}
                     >
-                      <MessageSquare size={14} /> Open Support Chat
+                      <MessageSquare size={14} /> {t('ad_open_support_chat')}
                     </button>
                   </div>
                 ))}
@@ -629,27 +612,27 @@ title="Reject"
         return (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className={styles.listingsTab}>
             <div className={styles.tabHeader}>
-              <h3 className={styles.sectionTitle}>Email Logs</h3>
+              <h3 className={styles.sectionTitle}>{t('ad_email_logs')}</h3>
             </div>
             <div className={styles.tableContainer}>
               <table className={styles.table}>
                 <thead>
                   <tr>
-                    <th>Sent By</th>
-                    <th>To</th>
-                    <th>Subject</th>
-                    <th>Template</th>
-                    <th>Sent At</th>
+                    <th>{t('ad_col_sent_by')}</th>
+                    <th>{t('ad_col_to')}</th>
+                    <th>{t('ad_col_subject')}</th>
+                    <th>{t('ad_col_template')}</th>
+                    <th>{t('ad_col_sent_at')}</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {emailLogs.length === 0 && <tr><td colSpan={5} style={{ textAlign: 'center', color: 'var(--text-secondary)' }}>No emails sent yet.</td></tr>}
+                  {emailLogs.length === 0 && <tr><td colSpan={5} className={styles.emptyCell}>{t('ad_no_emails')}</td></tr>}
                   {emailLogs.map(log => (
                     <tr key={log.id}>
                       <td className={styles.fw500}>{log.sender.name}</td>
                       <td>{log.recipient_email}</td>
-                      <td style={{ maxWidth: '300px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{log.subject}</td>
-                      <td><span className={styles.statusBadge}>{log.template_key || 'custom'}</span></td>
+                      <td className={styles.truncateCell}>{log.subject}</td>
+                      <td><span className={styles.statusBadge}>{log.template_key || t('ad_custom')}</span></td>
                       <td>{new Date(log.created_at).toLocaleString()}</td>
                     </tr>
                   ))}
@@ -666,32 +649,32 @@ title="Reject"
   const renderReportsTab = () => (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className={styles.listingsTab}>
       <div className={styles.tabHeader}>
-        <h3 className={styles.sectionTitle}>Reports &amp; Complaints</h3>
+        <h3 className={styles.sectionTitle}>{t('ad_reports_complaints')}</h3>
       </div>
       <div className={styles.tableContainer}>
         <table className={styles.table}>
           <thead>
             <tr>
-              <th>Reporter</th>
-              <th>Target</th>
-              <th>Reason</th>
-              <th>Status</th>
-              <th>Actions</th>
+              <th>{t('ad_col_reporter')}</th>
+              <th>{t('ad_col_target')}</th>
+              <th>{t('ad_col_reason')}</th>
+              <th>{t('ad_col_status')}</th>
+              <th>{t('ad_col_actions')}</th>
             </tr>
           </thead>
           <tbody>
-            {reports.length === 0 && <tr><td colSpan={5} style={{ textAlign: 'center', color: 'var(--text-secondary)' }}>No reports found.</td></tr>}
+            {reports.length === 0 && <tr><td colSpan={5} className={styles.emptyCell}>{t('ad_no_reports')}</td></tr>}
             {reports.map(r => (
               <tr key={r.id}>
                 <td className={styles.fw500}>{r.reporter.name}</td>
                 <td>{r.target_type} #{r.target_id}</td>
-                <td style={{ maxWidth: '250px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.reason}</td>
+                <td className={styles.truncateCellReason}>{r.reason}</td>
                 <td><span className={`${styles.statusBadge} ${r.status === 'reviewed' ? styles.active : ''}`}>{r.status}</span></td>
                 <td>
                   <button
                     className={styles.iconBtn}
-                    title={`Email ${r.reporter.name}`}
-                    aria-label={`Email ${r.reporter.name}`}
+                    title={t('ad_email_name', { name: r.reporter.name })}
+                    aria-label={t('ad_email_name', { name: r.reporter.name })}
                     onClick={() => setEmailModal({ email: r.reporter.email, name: r.reporter.name })}
                   >
                     <Mail size={16} />
@@ -709,7 +692,7 @@ title="Reject"
     <div className={styles.container}>
       <div className={styles.sidebar}>
         <div className={styles.sidebarHeader}>
-          <h2>Admin Panel</h2>
+          <h2>{t('ad_panel_title')}</h2>
           <p>{user?.name} ({user?.role})</p>
         </div>
         <nav className={styles.nav}>
@@ -719,37 +702,37 @@ title="Reject"
                 className={`${styles.navItem} ${activeTab === 'overview' ? styles.active : ''}`}
                 onClick={() => setActiveTab('overview')}
               >
-                <PremiumIcon icon={LayoutDashboard} size={14} colorVariant="primary" containerSize={24} /> Overview
+                <PremiumIcon icon={LayoutDashboard} size={14} colorVariant="primary" containerSize={24} /> {t('ad_nav_overview')}
               </button>
               <button 
                 className={`${styles.navItem} ${activeTab === 'kyc' ? styles.active : ''}`}
                 onClick={() => setActiveTab('kyc')}
               >
-                <PremiumIcon icon={FileText} size={14} colorVariant="primary" containerSize={24} /> KYC Verification
+                <PremiumIcon icon={FileText} size={14} colorVariant="primary" containerSize={24} /> {t('ad_kyc_verification')}
               </button>
               <button 
                 className={`${styles.navItem} ${activeTab === 'verifications' ? styles.active : ''}`}
                 onClick={() => { setActiveTab('verifications'); getAdminVerifications().then(data => setVerifications(data || [])).catch(console.error); }}
               >
-                <PremiumIcon icon={Award} size={14} colorVariant="primary" containerSize={24} /> Agent Tiers
+                <PremiumIcon icon={Award} size={14} colorVariant="primary" containerSize={24} /> {t('ad_agent_tiers')}
               </button>
               <button 
                 className={`${styles.navItem} ${activeTab === 'users' ? styles.active : ''}`}
                 onClick={() => setActiveTab('users')}
               >
-                <PremiumIcon icon={Users} size={14} colorVariant="primary" containerSize={24} /> User Management
+                <PremiumIcon icon={Users} size={14} colorVariant="primary" containerSize={24} /> {t('ad_user_management')}
               </button>
               <button 
                 className={`${styles.navItem} ${activeTab === 'reports' ? styles.active : ''}`}
                 onClick={() => { setActiveTab('reports'); apiRequest('/admin/reports', { auth: true }).then(d => setReports(d || [])).catch(console.error); }}
               >
-                <PremiumIcon icon={AlertTriangle} size={14} colorVariant="primary" containerSize={24} /> Reports
+                <PremiumIcon icon={AlertTriangle} size={14} colorVariant="primary" containerSize={24} /> {t('ad_reports')}
               </button>
               <button 
                 className={`${styles.navItem} ${activeTab === 'emailLogs' ? styles.active : ''}`}
                 onClick={() => { setActiveTab('emailLogs'); apiRequest('/admin/email-logs', { auth: true }).then(d => setEmailLogs(d || [])).catch(console.error); }}
               >
-                <PremiumIcon icon={Mail} size={14} colorVariant="primary" containerSize={24} /> Email Logs
+                <PremiumIcon icon={Mail} size={14} colorVariant="primary" containerSize={24} /> {t('ad_email_logs')}
               </button>
             </>
           )}
@@ -757,19 +740,18 @@ title="Reject"
             className={`${styles.navItem} ${activeTab === 'chats' ? styles.active : ''}`}
             onClick={() => setActiveTab('chats')}
           >
-            <PremiumIcon icon={MessageSquare} size={14} colorVariant="primary" containerSize={24} /> Support Chats
+            <PremiumIcon icon={MessageSquare} size={14} colorVariant="primary" containerSize={24} /> {t('ad_support_chats')}
           </button>
           
-          <div style={{ marginTop: 'auto', paddingTop: 'var(--space-8)' }}>
+          <div className={styles.navFooter}>
             <button 
-              className={styles.navItem}
+              className={`${styles.navItem} ${styles.signOutBtn}`}
               onClick={() => {
                 logout();
                 window.location.href = '/';
               }}
-              style={{ color: 'var(--danger)' }}
             >
-              <PremiumIcon icon={LogOut} size={14} colorVariant="danger" containerSize={24} /> Sign Out
+              <PremiumIcon icon={LogOut} size={14} colorVariant="danger" containerSize={24} /> {t('ad_sign_out')}
             </button>
           </div>
         </nav>
@@ -778,10 +760,10 @@ title="Reject"
       <div className={styles.mainContent}>
         <div className={styles.topbar}>
           <h1 className={styles.pageTitle}>
-            {activeTab === 'overview' && 'Dashboard Overview'}
-            {activeTab === 'kyc' && 'KYC Verification'}
-            {activeTab === 'users' && 'User Management'}
-            {activeTab === 'chats' && 'Customer Support'}
+            {activeTab === 'overview' && t('ad_nav_top_overview')}
+            {activeTab === 'kyc' && t('ad_kyc_verification')}
+            {activeTab === 'users' && t('ad_user_management')}
+            {activeTab === 'chats' && t('ad_customer_support')}
           </h1>
         </div>
         
@@ -794,56 +776,49 @@ title="Reject"
 
       {/* Email Modal */}
       {emailModal && (
-        <div style={{
-          position: 'fixed', inset: 0, background: 'var(--scrim)', display: 'flex',
-          alignItems: 'center', justifyContent: 'center', zIndex: 1000
-        }}>
-          <div style={{
-            background: 'var(--bg-surface)', borderRadius: 'var(--radius-lg)', padding: 'var(--space-8)',
-            width: '100%', maxWidth: '480px', boxShadow: 'var(--shadow-xl)'
-          }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-6)' }}>
-              <h3 style={{ margin: 0 }}>Contact {emailModal.name}</h3>
-              <button onClick={() => setEmailModal(null)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
+        <div className={styles.modalOverlay}>
+          <div className={styles.emailModal}>
+            <div className={styles.modalHeader}>
+              <h3 className={styles.modalTitle}>{t('ad_contact_name', { name: emailModal.name })}</h3>
+              <button onClick={() => setEmailModal(null)} className={styles.modalClose}>
                 <X size={20} />
               </button>
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+            <div className={styles.modalBody}>
               <div>
-                <label style={{ fontSize: 'var(--text-sm)', fontWeight: 500, display: 'block', marginBottom: 'var(--space-2)' }}>Template</label>
+                <label className={styles.modalLabel}>{t('ad_col_template')}</label>
                 <select
                   className={styles.input}
                   value={emailTemplateKey}
                   onChange={e => applyEmailTemplate(e.target.value)}
                 >
-                  <option value="">Custom message (no template)</option>
-                  <option value="phone_update">Update your phone number</option>
-                  <option value="account_verify">Account verification</option>
-                  <option value="complaint_response">Complaint response</option>
+                  <option value="">{t('ad_custom_message')}</option>
+                  <option value="phone_update">{t('ad_tpl_phone_update')}</option>
+                  <option value="account_verify">{t('ad_tpl_account_verify')}</option>
+                  <option value="complaint_response">{t('ad_tpl_complaint_response')}</option>
                 </select>
               </div>
               <div>
-                <label style={{ fontSize: 'var(--text-sm)', fontWeight: 500, display: 'block', marginBottom: 'var(--space-2)' }}>To</label>
-                <input className={styles.input} value={emailModal.email} disabled style={{ opacity: 0.7 }} />
+                <label className={styles.modalLabel}>{t('ad_col_to')}</label>
+                <input className={`${styles.input} ${styles.inputDisabledOpacity}`} value={emailModal.email} disabled />
               </div>
               <div>
-                <label style={{ fontSize: 'var(--text-sm)', fontWeight: 500, display: 'block', marginBottom: 'var(--space-2)' }}>Subject</label>
+                <label className={styles.modalLabel}>{t('ad_col_subject')}</label>
                 <input
                   className={styles.input}
-                  placeholder="Re: Your complaint"
+                  placeholder={t('ad_reply_subject_placeholder')}
                   value={emailSubject}
                   onChange={e => setEmailSubject(e.target.value)}
                 />
               </div>
               <div>
-                <label style={{ fontSize: 'var(--text-sm)', fontWeight: 500, display: 'block', marginBottom: 'var(--space-2)' }}>Message</label>
+                <label className={styles.modalLabel}>{t('ad_message')}</label>
                 <textarea
-                  className={styles.input}
+                  className={`${styles.input} ${styles.verticalResize}`}
                   rows={5}
-                  placeholder="Write your response here..."
+                  placeholder={t('ad_response_placeholder')}
                   value={emailBody}
                   onChange={e => setEmailBody(e.target.value)}
-                  style={{ resize: 'vertical' }}
                 />
               </div>
               <button
@@ -851,8 +826,8 @@ title="Reject"
                 onClick={handleSendEmail}
                 disabled={emailSending}
               >
-                <Mail size={16} style={{ marginRight: 'var(--space-2)' }} />
-                {emailSending ? 'Sending...' : 'Send Email'}
+                <Mail size={16} className={styles.btnIconMargin} />
+                {emailSending ? t('ad_sending') : t('ad_send_email')}
               </button>
             </div>
           </div>

@@ -67,7 +67,7 @@ export const DuplicateGroup: React.FC<DuplicateGroupProps> = ({
                     <Badge variant="verified" className={styles.verifiedBadge}>{t('dg_local_verified')}</Badge>
                   )}
                   {offer.verificationTier === 'international' && (
-                    <Badge variant="verified" className={styles.verifiedBadge} style={{ background: 'var(--warning)', color: 'var(--text-inverse)', borderColor: 'var(--warning)' }}>{t('dg_int_verified')}</Badge>
+                    <Badge variant="verified" className={`${styles.verifiedBadge} ${styles.internationalBadge}`}>{t('dg_int_verified')}</Badge>
                   )}
                 </div>
                 <StarRating rating={offer.agentRating} size={12} showText />
@@ -75,7 +75,7 @@ export const DuplicateGroup: React.FC<DuplicateGroupProps> = ({
             </div>
 
             <div className={styles.offerInfo}>
-              <div style={{ textAlign: 'right' }}>
+              <div className={styles.offerRight}>
                 <div className={styles.price}>{formatMoney(offer.price, offer.currency)}{t('per_month')}</div>
                 <div className={styles.moveIn}>
                   {t('prop_move_in')}: {formatMoney(offer.moveInCost, offer.currency)}

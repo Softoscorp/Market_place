@@ -120,7 +120,7 @@
   background: var(--success);
   border-radius: 50%;
   border: 2px solid var(--bg-elevated);
-  box-shadow: 0 0 0 1px #fff, 0 0 6px #22c55e;
+  box-shadow: 0 0 0 1px var(--text-on-brand), 0 0 6px var(--success);
 }
 
 .info {
@@ -174,8 +174,8 @@
 }
 
 .badge {
-  background-color: #111827;
-  color: #fff;
+  background-color: var(--brand-navy-deep);
+  color: var(--text-on-brand);
   font-size: 0.65rem;
   font-weight: 700;
   border-radius: 999px;

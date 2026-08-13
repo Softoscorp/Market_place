@@ -1,6 +1,5 @@
 import React from 'react';
 import { clsx } from 'clsx';
-import { twMerge } from 'tailwind-merge';
 import styles from './Input.module.css';
 import { ChevronDown } from 'lucide-react';
 

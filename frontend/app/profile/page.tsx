@@ -10,7 +10,7 @@ import Link from 'next/link';
 import { BackButton } from '@/components/ui/BackButton';
 
 import { useRouter } from 'next/navigation';
-import { apiRequest, mediaUrl, getToken, getSavedProperties, getAgentProfile } from '@/lib/api';
+import { apiRequest, mediaUrl, getToken, getSavedProperties, getAgentProfile, getMyVerificationStatus, applyForVerification, uploadVerificationProof, uploadAvatar, deactivateAccount } from '@/lib/api';
 import { useLanguageStore } from '@/lib/store/useLanguageStore';
 
 import { ProtectedImage } from '@/components/ui/ProtectedImage';
@@ -21,6 +21,11 @@ function previewText(msg: Message): string {
   if (msg.message_type === 'voice') return '[Voice message]';
   if (msg.message_type === 'listing') return msg.listing ? `[Apartment: ${msg.listing.title}]` : '[Apartment]';
   return msg.text || '';
+}
+
+interface VerificationApplication {
+  tier: 'local' | 'international';
+  status: 'pending' | 'approved' | 'rejected';
 }
 
 export default function ProfilePage() {
@@ -44,7 +49,7 @@ export default function ProfilePage() {
   const [avgRating, setAvgRating] = useState<string>('—');
 
   // Verification states
-  const [verifications, setVerifications] = useState<any[]>([]);
+  const [verifications, setVerifications] = useState<VerificationApplication[]>([]);
   const [uploadingProof, setUploadingProof] = useState<string | null>(null);
   const proofInputRef = useRef<HTMLInputElement>(null);
   const [targetTier, setTargetTier] = useState<string | null>(null);
@@ -52,16 +57,8 @@ export default function ProfilePage() {
   const fetchVerifications = async () => {
     if (user?.role !== 'agent') return;
     try {
-      const token = getToken() || user?.token;
-      if (!token) return;
-      
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/verifications/my-status`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setVerifications(data);
-      }
+      const data = await getMyVerificationStatus();
+      setVerifications(data);
     } catch (e) {
       console.error('Failed to fetch verifications', e);
     }
@@ -73,37 +70,12 @@ export default function ProfilePage() {
 
     setUploadingProof(targetTier);
     try {
-      const formData = new FormData();
-      formData.append('file', file);
-      const token = getToken() || user?.token;
-      
-      // Upload file
-      const uploadRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/verifications/upload-proof`, {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${token}` },
-        body: formData
-      });
-      if (!uploadRes.ok) throw new Error('Upload failed');
-      const { url } = await uploadRes.json();
-
-      // Submit application
-      const applyRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/verifications/apply`, {
-        method: 'POST',
-        headers: { 
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ tier: targetTier, proof_urls: [url] })
-      });
-      if (!applyRes.ok) {
-        const err = await applyRes.json();
-        throw new Error(err.detail || 'Application failed');
-      }
-
+      const { url } = await uploadVerificationProof(file);
+      await applyForVerification(targetTier, [url]);
       await fetchVerifications();
       alert('Application submitted successfully!');
-    } catch (err: any) {
-      alert('Error: ' + err.message);
+    } catch (err: unknown) {
+      alert('Error: ' + (err instanceof Error ? err.message : String(err)));
     } finally {
       setUploadingProof(null);
       setTargetTier(null);
@@ -121,36 +93,22 @@ export default function ProfilePage() {
       const data = new FormData();
       data.append('file', file);
 
-      const token = getToken() || user?.token || '';
-      if (!token) {
-        setUploadMessage({ text: 'Your session has expired. Please log in again.', type: 'error' });
+      if (!getToken()) {
+        setUploadMessage({ text: t('pr_session_expired'), type: 'error' });
         logout();
         return;
       }
 
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/users/me/avatar`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`
-        },
-        body: data
-      });
-
-      if (!res.ok) {
-        const errorDetail = await res.json().catch(() => ({}));
-        throw new Error(errorDetail.detail || 'Avatar upload failed');
-      }
-
-      const updatedUser = await res.json();
+      const updatedUser = await uploadAvatar(file);
       // Use updateUser so we never lose other in-store fields via stale closure
       updateUser({ avatar_url: updatedUser.avatar_url });
-      setUploadMessage({ text: 'Profile picture updated successfully!', type: 'success' });
+      setUploadMessage({ text: t('pr_avatar_updated'), type: 'success' });
       
       // Clear success message after 3 seconds
       setTimeout(() => setUploadMessage(null), 3000);
     } catch (err) {
       console.error('Avatar upload error:', err);
-      setUploadMessage({ text: 'Failed to upload profile picture.', type: 'error' });
+      setUploadMessage({ text: t('pr_avatar_failed'), type: 'error' });
     } finally {
       setUploadingAvatar(false);
     }
@@ -196,7 +154,9 @@ export default function ProfilePage() {
         });
       
       if (user?.role === 'agent') {
-        fetchVerifications();
+        getMyVerificationStatus()
+          .then((res) => setVerifications(res))
+          .catch((err: unknown) => console.error('Failed to fetch verifications', err));
       }
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
@@ -229,14 +189,15 @@ export default function ProfilePage() {
 
     if (user.role === 'agent') {
       getAgentProfile(user.id)
-        .then((profile: any) => {
-          if (profile?.average_rating != null && profile.average_rating > 0) {
-            setAvgRating(Number(profile.average_rating).toFixed(1));
+        .then((profile) => {
+          const avgRating = (profile as Record<string, unknown> | null | undefined)?.average_rating;
+          if (avgRating != null && Number(avgRating) > 0) {
+            setAvgRating(Number(avgRating).toFixed(1));
           }
         })
         .catch(() => {});
     }
-  }, [isAuthenticated, user]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [isAuthenticated, user]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -329,7 +290,7 @@ export default function ProfilePage() {
       <div className={styles.stats}>
         <Link href="/saved" className={styles.tile}>
           <div className={styles.tileIcon}><Bookmark size={20} /></div>
-          <div><div className={styles.tileValue}>{savedCount}</div><div className={styles.tileLabel}>Saved properties</div></div>
+          <div><div className={styles.tileValue}>{savedCount}</div><div className={styles.tileLabel}>{t('pr_saved_properties')}</div></div>
         </Link>
         <div className={styles.tile}>
           <div className={styles.tileIcon}><MessageSquare size={20} /></div>
@@ -362,7 +323,7 @@ export default function ProfilePage() {
               type="file" 
               ref={fileInputRef} 
               accept="image/*" 
-              style={{ display: 'none' }} 
+              className={styles.hiddenInput} 
               onChange={handleAvatarSelect} 
             />
 
@@ -397,10 +358,9 @@ export default function ProfilePage() {
               <label className={styles.label}>Email</label>
               <input 
                 type="email" 
-                className={styles.input} 
+                className={`${styles.input} ${styles.readonlyInput}`} 
                 value={user?.email || ''}
                 disabled
-                style={{ backgroundColor: 'var(--bg-hover)', color: 'var(--text-secondary)', cursor: 'not-allowed' }}
               />
             </div>
 
@@ -409,10 +369,9 @@ export default function ProfilePage() {
               <input 
                 type="text" 
                 name="occupation"
-                className={styles.input} 
+                className={`${styles.input} ${styles.readonlyInput}`} 
                 value={user?.role === 'agent' ? 'Real Estate Agent' : 'Student / Renter'}
                 readOnly
-                style={{ backgroundColor: 'var(--bg-hover)', color: 'var(--text-secondary)', cursor: 'not-allowed' }}
               />
             </div>
 
@@ -433,11 +392,11 @@ export default function ProfilePage() {
                       phone: updatedUser.phone || formData.phone || user.phone,
                     });
                   }
-                  setSaveMessage({ text: 'Profile changes saved successfully!', type: 'success' });
+                  setSaveMessage({ text: t('pr_profile_saved'), type: 'success' });
                   setTimeout(() => setSaveMessage(null), 3000);
                 } catch (err) {
                   console.error('Failed to update profile:', err);
-                  setSaveMessage({ text: 'Failed to update profile.', type: 'error' });
+                  setSaveMessage({ text: t('pr_profile_failed'), type: 'error' });
                 }
               }}
             >
@@ -464,7 +423,7 @@ export default function ProfilePage() {
                 type="file" 
                 ref={proofInputRef} 
                 accept="image/*,.pdf" 
-                style={{ display: 'none' }} 
+                className={styles.hiddenInput} 
                 onChange={handleProofUpload} 
               />
 
@@ -477,7 +436,7 @@ export default function ProfilePage() {
                 return (
                   <div className={styles.verifyRow}>
                     <div className={styles.verifyTop}>
-                      <span className={styles.verifyTitle}><IdCard size={15} style={{ marginRight: 6 }} /> Tier 1 · Local</span>
+                      <span className={styles.verifyTitle}><IdCard size={15} className={styles.iconInline} /> Tier 1 · Local</span>
                       {isApproved ? (
                         <span className={`${styles.chipMini} ${styles.chipGreen}`}>✓ Verified</span>
                       ) : isPending ? (
@@ -509,7 +468,7 @@ export default function ProfilePage() {
                 return (
                   <div className={styles.verifyRow}>
                     <div className={styles.verifyTop}>
-                      <span className={styles.verifyTitle}><Award size={15} style={{ marginRight: 6 }} /> Tier 2 · International</span>
+                      <span className={styles.verifyTitle}><Award size={15} className={styles.iconInline} /> Tier 2 · International</span>
                       {isInternationalApproved ? (
                         <span className={`${styles.chipMini} ${styles.chipGreen}`}>✓ Premium Verified</span>
                       ) : isPending ? (
@@ -589,7 +548,7 @@ export default function ProfilePage() {
                             {lastMessage ? (
                               <>{lastMessage.sender === 'user' ? 'You: ' : ''}{previewText(lastMessage)}</>
                             ) : (
-                              <span style={{ fontStyle: 'italic', color: 'var(--text-muted)' }}>New conversation...</span>
+                              <span className={styles.emptyPreview}>New conversation...</span>
                             )}
                           </span>
                           {conv.unreadCount > 0 && (
@@ -613,29 +572,20 @@ export default function ProfilePage() {
               </div>
             </div>
             <Link href="/saved" className={styles.accountBtn}>
-              <Bookmark size={16} /> Saved properties
+              <Bookmark size={16} /> {t('pr_saved_properties')}
             </Link>
             <Link href="/messages" className={styles.accountBtn}>
-              <MessageSquare size={16} /> Messages hub
+              <MessageSquare size={16} /> {t('pr_messages_hub')}
             </Link>
             <button 
               className={`${styles.accountBtn} ${styles.dangerBtn}`}
               onClick={async () => {
                 if (window.confirm(t('deactivate_confirm'))) {
                   try {
-                    const token = getToken() || user?.token;
-                    if (!token) return;
-                    await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/users/me/deactivate`, {
-                      method: 'POST',
-                      headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                      },
-                      body: JSON.stringify({ reason: "User self-deactivated" })
-                    });
+                    await deactivateAccount();
                     alert(t('deactivate_success'));
                     logout();
-                  } catch (e) {
+                  } catch {
                     alert(t('deactivate_error'));
                   }
                 }

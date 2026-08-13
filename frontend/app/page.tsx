@@ -117,7 +117,7 @@ export default function HomePage() {
     <div className={styles.page}>
       <SearchHero />
 
-      <main className="container section">
+      <main className={`${styles.container} ${styles.section}`}>
         {/* Recently Added Section */}
         <motion.section 
           className={`${styles.section} section`}
@@ -138,11 +138,11 @@ export default function HomePage() {
           <div className={styles.grid}>
             {isLoading ? (
               Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
-                  <Skeleton width="100%" height={200} style={{ borderRadius: 'var(--radius-md)' }} />
+                <div key={i} className={styles.skeletonCard}>
+                  <Skeleton width="100%" height={200} className={styles.skeletonRadius} />
                   <Skeleton width="80%" height={24} />
                   <Skeleton width="50%" height={20} />
-                  <Skeleton width="100%" height={40} style={{ marginTop: 'auto' }} />
+                  <Skeleton width="100%" height={40} className={styles.skeletonAutoMargin} />
                 </div>
               ))
             ) : (
@@ -218,15 +218,15 @@ export default function HomePage() {
           <div className={styles.agentsGrid}>
             {isLoading ? (
               Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4)' }}>
+                <div key={i} className={styles.agentSkeleton}>
+                  <div className={styles.agentSkeletonHeader}>
                     <Skeleton circle width={50} height={50} />
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-1)', flex: 1 }}>
+                    <div className={styles.agentSkeletonLines}>
                       <Skeleton width="60%" height={20} />
                       <Skeleton width="40%" height={16} />
                     </div>
                   </div>
-                  <Skeleton width="100%" height={60} style={{ marginTop: 'var(--space-4)' }} />
+                  <Skeleton width="100%" height={60} className={styles.skeletonTopMargin} />
                 </div>
               ))
             ) : (
@@ -258,26 +258,26 @@ export default function HomePage() {
           viewport={{ once: true, margin: "-100px" }}
           transition={{ duration: 0.8, ease: [0.2, 0.8, 0.2, 1] }}
         >
-          <div className="container">
-            <h2 className={`${styles.sectionTitle} text-center`}>{t('how_it_works')}</h2>
-            <p className={`${styles.sectionSubtitle} text-center mx-auto`} style={{ margin: '0 auto' }}>
+          <div className={styles.container}>
+            <h2 className={`${styles.sectionTitle} ${styles.textCenter}`}>{t('how_it_works')}</h2>
+            <p className={`${styles.sectionSubtitle} ${styles.textCenter} ${styles.subtitleCentered}`}>
               {t('how_sub')}
             </p>
             <div className={styles.stepsGrid}>
               <div className={styles.step}>
                 <PremiumIcon icon={Search} size={32} colorVariant="primary" />
-                <h3 style={{ marginTop: 'var(--space-4)' }}>{t('step1_title')}</h3>
-                <p className="text-muted">{t('step1_desc')}</p>
+                <h3 className={styles.stepTitle}>{t('step1_title')}</h3>
+                <p className={styles.textMuted}>{t('step1_desc')}</p>
               </div>
               <div className={styles.step}>
                 <PremiumIcon icon={Users} size={32} colorVariant="accent" />
-                <h3 style={{ marginTop: 'var(--space-4)' }}>{t('step2_title')}</h3>
-                <p className="text-muted">{t('step2_desc')}</p>
+                <h3 className={styles.stepTitle}>{t('step2_title')}</h3>
+                <p className={styles.textMuted}>{t('step2_desc')}</p>
               </div>
               <div className={styles.step}>
                 <PremiumIcon icon={ShieldCheck} size={32} colorVariant="success" />
-                <h3 style={{ marginTop: 'var(--space-4)' }}>{t('step3_title')}</h3>
-                <p className="text-muted">{t('step3_desc')}</p>
+                <h3 className={styles.stepTitle}>{t('step3_title')}</h3>
+                <p className={styles.textMuted}>{t('step3_desc')}</p>
               </div>
             </div>
           </div>

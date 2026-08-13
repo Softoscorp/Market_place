@@ -1,5 +1,4 @@
 import React from 'react';
-import { ShieldAlert } from 'lucide-react';
 import { Modal } from '@/components/ui/Modal';
 import { VerifiedBadge } from '@/components/ui/VerifiedBadge';
 import { useLanguageStore } from '@/lib/store/useLanguageStore';

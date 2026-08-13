@@ -22,8 +22,8 @@ export const PremiumIcon = ({
   
   return (
     <div 
-      className={clsx(styles.container, styles[colorVariant], className)} 
-      style={{ width: actualContainerSize, height: actualContainerSize }}
+      className={clsx(styles.container, styles[colorVariant], styles.sized, className)} 
+      style={{ '--premium-icon-size': `${actualContainerSize}px` } as React.CSSProperties}
     >
       <Icon size={size} className={styles.icon} />
     </div>

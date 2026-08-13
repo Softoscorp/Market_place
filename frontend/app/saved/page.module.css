@@ -4,6 +4,15 @@
   padding: var(--space-8) var(--space-6);
 }
 
+.section {
+  padding-top: var(--space-8);
+  padding-bottom: var(--space-8);
+}
+
+.textCenter {
+  text-align: center;
+}
+
 .header {
   margin-bottom: var(--space-10);
 }
@@ -107,4 +116,8 @@
 .emptyStateDesc {
   color: var(--text-secondary);
   max-width: 400px;
+}
+
+.searchIcon {
+  margin-right: var(--space-2);
 }

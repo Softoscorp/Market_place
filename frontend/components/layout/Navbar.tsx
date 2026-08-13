@@ -99,12 +99,12 @@ export function Navbar() {
           )}
 
         {mounted && isAuthenticated ? (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4)' }}>
-            <Link href="/saved" className={styles.link} style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', fontWeight: 500 }}>
+          <div className={styles.authActions}>
+            <Link href="/saved" className={`${styles.link} ${styles.savedLink}`}>
               <Heart size={16} /> <span className={styles.hideOnMobile}>{t('nav_saved')}</span>
             </Link>
             {/* Messages Icon with Badge */}
-            <Link href="/messages" className={styles.link} style={{ position: 'relative', display: 'flex', alignItems: 'center' }} title={t('tab_messages')}>
+            <Link href="/messages" className={`${styles.link} ${styles.messagesLink}`} title={t('tab_messages')}>
               <MessageSquare size={20} />
               {unreadCount > 0 && (
                 <span className={styles.notifBadge}>
@@ -118,7 +118,7 @@ export function Navbar() {
           </div>
         ) : (
           <>
-            <Link href="/login" className={styles.link} style={{ marginRight: 'var(--space-4)', fontWeight: 500 }}>{t('nav_login')}</Link>
+            <Link href="/login" className={`${styles.link} ${styles.loginLink}`}>{t('nav_login')}</Link>
             <Link href="/signup" className={styles.loginBtn}>{t('nav_signup')}</Link>
           </>
         )}
@@ -127,7 +127,7 @@ export function Navbar() {
           <Link href="/post-listing" className={styles.postBtn}>{t('nav_post_listing')}</Link>
         )}
         {mounted && isAuthenticated && (user?.role === 'admin' || user?.role === 'customer_care') && (
-          <Link href="/admin" className={styles.postBtn} style={{ backgroundColor: 'var(--text-primary)' }}>{t('nav_dashboard')}</Link>
+          <Link href="/admin" className={`${styles.postBtn} ${styles.dashboardBtn}`}>{t('nav_dashboard')}</Link>
         )}
       </div>
 
@@ -167,11 +167,11 @@ export function Navbar() {
                 <Link href="/saved" className={styles.mobileLink} onClick={() => setMobileMenuOpen(false)}>
                   <Heart size={18} /> {t('nav_saved')}
                 </Link>
-                <Link href="/messages" className={styles.mobileLink} onClick={() => setMobileMenuOpen(false)} style={{ position: 'relative' }}>
+                <Link href="/messages" className={`${styles.mobileLink} ${styles.mobileLinkRelative}`} onClick={() => setMobileMenuOpen(false)}>
                   <MessageSquare size={18} />
                   {t('tab_messages')}
                   {unreadCount > 0 && (
-                    <span className={styles.notifBadge} style={{ position: 'static', marginLeft: 'var(--space-1)' }}>
+                    <span className={`${styles.notifBadge} ${styles.notifBadgeStatic}`}>
                       {unreadCount > 99 ? '99+' : unreadCount}
                     </span>
                   )}
@@ -180,12 +180,12 @@ export function Navbar() {
                   <User size={18} /> {user?.name || t('nav_profile')}
                 </Link>
                 {user?.role === 'agent' && (
-                  <Link href="/post-listing" className={styles.mobileLink} style={{ color: 'var(--accent)' }} onClick={() => setMobileMenuOpen(false)}>
+                  <Link href="/post-listing" className={`${styles.mobileLink} ${styles.mobileLinkAccent}`} onClick={() => setMobileMenuOpen(false)}>
                     {t('nav_post_listing')}
                   </Link>
                 )}
                 {(user?.role === 'admin' || user?.role === 'customer_care') && (
-                  <Link href="/admin" className={styles.mobileLink} style={{ color: 'var(--accent)' }} onClick={() => setMobileMenuOpen(false)}>
+                  <Link href="/admin" className={`${styles.mobileLink} ${styles.mobileLinkAccent}`} onClick={() => setMobileMenuOpen(false)}>
                     {t('nav_dashboard')}
                   </Link>
                 )}
@@ -193,7 +193,7 @@ export function Navbar() {
             ) : (
               <>
                 <Link href="/login" className={styles.mobileLink} onClick={() => setMobileMenuOpen(false)}>{t('nav_login')}</Link>
-                <Link href="/signup" className={styles.mobileLink} style={{ color: 'var(--accent)' }} onClick={() => setMobileMenuOpen(false)}>{t('nav_signup')}</Link>
+                <Link href="/signup" className={`${styles.mobileLink} ${styles.mobileLinkAccent}`} onClick={() => setMobileMenuOpen(false)}>{t('nav_signup')}</Link>
               </>
             )}
           </div>

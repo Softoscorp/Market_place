@@ -14,6 +14,11 @@
   border-radius: 50%;
 }
 
+.sized {
+  width: var(--skeleton-width, auto);
+  height: var(--skeleton-height, auto);
+}
+
 @keyframes shimmer {
   0% {
     background-position: 200% 0;

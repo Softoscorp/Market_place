@@ -2,15 +2,21 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #0F172A;
-  border: 2px solid #0F172A;
+  background: var(--brand-navy-deep);
+  border: 2px solid var(--brand-navy-deep);
   overflow: hidden;
 }
 
 .initials {
   font-family: var(--font-heading);
   font-weight: 800;
-  color: #ffffff;
+  color: var(--text-on-brand);
   letter-spacing: 0.02em;
   line-height: 1;
+  font-size: var(--avatar-font-size);
+}
+
+.fallback.sized {
+  width: var(--avatar-size);
+  height: var(--avatar-size);
 }

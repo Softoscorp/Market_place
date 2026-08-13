@@ -171,3 +171,39 @@
   margin: var(--space-1) 0 0;
   letter-spacing: 0.01em;
 }
+
+.onlineDotOnline {
+  background: var(--success);
+  box-shadow: 0 0 0 2px var(--bg-surface), 0 0 6px var(--success);
+}
+
+.onlineDotOffline {
+  background: var(--text-muted);
+  box-shadow: none;
+}
+
+.nameLink {
+  text-decoration: none;
+  color: inherit;
+}
+
+.nameClickable {
+  cursor: pointer;
+}
+
+.onlineStatusText {
+  font-size: var(--text-xs);
+  margin: var(--space-2) 0 0;
+}
+
+.onlineStatusOnline {
+  color: var(--success);
+}
+
+.onlineStatusOffline {
+  color: var(--text-muted);
+}
+
+.starIcon {
+  margin-right: 2px;
+}

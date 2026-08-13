@@ -3,6 +3,15 @@ export const API_BASE_URL = isLocalhost
   ? (process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000")
   : "https://marketplace-production-2905.up.railway.app";
 
+export const SERVER_API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "https://marketplace-production-2905.up.railway.app";
+
+/** Server-safe fetch of a single property (no window, no auth). Used by Server Components. */
+export async function getPropertyPublic(id: string | number): Promise<Record<string, unknown> | null> {
+  const res = await fetch(`${SERVER_API_BASE_URL}/properties/${id}`, { next: { revalidate: 60 } });
+  if (!res.ok) return null;
+  return res.json();
+}
+
 const TOKEN_KEY = "rental_platform_token";
 
 export function getToken(): string | null {
@@ -291,7 +300,7 @@ export function rejectVerification(appId: number, reviewerNotes: string) {
 }
 
 export async function uploadVerificationProof(file: File): Promise<{ url: string }> {
-  const token = localStorage.getItem("house-agent-auth");
+  const token = getToken();
   if (!token) throw new Error("Not authenticated");
 
   const formData = new FormData();
@@ -300,7 +309,7 @@ export async function uploadVerificationProof(file: File): Promise<{ url: string
   const res = await fetch(`${API_BASE_URL}/verifications/upload-proof`, {
     method: "POST",
     headers: {
-      Authorization: `Bearer ${JSON.parse(token).state.token}`,
+      Authorization: `Bearer ${token}`,
     },
     body: formData,
   });
@@ -311,6 +320,16 @@ export async function uploadVerificationProof(file: File): Promise<{ url: string
   }
 
   return res.json();
+}
+
+export function uploadAvatar(file: File) {
+  const formData = new FormData();
+  formData.append("file", file);
+  return apiRequest("/users/me/avatar", { method: "POST", formData, auth: true });
+}
+
+export function deactivateAccount(reason = "User self-deactivated") {
+  return apiRequest("/users/me/deactivate", { method: "POST", body: { reason }, auth: true });
 }
 export function getMyConversations() {
   return apiRequest("/messages/conversations", { auth: true });

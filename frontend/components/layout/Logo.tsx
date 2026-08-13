@@ -1,5 +1,7 @@
 import React from 'react';
 
+import styles from './Logo.module.css';
+
 const NAVY = '#08192f';
 const GOLD = '#b18842';
 
@@ -49,13 +51,12 @@ export function Logo({ variant = 'icon', height = 32, className }: LogoProps) {
   const full = variant === 'full';
   return (
     <svg
-      className={className}
+      className={`${styles.logo} ${className || ''}`}
       width={full ? height * (352 / 210) : height * (206 / 113)}
       height={height}
       viewBox={full ? '0 0 352 210' : '87 25 206 113'}
       role="img"
       aria-label="House Agent"
-      style={{ display: 'block' }}
     >
       {ICON}
       {full && (

@@ -53,7 +53,7 @@ export default function AgentsPage() {
   const fetchAgents = () =>
     apiRequest('/agents', { auth: false })
       .then((data) => {
-        let agentList = Array.isArray(data) ? data : [];
+        const agentList = Array.isArray(data) ? data : [];
         
         // Sort by online status (online first)
         agentList.sort((a: Agent, b: Agent) => {

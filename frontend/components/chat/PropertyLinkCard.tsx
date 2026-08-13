@@ -20,30 +20,26 @@ interface ListingPreview {
   photo_url?: string | null;
 }
 
-export function PropertyLinkCard({ text }: { text?: string | null }) {
+function ListingCard({ listingId, text }: { listingId: string; text: string }) {
   const { t } = useLanguageStore();
   const [listing, setListing] = useState<ListingPreview | null>(null);
   const [error, setError] = useState(false);
 
-  const match = text ? PROPERTY_LINK_RE.exec(text) : null;
-  const listingId = match ? match[1] : null;
-
   useEffect(() => {
-    if (!listingId) return;
     let active = true;
-    setError(false);
-    setListing(null);
 
     apiRequest(`/listings/${listingId}`, { auth: false })
-      .then((l: any) => {
+      .then((l) => {
         if (!active) return;
+        const raw = l as Record<string, unknown>;
+        const photos = Array.isArray(raw.photos) ? (raw.photos as Array<Record<string, unknown>>) : [];
         setListing({
-          id: l.id,
-          title: l.title,
-          price: l.price,
-          currency: l.currency || '£',
-          location: l.location,
-          photo_url: l.photos?.[0]?.url || null,
+          id: raw.id as number,
+          title: raw.title as string,
+          price: raw.price as number,
+          currency: (raw.currency as string) || '£',
+          location: raw.location as string,
+          photo_url: (photos[0]?.url as string) || null,
         });
       })
       .catch(() => {
@@ -52,8 +48,6 @@ export function PropertyLinkCard({ text }: { text?: string | null }) {
 
     return () => { active = false; };
   }, [listingId]);
-
-  if (!listingId) return null;
 
   if (error) {
     return (
@@ -103,4 +97,13 @@ export function PropertyLinkCard({ text }: { text?: string | null }) {
       </div>
     </Link>
   );
+}
+
+export function PropertyLinkCard({ text }: { text?: string | null }) {
+  const match = text ? PROPERTY_LINK_RE.exec(text) : null;
+  const listingId = match ? match[1] : null;
+
+  if (!listingId) return null;
+
+  return <ListingCard key={listingId} listingId={listingId} text={text || ''} />;
 }

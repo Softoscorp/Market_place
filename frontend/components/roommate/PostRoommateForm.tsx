@@ -2,7 +2,7 @@
 
 import React, { useRef, useState } from 'react';
 import { X, Camera, Home, Users } from 'lucide-react';
-import { apiRequest, mediaUrl } from '@/lib/api';
+import { apiRequest } from '@/lib/api';
 import { useAuthStore } from '@/lib/store/useAuthStore';
 import { useLanguageStore } from '@/lib/store/useLanguageStore';
 import { UNIVERSITIES_BY_CITY } from '@/lib/universities';
@@ -65,13 +65,6 @@ export function PostRoommateForm({ onClose, onPosted }: PostRoommateFormProps) {
       'No guests': t('prf_habit_no_guests'),
     };
     return map[habit] || habit;
-  };
-
-  const genderLabel = (value: string) => {
-    if (value === 'Male') return t('prf_male');
-    if (value === 'Female') return t('prf_female');
-    if (value === 'Any') return t('prf_any');
-    return value;
   };
 
   const toggleHabit = (habit: string) => {
@@ -165,7 +158,7 @@ export function PostRoommateForm({ onClose, onPosted }: PostRoommateFormProps) {
             className={`${styles.typeBtn} ${profileType === 'housemate' ? styles.typeBtnActive : ''}`}
             onClick={() => setProfileType('housemate')}
           >
-            <Home size={18} style={{ marginBottom: 6 }} />
+            <Home size={18} className={styles.typeToggleIcon} />
             {t('prf_type_housemate')}
             <span className={styles.typeHint}>{t('prf_type_housemate_hint')}</span>
           </button>
@@ -173,7 +166,7 @@ export function PostRoommateForm({ onClose, onPosted }: PostRoommateFormProps) {
             className={`${styles.typeBtn} ${profileType === 'roommate' ? styles.typeBtnActive : ''}`}
             onClick={() => setProfileType('roommate')}
           >
-            <Users size={18} style={{ marginBottom: 6 }} />
+            <Users size={18} className={styles.typeToggleIcon} />
             {t('prf_type_roommate')}
             <span className={styles.typeHint}>{t('prf_type_roommate_hint')}</span>
           </button>

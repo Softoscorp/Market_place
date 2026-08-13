@@ -563,3 +563,424 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* Admin Dashboard additions */
+.actionRow {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.tierInternational {
+  background: var(--warning-muted);
+  color: var(--warning-text);
+}
+
+.tierStandard {
+  background: var(--bg-hover);
+  color: var(--text-secondary);
+}
+
+.proofLink {
+  font-size: var(--text-xs);
+  color: var(--accent);
+  text-decoration: underline;
+}
+
+.proofInvalid {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+.onlineStatusRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.onlineDot {
+  width: var(--space-2);
+  height: var(--space-2);
+  border-radius: 50%;
+  background: var(--success);
+  display: inline-block;
+  box-shadow: 0 0 4px var(--success);
+}
+
+.offlineDot {
+  width: var(--space-2);
+  height: var(--space-2);
+  border-radius: 50%;
+  background: var(--text-muted);
+  display: inline-block;
+  box-shadow: none;
+}
+
+.onlineLabel {
+  font-size: var(--text-sm);
+  color: var(--success);
+}
+
+.offlineLabel {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+}
+
+.roleSelect {
+  padding: var(--space-1);
+  width: auto;
+}
+
+.statusSelect {
+  padding: var(--space-1);
+  width: auto;
+  margin-left: var(--space-2);
+}
+
+.verifyBtn {
+  margin-left: var(--space-2);
+}
+
+.chatDetail {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--space-6);
+  background: var(--bg-surface);
+}
+
+.chatDetailHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border-subtle);
+  padding-bottom: var(--space-4);
+}
+
+.chatDetailTitle {
+  margin: 0;
+}
+
+.chatDetailMeta {
+  margin: var(--space-1) 0 0 0;
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
+.chatDetailActions {
+  display: flex;
+  gap: var(--space-3);
+}
+
+.btnSecondaryCompact {
+  padding: var(--space-2) var(--space-4);
+}
+
+.btnIconMargin {
+  margin-right: var(--space-2);
+}
+
+.chatMessages {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  max-height: 400px;
+  overflow-y: auto;
+  padding: var(--space-4);
+  background: var(--bg-hover);
+  border-radius: var(--radius-sm);
+}
+
+.chatEmpty {
+  text-align: center;
+  color: var(--text-secondary);
+}
+
+.chatBubble {
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  max-width: 70%;
+  box-shadow: var(--shadow-sm);
+}
+
+.chatBubbleRenter {
+  align-self: flex-start;
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  border: 1px solid var(--border-subtle);
+}
+
+.chatBubbleOther {
+  align-self: flex-end;
+  background: var(--text-primary);
+  color: var(--text-inverse);
+  border: none;
+}
+
+.chatSenderName {
+  font-size: var(--text-xs);
+  opacity: 0.8;
+  margin-bottom: var(--space-1);
+}
+
+.chatTime {
+  font-size: var(--text-xs);
+  opacity: 0.6;
+  margin-top: var(--space-1);
+  text-align: right;
+}
+
+.chatReplyRow {
+  display: flex;
+  gap: var(--space-3);
+  margin-top: var(--space-3);
+}
+
+.replyInput {
+  resize: vertical;
+  flex: 1;
+}
+
+.replyButton {
+  align-self: flex-end;
+  white-space: nowrap;
+}
+
+.crmMeta {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
+.openChatBtn {
+  width: 100%;
+  margin-top: var(--space-4);
+}
+
+.emptyCell {
+  text-align: center;
+  color: var(--text-secondary);
+}
+
+.truncateCell {
+  max-width: 300px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.truncateCellReason {
+  max-width: 250px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: var(--scrim);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.emailModal {
+  background: var(--bg-surface);
+  border-radius: var(--radius-lg);
+  padding: var(--space-8);
+  width: 100%;
+  max-width: 480px;
+  box-shadow: var(--shadow-xl);
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-6);
+}
+
+.modalTitle {
+  margin: 0;
+}
+
+.modalClose {
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.modalBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.modalLabel {
+  font-size: var(--text-sm);
+  font-weight: 500;
+  display: block;
+  margin-bottom: var(--space-2);
+}
+
+.inputDisabledOpacity {
+  opacity: 0.7;
+}
+
+.verticalResize {
+  resize: vertical;
+}
+
+.navFooter {
+  margin-top: auto;
+  padding-top: var(--space-8);
+}
+
+.signOutBtn {
+  color: var(--danger);
+}
+
+/* Agent Dashboard additions */
+.activityDotSuccess {
+  background: var(--success);
+}
+
+.activityDotMuted {
+  background: var(--text-muted);
+}
+
+.loadingText {
+  padding: var(--space-8);
+  color: var(--text-secondary);
+}
+
+.emptyStateCard {
+  text-align: center;
+  padding: var(--space-12);
+  background: var(--bg-surface);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  margin-top: var(--space-4);
+}
+
+.emptyStateIcon {
+  color: var(--text-muted);
+  margin-bottom: var(--space-4);
+}
+
+.emptyStateTitle {
+  margin: 0 0 var(--space-2) 0;
+  color: var(--text-primary);
+}
+
+.emptyStateText {
+  color: var(--text-secondary);
+  margin-bottom: var(--space-6);
+  font-size: var(--text-base);
+}
+
+.emptyStateSubtext {
+  color: var(--text-secondary);
+  font-size: var(--text-base);
+}
+
+.inlineBtn {
+  display: inline-flex;
+}
+
+.viewListingLink {
+  color: var(--accent);
+  font-size: var(--text-sm);
+  font-weight: 500;
+}
+
+.crmClientRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.saveBtnMargin {
+  margin-top: var(--space-4);
+}
+
+.dangerCard {
+  border: 1px solid var(--danger);
+}
+
+.dangerTitle {
+  color: var(--danger);
+}
+
+.dangerDesc {
+  color: var(--text-primary);
+  font-size: var(--text-sm);
+  margin-bottom: var(--space-4);
+  line-height: 1.5;
+}
+
+.dangerButton {
+  background-color: var(--danger);
+  color: var(--text-inverse);
+  padding: var(--space-3) var(--space-6);
+  border-radius: var(--radius-sm);
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  transition: background-color var(--duration-fast);
+}
+
+.dangerButton:hover {
+  background-color: var(--danger-text);
+}
+
+.topbarUser {
+  margin: var(--space-1) 0 0 0;
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
+.topbarRight {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.onlineStatus {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  font-weight: 500;
+}
+
+.statusOnline {
+  color: var(--success);
+}
+
+.statusOffline {
+  color: var(--text-secondary);
+}
+
+.statusDotOnline {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--success);
+}
+
+.statusDotOffline {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--text-secondary);
+}
+
+.avatarRound {
+  border-radius: 50%;
+}

@@ -238,7 +238,6 @@ export default function RoommatesPage() {
                   gender={roommate.gender || roommate.user?.gender}
                   occupation={roommate.occupation || (roommate.university ? t('rm_student').replace('{uni}', roommate.university) : t('rm_tenant'))}
                   imageUrl={mediaUrl(roommate.avatar_url) || ''}
-                  matchScore={85}
                   sharedInterests={roommate.habits?.slice(0, 3) || []}
                   budget={`£${roommate.budget}`}
                   profileType={roommate.profile_type || 'roommate'}
@@ -257,7 +256,6 @@ export default function RoommatesPage() {
                   gender={roommate.gender || roommate.user?.gender}
                   occupation={roommate.occupation || (roommate.university ? t('rm_student').replace('{uni}', roommate.university) : t('rm_tenant'))}
                   imageUrl={mediaUrl(roommate.avatar_url) || ''}
-                  matchScore={85}
                   sharedInterests={roommate.habits?.slice(0, 3) || []}
                   budget={`£${roommate.budget}`}
                   profileType={roommate.profile_type || 'roommate'}

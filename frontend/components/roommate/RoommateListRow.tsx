@@ -13,7 +13,6 @@ interface RoommateListRowProps {
   gender?: string;
   occupation: string;
   imageUrl: string;
-  matchScore: number;
   sharedInterests: string[];
   budget: string;
   profileType?: string;
@@ -28,7 +27,6 @@ export function RoommateListRow({
   gender,
   occupation,
   imageUrl,
-  matchScore,
   sharedInterests,
   budget,
   profileType = 'roommate',
@@ -69,7 +67,6 @@ export function RoommateListRow({
             <small className={styles.sub}>{detail.split(' · ').slice(0, 2).join(' · ')}</small>
             {location && <small className={styles.sub}>{location}</small>}
           </div>
-          <span className={styles.match}>{matchScore}%</span>
         </div>
 
         <p className={styles.desc}>

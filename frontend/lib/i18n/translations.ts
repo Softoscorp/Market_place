@@ -358,7 +358,6 @@ export const translations = {
     prf_post_ad: 'Post Ad',
 
     // RoommateCard / RoommateListRow
-    rc_match: '{score}% Match',
     rc_housemate: 'Housemate',
     rc_roommate: 'Roommate',
     rc_flat: '{type} flat',
@@ -1283,7 +1282,6 @@ export const translations = {
     prf_post_ad: 'İlanı Yayınla',
 
     // RoommateCard / RoommateListRow
-    rc_match: '%{score} Eşleşme',
     rc_housemate: 'Ev Arkadaşı',
     rc_roommate: 'Oda Arkadaşı',
     rc_flat: '{type} daire',

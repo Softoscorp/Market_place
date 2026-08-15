@@ -12,7 +12,6 @@ interface RoommateCardProps {
   age: number;
   occupation: string;
   imageUrl: string;
-  matchScore: number;
   sharedInterests: string[];
   budget: string;
   profileType?: string;
@@ -27,7 +26,6 @@ export function RoommateCard({
   age,
   occupation,
   imageUrl,
-  matchScore,
   sharedInterests,
   budget,
   profileType = 'roommate',
@@ -52,7 +50,6 @@ export function RoommateCard({
           </div>
         )}
         <div className={styles.overlay} />
-        <div className={styles.matchPill}>{t('rc_match').replace('{score}', String(matchScore))}</div>
         <div className={`${styles.typePill} ${profileType === 'housemate' ? styles.typeHousemate : styles.typeRoommate}`}>
           {profileType === 'housemate' ? <Home size={12} className={styles.typeIcon} /> : <Users size={12} className={styles.typeIcon} />}
           {profileType === 'housemate' ? t('rc_housemate') : t('rc_roommate')}

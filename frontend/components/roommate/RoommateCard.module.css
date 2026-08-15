@@ -50,19 +50,6 @@
   pointer-events: none;
 }
 
-.matchPill {
-  position: absolute;
-  top: 12px;
-  left: 12px;
-  background: rgba(8, 25, 47, 0.92);
-  color: var(--text-on-brand);
-  border-radius: 999px;
-  padding: 5px 12px;
-  font-size: 12px;
-  font-weight: 700;
-  box-shadow: var(--shadow-sm);
-}
-
 .typePill {
   position: absolute;
   top: 12px;

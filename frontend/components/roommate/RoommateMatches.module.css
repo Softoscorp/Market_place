@@ -1,0 +1,139 @@
+.section {
+  margin-bottom: 32px;
+  padding: 24px;
+  background: linear-gradient(135deg, var(--brand-navy-light) 0%, var(--brand-navy-ink) 100%);
+  border-radius: 16px;
+  border: 1px solid var(--border-subtle);
+}
+
+.header {
+  margin-bottom: 16px;
+}
+
+.title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--text-lg);
+  font-weight: 700;
+  color: var(--text-on-brand);
+  margin: 0 0 4px;
+}
+
+.titleIcon {
+  color: var(--brand-gold);
+}
+
+.subtitle {
+  color: var(--text-on-brand-muted);
+  font-size: var(--text-sm);
+  margin: 0;
+}
+
+.loading,
+.empty {
+  color: var(--text-on-brand-muted);
+  font-size: var(--text-sm);
+  margin: 8px 0 0;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.row {
+  display: flex;
+  gap: 14px;
+  padding: 14px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  align-items: flex-start;
+}
+
+.thumb {
+  flex-shrink: 0;
+  width: 64px;
+  height: 64px;
+}
+
+.thumbImg {
+  width: 64px;
+  height: 64px;
+  border-radius: 12px;
+  object-fit: cover;
+  background: var(--brand-navy-deep);
+  border: none;
+}
+
+.thumbFallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--brand-gold-muted);
+}
+
+.info {
+  flex: 1;
+  min-width: 0;
+}
+
+.nameRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.name {
+  font-weight: 700;
+  font-size: var(--text-base);
+  color: var(--text-on-brand);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.score {
+  flex-shrink: 0;
+  font-size: 12px;
+  font-weight: 800;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--brand-surface);
+  color: var(--brand-navy);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow-sm);
+}
+
+.scoreHigh {
+  color: var(--success);
+}
+
+.scoreMid {
+  color: var(--accent);
+}
+
+.location {
+  display: block;
+  color: var(--text-on-brand-muted);
+  font-size: var(--text-xs);
+  margin: 2px 0 8px;
+}
+
+.reasons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.reason {
+  font-size: 11px;
+  color: var(--text-on-brand);
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 999px;
+  padding: 3px 10px;
+}

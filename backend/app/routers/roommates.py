@@ -10,6 +10,7 @@ from .. import models, schemas
 from ..dependencies import get_current_user
 from ..services.supabase_storage import upload_file
 from ..services.file_validation import validate_image
+from ..services.matching import compute_match
 
 router = APIRouter(prefix="/roommates", tags=["Roommates"])
 
@@ -73,6 +74,36 @@ def create_roommate_profile(
     db.commit()
     db.refresh(db_profile)
     return db_profile
+
+@router.get("/{profile_id}/matches", response_model=List[schemas.RoommateMatchOut])
+def get_roommate_matches(profile_id: int, db: Session = Depends(get_db)):
+    """Rank every other roommate profile by compatibility with this profile.
+
+    The score is computed from concrete profile data (city, budget, timeline,
+    gender preference, profile type, shared habits). Each result carries the
+    reasons so the frontend can explain why the two people matched.
+    """
+    profile = db.query(models.RoommateProfile).filter(models.RoommateProfile.id == profile_id).first()
+    if not profile:
+        raise HTTPException(status_code=404, detail="Profile not found")
+
+    others = (
+        db.query(models.RoommateProfile)
+        .filter(models.RoommateProfile.user_id != profile.user_id)
+        .all()
+    )
+
+    matches = []
+    for other in others:
+        result = compute_match(profile, other)
+        matches.append({
+            "profile": other,
+            "score": result["score"],
+            "reasons": result["reasons"],
+        })
+
+    matches.sort(key=lambda m: m["score"], reverse=True)
+    return matches
 
 @router.get("/{profile_id}", response_model=schemas.RoommateProfileOut)
 def get_roommate_profile(profile_id: int, db: Session = Depends(get_db)):

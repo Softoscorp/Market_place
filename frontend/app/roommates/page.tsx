@@ -3,15 +3,18 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { RoommateCard } from '@/components/roommate/RoommateCard';
 import { RoommateListRow } from '@/components/roommate/RoommateListRow';
+import { RoommateMatches, RoommateMatch } from '@/components/roommate/RoommateMatches';
 import { PostRoommateForm } from '@/components/roommate/PostRoommateForm';
 import { Plus, Home, Users, Banknote, Search, X, SlidersHorizontal } from 'lucide-react';
 import { useLanguageStore } from '@/lib/store/useLanguageStore';
+import { useAuthStore } from '@/lib/store/useAuthStore';
 import { UNIVERSITIES_BY_CITY } from '@/lib/universities';
 import styles from './RoommatesPage.module.css';
-import { apiRequest, mediaUrl } from '@/lib/api';
+import { apiRequest, mediaUrl, getRoommateMatches } from '@/lib/api';
 
 interface Roommate {
   id: number;
+  user_id?: number;
   name?: string;
   age?: number;
   gender?: string;
@@ -39,8 +42,11 @@ const BUDGET_RANGES = [
 const BUDGET_LABEL_KEYS = ['rm_budget_under', 'rm_budget_300', 'rm_budget_500'] as const;
 export default function RoommatesPage() {
   const { t } = useLanguageStore();
+  const { user: authUser, isAuthenticated } = useAuthStore();
   const [showPostForm, setShowPostForm] = useState(false);
   const [roommates, setRoommates] = useState<Roommate[]>([]);
+  const [matches, setMatches] = useState<RoommateMatch[]>([]);
+  const [matchesLoading, setMatchesLoading] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [typeFilter, setTypeFilter] = useState<'all' | 'housemate' | 'roommate'>('all');
   const [schoolFilter, setSchoolFilter] = useState<string>('');
@@ -62,6 +68,25 @@ export default function RoommatesPage() {
   useEffect(() => {
     loadRoommates();
   }, []);
+
+  // Load personalized matches for the current user's own roommate profile
+  useEffect(() => {
+    if (!isAuthenticated || !authUser?.id || !roommates.length) return;
+
+    const myProfile = roommates.find((rm) => String(rm.user_id) === String(authUser.id));
+    if (!myProfile) return;
+
+    getRoommateMatches(myProfile.id)
+      .then((data) => {
+        setMatches((data as RoommateMatch[]) || []);
+      })
+      .catch(() => {
+        setMatches([]);
+      })
+      .finally(() => {
+        setMatchesLoading(false);
+      });
+  }, [isAuthenticated, authUser?.id, roommates]);
 
   if (!mounted) return null;
 
@@ -94,6 +119,8 @@ export default function RoommatesPage() {
   const activeFilterCount =
     (schoolFilter ? 1 : 0) + (budgetRange !== null ? 1 : 0);
 
+  const hasOwnProfile = isAuthenticated && roommates.some((rm) => String(rm.user_id) === String(authUser?.id));
+
   const toggleChip = (type: 'all' | 'housemate' | 'roommate') => {
     setTypeFilter(typeFilter === type ? 'all' : type);
   };
@@ -122,6 +149,8 @@ export default function RoommatesPage() {
           {t('rm_post_ad')}
         </button>
       </header>
+
+      {hasOwnProfile && <RoommateMatches matches={matches} loading={matchesLoading} />}
 
       <div className={styles.searchRow}>
         <div className={styles.searchBox}>

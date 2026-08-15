@@ -458,6 +458,17 @@ class RoommateProfileOut(BaseModel):
     user: PublicUserOut
 
 
+class MatchReason(BaseModel):
+    key: str
+    params: Optional[dict[str, str]] = None
+
+
+class RoommateMatchOut(BaseModel):
+    profile: RoommateProfileOut
+    score: int
+    reasons: list[MatchReason]
+
+
 class PhotoUploadOut(BaseModel):
     url: str
 

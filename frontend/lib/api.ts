@@ -166,6 +166,10 @@ export function getRoommateProfile(id: number) {
   return apiRequest(`/roommates/${id}`);
 }
 
+export function getRoommateMatches(profileId: number) {
+  return apiRequest(`/roommates/${profileId}/matches`, { auth: false });
+}
+
 export function createRoommateProfile(profile: Record<string, unknown>) {
   return apiRequest("/roommates", {
     method: "POST",

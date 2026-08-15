@@ -8,7 +8,7 @@ import styles from './SearchHero.module.css';
 import { useRouter } from 'next/navigation';
 import { useLanguageStore } from '@/lib/store/useLanguageStore';
 
-const CITY_CHIPS = ['Nicosia', 'Kyrenia', 'Famagusta', 'Lefke', 'Guzelyurt'];
+const CITY_CHIPS = ['Nicosia', 'Kyrenia', 'Famagusta', 'Lefke', 'Güzelyurt'];
 
 export function SearchHero() {
   const [query, setQuery] = useState('');

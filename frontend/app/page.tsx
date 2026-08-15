@@ -18,7 +18,7 @@ import { useScrollRestoration } from "@/lib/useScrollRestoration";
 
 import { isOnline } from "@/lib/timeAgo";
 
-const LOCATIONS = ['Nicosia', 'Kyrenia', 'Famagusta', 'Lefke', 'Guzelyurt'];
+const LOCATIONS = ['Nicosia', 'Kyrenia', 'Famagusta', 'Lefke', 'Güzelyurt'];
 
 interface PropertyData {
   upfront_rent_months?: number;

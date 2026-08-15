@@ -13,6 +13,7 @@ import { apiRequest, mediaUrl } from "@/lib/api";
 import { Skeleton } from "@/components/ui/Skeleton";
 
 import { useLanguageStore } from "@/lib/store/useLanguageStore";
+import { useAuthStore } from "@/lib/store/useAuthStore";
 
 import { useScrollRestoration } from "@/lib/useScrollRestoration";
 
@@ -48,6 +49,7 @@ interface AgentData {
 
 export default function HomePage() {
   const { t } = useLanguageStore();
+  const user = useAuthStore((s) => s.user);
   const [featuredProperties, setFeaturedProperties] = useState<PropertyData[]>([]);
   const [topAgents, setTopAgents] = useState<AgentData[]>([]);
   const [locationCounts, setLocationCounts] = useState<Record<string, number>>({});
@@ -241,7 +243,7 @@ export default function HomePage() {
                   reviews={agent.total_reviews || 0}
                   activeListings={agent.active_listings || 0}
                   respondRate={agent.respond_rate}
-                  lastSeenAt={agent.last_seen_at}
+                  lastSeenAt={user && String(agent.id) === String(user.id) ? (user.last_seen_at || agent.last_seen_at) : agent.last_seen_at}
                   verificationTier={agent.verification_tier}
                   compact
                 />

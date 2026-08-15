@@ -20,7 +20,7 @@ export default function AgentProfilePage() {
   const id = params?.id as string;
   const router = useRouter();
   const { openChat } = useChatStore();
-  const { isAuthenticated } = useAuthStore();
+  const { isAuthenticated, user } = useAuthStore();
   const { t } = useLanguageStore();
 
 interface AgentProfile {
@@ -93,6 +93,10 @@ interface AgentProfile {
 
   const { agent, average_rating, rating_count, listings } = profile;
 
+  // When viewing your own profile, prefer the live value kept fresh by the heartbeat
+  const isSelf = user && String(agent.id) === String(user.id);
+  const lastSeenAt = isSelf ? (user.last_seen_at || agent.last_seen_at) : agent.last_seen_at;
+
   return (
     <div className={styles.container}>
       <BackButton />
@@ -112,7 +116,7 @@ interface AgentProfile {
             reviews={rating_count || 0}
             activeListings={listings?.length || 0}
             respondRate={agent.respond_rate}
-            lastSeenAt={agent.last_seen_at}
+            lastSeenAt={lastSeenAt}
             verificationTier={agent.verification_tier}
             onContact={() => {
               if (!isAuthenticated) {

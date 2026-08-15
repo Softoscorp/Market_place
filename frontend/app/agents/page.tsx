@@ -29,7 +29,7 @@ interface Agent {
 export default function AgentsPage() {
   const router = useRouter();
   const { t } = useLanguageStore();
-  const { isAuthenticated } = useAuthStore();
+  const { isAuthenticated, user } = useAuthStore();
   const { openChat } = useChatStore();
   const [agents, setAgents] = useState<Agent[]>([]);
   const [loading, setLoading] = useState(true);
@@ -137,7 +137,7 @@ export default function AgentsPage() {
                 reviews={agent.total_reviews ?? 0}
                 activeListings={agent.active_listings ?? 0}
                 respondRate={agent.respond_rate}
-                lastSeenAt={agent.last_seen_at}
+                lastSeenAt={user && String(agent.id) === String(user.id) ? (user.last_seen_at || agent.last_seen_at) : agent.last_seen_at}
                 verificationTier={agent.verification_tier}
                 onContact={() => {
                   if (!isAuthenticated) {

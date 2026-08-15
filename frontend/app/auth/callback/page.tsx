@@ -40,6 +40,7 @@ function AuthCallbackInner() {
           email: user.email,
           role: user.role === 'renter' ? 'student' : user.role,
           token,
+          last_seen_at: user.last_seen_at || new Date().toISOString(),
         });
 
         // Sign out of supabase on frontend since we only use it for the bridge

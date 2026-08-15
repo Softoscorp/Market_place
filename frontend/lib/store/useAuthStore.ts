@@ -119,6 +119,7 @@ export const useAuthStore = create<AuthState>()(
                     // Only overwrite avatar_url if backend returned a real, non-empty value
                     avatar_url: freshUser.avatar_url ? freshUser.avatar_url : state.user.avatar_url,
                     is_verified: freshUser.is_verified ?? state.user.is_verified,
+                    last_seen_at: freshUser.last_seen_at || state.user.last_seen_at,
                   }
                 : null,
             }));

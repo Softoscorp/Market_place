@@ -100,7 +100,7 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
 
         <div className={styles.topBar}>
           <div className={styles.badges}>
-            <Badge variant="accent">{type}</Badge>
+            <Badge variant="accent" className={styles.houseTypeBadge}>{type}</Badge>
           </div>
           <button
             className={clsx(styles.saveButton, saved && styles.saved)}

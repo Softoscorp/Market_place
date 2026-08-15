@@ -61,6 +61,13 @@
   gap: var(--space-1);
 }
 
+.houseTypeBadge {
+  background-color: var(--brand-surface);
+  color: var(--brand-navy);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow-sm);
+}
+
 .saveButton {
   flex-shrink: 0;
   background: rgba(255, 255, 255, 0.9);

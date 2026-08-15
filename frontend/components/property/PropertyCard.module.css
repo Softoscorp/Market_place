@@ -61,7 +61,7 @@
   gap: var(--space-1);
 }
 
-.houseTypeBadge {
+.houseTypeBadge.houseTypeBadge {
   background-color: var(--brand-surface);
   color: var(--brand-navy);
   border: 1px solid rgba(0, 0, 0, 0.08);

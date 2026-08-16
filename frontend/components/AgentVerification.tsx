@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { getMyVerificationStatus, applyForVerification, uploadVerificationProof } from "@/lib/api";
-import { ShieldCheck, ShieldAlert, BadgeCheck, Upload } from "lucide-react";
+import { ShieldCheck, ShieldAlert, BadgeCheck, Upload, User, BookUser } from "lucide-react";
 import { useLanguageStore } from "@/lib/store/useLanguageStore";
 import styles from "./AgentVerification.module.css";
 
@@ -13,62 +13,115 @@ interface VerificationApplication {
   reviewer_notes?: string;
 }
 
+function DocUploadStep({ tier, onDone }: { tier: "local" | "international"; onDone: () => void }) {
+  const t = useLanguageStore((s) => s.t);
+  const [selfie, setSelfie] = useState<string | null>(null);
+  const [passport, setPassport] = useState<string | null>(null);
+  const [uploading, setUploading] = useState<"selfie" | "passport" | null>(null);
+  const [applying, setApplying] = useState(false);
+  const selfieInputRef = useRef<HTMLInputElement>(null);
+  const passportInputRef = useRef<HTMLInputElement>(null);
+
+  const handleDocUpload = async (kind: "selfie" | "passport", e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setUploading(kind);
+      const { url } = await uploadVerificationProof(file);
+      if (kind === 'selfie') setSelfie(url);
+      else setPassport(url);
+    } catch (err: unknown) {
+      console.error(err);
+      alert(t('av_failed_upload'));
+    } finally {
+      setUploading(null);
+      if (kind === 'selfie' && selfieInputRef.current) selfieInputRef.current.value = '';
+      if (kind === 'passport' && passportInputRef.current) passportInputRef.current.value = '';
+    }
+  };
+
+  const handleSubmit = async () => {
+    if (!selfie || !passport) return;
+    try {
+      setApplying(true);
+      await applyForVerification(tier, selfie, passport);
+      onDone();
+    } catch (err: unknown) {
+      console.error(err);
+      alert(t('av_failed'));
+    } finally {
+      setApplying(false);
+    }
+  };
+
+  const uploadingSelfie = uploading === 'selfie';
+  const uploadingPassport = uploading === 'passport';
+
+  return (
+    <div className={styles.docsStep}>
+      <p className={styles.docsHint}>{t('av_docs_hint')}</p>
+      <div className={styles.docRow}>
+        <button
+          type="button"
+          className={styles.docBtn}
+          onClick={() => selfieInputRef.current?.click()}
+          disabled={uploadingSelfie || uploadingPassport || applying}
+        >
+          <User size={16} />
+          {selfie ? t('av_selfie_done') : uploadingSelfie ? t('av_uploading') : t('av_selfie_label')}
+        </button>
+        <button
+          type="button"
+          className={styles.docBtn}
+          onClick={() => passportInputRef.current?.click()}
+          disabled={uploadingSelfie || uploadingPassport || applying}
+        >
+          <BookUser size={16} />
+          {passport ? t('av_passport_done') : uploadingPassport ? t('av_uploading') : t('av_passport_label')}
+        </button>
+      </div>
+      <button
+        type="button"
+        className={styles.submitBtn}
+        onClick={handleSubmit}
+        disabled={!selfie || !passport || applying}
+      >
+        {applying ? <><Upload size={16} /> {t('av_applying')}</> : <><Upload size={16} /> {t('av_submit_docs')}</>}
+      </button>
+
+      <input
+        type="file"
+        ref={selfieInputRef}
+        accept="image/*,.pdf"
+        className={styles.hiddenInput}
+        onChange={(e) => handleDocUpload('selfie', e)}
+      />
+      <input
+        type="file"
+        ref={passportInputRef}
+        accept="image/*,.pdf"
+        className={styles.hiddenInput}
+        onChange={(e) => handleDocUpload('passport', e)}
+      />
+    </div>
+  );
+}
+
 export function AgentVerification({ verificationTier }: { verificationTier: string }) {
   const t = useLanguageStore((s) => s.t);
   const [apps, setApps] = useState<VerificationApplication[]>([]);
   const [loading, setLoading] = useState(true);
-  const [uploadingTier, setUploadingTier] = useState<string | null>(null);
-  const [targetTier, setTargetTier] = useState<"local" | "international">("local");
-  const proofInputRef = useRef<HTMLInputElement>(null);
-
-  const loadStatus = async () => {
-    try {
-      const res = await getMyVerificationStatus();
-      setApps(res);
-    } catch (err: unknown) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
     getMyVerificationStatus()
       .then((res) => setApps(res))
       .catch((err: unknown) => console.error(err))
       .finally(() => setLoading(false));
-  }, []);
-
-  const handleProofUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    try {
-      setUploadingTier(targetTier);
-      const { url } = await uploadVerificationProof(file);
-      await applyForVerification(targetTier, [url]);
-      await loadStatus();
-    } catch (err: unknown) {
-      console.error(err);
-      alert(t('av_failed'));
-    } finally {
-      setUploadingTier(null);
-      if (proofInputRef.current) {
-        proofInputRef.current.value = '';
-      }
-    }
-  };
+  }, [refreshKey]);
 
   if (loading) return <div className={styles.loading}>{t('av_loading')}</div>;
-
-  const applyBtn = (tier: 'local' | 'international', reapplying: boolean) => {
-    const tierNum = tier === 'local' ? 1 : 2;
-    const uploading = uploadingTier === tier;
-    if (uploading) {
-      return <><Upload size={16} /> {t('av_uploading')}</>;
-    }
-    return <><Upload size={16} /> {t(reapplying ? 'av_reapply' : 'av_apply').replace('{tier}', String(tierNum))}</>;
-  };
 
   return (
     <div className={styles.card}>
@@ -79,14 +132,6 @@ export function AgentVerification({ verificationTier }: { verificationTier: stri
         </h2>
         <p className={styles.subtitle}>{t('av_subtitle')}</p>
       </div>
-
-      <input
-        type="file"
-        ref={proofInputRef}
-        accept="image/*,.pdf"
-        className={styles.hiddenInput}
-        onChange={handleProofUpload}
-      />
 
       <div className={styles.verificationGrid}>
         {/* Tier 1 Card */}
@@ -126,25 +171,11 @@ export function AgentVerification({ verificationTier }: { verificationTier: stri
                   <div className={`${styles.verificationStatus} ${styles.statusRejected}`}>
                     <ShieldAlert size={18} /> {t('av_rejected').replace('{notes}', app.reviewer_notes || '')}
                   </div>
-                  <button
-                    className={styles.verificationBtn}
-                    onClick={() => { setTargetTier('local'); proofInputRef.current?.click(); }}
-                    disabled={uploadingTier === 'local'}
-                  >
-                    {applyBtn('local', true)}
-                  </button>
+                  <DocUploadStep tier="local" onDone={() => setRefreshKey(k => k + 1)} />
                 </div>
               );
             } else {
-              return (
-                <button
-                  className={styles.verificationBtn}
-                  onClick={() => { setTargetTier('local'); proofInputRef.current?.click(); }}
-                  disabled={uploadingTier === 'local'}
-                >
-                  {applyBtn('local', false)}
-                </button>
-              );
+              return <DocUploadStep tier="local" onDone={() => setRefreshKey(k => k + 1)} />;
             }
           })()}
         </div>
@@ -187,13 +218,7 @@ export function AgentVerification({ verificationTier }: { verificationTier: stri
                   <div className={`${styles.verificationStatus} ${styles.statusRejected}`}>
                     <ShieldAlert size={18} /> {t('av_rejected').replace('{notes}', app.reviewer_notes || '')}
                   </div>
-                  <button
-                    className={`${styles.verificationBtn} ${styles.active}`}
-                    onClick={() => { setTargetTier('international'); proofInputRef.current?.click(); }}
-                    disabled={uploadingTier === 'international'}
-                  >
-                    {applyBtn('international', true)}
-                  </button>
+                  <DocUploadStep tier="international" onDone={() => setRefreshKey(k => k + 1)} />
                 </div>
               );
             } else if (!isLocalApproved) {
@@ -203,15 +228,7 @@ export function AgentVerification({ verificationTier }: { verificationTier: stri
                 </button>
               );
             } else {
-              return (
-                <button
-                  className={`${styles.verificationBtn} ${styles.active}`}
-                  onClick={() => { setTargetTier('international'); proofInputRef.current?.click(); }}
-                  disabled={uploadingTier === 'international'}
-                >
-                  {applyBtn('international', false)}
-                </button>
-              );
+              return <DocUploadStep tier="international" onDone={() => setRefreshKey(k => k + 1)} />;
             }
           })()}
         </div>

@@ -502,8 +502,17 @@ class KYCDocumentOut(BaseModel):
 # ============================================================================
 
 class VerificationApplicationCreate(BaseModel):
-    proof_urls: list[str]
+    proof_urls: list[str] = []
+    selfie_url: str
+    passport_url: str
     tier: VerificationTier
+
+    @field_validator("selfie_url", "passport_url")
+    @classmethod
+    def validate_document_url(cls, value: str) -> str:
+        if not value.startswith(("http://", "https://")):
+            raise ValueError("Document URL must be a valid http(s) link")
+        return value
 
     @field_validator("proof_urls")
     @classmethod
@@ -523,7 +532,9 @@ class VerificationApplicationOut(BaseModel):
     agent_id: int
     tier: VerificationTier
     status: VerificationStatus
-    proof_urls: list[str]
+    proof_urls: list[str] = []
+    selfie_url: Optional[str] = None
+    passport_url: Optional[str] = None
     reviewer_notes: Optional[str] = None
     created_at: datetime
     reviewed_at: Optional[datetime] = None

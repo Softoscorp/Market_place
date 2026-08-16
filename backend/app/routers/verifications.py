@@ -31,7 +31,9 @@ def apply_for_verification(
         agent_id=current_user.id,
         tier=app_in.tier,
         status=models.VerificationStatus.pending,
-        proof_urls=app_in.proof_urls
+        proof_urls=app_in.proof_urls,
+        selfie_url=app_in.selfie_url,
+        passport_url=app_in.passport_url
     )
     db.add(new_app)
     db.commit()

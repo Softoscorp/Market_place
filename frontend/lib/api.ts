@@ -267,10 +267,10 @@ export function pingPresence(): Promise<void> {
 // Verifications
 // ============================================================================
 
-export function applyForVerification(tier: string, proof_urls: string[]) {
+export function applyForVerification(tier: string, selfie_url: string, passport_url: string) {
   return apiRequest("/verifications/apply", {
     method: "POST",
-    body: { tier, proof_urls },
+    body: { tier, selfie_url, passport_url },
     auth: true,
   });
 }

@@ -429,6 +429,8 @@ class VerificationApplication(Base):
     tier = Column(Enum(VerificationTier, native_enum=False), nullable=False)
     status = Column(Enum(VerificationStatus, native_enum=False), nullable=False, default=VerificationStatus.pending)
     proof_urls = Column(JSON, nullable=False, default=list)
+    selfie_url = Column(Text, nullable=True)
+    passport_url = Column(Text, nullable=True)
     reviewer_notes = Column(Text, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     reviewed_at = Column(DateTime, nullable=True)

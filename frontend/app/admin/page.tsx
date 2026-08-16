@@ -47,6 +47,8 @@ interface VerificationApplication {
   tier: string;
   status: string;
   proof_urls: string[];
+  selfie_url?: string | null;
+  passport_url?: string | null;
   reviewer_notes?: string;
   created_at: string;
 }
@@ -416,6 +418,16 @@ title={t('ad_reject')}
                               </span>
                             );
                           })}
+                          {app.selfie_url && /^https?:\/\//i.test(app.selfie_url) && (
+                            <a href={app.selfie_url} target="_blank" rel="noreferrer" className={styles.proofLink}>
+                              {t('ad_selfie')}
+                            </a>
+                          )}
+                          {app.passport_url && /^https?:\/\//i.test(app.passport_url) && (
+                            <a href={app.passport_url} target="_blank" rel="noreferrer" className={styles.proofLink}>
+                              {t('ad_passport')}
+                            </a>
+                          )}
                         </div>
                       </td>
                     </tr>

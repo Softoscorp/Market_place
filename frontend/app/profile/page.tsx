@@ -3,29 +3,25 @@
 import React, { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import styles from './ProfilePage.module.css';
-import { MessageSquare, LogOut, LayoutDashboard, Camera, ShieldCheck, ShieldAlert, Upload, Bookmark, User, Star, Settings, IdCard, Award } from 'lucide-react';
+import { MessageSquare, LogOut, LayoutDashboard, Camera, ShieldAlert, Bookmark, User, Star, Settings } from 'lucide-react';
 import { useChatStore, type Message } from '@/lib/store/useChatStore';
 import { useAuthStore } from '@/lib/store/useAuthStore';
 import Link from 'next/link';
 import { BackButton } from '@/components/ui/BackButton';
 
 import { useRouter } from 'next/navigation';
-import { apiRequest, mediaUrl, getToken, getSavedProperties, getAgentProfile, getMyVerificationStatus, applyForVerification, uploadVerificationProof, uploadAvatar, deactivateAccount } from '@/lib/api';
+import { apiRequest, mediaUrl, getToken, getSavedProperties, getAgentProfile, uploadAvatar, deactivateAccount } from '@/lib/api';
 import { useLanguageStore } from '@/lib/store/useLanguageStore';
 
 import { ProtectedImage } from '@/components/ui/ProtectedImage';
 import { BrandedAvatar } from '@/components/ui/BrandedAvatar';
+import { AgentVerification } from '@/components/AgentVerification';
 
 function previewText(msg: Message): string {
   if (msg.message_type === 'image') return '[Image]';
   if (msg.message_type === 'voice') return '[Voice message]';
   if (msg.message_type === 'listing') return msg.listing ? `[Apartment: ${msg.listing.title}]` : '[Apartment]';
   return msg.text || '';
-}
-
-interface VerificationApplication {
-  tier: 'local' | 'international';
-  status: 'pending' | 'approved' | 'rejected';
 }
 
 export default function ProfilePage() {
@@ -49,40 +45,6 @@ export default function ProfilePage() {
   const [avgRating, setAvgRating] = useState<string>('—');
 
   // Verification states
-  const [verifications, setVerifications] = useState<VerificationApplication[]>([]);
-  const [uploadingProof, setUploadingProof] = useState<string | null>(null);
-  const proofInputRef = useRef<HTMLInputElement>(null);
-  const [targetTier, setTargetTier] = useState<string | null>(null);
-
-  const fetchVerifications = async () => {
-    if (user?.role !== 'agent') return;
-    try {
-      const data = await getMyVerificationStatus();
-      setVerifications(data);
-    } catch (e) {
-      console.error('Failed to fetch verifications', e);
-    }
-  };
-
-  const handleProofUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file || !targetTier) return;
-
-    setUploadingProof(targetTier);
-    try {
-      const { url } = await uploadVerificationProof(file);
-      await applyForVerification(targetTier, [url]);
-      await fetchVerifications();
-      alert('Application submitted successfully!');
-    } catch (err: unknown) {
-      alert('Error: ' + (err instanceof Error ? err.message : String(err)));
-    } finally {
-      setUploadingProof(null);
-      setTargetTier(null);
-      if (proofInputRef.current) proofInputRef.current.value = '';
-    }
-  };
-
   const handleAvatarSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -152,12 +114,6 @@ export default function ProfilePage() {
             logout();
           }
         });
-      
-      if (user?.role === 'agent') {
-        getMyVerificationStatus()
-          .then((res) => setVerifications(res))
-          .catch((err: unknown) => console.error('Failed to fetch verifications', err));
-      }
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -411,91 +367,7 @@ export default function ProfilePage() {
 
           {/* Verification Progress (Agents Only) */}
           {user?.role === 'agent' && (
-            <div className={styles.card}>
-              <div className={styles.cardTitleRow}>
-                <div className={styles.cardTitleLead}>
-                  <span className={styles.cardTitleIcon}><ShieldCheck size={18} /></span>
-                  <h3 className={styles.cardTitle}>Verification Progress</h3>
-                </div>
-              </div>
-
-              <input 
-                type="file" 
-                ref={proofInputRef} 
-                accept="image/*,.pdf" 
-                className={styles.hiddenInput} 
-                onChange={handleProofUpload} 
-              />
-
-              {/* Tier 1 */}
-              {(() => {
-                const app = verifications.find(v => v.tier === 'local');
-                const isApproved = user?.verification_tier === 'local' || user?.verification_tier === 'international';
-                const isPending = app && app.status === 'pending';
-
-                return (
-                  <div className={styles.verifyRow}>
-                    <div className={styles.verifyTop}>
-                      <span className={styles.verifyTitle}><IdCard size={15} className={styles.iconInline} /> Tier 1 · Local</span>
-                      {isApproved ? (
-                        <span className={`${styles.chipMini} ${styles.chipGreen}`}>✓ Verified</span>
-                      ) : isPending ? (
-                        <span className={`${styles.chipMini} ${styles.chipAmber}`}><ShieldAlert size={12} /> Review Pending</span>
-                      ) : (
-                        <button 
-                          className={styles.applyBtn}
-                          onClick={() => { setTargetTier('local'); proofInputRef.current?.click(); }}
-                          disabled={uploadingProof === 'local'}
-                        >
-                          {uploadingProof === 'local' ? 'Uploading...' : <><Upload size={14} /> Apply</>}
-                        </button>
-                      )}
-                    </div>
-                    <div className={styles.bar}>
-                      <div className={`${styles.fill} ${isApproved ? styles.fillFull : isPending ? styles.fillHalf : ''}`}></div>
-                    </div>
-                  </div>
-                );
-              })()}
-
-              {/* Tier 2 */}
-              {(() => {
-                const app = verifications.find(v => v.tier === 'international');
-                const isLocalApproved = user?.verification_tier === 'local' || user?.verification_tier === 'international';
-                const isInternationalApproved = user?.verification_tier === 'international';
-                const isPending = app && app.status === 'pending';
-
-                return (
-                  <div className={styles.verifyRow}>
-                    <div className={styles.verifyTop}>
-                      <span className={styles.verifyTitle}><Award size={15} className={styles.iconInline} /> Tier 2 · International</span>
-                      {isInternationalApproved ? (
-                        <span className={`${styles.chipMini} ${styles.chipGreen}`}>✓ Premium Verified</span>
-                      ) : isPending ? (
-                        <span className={`${styles.chipMini} ${styles.chipAmber}`}><ShieldAlert size={12} /> Review Pending</span>
-                      ) : !isLocalApproved ? (
-                        <span className={`${styles.chipMini} ${styles.chipGrey}`}>Complete Tier 1 First</span>
-                      ) : (
-                        <button 
-                          className={styles.applyBtn}
-                          onClick={() => { setTargetTier('international'); proofInputRef.current?.click(); }}
-                          disabled={uploadingProof === 'international'}
-                        >
-                          {uploadingProof === 'international' ? 'Uploading...' : <><Upload size={14} /> Apply</>}
-                        </button>
-                      )}
-                    </div>
-                    <div className={styles.bar}>
-                      <div className={`${styles.fill} ${isInternationalApproved ? styles.fillFull : isPending ? styles.fillHalf : isLocalApproved ? styles.fillHalf : ''}`}></div>
-                    </div>
-                  </div>
-                );
-              })()}
-
-              <p className={styles.verifyNote}>
-                Tier 1 unlocks the verified badge on your listings. Tier 2 adds premium visibility for agents.
-              </p>
-            </div>
+            <AgentVerification verificationTier={user?.verification_tier || 'none'} />
           )}
         </div>
 

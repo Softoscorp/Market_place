@@ -547,9 +547,6 @@ export const translations = {
     pd_post_roommate: 'Post Roommate Request',
 
     // Roommates page
-    rm_budget_under: 'Under £300',
-    rm_budget_300: '£300 – £500',
-    rm_budget_500: '£500+',
     rm_post_ad: 'Post a Housemate Ad',
     rm_search: 'Search by name, area, school…',
     rm_clear_search: 'Clear search',
@@ -559,6 +556,8 @@ export const translations = {
     rm_area_school: 'Area / School',
     rm_all_areas: 'All areas',
     rm_budget: 'Budget',
+    rm_budget_min: 'Min',
+    rm_budget_max: 'Max',
     rm_all: 'All',
     rm_housemates: 'Housemates',
     rm_roommates: 'Roommates',
@@ -572,17 +571,6 @@ export const translations = {
     rm_no_results: 'No profiles match those filters yet. Be the first to post a room.',
     rm_student: '{uni} student',
     rm_tenant: 'Tenant',
-    rm_your_matches: 'Your Matches',
-    rm_your_matches_sub: 'Ranked by how well your profiles fit together.',
-    rm_no_own_profile: 'Post your own profile to see personalized matches.',
-    rm_match_score: '{score}% match',
-    rm_no_matches_found: 'No compatible matches yet. Try updating your profile or posting a room ad.',
-    rm_matched_city: 'Both looking in {city}',
-    rm_matched_budget: 'Budgets are compatible',
-    rm_matched_timeline: 'Move-in dates overlap',
-    rm_matched_gender: 'Gender preference compatible',
-    rm_matched_type: 'Roommate / housemate pairing',
-    rm_matched_habits: 'Shared habits: {habits}',
 
     // Agents page
     ag_tiers_aria: 'About agent tiers',
@@ -1482,9 +1470,6 @@ export const translations = {
     pd_post_roommate: 'Oda Arkadaşı Talebi Gönder',
 
     // Roommates page
-    rm_budget_under: '£300 Altı',
-    rm_budget_300: '£300 – £500',
-    rm_budget_500: '£500+',
     rm_post_ad: 'Ev Arkadaşı İlanı Ver',
     rm_search: 'Ada, bölge, okula göre ara…',
     rm_clear_search: 'Aramayı temizle',
@@ -1494,6 +1479,8 @@ export const translations = {
     rm_area_school: 'Bölge / Okul',
     rm_all_areas: 'Tüm bölgeler',
     rm_budget: 'Bütçe',
+    rm_budget_min: 'Min',
+    rm_budget_max: 'Maks',
     rm_all: 'Tümü',
     rm_housemates: 'Ev Arkadaşları',
     rm_roommates: 'Oda Arkadaşları',
@@ -1507,17 +1494,6 @@ export const translations = {
     rm_no_results: 'Bu filtrelere uyan profil henüz yok. İlk odayı ilan eden siz olun.',
     rm_student: '{uni} öğrencisi',
     rm_tenant: 'Kiracı',
-    rm_your_matches: 'Eşleşmelerin',
-    rm_your_matches_sub: 'Profillerinizin uyumuna göre sıralandı.',
-    rm_no_own_profile: 'Kişiselleştirilmiş eşleşmeler görmek için kendi profilinizi oluşturun.',
-    rm_match_score: '%{score} eşleşme',
-    rm_no_matches_found: 'Henüz uyumlu eşleşme yok. Profilinizi güncellemeyi veya oda ilanı vermeyi deneyin.',
-    rm_matched_city: 'Her ikisi de {city} bölgesinde arıyor',
-    rm_matched_budget: 'Bütçeler uyumlu',
-    rm_matched_timeline: 'Taşınma tarihleri örtüşüyor',
-    rm_matched_gender: 'Cinsiyet tercihi uyumlu',
-    rm_matched_type: 'Oda / ev arkadaşı eşleşmesi',
-    rm_matched_habits: 'Ortak alışkanlıklar: {habits}',
 
     // Agents page
     ag_tiers_aria: 'Emlakçı seviyeleri hakkında',

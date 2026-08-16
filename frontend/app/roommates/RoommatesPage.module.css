@@ -231,6 +231,51 @@
   outline: none;
 }
 
+.budgetRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.budgetField {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--border);
+  background: var(--brand-surface);
+  border-radius: 10px;
+  padding: 0 12px;
+}
+
+.budgetField:focus-within {
+  border-color: var(--brand-navy);
+}
+
+.budgetPrefix {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.budgetField input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  padding: 11px 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  min-width: 0;
+}
+
+.budgetDash {
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 700;
+}
+
 .chip {
   border: 1px solid var(--border);
   background: var(--bg-surface);

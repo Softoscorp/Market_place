@@ -431,6 +431,7 @@ class RoommateProfileCreateRequest(BaseModel):
     habits: list[str]
     gender_preference: str
     avatar_url: Optional[str] = None
+    photos: Optional[list[str]] = None
 
 
 class RoommateProfileOut(BaseModel):
@@ -454,6 +455,7 @@ class RoommateProfileOut(BaseModel):
     habits: list[str]
     gender_preference: str
     avatar_url: Optional[str]
+    photos: Optional[list[str]]
     created_at: datetime
     user: PublicUserOut
 

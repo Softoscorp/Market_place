@@ -62,6 +62,45 @@
   background: var(--brand-navy-soft);
 }
 
+.arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--brand-navy);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-sm);
+  z-index: 2;
+}
+
+.arrowPrev {
+  left: 4px;
+}
+
+.arrowNext {
+  right: 4px;
+}
+
+.slideCount {
+  position: absolute;
+  bottom: 4px;
+  right: 4px;
+  background: rgba(8, 25, 47, 0.78);
+  color: var(--text-on-brand);
+  font-size: 9px;
+  font-weight: 700;
+  border-radius: 999px;
+  padding: 2px 6px;
+  z-index: 2;
+}
+
 .info {
   flex: 1;
   min-width: 0;

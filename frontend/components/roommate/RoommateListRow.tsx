@@ -1,7 +1,7 @@
 'use client';
 
-import React from 'react';
-import { MessageCircle, Heart, BedDouble, Sofa } from 'lucide-react';
+import React, { useState } from 'react';
+import { ChevronLeft, ChevronRight, MessageCircle, Heart, BedDouble, Sofa } from 'lucide-react';
 import { useChatStore } from '@/lib/store/useChatStore';
 import { useLanguageStore } from '@/lib/store/useLanguageStore';
 import { ProtectedImage } from '@/components/ui/ProtectedImage';
@@ -13,6 +13,7 @@ interface RoommateListRowProps {
   gender?: string;
   occupation: string;
   imageUrl: string;
+  photos?: string[];
   sharedInterests: string[];
   budget: string;
   profileType?: string;
@@ -27,6 +28,7 @@ export function RoommateListRow({
   gender,
   occupation,
   imageUrl,
+  photos,
   sharedInterests,
   budget,
   profileType = 'roommate',
@@ -36,16 +38,21 @@ export function RoommateListRow({
 }: RoommateListRowProps) {
   const { openChat } = useChatStore();
   const t = useLanguageStore((s) => s.t);
+  const [slide, setSlide] = useState(0);
 
+  const slides = (photos && photos.length > 0 ? photos : [imageUrl]).filter(Boolean);
   const detail = [age > 0 ? `${age}` : '', gender, occupation]
     .filter(Boolean)
     .join(' · ');
 
+  const prev = () => setSlide((s) => (s - 1 + slides.length) % slides.length);
+  const next = () => setSlide((s) => (s + 1) % slides.length);
+
   return (
     <div className={styles.row}>
       <div className={styles.thumb}>
-        {imageUrl ? (
-          <ProtectedImage src={imageUrl} fallbackSrc={imageUrl} alt={name} className={styles.thumbImg} />
+        {slides.length > 0 ? (
+          <ProtectedImage src={slides[slide]} fallbackSrc={slides[slide]} alt={name} className={styles.thumbImg} />
         ) : (
           <div className={`${styles.thumbImg} ${styles.thumbFallback}`}>
             {profileType === 'housemate' ? <BedDouble size={26} /> : <Sofa size={26} />}
@@ -54,6 +61,17 @@ export function RoommateListRow({
         <span className={`${styles.typePill} ${profileType === 'housemate' ? styles.typeHousemate : styles.typeRoommate}`}>
           {profileType === 'housemate' ? t('rc_housemate') : t('rc_roommate')}
         </span>
+        {slides.length > 1 && (
+          <>
+            <button className={`${styles.arrow} ${styles.arrowPrev}`} onClick={prev} aria-label={t('rc_prev_photo')}>
+              <ChevronLeft size={12} />
+            </button>
+            <button className={`${styles.arrow} ${styles.arrowNext}`} onClick={next} aria-label={t('rc_next_photo')}>
+              <ChevronRight size={12} />
+            </button>
+            <span className={styles.slideCount}>{slide + 1}/{slides.length}</span>
+          </>
+        )}
       </div>
 
       <div className={styles.info}>

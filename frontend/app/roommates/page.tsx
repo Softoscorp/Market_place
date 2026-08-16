@@ -24,6 +24,7 @@ interface Roommate {
   nationality?: string | null;
   looking_for_city?: string[];
   avatar_url?: string | null;
+  photos?: string[] | null;
   user: {
     name: string;
     avatar_url?: string;
@@ -245,6 +246,7 @@ export default function RoommatesPage() {
                   gender={roommate.gender || roommate.user?.gender}
                   occupation={roommate.occupation || (roommate.university ? t('rm_student').replace('{uni}', roommate.university) : t('rm_tenant'))}
                   imageUrl={mediaUrl(roommate.avatar_url) || ''}
+                  photos={(roommate.photos || []).map((p) => mediaUrl(p)).filter((u): u is string => Boolean(u))}
                   sharedInterests={roommate.habits?.slice(0, 3) || []}
                   budget={`£${roommate.budget}`}
                   profileType={roommate.profile_type || 'roommate'}
@@ -263,6 +265,7 @@ export default function RoommatesPage() {
                   gender={roommate.gender || roommate.user?.gender}
                   occupation={roommate.occupation || (roommate.university ? t('rm_student').replace('{uni}', roommate.university) : t('rm_tenant'))}
                   imageUrl={mediaUrl(roommate.avatar_url) || ''}
+                  photos={(roommate.photos || []).map((p) => mediaUrl(p)).filter((u): u is string => Boolean(u))}
                   sharedInterests={roommate.habits?.slice(0, 3) || []}
                   budget={`£${roommate.budget}`}
                   profileType={roommate.profile_type || 'roommate'}

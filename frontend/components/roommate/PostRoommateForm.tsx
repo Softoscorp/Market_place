@@ -31,6 +31,7 @@ export function PostRoommateForm({ onClose, onPosted }: PostRoommateFormProps) {
   const { user, isAuthenticated } = useAuthStore();
   const t = useLanguageStore((s) => s.t);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const roomFilesInputRef = useRef<HTMLInputElement>(null);
   const [profileType, setProfileType] = useState<'roommate' | 'housemate'>('housemate');
   const [name, setName] = useState(user?.name || '');
   const [age, setAge] = useState('');
@@ -48,6 +49,8 @@ export function PostRoommateForm({ onClose, onPosted }: PostRoommateFormProps) {
   const [genderPreference, setGenderPreference] = useState('Any');
   const [photo, setPhoto] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
+  const [roomPhotos, setRoomPhotos] = useState<File[]>([]);
+  const [roomPreviews, setRoomPreviews] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -82,6 +85,24 @@ export function PostRoommateForm({ onClose, onPosted }: PostRoommateFormProps) {
     setError(null);
   };
 
+  const handleRoomFiles = (files: FileList | null) => {
+    if (!files) return;
+    const valid = Array.from(files).filter((f) => f.type.startsWith('image/'));
+    if (valid.length !== files.length) {
+      setError(t('prf_err_image'));
+      return;
+    }
+    const next = [...roomPhotos, ...valid].slice(0, 6);
+    setRoomPhotos(next);
+    setRoomPreviews(next.map((f) => URL.createObjectURL(f)));
+    setError(null);
+  };
+
+  const removeRoomPhoto = (idx: number) => {
+    setRoomPhotos((prev) => prev.filter((_, i) => i !== idx));
+    setRoomPreviews((prev) => prev.filter((_, i) => i !== idx));
+  };
+
   const handleSubmit = async () => {
     setError(null);
 
@@ -114,6 +135,14 @@ export function PostRoommateForm({ onClose, onPosted }: PostRoommateFormProps) {
         photoUrl = (res as { url: string }).url;
       }
 
+      const photoUrls: string[] = [];
+      for (const file of roomPhotos) {
+        const formData = new FormData();
+        formData.append('file', file);
+        const res = await apiRequest('/roommates/photo', { method: 'POST', formData });
+        photoUrls.push((res as { url: string }).url);
+      }
+
       const payload = {
         name: name.trim(),
         age: numAge,
@@ -131,6 +160,7 @@ export function PostRoommateForm({ onClose, onPosted }: PostRoommateFormProps) {
         habits,
         gender_preference: genderPreference,
         avatar_url: photoUrl,
+        photos: photoUrls.length > 0 ? photoUrls : null,
       };
 
       await apiRequest('/roommates', { method: 'POST', body: payload });
@@ -189,6 +219,35 @@ export function PostRoommateForm({ onClose, onPosted }: PostRoommateFormProps) {
               accept="image/*"
               hidden
               onChange={(e) => handleFile(e.target.files?.[0])}
+            />
+          </div>
+
+          <div className={styles.roomPhotos}>
+            <span className={styles.roomPhotosLabel}>{t('prf_room_photos')}</span>
+            <div className={styles.roomPhotosGrid}>
+              {roomPreviews.map((src, idx) => (
+                <div key={idx} className={styles.roomPhoto}>
+                  <div className={styles.roomPhotoImg} style={{ backgroundImage: `url(${src})` }} />
+                  <button type="button" className={styles.roomPhotoRemove} onClick={() => removeRoomPhoto(idx)} aria-label={t('prf_remove_photo')}>
+                    <X size={12} />
+                  </button>
+                </div>
+              ))}
+              {roomPhotos.length < 6 && (
+                <button type="button" className={styles.roomPhotoAdd} onClick={() => roomFilesInputRef.current?.click()}>
+                  <Camera size={18} />
+                  <span>{t('prf_add_room_photo')}</span>
+                </button>
+              )}
+            </div>
+            <small className={styles.roomPhotosHint}>{t('prf_room_photos_hint')}</small>
+            <input
+              ref={roomFilesInputRef}
+              type="file"
+              accept="image/*"
+              multiple
+              hidden
+              onChange={(e) => { handleRoomFiles(e.target.files); e.target.value = ''; }}
             />
           </div>
 

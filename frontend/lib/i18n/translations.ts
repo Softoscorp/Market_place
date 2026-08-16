@@ -327,6 +327,10 @@ export const translations = {
     prf_type_roommate_hint: 'I want to share a room',
     prf_photo_placeholder: 'Snap a photo of the room',
     prf_photo_hint: 'JPG, PNG or WebP',
+    prf_room_photos: 'Apartment photos',
+    prf_add_room_photo: 'Add photo',
+    prf_room_photos_hint: 'Show the actual room, kitchen and living space. Optional.',
+    prf_remove_photo: 'Remove photo',
     prf_name: 'Name *',
     prf_name_placeholder: 'Your name',
     prf_age: 'Age *',
@@ -363,6 +367,8 @@ export const translations = {
     rc_flat: '{type} flat',
     rc_message: 'Message',
     rc_save: 'Save',
+    rc_prev_photo: 'Previous photo',
+    rc_next_photo: 'Next photo',
 
     // RoommateMatchForm
     rmf_title: 'Find Your Match',
@@ -1250,6 +1256,10 @@ export const translations = {
     prf_type_roommate_hint: 'Bir odayı paylaşmak istiyorum',
     prf_photo_placeholder: 'Odanın fotoğrafını çekin',
     prf_photo_hint: 'JPG, PNG veya WebP',
+    prf_room_photos: 'Daire fotoğrafları',
+    prf_add_room_photo: 'Fotoğraf ekle',
+    prf_room_photos_hint: 'Gerçek odayı, mutfağı ve oturma alanını gösterin. İsteğe bağlı.',
+    prf_remove_photo: 'Fotoğrafı kaldır',
     prf_name: 'Ad *',
     prf_name_placeholder: 'Adınız',
     prf_age: 'Yaş *',
@@ -1286,6 +1296,8 @@ export const translations = {
     rc_flat: '{type} daire',
     rc_message: 'Mesaj',
     rc_save: 'Kaydet',
+    rc_prev_photo: 'Önceki fotoğraf',
+    rc_next_photo: 'Sonraki fotoğraf',
 
     // RoommateMatchForm
     rmf_title: 'Eşleşmeni Bul',

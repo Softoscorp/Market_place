@@ -69,6 +69,7 @@ def create_roommate_profile(
         habits=profile_in.habits,
         gender_preference=profile_in.gender_preference,
         avatar_url=profile_in.avatar_url,
+        photos=profile_in.photos,
     )
     db.add(db_profile)
     db.commit()

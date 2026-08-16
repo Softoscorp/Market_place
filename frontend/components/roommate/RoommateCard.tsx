@@ -1,7 +1,7 @@
 'use client';
 
-import React from 'react';
-import { MessageCircle, Heart, Home, Users, BedDouble, Sofa } from 'lucide-react';
+import React, { useState } from 'react';
+import { ChevronLeft, ChevronRight, MessageCircle, Heart, Home, Users, BedDouble, Sofa } from 'lucide-react';
 import { useChatStore } from '@/lib/store/useChatStore';
 import { useLanguageStore } from '@/lib/store/useLanguageStore';
 import { ProtectedImage } from '@/components/ui/ProtectedImage';
@@ -12,6 +12,7 @@ interface RoommateCardProps {
   age: number;
   occupation: string;
   imageUrl: string;
+  photos?: string[];
   sharedInterests: string[];
   budget: string;
   profileType?: string;
@@ -26,6 +27,7 @@ export function RoommateCard({
   age,
   occupation,
   imageUrl,
+  photos,
   sharedInterests,
   budget,
   profileType = 'roommate',
@@ -36,12 +38,19 @@ export function RoommateCard({
 }: RoommateCardProps) {
   const { openChat } = useChatStore();
   const t = useLanguageStore((s) => s.t);
+  const [slide, setSlide] = useState(0);
+
+  const slides = (photos && photos.length > 0 ? photos : [imageUrl]).filter(Boolean);
+  const slideLabel = slides.length > 1 ? `${slide + 1} / ${slides.length}` : '';
+
+  const prev = () => setSlide((s) => (s - 1 + slides.length) % slides.length);
+  const next = () => setSlide((s) => (s + 1) % slides.length);
 
   return (
     <div className={styles.card}>
-      <div className={styles.photoWrap}>
-        {imageUrl ? (
-          <ProtectedImage src={imageUrl} fallbackSrc={imageUrl} alt={name} className={styles.photo} />
+      <div className={styles.slider}>
+        {slides.length > 0 ? (
+          <ProtectedImage src={slides[slide]} fallbackSrc={slides[slide]} alt={name} className={styles.photo} />
         ) : (
           <div className={`${styles.photo} ${styles.photoFallback}`}>
             <span className={styles.photoIcon}>
@@ -55,6 +64,23 @@ export function RoommateCard({
           {profileType === 'housemate' ? t('rc_housemate') : t('rc_roommate')}
         </div>
         <div className={styles.pricePill}>{budget} {t('per_month')}</div>
+
+        {slides.length > 1 && (
+          <>
+            <button className={`${styles.arrow} ${styles.arrowPrev}`} onClick={prev} aria-label={t('rc_prev_photo')}>
+              <ChevronLeft size={16} />
+            </button>
+            <button className={`${styles.arrow} ${styles.arrowNext}`} onClick={next} aria-label={t('rc_next_photo')}>
+              <ChevronRight size={16} />
+            </button>
+            <div className={styles.dots}>
+              {slides.map((_, i) => (
+                <span key={i} className={`${styles.dot} ${i === slide ? styles.dotOn : ''}`} onClick={() => setSlide(i)} />
+              ))}
+            </div>
+            <span className={styles.slideCount}>{slideLabel}</span>
+          </>
+        )}
       </div>
 
       <div className={styles.body}>

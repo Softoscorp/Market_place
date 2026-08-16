@@ -376,6 +376,7 @@ class RoommateProfile(Base):
     habits = Column(JSON, nullable=False)  # list of habits
     gender_preference = Column(String, nullable=False)
     avatar_url = Column(String, nullable=True)
+    photos = Column(JSON, nullable=True)  # list of apartment/room photo URLs
     created_at = Column(DateTime, default=datetime.utcnow)
 
     user = relationship("User")

@@ -13,13 +13,15 @@ import {
   Plus,
   Building2,
   LogOut,
-  ShieldAlert
+  ShieldAlert,
+  TrendingUp,
+  Heart
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/lib/store/useAuthStore';
 import { useChatStore } from '@/lib/store/useChatStore';
 import { useLanguageStore } from '@/lib/store/useLanguageStore';
-import { apiRequest, mediaUrl, deactivateAccount, releaseClaim, completeClaim } from '@/lib/api';
+import { apiRequest, mediaUrl, deactivateAccount, releaseClaim, completeClaim, getMyListingStats } from '@/lib/api';
 import { BrandedAvatar } from '@/components/ui/BrandedAvatar';
 import { VerifiedBadge } from '@/components/ui/VerifiedBadge';
 import { AgentVerification } from '@/components/AgentVerification';
@@ -55,6 +57,8 @@ export default function AgentDashboard() {
   const [agentListings, setAgentListings] = useState<RealListing[]>([]);
   const [listingClaims, setListingClaims] = useState<Record<number, ListingClaim>>({});
   const [loadingListings, setLoadingListings] = useState(true);
+  const [stats, setStats] = useState<import('@/lib/api').ListingStats | null>(null);
+  const [loadingStats, setLoadingStats] = useState(true);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -86,6 +90,11 @@ export default function AgentDashboard() {
         setListingClaims(map);
       })
       .catch(() => setListingClaims({}));
+
+    getMyListingStats()
+      .then(setStats)
+      .catch(() => setStats(null))
+      .finally(() => setLoadingStats(false));
   }, [isAuthenticated, user, router]);
 
   const handleRelease = async (id: string | number) => {
@@ -124,15 +133,11 @@ export default function AgentDashboard() {
 
   const conversationList = Object.values(conversations);
 
-  const respondRateStr = user?.respond_rate != null 
-    ? `${user.respond_rate}%`
-    : '0%';
-
   const metrics = [
-    { labelKey: 'ad_total_views', value: '0', change: '0%', icon: Eye, trend: 'neutral' },
-    { labelKey: 'ad_active_listings', value: String(agentListings.length), change: '0%', icon: List, trend: 'neutral' },
-    { labelKey: 'ad_messages', value: String(conversationList.length), change: '0%', icon: MessageSquare, trend: 'neutral' },
-    { labelKey: 'ad_respond_rate', value: respondRateStr, change: '0%', icon: MousePointerClick, trend: 'neutral' },
+    { labelKey: 'ad_total_views', value: stats ? String(stats.totals.views) : '…', change: '0%', icon: Eye, trend: 'neutral' },
+    { labelKey: 'ad_total_clicks', value: stats ? String(stats.totals.clicks) : '…', change: '0%', icon: MousePointerClick, trend: 'neutral' },
+    { labelKey: 'ad_total_saves', value: stats ? String(stats.totals.saves) : '…', change: '0%', icon: Heart, trend: 'neutral' },
+    { labelKey: 'ad_total_messages', value: stats ? String(stats.totals.messages) : '…', change: '0%', icon: MessageSquare, trend: 'neutral' },
   ];
 
   const renderTabContent = () => {
@@ -180,6 +185,86 @@ export default function AgentDashboard() {
                 )}
               </div>
             </div>
+          </motion.div>
+        );
+
+      case 'analytics':
+        return (
+          <motion.div 
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className={styles.analyticsTab}
+          >
+            <div className={styles.tabHeader}>
+              <h3 className={styles.sectionTitle}>{t('ad_analytics_title')}</h3>
+            </div>
+
+            {loadingStats ? (
+              <p className={styles.loadingText}>{t('ad_loading_listings')}</p>
+            ) : !stats || stats.listings.length === 0 ? (
+              <div className={styles.emptyStateCard}>
+                <TrendingUp size={48} className={styles.emptyStateIcon} />
+                <h4 className={styles.emptyStateTitle}>{t('ad_analytics_empty')}</h4>
+                <p className={styles.emptyStateText}>{t('ad_analytics_empty_sub')}</p>
+              </div>
+            ) : (
+              <div className={styles.analyticsGrid}>
+                {stats.listings.map((listing) => {
+                  const rate = listing.views > 0 ? Math.round((listing.clicks / listing.views) * 100) : 0;
+                  const peak = listing.daily.reduce((m, p) => Math.max(m, p.views), 0);
+                  return (
+                    <div key={listing.id} className={styles.analyticsCard}>
+                      <div className={styles.analyticsCardHead}>
+                        <Link href={`/property/${listing.id}`} className={styles.analyticsTitle}>
+                          {listing.title}
+                        </Link>
+                        <span className={styles.analyticsRate}>{rate}% {t('ad_analytics_ctr')}</span>
+                      </div>
+                      <div className={styles.analyticsStatRow}>
+                        <div className={styles.analyticsStat}>
+                          <span className={styles.analyticsStatValue}>{listing.views}</span>
+                          <span className={styles.analyticsStatLabel}>{t('ad_analytics_views')}</span>
+                        </div>
+                        <div className={styles.analyticsStat}>
+                          <span className={styles.analyticsStatValue}>{listing.clicks}</span>
+                          <span className={styles.analyticsStatLabel}>{t('ad_analytics_clicks')}</span>
+                        </div>
+                        <div className={styles.analyticsStat}>
+                          <span className={styles.analyticsStatValue}>{listing.saves}</span>
+                          <span className={styles.analyticsStatLabel}>{t('ad_analytics_saves')}</span>
+                        </div>
+                        <div className={styles.analyticsStat}>
+                          <span className={styles.analyticsStatValue}>{listing.messages}</span>
+                          <span className={styles.analyticsStatLabel}>{t('ad_analytics_messages')}</span>
+                        </div>
+                        <div className={styles.analyticsStat}>
+                          <span className={styles.analyticsStatValue}>{listing.claims}</span>
+                          <span className={styles.analyticsStatLabel}>{t('ad_analytics_claims')}</span>
+                        </div>
+                        <div className={styles.analyticsStat}>
+                          <span className={styles.analyticsStatValue}>{listing.completed}</span>
+                          <span className={styles.analyticsStatLabel}>{t('ad_analytics_completed')}</span>
+                        </div>
+                      </div>
+                      <div className={styles.dailyBars}>
+                        {listing.daily.length === 0 ? (
+                          <span className={styles.dailyEmpty}>{t('ad_analytics_no_daily')}</span>
+                        ) : (
+                          listing.daily.map((point) => {
+                            const h = peak > 0 ? Math.max(8, Math.round((point.views / peak) * 100)) : 8;
+                            return (
+                              <div key={point.day} className={styles.dailyBarWrap} title={`${point.day}: ${point.views}`}>
+                                <div className={styles.dailyBar} style={{ height: `${h}%` }} />
+                              </div>
+                            );
+                          })
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </motion.div>
         );
 
@@ -410,6 +495,12 @@ export default function AgentDashboard() {
             <List size={18} /> {t('ad_nav_my_listings')}
           </button>
           <button 
+            className={`${styles.navItem} ${activeTab === 'analytics' ? styles.active : ''}`}
+            onClick={() => setActiveTab('analytics')}
+          >
+            <TrendingUp size={18} /> {t('ad_nav_analytics')}
+          </button>
+          <button 
             className={`${styles.navItem} ${activeTab === 'crm' ? styles.active : ''}`}
             onClick={() => setActiveTab('crm')}
           >
@@ -448,6 +539,7 @@ export default function AgentDashboard() {
             <h1 className={styles.pageTitle}>
               {activeTab === 'overview' && 'Dashboard Overview'}
               {activeTab === 'listings' && t('ad_nav_top_properties')}
+              {activeTab === 'analytics' && t('ad_nav_top_analytics')}
               {activeTab === 'crm' && t('ad_nav_top_crm')}
               {activeTab === 'settings' && t('ad_nav_top_settings')}
               {activeTab === 'verification' && t('ad_nav_top_verification')}

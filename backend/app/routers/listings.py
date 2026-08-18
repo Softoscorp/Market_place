@@ -1,7 +1,7 @@
 import os
 import uuid
 from concurrent.futures import ThreadPoolExecutor
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query, UploadFile, File
@@ -21,26 +21,56 @@ from ..translation import translate_with_cache
 _view_executor = ThreadPoolExecutor(max_workers=2)
 
 
-def _increment_view_count_async(listing_id: int):
-    """Bump a listing's view_count without delaying the API response.
+def _bump_listing_counter(listing_id: int, column: str):
+    """Bump a listing counter (view_count/click_count) + its daily rollup row
+    without delaying the API response.
 
-    Runs a single UPDATE in its own connection/thread so the request can return
-    immediately; a failure here is never fatal.
+    Runs a single upsert in its own connection/thread so the request can
+    return immediately; a failure here is never fatal.
     """
     def _bump():
         try:
             from ..database import SessionLocal
             from sqlalchemy import text
+            from datetime import date as _date
+            today = _date.today().isoformat()
             with SessionLocal() as s:
                 s.execute(
-                    text("UPDATE listings SET view_count = COALESCE(view_count, 0) + 1 WHERE id = :id"),
+                    text(
+                        f"UPDATE listings SET {column} = COALESCE({column}, 0) + 1 "
+                        "WHERE id = :id"
+                    ),
                     {"id": listing_id},
+                )
+                s.execute(
+                    text(
+                        f"""
+                        INSERT INTO listing_daily_stats (listing_id, day, views, clicks)
+                        VALUES (:id, :day, :views, :clicks)
+                        ON CONFLICT (listing_id, day)
+                        DO UPDATE SET {column} = listing_daily_stats.{column} + 1
+                        """
+                    ),
+                    {
+                        "id": listing_id,
+                        "day": today,
+                        "views": 1 if column == "view_count" else 0,
+                        "clicks": 1 if column == "click_count" else 0,
+                    },
                 )
                 s.commit()
         except Exception:
             pass
 
     _view_executor.submit(_bump)
+
+
+def _increment_view_count_async(listing_id: int):
+    _bump_listing_counter(listing_id, "view_count")
+
+
+def _increment_click_count_async(listing_id: int):
+    _bump_listing_counter(listing_id, "click_count")
 
 
 def _get_agent_metrics(db: Session, listings: list[models.Listing]) -> dict[int, dict[str, float | int]]:
@@ -308,6 +338,102 @@ def _get_listing_serialized(listing_id: int, _db: Session) -> schemas.ListingOut
     return _serialize_listing(listing, _db, _get_agent_metrics(_db, [listing]))
 
 
+@router.get("/my-stats", response_model=schemas.ListingStatsOut)
+def my_listing_stats(
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(require_agent),
+):
+    """Aggregate analytics for the current agent's own listings.
+
+    Cheap by design: totals come from a handful of COUNT queries on existing
+    tables; the daily trend is read from the bounded listing_daily_stats
+    rollup (one row per listing per day, last 30 days). No event log.
+    """
+    from sqlalchemy import func
+
+    listings = (
+        db.query(models.Listing)
+        .filter(models.Listing.agent_id == current_user.id)
+        .all()
+    )
+    listing_ids = [l.id for l in listings]
+    if not listing_ids:
+        return schemas.ListingStatsOut(listings=[], totals=schemas.ListingStatsTotals())
+
+    # Per-listing totals
+    save_counts = dict(
+        db.query(models.SavedProperty.listing_id, func.count(models.SavedProperty.id))
+        .filter(models.SavedProperty.listing_id.in_(listing_ids))
+        .group_by(models.SavedProperty.listing_id)
+        .all()
+    )
+    conv_counts = dict(
+        db.query(models.Conversation.listing_id, func.count(models.Conversation.id))
+        .filter(models.Conversation.listing_id.in_(listing_ids))
+        .group_by(models.Conversation.listing_id)
+        .all()
+    )
+    claim_rows = (
+        db.query(
+            models.Claim.target_id,
+            models.Claim.status,
+            func.count(models.Claim.id),
+        )
+        .filter(
+            models.Claim.target_type == "listing",
+            models.Claim.target_id.in_(listing_ids),
+        )
+        .group_by(models.Claim.target_id, models.Claim.status)
+        .all()
+    )
+    claim_counts: dict[int, dict[str, int]] = {lid: {} for lid in listing_ids}
+    for tid, status, cnt in claim_rows:
+        claim_counts.setdefault(tid, {})[status.value] = cnt
+
+    # Daily rollup (last 30 days)
+    since = date.today() - timedelta(days=29)
+    daily_rows = (
+        db.query(models.ListingDailyStat)
+        .filter(
+            models.ListingDailyStat.listing_id.in_(listing_ids),
+            models.ListingDailyStat.day >= since,
+        )
+        .order_by(models.ListingDailyStat.day.asc())
+        .all()
+    )
+    daily_map: dict[int, list[schemas.DailyStatPoint]] = {}
+    for row in daily_rows:
+        daily_map.setdefault(row.listing_id, []).append(
+            schemas.DailyStatPoint(day=row.day, views=row.views, clicks=row.clicks)
+        )
+
+    out_listings = []
+    for listing in listings:
+        out_listings.append(
+            schemas.ListingStat(
+                id=listing.id,
+                title=listing.title,
+                views=listing.view_count or 0,
+                clicks=listing.click_count or 0,
+                saves=save_counts.get(listing.id, 0),
+                messages=conv_counts.get(listing.id, 0),
+                claims=claim_counts.get(listing.id, {}).get("claimed", 0),
+                completed=claim_counts.get(listing.id, {}).get("completed", 0),
+                daily=daily_map.get(listing.id, []),
+            )
+        )
+
+    totals = schemas.ListingStatsTotals(
+        views=sum(l.views for l in out_listings),
+        clicks=sum(l.clicks for l in out_listings),
+        saves=sum(l.saves for l in out_listings),
+        messages=sum(l.messages for l in out_listings),
+        claims=sum(l.claims for l in out_listings),
+        completed=sum(l.completed for l in out_listings),
+    )
+    return schemas.ListingStatsOut(listings=out_listings, totals=totals)
+
+
 @router.get("/{listing_id}", response_model=schemas.ListingOut)
 def get_listing(listing_id: int, db: Session = Depends(get_db)):
     _increment_view_count_async(listing_id)
@@ -315,6 +441,21 @@ def get_listing(listing_id: int, db: Session = Depends(get_db)):
     if result is None:
         raise HTTPException(status_code=404, detail="Listing not found")
     return result
+
+
+@router.post("/{listing_id}/track-click", response_model=None)
+def track_listing_click(listing_id: int, db: Session = Depends(get_db)):
+    """Counts a card click (before the user opens the detail page).
+
+    This is deliberately lightweight: no auth, no response body, one async
+    upsert. The frontend fires it when a listing card is tapped so agents can
+    see click-through interest in their analytics dashboard.
+    """
+    exists = db.query(models.Listing.id).filter(models.Listing.id == listing_id).first()
+    if not exists:
+        raise HTTPException(status_code=404, detail="Listing not found")
+    _increment_click_count_async(listing_id)
+    return None
 
 
 @router.get("/{listing_id}/translation", response_model=schemas.ListingTranslationOut)

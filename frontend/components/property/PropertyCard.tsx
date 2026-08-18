@@ -10,6 +10,7 @@ import { StarRating } from '@/components/ui/StarRating';
 import { ProtectedImage } from '@/components/ui/ProtectedImage';
 import { VerifiedBadge } from '@/components/ui/VerifiedBadge';
 import { useLanguageStore } from '@/lib/store/useLanguageStore';
+import { trackListingClick } from '@/lib/api';
 import { ClaimButton } from '@/components/claim/ClaimButton';
 import styles from './PropertyCard.module.css';
 
@@ -66,6 +67,11 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
   const [saved, setSaved] = useState(isSaved);
   const t = useLanguageStore((s) => s.t);
 
+  const handleCardClick = (e: React.MouseEvent) => {
+    if ((e.target as HTMLElement).closest('button')) return;
+    trackListingClick(id).catch(() => {});
+  };
+
   const handleSave = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -92,7 +98,7 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
   }).format(calculatedMoveInCost).replace('£', currency);
 
   return (
-    <Link href={`/property/${id}`} className={clsx(styles.card, className)}>
+    <Link href={`/property/${id}`} className={clsx(styles.card, className)} onClick={handleCardClick}>
       <div className={styles.hero}>
         <ProtectedImage
           src={images[0] || '/images/listing-placeholder.svg'}

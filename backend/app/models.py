@@ -1,9 +1,10 @@
 import enum
-from datetime import datetime
+from datetime import datetime, date
 
 from sqlalchemy import (
     Boolean,
     Column,
+    Date,
     DateTime,
     Enum,
     Float,
@@ -221,6 +222,7 @@ class Listing(Base):
     status = Column(Enum(ListingStatus), nullable=False, default=ListingStatus.active)
 
     view_count = Column(Integer, nullable=False, default=0)
+    click_count = Column(Integer, nullable=False, default=0)
 
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
@@ -252,6 +254,27 @@ class ListingPhoto(Base):
     order = Column(Integer, default=0)
 
     listing = relationship("Listing", back_populates="photos")
+
+
+class ListingDailyStat(Base):
+    """Bounded daily rollup of views/clicks per listing.
+
+    One row per (listing_id, day). This is the cheap alternative to an
+    event log: ~365 rows per listing per year instead of unbounded rows,
+    and each bump is a single upsert.
+    """
+    __tablename__ = "listing_daily_stats"
+    __table_args__ = (
+        UniqueConstraint("listing_id", "day", name="uq_listing_daily_stat"),
+    )
+
+    id = Column(Integer, primary_key=True, index=True)
+    listing_id = Column(Integer, ForeignKey("listings.id"), nullable=False)
+    day = Column(Date, nullable=False)
+    views = Column(Integer, nullable=False, default=0)
+    clicks = Column(Integer, nullable=False, default=0)
+
+    listing = relationship("Listing")
 
 
 class Conversation(Base):

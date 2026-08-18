@@ -256,6 +256,53 @@ export function getAdminClaims() {
   return apiRequest("/claims/admin/all", { auth: true });
 }
 
+// ============================================================================
+// Listing analytics (agent dashboard)
+// ============================================================================
+
+export interface DailyStatPoint {
+  day: string;
+  views: number;
+  clicks: number;
+}
+
+export interface ListingStat {
+  id: number;
+  title: string;
+  views: number;
+  clicks: number;
+  saves: number;
+  messages: number;
+  claims: number;
+  completed: number;
+  daily: DailyStatPoint[];
+}
+
+export interface ListingStatsTotals {
+  views: number;
+  clicks: number;
+  saves: number;
+  messages: number;
+  claims: number;
+  completed: number;
+}
+
+export interface ListingStats {
+  listings: ListingStat[];
+  totals: ListingStatsTotals;
+}
+
+export function trackListingClick(listingId: number | string) {
+  return apiRequest(`/listings/${listingId}/track-click`, {
+    method: "POST",
+    auth: false,
+  });
+}
+
+export function getMyListingStats(): Promise<ListingStats> {
+  return apiRequest("/listings/my-stats", { auth: true });
+}
+
 export function submitKycDocument(documentUrl: string) {
   return apiRequest("/users/me/kyc", {
     method: "POST",

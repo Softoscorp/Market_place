@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, date
 from typing import Optional
 import enum
 
@@ -252,6 +252,42 @@ class ClaimTrustOut(BaseModel):
     completed: int
     owner_released: int
     self_cancelled: int
+
+
+# ============================================================================
+# Listing analytics (agent dashboard)
+# ============================================================================
+
+class DailyStatPoint(BaseModel):
+    day: date
+    views: int
+    clicks: int
+
+
+class ListingStat(BaseModel):
+    id: int
+    title: str
+    views: int
+    clicks: int
+    saves: int
+    messages: int
+    claims: int
+    completed: int
+    daily: list[DailyStatPoint] = []
+
+
+class ListingStatsTotals(BaseModel):
+    views: int = 0
+    clicks: int = 0
+    saves: int = 0
+    messages: int = 0
+    claims: int = 0
+    completed: int = 0
+
+
+class ListingStatsOut(BaseModel):
+    listings: list[ListingStat] = []
+    totals: ListingStatsTotals = ListingStatsTotals()
 
 
 # ============================================================================

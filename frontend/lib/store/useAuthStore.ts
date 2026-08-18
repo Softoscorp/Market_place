@@ -21,6 +21,43 @@ export interface User {
   last_seen_at?: string | null;
 }
 
+/**
+ * Maps the backend /users/me (MeOut) shape onto the store's User.
+ * Centralised so every auth entry point (login, signup, supabase callback)
+ * persists the same fields — notably avatar_url — instead of dropping them
+ * and waiting for a later validateToken() refetch to fill them in.
+ */
+export function mapBackendUser(
+  me: {
+    id: number | string;
+    name: string;
+    email: string;
+    phone?: string | null;
+    role: string;
+    is_verified?: boolean;
+    verification_tier?: string;
+    avatar_url?: string | null;
+    respond_rate?: number | null;
+    last_seen_at?: string | null;
+  },
+  token: string
+): User {
+  return {
+    id: me.id.toString(),
+    name: me.name,
+    email: me.email,
+    phone: me.phone || undefined,
+    role: me.role === 'renter' ? 'student' : (me.role as UserRole),
+    token,
+    isVerifiedAgent: me.is_verified ?? undefined,
+    is_verified: me.is_verified ?? undefined,
+    verification_tier: (me.verification_tier as User['verification_tier']) || undefined,
+    avatar_url: me.avatar_url || undefined,
+    respond_rate: me.respond_rate ?? undefined,
+    last_seen_at: me.last_seen_at || new Date().toISOString(),
+  };
+}
+
 interface AuthState {
   user: User | null;
   isAuthenticated: boolean;

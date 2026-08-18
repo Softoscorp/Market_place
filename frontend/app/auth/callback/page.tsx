@@ -4,7 +4,7 @@ import { Suspense, useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { getSupabase } from '@/lib/supabaseClient';
 import { supabaseLogin, getUser } from '@/lib/api';
-import { useAuthStore } from '@/lib/store/useAuthStore';
+import { useAuthStore, mapBackendUser } from '@/lib/store/useAuthStore';
 import { useLanguageStore } from '@/lib/store/useLanguageStore';
 import styles from './page.module.css';
 
@@ -34,14 +34,7 @@ function AuthCallbackInner() {
         const { getToken } = await import('@/lib/api');
         const token = getToken() || '';
 
-        setAuthUser({
-          id: user.id.toString(),
-          name: user.name,
-          email: user.email,
-          role: user.role === 'renter' ? 'student' : user.role,
-          token,
-          last_seen_at: user.last_seen_at || new Date().toISOString(),
-        });
+        setAuthUser(mapBackendUser(user, token));
 
         // Sign out of supabase on frontend since we only use it for the bridge
         await getSupabase().auth.signOut();

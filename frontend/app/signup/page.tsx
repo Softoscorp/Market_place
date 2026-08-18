@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { User, Briefcase, ArrowRight, Check, Sparkles, Building2 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useAuthStore, UserRole } from '@/lib/store/useAuthStore';
+import { useAuthStore, UserRole, mapBackendUser } from '@/lib/store/useAuthStore';
 import { useLanguageStore } from '@/lib/store/useLanguageStore';
 import { register } from '@/lib/api';
 import { getSupabase } from '@/lib/supabaseClient';
@@ -76,11 +76,8 @@ export default function SignupPage() {
 
         setTimeout(() => {
           setAuthUser({
-            id: String(data.user.id),
-            name: data.user.name,
-            email: data.user.email,
+            ...mapBackendUser(data.user, data.access_token),
             role: role!,
-            token: data.access_token,
           });
         }, 3000);
       } catch (err: unknown) {

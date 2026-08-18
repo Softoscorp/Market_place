@@ -57,6 +57,7 @@ function LoginContent() {
       
       const { getToken } = await import('@/lib/api');
       const token = getToken() || '';
+      const { mapBackendUser } = await import('@/lib/store/useAuthStore');
 
       setSuccess(true);
 
@@ -65,13 +66,7 @@ function LoginContent() {
       saveBiometricCredentials(formData.email, formData.password).catch(() => {});
 
       setTimeout(() => {
-        setAuthUser({
-          id: user.id.toString(),
-          name: user.name,
-          email: user.email,
-          role: user.role === 'renter' ? 'student' : user.role,
-          token,
-        });
+        setAuthUser(mapBackendUser(user, token));
       }, 1500);
     } catch (err: unknown) {
       const error = err as Error;
@@ -97,16 +92,11 @@ function LoginContent() {
       const user = await getUser();
       const { getToken } = await import('@/lib/api');
       const token = getToken() || '';
+      const { mapBackendUser } = await import('@/lib/store/useAuthStore');
 
       setSuccess(true);
       setTimeout(() => {
-        setAuthUser({
-          id: user.id.toString(),
-          name: user.name,
-          email: user.email,
-          role: user.role === 'renter' ? 'student' : user.role,
-          token,
-        });
+        setAuthUser(mapBackendUser(user, token));
       }, 1500);
     } catch (err: unknown) {
       const error = err as Error;

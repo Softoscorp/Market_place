@@ -431,6 +431,7 @@ class VerificationApplication(Base):
     proof_urls = Column(JSON, nullable=False, default=list)
     selfie_url = Column(Text, nullable=True)
     passport_url = Column(Text, nullable=True)
+    quality_report = Column(JSON, nullable=True)
     reviewer_notes = Column(Text, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     reviewed_at = Column(DateTime, nullable=True)

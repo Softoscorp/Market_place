@@ -443,6 +443,10 @@ export const translations = {
     av_passport_done: 'Passport uploaded',
     av_submit_docs: 'Submit documents',
     av_applying: 'Submitting...',
+    verify_photo_blurry: 'This photo is too blurry. Please retake it in good lighting and try again.',
+    verify_photo_dark: 'This photo is too dark. Please retake it in good lighting and try again.',
+    verify_photo_overexposed: 'This photo is overexposed. Please retake it in good lighting and try again.',
+    verify_white_background: 'Selfies must be taken against a plain white background. Please retake and try again.',
 
     // Saved page
     saved_title: 'Your Wishlist',
@@ -884,6 +888,8 @@ export const translations = {
     ad_proof_invalid: 'Proof {n} (invalid)',
     ad_selfie: 'Selfie',
     ad_passport: 'Passport',
+    ad_quality_ok: '{doc}: clear',
+    ad_quality_issue: '{doc}: issue',
     ad_verification_applications: 'Agent Verification Applications',
     ad_agent_id: 'Agent ID',
     ad_requested_tier: 'Requested Tier',
@@ -1382,6 +1388,10 @@ export const translations = {
     av_passport_done: 'Pasaport yüklendi',
     av_submit_docs: 'Belgeleri gönder',
     av_applying: 'Gönderiliyor...',
+    verify_photo_blurry: 'Bu fotoğraf çok bulanık. Lütfen iyi ışıkta yeniden çekip tekrar deneyin.',
+    verify_photo_dark: 'Bu fotoğraf çok karanlık. Lütfen iyi ışıkta yeniden çekip tekrar deneyin.',
+    verify_photo_overexposed: 'Bu fotoğraf aşırı pozlanmış. Lütfen iyi ışıkta yeniden çekip tekrar deneyin.',
+    verify_white_background: 'Özçekimler düz beyaz bir arka plan önünde çekilmelidir. Lütfen yeniden çekin ve tekrar deneyin.',
 
     // Saved page
     saved_title: 'Favorilerin',
@@ -1823,6 +1833,8 @@ export const translations = {
     ad_proof_invalid: 'Kanıt {n} (geçersiz)',
     ad_selfie: 'Özçekim',
     ad_passport: 'Pasaport',
+    ad_quality_ok: '{doc}: net',
+    ad_quality_issue: '{doc}: sorun',
     ad_verification_applications: 'Emlakçı Doğrulama Başvuruları',
     ad_agent_id: 'Emlakçı ID',
     ad_requested_tier: 'Talep Edilen Seviye',

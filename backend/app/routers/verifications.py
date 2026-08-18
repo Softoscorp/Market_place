@@ -33,7 +33,8 @@ def apply_for_verification(
         status=models.VerificationStatus.pending,
         proof_urls=app_in.proof_urls,
         selfie_url=app_in.selfie_url,
-        passport_url=app_in.passport_url
+        passport_url=app_in.passport_url,
+        quality_report=app_in.quality_report
     )
     db.add(new_app)
     db.commit()
@@ -123,7 +124,7 @@ def reject_verification(
     db.refresh(app)
     return app
 
-from fastapi import UploadFile, File
+from fastapi import UploadFile, File, Form
 from ..services.supabase_storage import upload_file
 from ..services.file_validation import validate_proof
 import uuid
@@ -131,6 +132,7 @@ import uuid
 @router.post("/upload-proof")
 async def upload_verification_proof(
     file: UploadFile = File(...),
+    doc_type: str = Form("selfie"),
     current_user: models.User = Depends(get_current_user)
 ):
     if current_user.role != models.UserRole.agent:
@@ -140,13 +142,24 @@ async def upload_verification_proof(
     ext = file.filename.split(".")[-1].lower() if "." in file.filename else "jpg"
     if ext not in {"jpg", "jpeg", "png", "webp", "gif", "pdf"}:
         ext = "jpg"
+
+    quality: dict | None = None
+    if ext != "pdf":
+        from ..services.proof_quality import check_proof_quality, quality_error_detail
+        quality = check_proof_quality(file_bytes, doc_type)
+        if not quality.get("ok"):
+            raise HTTPException(
+                status_code=422,
+                detail=quality_error_detail(quality),
+            )
+
     path = f"verifications/{current_user.id}/{uuid.uuid4()}.{ext}"
-    
+
     url = upload_file(
-        file_bytes, 
-        "rental-media", 
-        path, 
-        file.content_type or "application/octet-stream"
+        file_bytes,
+        "rental-media",
+        path,
+        file.content_type or "application/octet-stream",
     )
-    
-    return {"url": url}
+
+    return {"url": url, "quality": quality}

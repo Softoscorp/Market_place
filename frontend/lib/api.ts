@@ -267,10 +267,22 @@ export function pingPresence(): Promise<void> {
 // Verifications
 // ============================================================================
 
-export function applyForVerification(tier: string, selfie_url: string, passport_url: string) {
+export interface QualityReport {
+  ok?: boolean;
+  issues?: string[];
+  metrics?: Record<string, number | string>;
+  skipped?: boolean;
+}
+
+export interface VerificationQualityReport {
+  selfie?: QualityReport | null;
+  passport?: QualityReport | null;
+}
+
+export function applyForVerification(tier: string, selfie_url: string, passport_url: string, quality_report?: VerificationQualityReport | null) {
   return apiRequest("/verifications/apply", {
     method: "POST",
-    body: { tier, selfie_url, passport_url },
+    body: { tier, selfie_url, passport_url, quality_report },
     auth: true,
   });
 }
@@ -299,12 +311,13 @@ export function rejectVerification(appId: number, reviewerNotes: string) {
   });
 }
 
-export async function uploadVerificationProof(file: File): Promise<{ url: string }> {
+export async function uploadVerificationProof(file: File, docType?: "selfie" | "passport"): Promise<{ url: string; quality?: QualityReport | null }> {
   const token = getToken();
   if (!token) throw new Error("Not authenticated");
 
   const formData = new FormData();
   formData.append("file", file);
+  if (docType) formData.append("doc_type", docType);
 
   const res = await fetch(`${API_BASE_URL}/verifications/upload-proof`, {
     method: "POST",

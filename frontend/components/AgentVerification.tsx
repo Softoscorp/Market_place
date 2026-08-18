@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { getMyVerificationStatus, applyForVerification, uploadVerificationProof } from "@/lib/api";
+import { getMyVerificationStatus, applyForVerification, uploadVerificationProof, type QualityReport } from "@/lib/api";
 import { ShieldCheck, ShieldAlert, BadgeCheck, Upload, User, BookUser } from "lucide-react";
 import { useLanguageStore } from "@/lib/store/useLanguageStore";
 import styles from "./AgentVerification.module.css";
@@ -13,10 +13,22 @@ interface VerificationApplication {
   reviewer_notes?: string;
 }
 
+function qualityMessage(detail: string | unknown, t: (key: string) => string): string {
+  if (typeof detail !== "string") return "";
+  const code = detail.split(":")[0];
+  if (code === "verify_photo_blurry") return t('verify_photo_blurry');
+  if (code === "verify_photo_dark") return t('verify_photo_dark');
+  if (code === "verify_photo_overexposed") return t('verify_photo_overexposed');
+  if (code === "verify_white_background") return t('verify_white_background');
+  return "";
+}
+
 function DocUploadStep({ tier, onDone }: { tier: "local" | "international"; onDone: () => void }) {
   const t = useLanguageStore((s) => s.t);
   const [selfie, setSelfie] = useState<string | null>(null);
   const [passport, setPassport] = useState<string | null>(null);
+  const [selfieQuality, setSelfieQuality] = useState<QualityReport | null>(null);
+  const [passportQuality, setPassportQuality] = useState<QualityReport | null>(null);
   const [uploading, setUploading] = useState<"selfie" | "passport" | null>(null);
   const [applying, setApplying] = useState(false);
   const selfieInputRef = useRef<HTMLInputElement>(null);
@@ -28,12 +40,18 @@ function DocUploadStep({ tier, onDone }: { tier: "local" | "international"; onDo
 
     try {
       setUploading(kind);
-      const { url } = await uploadVerificationProof(file);
-      if (kind === 'selfie') setSelfie(url);
-      else setPassport(url);
+      const { url, quality } = await uploadVerificationProof(file, kind);
+      if (kind === 'selfie') {
+        setSelfie(url);
+        setSelfieQuality(quality ?? null);
+      } else {
+        setPassport(url);
+        setPassportQuality(quality ?? null);
+      }
     } catch (err: unknown) {
       console.error(err);
-      alert(t('av_failed_upload'));
+      const msg = err instanceof Error ? qualityMessage(err.message, t) : "";
+      alert(msg || t('av_failed_upload'));
     } finally {
       setUploading(null);
       if (kind === 'selfie' && selfieInputRef.current) selfieInputRef.current.value = '';
@@ -45,7 +63,12 @@ function DocUploadStep({ tier, onDone }: { tier: "local" | "international"; onDo
     if (!selfie || !passport) return;
     try {
       setApplying(true);
-      await applyForVerification(tier, selfie, passport);
+      await applyForVerification(
+        tier,
+        selfie,
+        passport,
+        { selfie: selfieQuality, passport: passportQuality },
+      );
       onDone();
     } catch (err: unknown) {
       console.error(err);

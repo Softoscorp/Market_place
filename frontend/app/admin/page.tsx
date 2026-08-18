@@ -49,8 +49,16 @@ interface VerificationApplication {
   proof_urls: string[];
   selfie_url?: string | null;
   passport_url?: string | null;
+  quality_report?: Record<string, QualityReportEntry> | null;
   reviewer_notes?: string;
   created_at: string;
+}
+
+interface QualityReportEntry {
+  ok?: boolean;
+  issues?: string[];
+  metrics?: Record<string, number | string>;
+  skipped?: boolean;
 }
 
 interface AdminUser {
@@ -427,6 +435,20 @@ title={t('ad_reject')}
                             <a href={app.passport_url} target="_blank" rel="noreferrer" className={styles.proofLink}>
                               {t('ad_passport')}
                             </a>
+                          )}
+                          {app.quality_report && (
+                            <div className={styles.qualityWrap}>
+                              {(['selfie', 'passport'] as const).map((kind) => {
+                                const q = app.quality_report?.[kind] as QualityReportEntry | undefined;
+                                if (!q) return null;
+                                const ok = q.ok === true;
+                                return (
+                                  <span key={kind} className={`${styles.qualityChip} ${ok ? styles.qualityOk : styles.qualityWarn}`}>
+                                    {ok ? t('ad_quality_ok', { doc: kind === 'selfie' ? t('ad_selfie') : t('ad_passport') }) : t('ad_quality_issue', { doc: kind === 'selfie' ? t('ad_selfie') : t('ad_passport') })}
+                                  </span>
+                                );
+                              })}
+                            </div>
                           )}
                         </div>
                       </td>

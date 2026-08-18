@@ -505,6 +505,7 @@ class VerificationApplicationCreate(BaseModel):
     proof_urls: list[str] = []
     selfie_url: str
     passport_url: str
+    quality_report: Optional[dict] = None
     tier: VerificationTier
 
     @field_validator("selfie_url", "passport_url")
@@ -535,6 +536,7 @@ class VerificationApplicationOut(BaseModel):
     proof_urls: list[str] = []
     selfie_url: Optional[str] = None
     passport_url: Optional[str] = None
+    quality_report: Optional[dict] = None
     reviewer_notes: Optional[str] = None
     created_at: datetime
     reviewed_at: Optional[datetime] = None

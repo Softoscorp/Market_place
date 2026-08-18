@@ -59,6 +59,7 @@ export default function AgentDashboard() {
   const [loadingListings, setLoadingListings] = useState(true);
   const [stats, setStats] = useState<import('@/lib/api').ListingStats | null>(null);
   const [loadingStats, setLoadingStats] = useState(true);
+  const [analyticsPeriod, setAnalyticsPeriod] = useState<7 | 30 | 90>(30);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -133,6 +134,33 @@ export default function AgentDashboard() {
 
   const conversationList = Object.values(conversations);
 
+  const dailyByDay = new Map<string, { views: number; clicks: number }>();
+  (stats?.listings || []).forEach((l) => {
+    l.daily.forEach((p) => {
+      const cur = dailyByDay.get(p.day) || { views: 0, clicks: 0 };
+      cur.views += p.views;
+      cur.clicks += p.clicks;
+      dailyByDay.set(p.day, cur);
+    });
+  });
+  const fullSeries = Array.from(dailyByDay.entries())
+    .map(([day, v]) => ({ day, ...v }))
+    .sort((a, b) => a.day.localeCompare(b.day));
+  const series = fullSeries.slice(-analyticsPeriod);
+  const heroViews = series.reduce((s, p) => s + p.views, 0);
+  const peakPoint = series.reduce((m, p) => (p.views > m.views ? p : m), series[0] || null);
+  const todayStr = new Date().toISOString().slice(0, 10);
+  const half = Math.floor(series.length / 2);
+  const firstSum = series.slice(0, half).reduce((s, p) => s + p.views, 0);
+  const secondSum = series.slice(half).reduce((s, p) => s + p.views, 0);
+  const deltaPct = firstSum > 0 ? Math.round(((secondSum - firstSum) / firstSum) * 100) : null;
+  const topListings = [...(stats?.listings || [])]
+    .sort((a, b) => b.views - a.views)
+    .slice(0, 5);
+  const maxViews = topListings[0]?.views || 1;
+  const listingMeta = new Map<number, RealListing>();
+  agentListings.forEach((l) => listingMeta.set(Number(l.id), l));
+
   const metrics = [
     { labelKey: 'ad_total_views', value: stats ? String(stats.totals.views) : '…', change: '0%', icon: Eye, trend: 'neutral' },
     { labelKey: 'ad_total_clicks', value: stats ? String(stats.totals.clicks) : '…', change: '0%', icon: MousePointerClick, trend: 'neutral' },
@@ -195,8 +223,22 @@ export default function AgentDashboard() {
             animate={{ opacity: 1, y: 0 }}
             className={styles.analyticsTab}
           >
-            <div className={styles.tabHeader}>
-              <h3 className={styles.sectionTitle}>{t('ad_analytics_title')}</h3>
+            <div className={styles.analyticsHeader}>
+              <div>
+                <h3 className={styles.sectionTitle}>{t('ad_analytics_title')}</h3>
+                <p className={styles.analyticsSubtitle}>{t('ad_analytics_subtitle')}</p>
+              </div>
+              <div className={styles.analyticsPeriod}>
+                {([7, 30, 90] as const).map((d) => (
+                  <button
+                    key={d}
+                    className={analyticsPeriod === d ? styles.analyticsPeriodOn : ''}
+                    onClick={() => setAnalyticsPeriod(d)}
+                  >
+                    {d}D
+                  </button>
+                ))}
+              </div>
             </div>
 
             {loadingStats ? (
@@ -208,62 +250,109 @@ export default function AgentDashboard() {
                 <p className={styles.emptyStateText}>{t('ad_analytics_empty_sub')}</p>
               </div>
             ) : (
-              <div className={styles.analyticsGrid}>
-                {stats.listings.map((listing) => {
-                  const rate = listing.views > 0 ? Math.round((listing.clicks / listing.views) * 100) : 0;
-                  const peak = listing.daily.reduce((m, p) => Math.max(m, p.views), 0);
-                  return (
-                    <div key={listing.id} className={styles.analyticsCard}>
-                      <div className={styles.analyticsCardHead}>
-                        <Link href={`/property/${listing.id}`} className={styles.analyticsTitle}>
-                          {listing.title}
-                        </Link>
-                        <span className={styles.analyticsRate}>{rate}% {t('ad_analytics_ctr')}</span>
+              <>
+                <div className={styles.analyticsHero}>
+                  <div className={styles.analyticsEyebrow}>
+                    {t('ad_total_views')} · {t('ad_analytics_last').replace('{days}', String(analyticsPeriod))}
+                  </div>
+                  <div className={styles.analyticsBigRow}>
+                    <div className={styles.analyticsBigNum}>{heroViews.toLocaleString()}</div>
+                    {deltaPct !== null && deltaPct >= 0 && (
+                      <div className={styles.analyticsDelta}>
+                        ▲ {deltaPct}% {t('ad_analytics_vs_prev')}
                       </div>
-                      <div className={styles.analyticsStatRow}>
-                        <div className={styles.analyticsStat}>
-                          <span className={styles.analyticsStatValue}>{listing.views}</span>
-                          <span className={styles.analyticsStatLabel}>{t('ad_analytics_views')}</span>
+                    )}
+                    {deltaPct !== null && deltaPct < 0 && (
+                      <div className={`${styles.analyticsDelta} ${styles.analyticsDeltaDown}`}>
+                        ▼ {Math.abs(deltaPct)}% {t('ad_analytics_vs_prev')}
+                      </div>
+                    )}
+                  </div>
+                  <div className={styles.analyticsHeroSub}>
+                    {t('ad_analytics_across').replace('{count}', String(stats.listings.length))}
+                    {peakPoint && ` · ${t('ad_analytics_peak_day')} ${peakPoint.day} (${peakPoint.views})`}
+                  </div>
+
+                  <div className={styles.analyticsChart}>
+                    {series.map((p) => {
+                      const h = peakPoint && peakPoint.views > 0
+                        ? Math.max(6, Math.round((p.views / peakPoint.views) * 100))
+                        : 6;
+                      const isToday = p.day === todayStr;
+                      return (
+                        <div
+                          key={p.day}
+                          className={`${styles.analyticsChartBar} ${isToday ? styles.analyticsChartBarToday : ''}`}
+                          style={{ height: `${h}%` }}
+                          title={`${p.day}: ${p.views}`}
+                        >
+                          <span className={styles.analyticsBarTip}>{p.views}</span>
                         </div>
-                        <div className={styles.analyticsStat}>
-                          <span className={styles.analyticsStatValue}>{listing.clicks}</span>
-                          <span className={styles.analyticsStatLabel}>{t('ad_analytics_clicks')}</span>
+                      );
+                    })}
+                  </div>
+                  <div className={styles.analyticsChartLabels}>
+                    <span>{series[0]?.day}</span>
+                    <span>{series[Math.floor(series.length / 3)]?.day}</span>
+                    <span>{series[Math.floor((series.length * 2) / 3)]?.day}</span>
+                    <span>
+                      {series[series.length - 1]?.day === todayStr
+                        ? t('ad_analytics_today')
+                        : series[series.length - 1]?.day}
+                    </span>
+                  </div>
+                </div>
+
+                <div className={styles.analyticsTotals}>
+                  <div className={styles.analyticsTile}><div className={styles.analyticsTileValue}>{stats.totals.views.toLocaleString()}</div><div className={styles.analyticsTileLabel}>{t('ad_analytics_views')}</div></div>
+                  <div className={`${styles.analyticsTile} ${styles.analyticsTileBlue}`}><div className={styles.analyticsTileValue}>{stats.totals.clicks.toLocaleString()}</div><div className={styles.analyticsTileLabel}>{t('ad_analytics_clicks')}</div></div>
+                  <div className={`${styles.analyticsTile} ${styles.analyticsTileGold}`}><div className={styles.analyticsTileValue}>{stats.totals.saves.toLocaleString()}</div><div className={styles.analyticsTileLabel}>{t('ad_analytics_saves')}</div></div>
+                  <div className={styles.analyticsTile}><div className={styles.analyticsTileValue}>{stats.totals.messages.toLocaleString()}</div><div className={styles.analyticsTileLabel}>{t('ad_analytics_messages')}</div></div>
+                  <div className={styles.analyticsTile}><div className={styles.analyticsTileValue}>{stats.totals.claims.toLocaleString()}</div><div className={styles.analyticsTileLabel}>{t('ad_analytics_claims')}</div></div>
+                  <div className={styles.analyticsTile}><div className={styles.analyticsTileValue}>{stats.totals.completed.toLocaleString()}</div><div className={styles.analyticsTileLabel}>{t('ad_analytics_completed')}</div></div>
+                </div>
+
+                <div className={styles.analyticsSectionTitle}>
+                  <h4>{t('ad_analytics_top')}</h4>
+                  <span>{t('ad_analytics_by_views')}</span>
+                </div>
+                <div className={styles.analyticsRankList}>
+                  {topListings.map((listing, idx) => {
+                    const meta = listingMeta.get(listing.id);
+                    const badge = idx === 0 ? styles.rankGold : idx === 1 ? styles.rankSilver : idx === 2 ? styles.rankBronze : '';
+                    return (
+                      <div key={listing.id} className={styles.analyticsRankRow}>
+                        <div className={`${styles.rankBadge} ${badge}`}>{idx + 1}</div>
+                        <div className={styles.rankName}>
+                          <div className={styles.rankTitle}>{listing.title}</div>
+                          <div className={styles.rankMeta}>
+                            {meta ? `${meta.house_type} · £${meta.price}/mo` : ''}
+                          </div>
                         </div>
-                        <div className={styles.analyticsStat}>
-                          <span className={styles.analyticsStatValue}>{listing.saves}</span>
-                          <span className={styles.analyticsStatLabel}>{t('ad_analytics_saves')}</span>
+                        <div className={styles.rankBarCol}>
+                          <div className={styles.rankBar}>
+                            <i style={{ width: `${Math.round((listing.views / maxViews) * 100)}%` }} />
+                          </div>
                         </div>
-                        <div className={styles.analyticsStat}>
-                          <span className={styles.analyticsStatValue}>{listing.messages}</span>
-                          <span className={styles.analyticsStatLabel}>{t('ad_analytics_messages')}</span>
+                        <div className={styles.rankStat}>
+                          <div className={styles.rankStatNum}>{listing.views.toLocaleString()}</div>
+                          <div className={styles.rankStatLabel}>{t('ad_analytics_views')}</div>
                         </div>
-                        <div className={styles.analyticsStat}>
-                          <span className={styles.analyticsStatValue}>{listing.claims}</span>
-                          <span className={styles.analyticsStatLabel}>{t('ad_analytics_claims')}</span>
-                        </div>
-                        <div className={styles.analyticsStat}>
-                          <span className={styles.analyticsStatValue}>{listing.completed}</span>
-                          <span className={styles.analyticsStatLabel}>{t('ad_analytics_completed')}</span>
+                        <div className={styles.rankStat}>
+                          <div className={styles.rankStatNum}>{listing.clicks.toLocaleString()}</div>
+                          <div className={styles.rankStatLabel}>{t('ad_analytics_clicks')}</div>
                         </div>
                       </div>
-                      <div className={styles.dailyBars}>
-                        {listing.daily.length === 0 ? (
-                          <span className={styles.dailyEmpty}>{t('ad_analytics_no_daily')}</span>
-                        ) : (
-                          listing.daily.map((point) => {
-                            const h = peak > 0 ? Math.max(8, Math.round((point.views / peak) * 100)) : 8;
-                            return (
-                              <div key={point.day} className={styles.dailyBarWrap} title={`${point.day}: ${point.views}`}>
-                                <div className={styles.dailyBar} style={{ height: `${h}%` }} />
-                              </div>
-                            );
-                          })
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
+                    );
+                  })}
+                  <button
+                    className={styles.analyticsViewAll}
+                    onClick={() => setActiveTab('listings')}
+                  >
+                    {t('ad_analytics_view_all').replace('{count}', String(stats.listings.length))} →
+                  </button>
+                </div>
+              </>
             )}
           </motion.div>
         );

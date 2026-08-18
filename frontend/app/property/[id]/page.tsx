@@ -18,7 +18,8 @@ import { useChatStore } from '@/lib/store/useChatStore';
 import { useAuthStore } from '@/lib/store/useAuthStore';
 import { useLanguageStore } from '@/lib/store/useLanguageStore';
 import { useRouter } from 'next/navigation';
-import { apiRequest, mediaUrl, saveProperty, getApartmentRatings } from '@/lib/api';
+import { apiRequest, mediaUrl, saveProperty, getApartmentRatings, getClaimStatus } from '@/lib/api';
+import { ClaimButton, ClaimedBadge } from '@/components/claim/ClaimButton';
 import { ReviewList } from '@/components/reviews/ReviewList';
 import { ReviewForm } from '@/components/reviews/ReviewForm';
 import { ProtectedImage } from '@/components/ui/ProtectedImage';
@@ -83,6 +84,7 @@ export default function PropertyPage({ params }: PropertyPageProps) {
   const [notification, setNotification] = useState<{text: string, type: 'success' | 'error'} | null>(null);
   const [translatedDesc, setTranslatedDesc] = useState<{ title: string; description: string } | null>(null);
   const [translating, setTranslating] = useState(false);
+  const [claimStatus, setClaimStatus] = useState<{ claimed: boolean; by_me?: boolean; claimer_name?: string | null }>({ claimed: false });
 
   const showToast = (text: string, type: 'success' | 'error' = 'success') => {
     setNotification({ text, type });
@@ -174,6 +176,18 @@ export default function PropertyPage({ params }: PropertyPageProps) {
       console.error(error);
       showToast(t('pd_login_save'), "error");
     }
+  };
+
+  useEffect(() => {
+    if (!user) return;
+    getClaimStatus('listing', Number(resolvedParams.id))
+      .then(setClaimStatus)
+      .catch(() => {});
+  }, [user, resolvedParams.id]);
+
+  const handleClaimed = () => {
+    setClaimStatus((s) => ({ ...s, claimed: true, by_me: true }));
+    showToast(t('claim_success_toast'), "success");
   };
 
   const handleRoommateChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -444,17 +458,39 @@ export default function PropertyPage({ params }: PropertyPageProps) {
                   currency={'£'}
                 />
                 <div className={styles.sideBtns}>
-                  <Button 
-                    variant="primary" 
-                    size="lg" 
-                    fullWidth
-                    onClick={() => setShowBookingModal(true)}
-                  >
-                    {t('pd_book')}
-                  </Button>
-                  <Button variant={isSaved ? "primary" : "secondary"} size="lg" fullWidth onClick={handleSave}>
-                    <Heart size={18} aria-hidden="true" className={styles.heartIcon} /> {isSaved ? t('pd_saved') : t('pd_save_wishlist')}
-                  </Button>
+                  {claimStatus.claimed ? (
+                    <>
+                      <ClaimedBadge
+                        byMe={claimStatus.by_me}
+                        claimerName={claimStatus.claimer_name}
+                        className={styles.claimedNote}
+                      />
+                      {user && claimStatus.by_me && (
+                        <Button
+                          variant="primary"
+                          size="lg"
+                          fullWidth
+                          onClick={() => setShowBookingModal(true)}
+                        >
+                          {t('pd_book')}
+                        </Button>
+                      )}
+                    </>
+                  ) : (
+                    <ClaimButton
+                      targetType="listing"
+                      targetId={property.id}
+                      variant="primary"
+                      size="lg"
+                      fullWidth
+                      onClaimed={handleClaimed}
+                    />
+                  )}
+                  {user && (
+                    <Button variant={isSaved ? "primary" : "secondary"} size="lg" fullWidth onClick={handleSave}>
+                      <Heart size={18} aria-hidden="true" className={styles.heartIcon} /> {isSaved ? t('pd_saved') : t('pd_save_wishlist')}
+                    </Button>
+                  )}
                 </div>
               </div>
 
@@ -532,12 +568,33 @@ export default function PropertyPage({ params }: PropertyPageProps) {
           <span className={styles.bottomPer}>{t('per_month')}</span>
         </div>
         <div className={styles.bottomActions}>
-          <button className={`${styles.bottomSave} ${isSaved ? styles.bottomSaveSaved : ''}`} onClick={handleSave} aria-label={t('pd_save_wishlist')}>
-            <Heart size={19} aria-hidden="true" fill={isSaved ? 'currentColor' : 'none'} />
-          </button>
-          <button className={styles.bottomBook} onClick={() => setShowBookingModal(true)}>
-            {t('pd_book')}
-          </button>
+          {user && (
+            <button className={`${styles.bottomSave} ${isSaved ? styles.bottomSaveSaved : ''}`} onClick={handleSave} aria-label={t('pd_save_wishlist')}>
+              <Heart size={19} aria-hidden="true" fill={isSaved ? 'currentColor' : 'none'} />
+            </button>
+          )}
+          {claimStatus.claimed && !claimStatus.by_me ? (
+            <button className={styles.bottomBook} disabled>
+              {t('claim_btn')}
+            </button>
+          ) : (
+            <button
+              className={styles.bottomBook}
+              onClick={() => {
+                if (!user) {
+                  router.push('/login');
+                  return;
+                }
+                if (claimStatus.by_me) {
+                  setShowBookingModal(true);
+                } else {
+                  setShowBookingModal(true);
+                }
+              }}
+            >
+              {t('pd_book')}
+            </button>
+          )}
         </div>
       </div>
 

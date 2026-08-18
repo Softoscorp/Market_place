@@ -16,7 +16,21 @@ router = APIRouter(prefix="/roommates", tags=["Roommates"])
 
 @router.get("", response_model=List[schemas.RoommateProfileOut])
 def list_roommates(db: Session = Depends(get_db)):
-    profiles = db.query(models.RoommateProfile).order_by(models.RoommateProfile.created_at.desc()).all()
+    # Hide claimed & completed profiles from the list — first claim wins.
+    claimed_ids = (
+        db.query(models.Claim.target_id)
+        .filter(
+            models.Claim.target_type == "roommate",
+            models.Claim.status.in_([models.ClaimStatus.claimed, models.ClaimStatus.completed]),
+        )
+        .subquery()
+    )
+    profiles = (
+        db.query(models.RoommateProfile)
+        .filter(~models.RoommateProfile.id.in_(db.query(claimed_ids.c.target_id)))
+        .order_by(models.RoommateProfile.created_at.desc())
+        .all()
+    )
     return profiles
 
 @router.post("/photo", response_model=schemas.PhotoUploadOut, status_code=status.HTTP_201_CREATED)

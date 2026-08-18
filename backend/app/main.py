@@ -6,7 +6,7 @@ from fastapi.staticfiles import StaticFiles
 
 from .config import settings
 from .database import Base, engine, get_db
-from .routers import auth, users, listings, messaging, ratings, admin, reports, roommates, verifications, notifications
+from .routers import auth, users, listings, messaging, ratings, admin, reports, roommates, verifications, notifications, claims
 import sentry_sdk
 from sqlalchemy.orm import Session
 from fastapi import Depends, HTTPException
@@ -145,6 +145,7 @@ app.include_router(reports.router)
 app.include_router(roommates.router)
 app.include_router(verifications.router)
 app.include_router(notifications.router)
+app.include_router(claims.router)
 
 
 @app.get("/")

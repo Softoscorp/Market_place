@@ -5,9 +5,11 @@ import { ChevronLeft, ChevronRight, MessageCircle, Heart, BedDouble, Sofa } from
 import { useChatStore } from '@/lib/store/useChatStore';
 import { useLanguageStore } from '@/lib/store/useLanguageStore';
 import { ProtectedImage } from '@/components/ui/ProtectedImage';
+import { ClaimButton } from '@/components/claim/ClaimButton';
 import styles from './RoommateListRow.module.css';
 
 interface RoommateListRowProps {
+  id: number;
   name: string;
   age: number;
   gender?: string;
@@ -20,9 +22,11 @@ interface RoommateListRowProps {
   houseType?: string;
   nationality?: string;
   location?: string;
+  onClaimed?: (id: number) => void;
 }
 
 export function RoommateListRow({
+  id,
   name,
   age,
   gender,
@@ -35,6 +39,7 @@ export function RoommateListRow({
   houseType,
   nationality,
   location,
+  onClaimed,
 }: RoommateListRowProps) {
   const { openChat } = useChatStore();
   const t = useLanguageStore((s) => s.t);
@@ -111,6 +116,15 @@ export function RoommateListRow({
           >
             <Heart size={15} />
           </button>
+          {onClaimed && (
+            <ClaimButton
+              targetType="roommate"
+              targetId={id}
+              variant="secondary"
+              size="sm"
+              onClaimed={() => onClaimed(id)}
+            />
+          )}
           <button
             className={styles.btnPrimary}
             onClick={() => openChat({ id: name, name: name, avatarUrl: imageUrl })}

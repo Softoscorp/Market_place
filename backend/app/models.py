@@ -395,6 +395,37 @@ class SavedProperty(Base):
     listing = relationship("Listing")
 
 
+class ClaimStatus(str, enum.Enum):
+    claimed = "claimed"
+    released = "released"
+    completed = "completed"  # deal closed by the owner — item stays off-market
+
+
+class Claim(Base):
+    """A first-come-first-served hold on a listing or roommate profile.
+
+    Only ONE active claim may exist per target — enforced by a partial
+    unique index on (target_type, target_id) WHERE status = 'claimed' (see
+    the migration). Lifecycle is controlled by the owner:
+      claimed   → released  (owner cancels, item returns to market)
+      claimed   → completed (owner closes the deal, item stays off-market)
+      claimed   → cancelled (claimer backs out, costs trust)
+    """
+    __tablename__ = "claims"
+
+    id = Column(Integer, primary_key=True, index=True)
+    target_type = Column(String, nullable=False)  # "listing" | "roommate"
+    target_id = Column(Integer, nullable=False)
+    claimer_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    status = Column(Enum(ClaimStatus, native_enum=False), nullable=False, default=ClaimStatus.claimed)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    released_at = Column(DateTime, nullable=True)
+    released_by = Column(Integer, ForeignKey("users.id"), nullable=True)  # who closed/opened it
+    completed_at = Column(DateTime, nullable=True)
+
+    claimer = relationship("User", foreign_keys=[claimer_id])
+
+
 class KYCDocument(Base):
     __tablename__ = "kyc_documents"
 

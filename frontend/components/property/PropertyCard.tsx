@@ -10,6 +10,7 @@ import { StarRating } from '@/components/ui/StarRating';
 import { ProtectedImage } from '@/components/ui/ProtectedImage';
 import { VerifiedBadge } from '@/components/ui/VerifiedBadge';
 import { useLanguageStore } from '@/lib/store/useLanguageStore';
+import { ClaimButton } from '@/components/claim/ClaimButton';
 import styles from './PropertyCard.module.css';
 
 export interface PropertyCardProps {
@@ -34,6 +35,7 @@ export interface PropertyCardProps {
   verificationTier?: 'none' | 'local' | 'international';
   isSaved?: boolean;
   onSaveToggle?: (id: string) => void;
+  onClaimed?: (id: string) => void;
   className?: string;
 }
 
@@ -58,6 +60,7 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
   verificationTier = 'none',
   isSaved = false,
   onSaveToggle,
+  onClaimed,
   className
 }) => {
   const [saved, setSaved] = useState(isSaved);
@@ -138,19 +141,30 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({
         </div>
       </div>
 
-      <div className={styles.footer}>
-        <div className={styles.agent}>
-          <Avatar src={agentAvatar} fallback={agentName} size="sm" />
-          <span className={styles.agentName}>{agentName}<VerifiedBadge tier={verificationTier} size="sm" /></span>
-          {agentRating && agentRating > 0 ? (
-            <StarRating rating={agentRating} size={13} showText />
-          ) : null}
+<div className={styles.footer}>
+          <div className={styles.agent}>
+            <Avatar src={agentAvatar} fallback={agentName} size="sm" />
+            <span className={styles.agentName}>{agentName}<VerifiedBadge tier={verificationTier} size="sm" /></span>
+            {agentRating && agentRating > 0 ? (
+              <StarRating rating={agentRating} size={13} showText />
+            ) : null}
+          </div>
+          <div className={styles.footerRight}>
+            <div className={styles.term}>
+              <span className={styles.termLabel}>{t('prop_move_in')}</span>
+              <span className={styles.termValue}>{formattedMoveInCost}</span>
+            </div>
+            {onClaimed && (
+              <ClaimButton
+                targetType="listing"
+                targetId={id}
+                variant="secondary"
+                size="sm"
+                onClaimed={() => onClaimed(id)}
+              />
+            )}
+          </div>
         </div>
-        <div className={styles.term}>
-          <span className={styles.termLabel}>{t('prop_move_in')}</span>
-          <span className={styles.termValue}>{formattedMoveInCost}</span>
-        </div>
-      </div>
     </Link>
   );
 };

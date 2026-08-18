@@ -61,19 +61,32 @@ function SearchResults() {
     if (sort && sort !== 'recommended') params.set('sort', sort);
 
     let isMounted = true;
-    apiRequest(`/listings?${params.toString()}`, { auth: false })
-      .then((data) => {
-        if (isMounted) setProperties(data.items || []);
-      })
-      .catch(() => {
-        if (isMounted) setProperties([]);
-      })
-      .finally(() => {
-        if (isMounted) setLoading(false);
-      });
+    const fetchListings = () =>
+      apiRequest(`/listings?${params.toString()}`, { auth: false })
+        .then((data) => {
+          if (isMounted) setProperties(data.items || []);
+        })
+        .catch(() => {
+          if (isMounted) setProperties([]);
+        })
+        .finally(() => {
+          if (isMounted) setLoading(false);
+        });
 
-    return () => { isMounted = false; };
+    fetchListings();
+
+    // Lightweight polling: claimed listings disappear for everyone (~10s).
+    const pollTimer = setInterval(fetchListings, 10000);
+
+    return () => {
+      isMounted = false;
+      clearInterval(pollTimer);
+    };
   }, [searchParams, sort]);
+
+  const handleClaimed = (id: string) => {
+    setProperties((prev) => prev.filter((p) => String(p.id) !== id));
+  };
 
   return (
     <div className={styles.page}>
@@ -159,6 +172,7 @@ function SearchResults() {
                     agentName={prop.agent?.name || 'Agent'}
                     agentAvatar={prop.agent?.avatar_url ? mediaUrl(prop.agent.avatar_url) : undefined}
                     verificationTier={prop.agent?.verification_tier}
+                    onClaimed={handleClaimed}
                   />
                 ))}
               </div>

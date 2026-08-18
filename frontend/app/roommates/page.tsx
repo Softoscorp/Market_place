@@ -61,6 +61,15 @@ export default function RoommatesPage() {
     loadRoommates();
   }, []);
 
+  useEffect(() => {
+    const pollTimer = setInterval(loadRoommates, 10000);
+    return () => clearInterval(pollTimer);
+  }, []);
+
+  const handleClaimed = (id: number) => {
+    setRoommates((prev) => prev.filter((rm) => rm.id !== id));
+  };
+
   if (!mounted) return null;
 
   const filteredRoommates = roommates.filter((rm: Roommate) => {
@@ -241,6 +250,7 @@ export default function RoommatesPage() {
               {filteredRoommates.map(roommate => (
                 <RoommateCard
                   key={roommate.id}
+                  id={roommate.id}
                   name={roommate.name || roommate.user?.name || t('common_user')}
                   age={roommate.age || 0}
                   gender={roommate.gender || roommate.user?.gender}
@@ -253,6 +263,7 @@ export default function RoommatesPage() {
                   houseType={roommate.house_type || undefined}
                   nationality={roommate.nationality || undefined}
                   location={(roommate.looking_for_city || []).slice(0, 2).join(', ')}
+                  onClaimed={handleClaimed}
                 />
               ))}
             </div>
@@ -260,6 +271,7 @@ export default function RoommatesPage() {
               {filteredRoommates.map(roommate => (
                 <RoommateListRow
                   key={roommate.id}
+                  id={roommate.id}
                   name={roommate.name || roommate.user?.name || t('common_user')}
                   age={roommate.age || 0}
                   gender={roommate.gender || roommate.user?.gender}
@@ -272,6 +284,7 @@ export default function RoommatesPage() {
                   houseType={roommate.house_type || undefined}
                   nationality={roommate.nationality || undefined}
                   location={(roommate.looking_for_city || []).slice(0, 2).join(', ')}
+                  onClaimed={handleClaimed}
                 />
               ))}
             </div>

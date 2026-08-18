@@ -218,6 +218,7 @@ def browse_listings(
     sort: str = Query("newest", pattern="^(newest|price_asc|price_desc|most_viewed)$"),
     status_filter: Optional[str] = Query("active", alias="status"),
     agent_id: Optional[int] = None,
+    include_claimed: bool = False,
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
     db: Session = Depends(get_db),
@@ -226,6 +227,19 @@ def browse_listings(
 
     if status_filter:
         query = query.filter(models.Listing.status == status_filter)
+
+    # Hide claimed & completed listings from search — first claim wins, no
+    # double-booking; completed deals stay off the market permanently.
+    if not include_claimed:
+        claimed_ids = (
+            db.query(models.Claim.target_id)
+            .filter(
+                models.Claim.target_type == "listing",
+                models.Claim.status.in_([models.ClaimStatus.claimed, models.ClaimStatus.completed]),
+            )
+            .subquery()
+        )
+        query = query.filter(~models.Listing.id.in_(db.query(claimed_ids.c.target_id)))
     if house_type:
         # Normalize legacy/cosmetic labels to DB enum values (e.g. "Studio" -> "1+0")
         normalized = house_type.strip().lower()

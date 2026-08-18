@@ -51,6 +51,13 @@ class _TTLCache:
 _cache = _TTLCache()
 
 
+def clear_cache():
+    """Drop every cached entry. Called after mutations that change what a
+    cached read-only endpoint returns (e.g. a listing being claimed)."""
+    with _cache._lock:
+        _cache._store.clear()
+
+
 def ttl_cache(ttl_seconds: int = 15):
     """Cache a sync function's return value in-memory for `ttl_seconds`.
 

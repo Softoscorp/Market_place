@@ -1,5 +1,6 @@
 from datetime import datetime
 from typing import Optional
+import enum
 
 from pydantic import BaseModel, EmailStr, Field, ConfigDict, field_validator
 
@@ -209,6 +210,48 @@ class PaginatedListings(BaseModel):
 class LocationCount(BaseModel):
     location: str
     count: int
+
+
+# ============================================================================
+# Claims
+# ============================================================================
+
+class ClaimTargetType(str, enum.Enum):
+    listing = "listing"
+    roommate = "roommate"
+
+
+class ClaimRequest(BaseModel):
+    target_type: ClaimTargetType
+    target_id: int
+
+
+class ClaimOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: int
+    target_type: str
+    target_id: int
+    claimer_id: int
+    claimer_name: Optional[str] = None
+    created_at: datetime
+    completed_at: Optional[datetime] = None
+
+
+class ClaimStatusOut(BaseModel):
+    claimed: bool
+    by_me: bool = False
+    claimer_name: Optional[str] = None
+    created_at: Optional[datetime] = None
+    can_release: bool = False
+
+
+class ClaimTrustOut(BaseModel):
+    trust: int
+    active: int
+    max_active: int
+    completed: int
+    owner_released: int
+    self_cancelled: int
 
 
 # ============================================================================

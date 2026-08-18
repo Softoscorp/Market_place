@@ -5,9 +5,11 @@ import { ChevronLeft, ChevronRight, MessageCircle, Heart, Home, Users, BedDouble
 import { useChatStore } from '@/lib/store/useChatStore';
 import { useLanguageStore } from '@/lib/store/useLanguageStore';
 import { ProtectedImage } from '@/components/ui/ProtectedImage';
+import { ClaimButton } from '@/components/claim/ClaimButton';
 import styles from './RoommateCard.module.css';
 
 interface RoommateCardProps {
+  id: number;
   name: string;
   age: number;
   occupation: string;
@@ -20,9 +22,11 @@ interface RoommateCardProps {
   nationality?: string;
   location?: string;
   gender?: string;
+  onClaimed?: (id: number) => void;
 }
 
 export function RoommateCard({
+  id,
   name,
   age,
   occupation,
@@ -34,7 +38,8 @@ export function RoommateCard({
   houseType,
   nationality,
   location,
-  gender
+  gender,
+  onClaimed
 }: RoommateCardProps) {
   const { openChat } = useChatStore();
   const t = useLanguageStore((s) => s.t);
@@ -115,6 +120,15 @@ export function RoommateCard({
             <MessageCircle size={16} className={styles.messageIcon} />
             {t('rc_message')}
           </button>
+          {onClaimed && (
+            <ClaimButton
+              targetType="roommate"
+              targetId={id}
+              variant="secondary"
+              size="sm"
+              onClaimed={() => onClaimed(id)}
+            />
+          )}
           <button className={styles.btnSecondary} aria-label={t('rc_save')}>
             <Heart size={16} />
           </button>

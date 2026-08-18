@@ -19,10 +19,11 @@ import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/lib/store/useAuthStore';
 import { useChatStore } from '@/lib/store/useChatStore';
 import { useLanguageStore } from '@/lib/store/useLanguageStore';
-import { apiRequest, mediaUrl, deactivateAccount } from '@/lib/api';
+import { apiRequest, mediaUrl, deactivateAccount, releaseClaim, completeClaim } from '@/lib/api';
 import { BrandedAvatar } from '@/components/ui/BrandedAvatar';
 import { VerifiedBadge } from '@/components/ui/VerifiedBadge';
 import { AgentVerification } from '@/components/AgentVerification';
+import { ClaimedBadge } from '@/components/claim/ClaimButton';
 import { isOnline, lastSeenText } from '@/lib/timeAgo';
 import Link from 'next/link';
 import styles from './Dashboard.module.css';
@@ -36,6 +37,14 @@ interface RealListing {
   agent?: { id: number; name: string };
 }
 
+interface ListingClaim {
+  target_type: string;
+  target_id: number;
+  claimer_name?: string | null;
+  claimer_id: number;
+  created_at?: string;
+}
+
 export default function AgentDashboard() {
   const router = useRouter();
   const { user, isAuthenticated, logout } = useAuthStore();
@@ -44,6 +53,7 @@ export default function AgentDashboard() {
   const [activeTab, setActiveTab] = useState('overview');
 
   const [agentListings, setAgentListings] = useState<RealListing[]>([]);
+  const [listingClaims, setListingClaims] = useState<Record<number, ListingClaim>>({});
   const [loadingListings, setLoadingListings] = useState(true);
 
   useEffect(() => {
@@ -58,15 +68,55 @@ export default function AgentDashboard() {
       return;
     }
 
-    // Fetch agent listings specifically for this agent
-    apiRequest(`/listings?agent_id=${user.id}`, { auth: false })
+    // Fetch agent listings specifically for this agent (including claimed ones
+    // so the owner can release them).
+    apiRequest(`/listings?agent_id=${user.id}&include_claimed=true`, { auth: false })
       .then((data) => {
         const items: RealListing[] = data.items || [];
         setAgentListings(items);
+        return items;
       })
       .catch(() => setAgentListings([]))
       .finally(() => setLoadingListings(false));
+
+    apiRequest('/claims/owner?target_type=listing', { auth: true })
+      .then((claims: ListingClaim[]) => {
+        const map: Record<number, ListingClaim> = {};
+        (claims || []).forEach((c) => { map[Number(c.target_id)] = c; });
+        setListingClaims(map);
+      })
+      .catch(() => setListingClaims({}));
   }, [isAuthenticated, user, router]);
+
+  const handleRelease = async (id: string | number) => {
+    if (!window.confirm(t('claim_release_confirm'))) return;
+    try {
+      await releaseClaim('listing', Number(id));
+      setListingClaims((prev) => {
+        const next = { ...prev };
+        delete next[Number(id)];
+        return next;
+      });
+    } catch (err) {
+      console.error(err);
+      alert(t('claim_release_error'));
+    }
+  };
+
+  const handleComplete = async (id: string | number) => {
+    if (!window.confirm(t('claim_complete_confirm'))) return;
+    try {
+      await completeClaim('listing', Number(id));
+      setListingClaims((prev) => {
+        const next = { ...prev };
+        delete next[Number(id)];
+        return next;
+      });
+    } catch (err) {
+      console.error(err);
+      alert(t('claim_complete_error'));
+    }
+  };
 
   if (!isAuthenticated || user?.role !== 'agent') {
     return <div className={styles.loaderContainer}><div className={styles.loader}></div></div>;
@@ -173,23 +223,42 @@ export default function AgentDashboard() {
                     </tr>
                   </thead>
                   <tbody>
-                    {agentListings.map((listing) => (
-                      <tr key={listing.id}>
-                        <td className={styles.fw500}>{listing.title}</td>
-                        <td>{listing.house_type}</td>
-                        <td>£{listing.price}{t('per_month')}</td>
-                        <td>
-                          <span className={`${styles.statusBadge} ${styles.active}`}>
-                            {t('ad_active')}
-                          </span>
-                        </td>
-                        <td>
-                          <Link href={`/property/${listing.id}`} className={styles.viewListingLink}>
-                            {t('ad_view_listing')}
-                          </Link>
-                        </td>
-                      </tr>
-                    ))}
+                    {agentListings.map((listing) => {
+                      const claim = listingClaims[Number(listing.id)];
+                      return (
+                        <tr key={listing.id}>
+                          <td className={styles.fw500}>{listing.title}</td>
+                          <td>{listing.house_type}</td>
+                          <td>£{listing.price}{t('per_month')}</td>
+                          <td>
+                            {claim ? (
+                              <ClaimedBadge claimerName={claim.claimer_name} className={styles.claimBadge} />
+                            ) : (
+                              <span className={`${styles.statusBadge} ${styles.active}`}>
+                                {t('ad_active')}
+                              </span>
+                            )}
+                          </td>
+                          <td>
+                            <div className={styles.actionCell}>
+                              <Link href={`/property/${listing.id}`} className={styles.viewListingLink}>
+                                {t('ad_view_listing')}
+                              </Link>
+                              {claim && (
+                                <>
+                                  <button className={styles.completeBtn} onClick={() => handleComplete(listing.id)}>
+                                    {t('claim_complete')}
+                                  </button>
+                                  <button className={styles.releaseBtn} onClick={() => handleRelease(listing.id)}>
+                                    {t('claim_release')}
+                                  </button>
+                                </>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>

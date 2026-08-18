@@ -189,6 +189,73 @@ export function removeSavedProperty(listingId: number) {
   });
 }
 
+// ============================================================================
+// Claims (first-come-first-served hold on listings / roommates)
+// ============================================================================
+
+export interface ClaimStatus {
+  claimed: boolean;
+  by_me?: boolean;
+  claimer_name?: string | null;
+  created_at?: string | null;
+  can_release?: boolean;
+}
+
+export interface ClaimTrust {
+  trust: number;
+  active: number;
+  max_active: number;
+  completed: number;
+  owner_released: number;
+  self_cancelled: number;
+}
+
+export function claimTarget(targetType: "listing" | "roommate", targetId: number) {
+  return apiRequest("/claims", {
+    method: "POST",
+    body: { target_type: targetType, target_id: targetId },
+    auth: true,
+  });
+}
+
+export function getClaimStatus(targetType: "listing" | "roommate", targetId: number): Promise<ClaimStatus> {
+  return apiRequest(`/claims/status?target_type=${targetType}&target_id=${targetId}`, {
+    auth: true,
+  });
+}
+
+export function releaseClaim(targetType: "listing" | "roommate", targetId: number) {
+  return apiRequest("/claims/release", {
+    method: "POST",
+    body: { target_type: targetType, target_id: targetId },
+    auth: true,
+  });
+}
+
+export function cancelClaim(targetType: "listing" | "roommate", targetId: number) {
+  return apiRequest("/claims/cancel", {
+    method: "POST",
+    body: { target_type: targetType, target_id: targetId },
+    auth: true,
+  });
+}
+
+export function completeClaim(targetType: "listing" | "roommate", targetId: number) {
+  return apiRequest("/claims/complete", {
+    method: "POST",
+    body: { target_type: targetType, target_id: targetId },
+    auth: true,
+  });
+}
+
+export function getMyTrust(): Promise<ClaimTrust> {
+  return apiRequest("/claims/my-trust", { auth: true });
+}
+
+export function getAdminClaims() {
+  return apiRequest("/claims/admin/all", { auth: true });
+}
+
 export function submitKycDocument(documentUrl: string) {
   return apiRequest("/users/me/kyc", {
     method: "POST",

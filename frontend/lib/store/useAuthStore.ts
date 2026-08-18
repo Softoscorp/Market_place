@@ -61,6 +61,10 @@ export function mapBackendUser(
 interface AuthState {
   user: User | null;
   isAuthenticated: boolean;
+  /** True once the persisted store has rehydrated from localStorage.
+   * Guards must wait for this before redirecting, or a refresh on a
+   * protected page flashes the login/signup page first. */
+  hasHydrated: boolean;
   login: (userData: User) => void;
   logout: () => void;
   verifyAgent: () => void;
@@ -78,6 +82,7 @@ export const useAuthStore = create<AuthState>()(
     (set, get) => ({
       user: null,
       isAuthenticated: false,
+      hasHydrated: false,
 
       login: (userData) => {
         if (userData.token) {
@@ -168,6 +173,17 @@ export const useAuthStore = create<AuthState>()(
         }
       },
     }),
-    { name: 'house-agent-auth' }
+    { name: 'house-agent-auth',
+      onRehydrateStorage: () => (state) => {
+        if (!state) return;
+        // Rehydration is synchronous for localStorage, so by the time this
+        // callback runs the store has already been populated. Flip the flag
+        // on the next tick (store is fully assigned) so subscribed guards
+        // re-render and can proceed without a login-page flash.
+        setTimeout(() => {
+          useAuthStore.setState({ hasHydrated: true });
+        }, 0);
+      },
+    }
   )
 );

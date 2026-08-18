@@ -114,7 +114,7 @@ const EMAIL_TEMPLATES: Record<string, { subject: string; content: string }> = {
 
 export default function AdminDashboard() {
   const router = useRouter();
-  const { user, isAuthenticated, logout } = useAuthStore();
+  const { user, isAuthenticated, hasHydrated, logout } = useAuthStore();
   const { t } = useLanguageStore();
   const [activeTabState, setActiveTabState] = useState('overview');
   const activeTab = user?.role === 'customer_care' ? 'chats' : activeTabState;
@@ -139,7 +139,9 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     let timeout: NodeJS.Timeout;
-    if (!isAuthenticated || (user?.role !== 'admin' && user?.role !== 'customer_care')) {
+    if (!hasHydrated) {
+      // wait for persisted store to rehydrate on refresh
+    } else if (!isAuthenticated || (user?.role !== 'admin' && user?.role !== 'customer_care')) {
       router.replace('/login');
     } else {
       timeout = setTimeout(() => {
@@ -162,7 +164,7 @@ export default function AdminDashboard() {
       }, 0);
     }
     return () => clearTimeout(timeout);
-  }, [isAuthenticated, user, router, setActiveTab]);
+  }, [hasHydrated, isAuthenticated, user, router, setActiveTab]);
 
   const handleApproveKYC = async (id: number) => {
     try {

@@ -20,22 +20,27 @@ function previewText(msg: Message, t: (key: string) => string): string {
 export default function MessagesPage() {
   const router = useRouter();
   const t = useLanguageStore((s) => s.t);
-  const { isAuthenticated } = useAuthStore();
+  const { isAuthenticated, hasHydrated } = useAuthStore();
   const { conversations, fetchConversations, openChat, startSupportChat } = useChatStore();
 
   useEffect(() => {
+    if (!hasHydrated) return; // wait for persisted store to rehydrate on refresh
     if (!isAuthenticated) {
       router.replace('/login');
       return;
     }
     fetchConversations();
-  }, [isAuthenticated, fetchConversations, router]);
+  }, [hasHydrated, isAuthenticated, fetchConversations, router]);
 
   const convList = Object.values(conversations).sort((a, b) => {
     const aTime = a.lastMessageAt ?? a.messages[a.messages.length - 1]?.timestamp ?? 0;
     const bTime = b.lastMessageAt ?? b.messages[b.messages.length - 1]?.timestamp ?? 0;
     return bTime - aTime;
   });
+
+  if (!hasHydrated) {
+    return null;
+  }
 
   return (
     <div className={styles.page}>

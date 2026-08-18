@@ -49,7 +49,7 @@ interface ListingClaim {
 
 export default function AgentDashboard() {
   const router = useRouter();
-  const { user, isAuthenticated, logout } = useAuthStore();
+  const { user, isAuthenticated, hasHydrated, logout } = useAuthStore();
   const { openChat, conversations, fetchConversations } = useChatStore();
   const { t } = useLanguageStore();
   const [activeTab, setActiveTab] = useState('overview');
@@ -68,6 +68,7 @@ export default function AgentDashboard() {
   }, [isAuthenticated, fetchConversations]);
 
   useEffect(() => {
+    if (!hasHydrated) return; // wait for persisted store to rehydrate on refresh
     if (!isAuthenticated || user?.role !== 'agent') {
       router.push('/signup');
       return;
@@ -96,7 +97,7 @@ export default function AgentDashboard() {
       .then(setStats)
       .catch(() => setStats(null))
       .finally(() => setLoadingStats(false));
-  }, [isAuthenticated, user, router]);
+  }, [hasHydrated, isAuthenticated, user, router]);
 
   const handleRelease = async (id: string | number) => {
     if (!window.confirm(t('claim_release_confirm'))) return;
@@ -128,7 +129,7 @@ export default function AgentDashboard() {
     }
   };
 
-  if (!isAuthenticated || user?.role !== 'agent') {
+  if (!hasHydrated || !isAuthenticated || user?.role !== 'agent') {
     return <div className={styles.loaderContainer}><div className={styles.loader}></div></div>;
   }
 

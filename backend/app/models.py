@@ -269,7 +269,7 @@ class ListingDailyStat(Base):
     )
 
     id = Column(Integer, primary_key=True, index=True)
-    listing_id = Column(Integer, ForeignKey("listings.id"), nullable=False)
+    listing_id = Column(Integer, ForeignKey("listings.id", ondelete="CASCADE"), nullable=False)
     day = Column(Date, nullable=False)
     views = Column(Integer, nullable=False, default=0)
     clicks = Column(Integer, nullable=False, default=0)

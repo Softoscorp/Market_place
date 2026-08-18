@@ -34,6 +34,8 @@ def _bump_listing_counter(listing_id: int, column: str):
             from sqlalchemy import text
             from datetime import date as _date
             today = _date.today().isoformat()
+            # daily rollup column names differ from listing column names
+            daily_col = "views" if column == "view_count" else "clicks"
             with SessionLocal() as s:
                 s.execute(
                     text(
@@ -48,7 +50,7 @@ def _bump_listing_counter(listing_id: int, column: str):
                         INSERT INTO listing_daily_stats (listing_id, day, views, clicks)
                         VALUES (:id, :day, :views, :clicks)
                         ON CONFLICT (listing_id, day)
-                        DO UPDATE SET {column} = listing_daily_stats.{column} + 1
+                        DO UPDATE SET {daily_col} = listing_daily_stats.{daily_col} + 1
                         """
                     ),
                     {
@@ -59,8 +61,9 @@ def _bump_listing_counter(listing_id: int, column: str):
                     },
                 )
                 s.commit()
-        except Exception:
-            pass
+        except Exception as e:
+            import logging
+            logging.getLogger(__name__).warning("listing counter bump failed for %s: %s", listing_id, e)
 
     _view_executor.submit(_bump)
 

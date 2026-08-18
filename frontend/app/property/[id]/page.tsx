@@ -297,7 +297,7 @@ export default function PropertyPage({ params }: PropertyPageProps) {
 
         <div className={styles.heroCaption}>
           <div className={styles.heroBadges}>
-            <Badge variant="accent">{property.house_type}</Badge>
+            <Badge variant="accent" className={styles.heroHouseBadge}>{property.house_type}</Badge>
             <Badge variant="neutral">{property.furnished ? t('fp_fully_furnished') : t('pd_unfurnished')}</Badge>
             {agent?.verification_tier === 'local' && <Badge variant="verified">{t('dg_local_verified')}</Badge>}
             {agent?.verification_tier === 'international' && <Badge variant="verified">{t('verified')}</Badge>}

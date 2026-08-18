@@ -43,6 +43,7 @@ export function Footer() {
             <h4 className={styles.columnTitle}>{t('footer_company')}</h4>
             <Link href="/about" className={styles.link}>{t('footer_about')}</Link>
             <Link href="/contact" className={styles.link}>{t('footer_contact')}</Link>
+            <Link href="/rules" className={styles.link}>{t('footer_rules')}</Link>
             <Link href="/terms" className={styles.link}>{t('footer_terms')}</Link>
             <Link href="/privacy" className={styles.link}>{t('footer_privacy')}</Link>
           </div>

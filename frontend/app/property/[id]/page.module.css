@@ -213,6 +213,13 @@
   margin-bottom: var(--space-2);
 }
 
+.heroHouseBadge.heroHouseBadge {
+  background-color: var(--brand-surface);
+  color: var(--brand-navy);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow-sm);
+}
+
 .heroTitle {
   font-family: var(--font-heading);
   font-size: clamp(1.5rem, 5vw, 2.1rem);

@@ -280,6 +280,11 @@ export default function SignupPage() {
                       />
                     </div>
 
+                    <p className={styles.rulesNote}>
+                      {t('sg_rules_prefix')}{' '}
+                      <Link href="/rules" className={styles.rulesLink}>{t('sg_rules_link')}</Link>
+                    </p>
+
                     <button 
                       type="submit" 
                       className={styles.submitBtn} 

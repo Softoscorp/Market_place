@@ -316,6 +316,9 @@ export const translations = {
     // ReviewList
     rl_no_reviews: 'No reviews yet.',
 
+    // Agent reviews header
+    ar_reviews_count: 'Agent Reviews ({count})',
+
     // PostRoommateForm
     prf_studio: 'Studio',
     prf_habit_non_smoker: 'Non-smoker',
@@ -1345,6 +1348,9 @@ export const translations = {
 
     // ReviewList
     rl_no_reviews: 'Henüz değerlendirme yok.',
+
+    // Agent reviews header
+    ar_reviews_count: 'Acente Değerlendirmeleri ({count})',
 
     // PostRoommateForm
     prf_studio: 'Stüdyo',

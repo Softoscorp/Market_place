@@ -9,7 +9,10 @@ import { BackButton } from '@/components/ui/BackButton';
 import { useChatStore } from '@/lib/store/useChatStore';
 import { useAuthStore } from '@/lib/store/useAuthStore';
 import { useLanguageStore } from '@/lib/store/useLanguageStore';
-import { getAgentProfile, mediaUrl } from '@/lib/api';
+import { getAgentProfile, getAgentRatings, mediaUrl } from '@/lib/api';
+import { ReviewList } from '@/components/reviews/ReviewList';
+import { ReviewForm } from '@/components/reviews/ReviewForm';
+import { Button } from '@/components/ui/Button';
 
 import styles from './page.module.css';
 
@@ -56,6 +59,8 @@ interface AgentProfile {
   const [profile, setProfile] = useState<AgentProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [reviews, setReviews] = useState<Array<{ id: number; stars: number; comment?: string; created_at: string }>>([]);
+  const [showReviewForm, setShowReviewForm] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -71,6 +76,10 @@ interface AgentProfile {
       }
     }
     loadProfile();
+
+    getAgentRatings(Number(id))
+      .then(setReviews)
+      .catch(console.error);
   }, [id]);
 
   if (loading) {
@@ -162,6 +171,38 @@ interface AgentProfile {
         ) : (
           <p>{t('ag_no_listings')}</p>
         )}
+      </motion.section>
+
+      <motion.section
+        className={styles.reviewsSection}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+      >
+        <div className={styles.reviewsHeader}>
+          <h2 className={`${styles.sectionTitle} ${styles.sectionTitleReset}`}>{t('ar_reviews_count').replace('{count}', String(reviews.length))}</h2>
+          {!showReviewForm && (
+            <Button variant="secondary" onClick={() => setShowReviewForm(true)}>
+              {t('rf_write_review')}
+            </Button>
+          )}
+        </div>
+
+        {showReviewForm && (
+          <div className={styles.reviewsFormWrap}>
+            <ReviewForm
+              targetId={Number(id)}
+              type="agent"
+              onCancel={() => setShowReviewForm(false)}
+              onSuccess={() => {
+                setShowReviewForm(false);
+                getAgentRatings(Number(id)).then(setReviews).catch(console.error);
+              }}
+            />
+          </div>
+        )}
+
+        <ReviewList reviews={reviews} />
       </motion.section>
     </div>
   );

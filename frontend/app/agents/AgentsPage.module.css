@@ -20,7 +20,7 @@
 .title {
   font-family: 'DM Serif Display', serif;
   font-size: 2.5rem;
-  color: var(--text-on-brand);
+  color: var(--text-primary);
   margin: 0;
 }
 
@@ -28,9 +28,9 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: var(--text-secondary);
+  background: var(--blue-muted);
+  border: 1px solid var(--blue-border);
+  color: var(--blue);
   padding: 6px 12px;
   border-radius: var(--radius-full);
   font-size: 0.85rem;
@@ -40,12 +40,12 @@
 }
 
 .infoBtn:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--blue-muted);
   color: var(--text-primary);
 }
 
 .subtitle {
-  color: var(--text-on-brand-muted);
+  color: var(--text-secondary);
   font-size: 1.125rem;
   max-width: 600px;
   margin: 0 auto;

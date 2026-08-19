@@ -261,10 +261,24 @@ def list_agents(db: Session = Depends(get_db)):
         .group_by(models.Listing.agent_id)
     }
     respond_rates = batch_respond_rates(db, agent_ids)
+    rating_summaries = {
+        agent_id: (round(float(avg), 2), count)
+        for agent_id, avg, count in db.query(
+            models.AgentRating.agent_id,
+            func.avg(models.AgentRating.stars),
+            func.count(models.AgentRating.id),
+        )
+        .filter(models.AgentRating.agent_id.in_(agent_ids))
+        .group_by(models.AgentRating.agent_id)
+        .all()
+    }
     for agent in agents:
         out = schemas.PublicUserOut.model_validate(agent)
         out.respond_rate = respond_rates.get(agent.id)
         out.active_listings = active_listing_counts.get(agent.id, 0)
+        avg, count = rating_summaries.get(agent.id, (None, 0))
+        out.average_rating = avg
+        out.total_reviews = count
         results.append(out)
     return results
 

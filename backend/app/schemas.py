@@ -67,6 +67,8 @@ class PublicUserOut(BaseModel):
     avatar_url: Optional[str] = None
     respond_rate: Optional[float] = None
     active_listings: Optional[int] = None
+    average_rating: Optional[float] = None
+    total_reviews: int = 0
     last_seen_at: Optional[datetime] = None
     created_at: datetime
 

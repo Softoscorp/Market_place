@@ -65,6 +65,7 @@ export const translations = {
     agent_reviews: 'Reviews',
     agent_listings: 'Listings',
     agent_response: 'Response',
+    agent_new: 'New',
     contact_agent: 'Contact Agent',
 
     // Footer & Tabs
@@ -1099,6 +1100,7 @@ export const translations = {
     agent_reviews: 'Değerlendirme',
     agent_listings: 'İlan',
     agent_response: 'Yanıt Oranı',
+    agent_new: 'Yeni',
     contact_agent: 'İletişime Geç',
 
     // Footer & Tabs

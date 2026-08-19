@@ -39,6 +39,7 @@ export function ReviewList({ reviews }: ReviewListProps) {
               {new Date(review.created_at).toLocaleDateString()}
             </span>
           </div>
+          {review.comment && <p className={styles.comment}>{review.comment}</p>}
         </div>
       ))}
     </div>

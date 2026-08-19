@@ -52,7 +52,8 @@ def batch_respond_rates(db: Session, agent_ids) -> dict[int, float]:
     rates: dict[int, float] = {}
     for agent_id in agent_ids:
         measurable = measurable_by_agent.get(agent_id, 0)
-        rates[agent_id] = (
-            round((responded_by_agent.get(agent_id, 0) / measurable) * 100, 1) if measurable else 100.0
-        )
+        # No measurable conversations → no rate to report (frontend shows 'New')
+        if not measurable:
+            continue
+        rates[agent_id] = round((responded_by_agent.get(agent_id, 0) / measurable) * 100, 1)
     return rates

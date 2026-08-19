@@ -1,8 +1,8 @@
 import React from 'react';
 import Link from 'next/link';
-import { Star } from 'lucide-react';
 import { useLanguageStore } from '@/lib/store/useLanguageStore';
 import { isOnline, lastSeenText } from '@/lib/timeAgo';
+import { StarRating } from '@/components/ui/StarRating';
 import styles from './AgentCard.module.css';
 
 import { BrandedAvatar } from '@/components/ui/BrandedAvatar';
@@ -72,8 +72,11 @@ export function AgentCard({
       <div className={styles.stats}>
         <div className={styles.statItem}>
           <span className={styles.statValue}>
-            <Star size={12} fill="var(--warning)" color="var(--warning)" aria-hidden="true" className={styles.starIcon} />
-            {rating}
+            {reviews > 0 ? (
+              <StarRating rating={rating} size={14} />
+            ) : (
+              <span className={styles.newRating}>{t('agent_new')}</span>
+            )}
           </span>
           <span className={styles.statLabel}>{reviews} {t('agent_reviews')}</span>
         </div>
@@ -83,7 +86,7 @@ export function AgentCard({
             <span className={styles.statLabel}>{t('agent_listings')}</span>
           </div>
         )}
-        {respondRate !== undefined && (
+        {respondRate != null && (
           <div className={styles.statItem}>
             <span className={styles.statValue}>{respondRate}%</span>
             <span className={styles.statLabel}>{t('agent_response')}</span>

@@ -121,7 +121,7 @@ interface AgentProfile {
             name={agent.name}
             agency={t('independent_agent')}
             imageUrl={mediaUrl(agent.avatar_url) || '/images/listing-placeholder.svg'}
-            rating={average_rating || 5.0}
+            rating={average_rating ?? 0}
             reviews={rating_count || 0}
             activeListings={listings?.length || 0}
             respondRate={agent.respond_rate}

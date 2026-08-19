@@ -128,7 +128,7 @@ class User(Base):
         - Only looks at conversations in the last 60 days
         - A conversation counts as 'responded' if the agent sent at least
           one message within 24 hours of the renter's FIRST message
-        - New agents with zero conversations start at 100%
+        - Agents with no measurable conversations return None (frontend shows 'New')
         """
         from datetime import timedelta
         from sqlalchemy import func
@@ -145,7 +145,7 @@ class User(Base):
         )
 
         if not conversations:
-            return 100.0
+            return None
 
         responded_count = 0
         for conv in conversations:
@@ -189,7 +189,7 @@ class User(Base):
         )
 
         if measurable == 0:
-            return 100.0
+            return None
 
         return round((responded_count / measurable) * 100, 1)
 

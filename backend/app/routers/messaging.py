@@ -145,7 +145,7 @@ def _dispatch_message_notifications(
 def start_conversation(
     payload: schemas.StartConversationRequest,
     db: Session = Depends(get_db),
-    current_user: models.User = Depends(get_current_user),
+    current_user: models.User = Depends(require_renter),
 ):
     agent_id = None
     if payload.listing_id:

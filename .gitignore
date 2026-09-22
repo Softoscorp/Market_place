@@ -46,3 +46,6 @@ yarn-debug.log*
 frontend.zip
 .vercel
 .env*
+
+# Build artifacts
+*.apk

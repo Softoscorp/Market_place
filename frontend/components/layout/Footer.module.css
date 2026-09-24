@@ -89,15 +89,6 @@
   padding: var(--space-1) var(--space-3);
   border-radius: var(--radius-full);
   position: relative;
-  -webkit-tap-highlight-color: transparent;
-}
-
-.tabBtn:active {
-  color: var(--brand-gold);
-}
-
-.tabBtn:active svg {
-  transform: scale(1.1);
 }
 
 .tabBtn svg {
@@ -105,13 +96,28 @@
 }
 
 .tabBtnActive {
-  color: var(--brand-gold);
+  color: var(--text-on-brand);
   font-weight: 700;
 }
 
 .tabBtnActive svg {
-  color: var(--brand-gold);
+  color: var(--text-on-brand);
   transform: scale(1.1);
+}
+
+/* Dark pill indicator behind the icon when active */
+.tabBtnActive::before {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 48px;
+  height: 32px;
+  background-color: var(--brand-navy);
+  border-radius: 999px;
+  z-index: -1;
+  box-shadow: 0 2px 8px rgba(8, 25, 47, 0.25);
 }
 
 .tabBadge {

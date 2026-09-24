@@ -7,14 +7,27 @@
   border-radius: var(--radius-lg);
   overflow: hidden;
   transition: transform var(--duration-normal) var(--ease-spring),
-              box-shadow var(--duration-normal) var(--ease-spring);
+              box-shadow var(--duration-normal) var(--ease-spring),
+              border-color var(--duration-fast) var(--ease-out),
+              background-color var(--duration-fast) var(--ease-out);
   box-shadow: var(--shadow-sm);
+  -webkit-tap-highlight-color: transparent;
 }
 
 .card:hover {
   transform: translateY(-6px) scale(1.02);
   box-shadow: var(--shadow-xl);
   border-color: var(--border-hover);
+}
+
+/* Tap feedback for touch devices — hover never fires there, so without
+   this a tapped card gives no response until the page navigates. */
+.card:active {
+  transform: scale(0.97);
+  box-shadow: var(--shadow-sm);
+  border-color: var(--border-accent);
+  background-color: var(--bg-hover);
+  transition-duration: var(--duration-fast);
 }
 
 .hero {
@@ -89,6 +102,12 @@
 .saveButton:hover {
   transform: scale(1.1);
   color: var(--danger);
+}
+
+.saveButton:active {
+  transform: scale(0.9);
+  color: var(--danger);
+  transition-duration: var(--duration-fast);
 }
 
 .saveButton.saved {

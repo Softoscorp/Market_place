@@ -89,6 +89,15 @@
   padding: var(--space-1) var(--space-3);
   border-radius: var(--radius-full);
   position: relative;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.tabBtn:active {
+  color: var(--brand-navy);
+}
+
+.tabBtn:active svg {
+  transform: scale(1.1);
 }
 
 .tabBtn svg {

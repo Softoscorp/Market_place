@@ -161,8 +161,8 @@ function SearchResults() {
                     location={prop.location}
                     price={prop.price}
                     type={prop.house_type}
-                    bedrooms={prop.bedrooms ?? 1}
-                    bathrooms={prop.bathrooms ?? 1}
+                    bedrooms={parseInt(prop.house_type?.split('+')[0]) || 1}
+                    bathrooms={1}
                     sizeSqf={prop.size_sqf ?? 0}
                     upfrontMonths={prop.upfront_rent_months}
                     depositMonths={prop.deposit_months}

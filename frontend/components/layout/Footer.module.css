@@ -93,7 +93,7 @@
 }
 
 .tabBtn:active {
-  color: var(--brand-navy);
+  color: var(--brand-gold);
 }
 
 .tabBtn:active svg {
@@ -105,28 +105,13 @@
 }
 
 .tabBtnActive {
-  color: var(--text-on-brand);
+  color: var(--brand-gold);
   font-weight: 700;
 }
 
 .tabBtnActive svg {
-  color: var(--text-on-brand);
+  color: var(--brand-gold);
   transform: scale(1.1);
-}
-
-/* Dark pill indicator behind the icon when active */
-.tabBtnActive::before {
-  content: '';
-  position: absolute;
-  top: 2px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 48px;
-  height: 32px;
-  background-color: var(--brand-navy);
-  border-radius: 999px;
-  z-index: -1;
-  box-shadow: 0 2px 8px rgba(8, 25, 47, 0.25);
 }
 
 .tabBadge {
